@@ -1,0 +1,1107 @@
+[
+  {
+    "symbol": "HUM",
+    "company": "Humana",
+    "aliases": [
+      "Humana"
+    ],
+    "cik": "0000049071",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-06T19:00:00+08:00",
+    "forecast_at": "2026-11-06T19:00+08:00",
+    "window_start": "2026-11-06T18:30:00+08:00",
+    "window_end": "2026-11-06T21:00:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://humana.gcs-web.com/rss/news-releases.xml",
+        "kind": "rss"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0000049071.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.businesswire.com/newsroom?keywords=Humana",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "BAM",
+    "company": "Brookfield Asset Management",
+    "aliases": [
+      "Brookfield Asset Management"
+    ],
+    "cik": "0001937926",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-06T20:00:00+08:00",
+    "forecast_at": "2026-11-06T19:45+08:00",
+    "window_start": "2026-11-06T13:00:00+08:00",
+    "window_end": "2026-11-06T21:00:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://bam.brookfield.com/events-news/press-releases",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001937926.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.globenewswire.com/search/keyword/Brookfield%20Asset%20Management",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "ENB",
+    "company": "Enbridge",
+    "aliases": [
+      "Enbridge"
+    ],
+    "cik": "0000895728",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-06T22:30:00+08:00",
+    "forecast_at": "2026-11-06T20:00+08:00",
+    "window_start": "2026-11-06T13:00:00+08:00",
+    "window_end": "2026-11-06T23:30:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://enbridge.mediaroom.com/index.php?s=2429",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0000895728.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.prnewswire.com/search/news/?keyword=Enbridge",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "OKLO",
+    "company": "Oklo",
+    "aliases": [
+      "Oklo"
+    ],
+    "cik": "0001849056",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-06T21:30:00+08:00",
+    "forecast_at": "2026-11-06T20:00+08:00",
+    "window_start": "2026-11-06T13:00:00+08:00",
+    "window_end": "2026-11-06T22:30:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://oklo.com/newsroom",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001849056.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3AOklo",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "MSGK",
+    "company": "MSG Knickerbockers Corp.",
+    "aliases": [
+      "MSG Knickerbockers",
+      "Madison Square Garden Sports"
+    ],
+    "cik": "0001636519",
+    "fiscal_year": 2027,
+    "quarter": 1,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-06T22:30:00+08:00",
+    "forecast_at": null,
+    "window_start": "2026-11-06T13:00:00+08:00",
+    "window_end": "2026-11-06T23:30:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://www.msgknicks.com/company-news/",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001636519.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3AMSG+Knickerbockers",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "MSGR",
+    "company": "MSG Rangers Corp.",
+    "aliases": [
+      "MSG Rangers",
+      "MSG Rangers Corp."
+    ],
+    "cik": "0002132873",
+    "fiscal_year": 2027,
+    "quarter": 1,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-06T22:30:00+08:00",
+    "forecast_at": null,
+    "window_start": "2026-11-06T13:00:00+08:00",
+    "window_end": "2026-11-06T23:30:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://www.msgrangers.com/company-news/",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0002132873.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3AMSG+Rangers",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "BRK.B",
+    "company": "伯克希尔哈撒韦",
+    "aliases": [
+      "Berkshire Hathaway",
+      "Berkshire Hathaway Inc."
+    ],
+    "cik": "0001067983",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-07T21:00:00+08:00",
+    "forecast_at": "2026-11-07T21:00+08:00",
+    "window_start": "2026-11-07T20:30:00+08:00",
+    "window_end": "2026-11-07T23:00:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://www.berkshirehathaway.com/reports.html",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001067983.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.businesswire.com/newsroom?keywords=Berkshire%20Hathaway",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "SOHU",
+    "company": "搜狐",
+    "aliases": [
+      "Sohu",
+      "Sohu.com",
+      "Sohu.com Limited"
+    ],
+    "cik": "0001734107",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-09T20:30:00+08:00",
+    "forecast_at": "2026-11-09T14:00+08:00",
+    "window_start": "2026-11-09T13:00:00+08:00",
+    "window_end": "2026-11-09T21:30:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://investors.sohu.com/rss/news-releases.xml",
+        "kind": "rss"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001734107.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.prnewswire.com/search/news/?keyword=Sohu.com",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "B",
+    "company": "Barrick Mining",
+    "aliases": [
+      "Barrick Mining",
+      "Barrick"
+    ],
+    "cik": "0000756894",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-09T19:00:00+08:00",
+    "forecast_at": "2026-11-09T19:00+08:00",
+    "window_start": "2026-11-09T18:30:00+08:00",
+    "window_end": "2026-11-09T21:00:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://www.barrick.com/English/news/default.aspx",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0000756894.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.globenewswire.com/search/keyword/Barrick%20Mining",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "FERG",
+    "company": "Ferguson Enterprises",
+    "aliases": [
+      "Ferguson Enterprises"
+    ],
+    "cik": "0002011641",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-09T19:45:00+08:00",
+    "forecast_at": "2026-11-09T19:45+08:00",
+    "window_start": "2026-11-09T19:15:00+08:00",
+    "window_end": "2026-11-09T21:45:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://www.corporate.ferguson.com/rss/pressrelease.aspx",
+        "kind": "rss"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0002011641.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.businesswire.com/newsroom?keywords=Ferguson%20Enterprises",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "KKR",
+    "company": "KKR",
+    "aliases": [
+      "KKR",
+      "KKR & Co.",
+      "KKR & Co. Inc.",
+      "Kohlberg Kravis Roberts"
+    ],
+    "cik": "0001404912",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-09T22:30:00+08:00",
+    "forecast_at": "2026-11-09T19:50+08:00",
+    "window_start": "2026-11-09T13:00:00+08:00",
+    "window_end": "2026-11-09T23:30:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://ir.kkr.com/",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001404912.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.businesswire.com/newsroom?keywords=KKR",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "CECO",
+    "company": "CECO Environmental",
+    "aliases": [
+      "CECO Environmental"
+    ],
+    "cik": "0000003197",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-09T22:30:00+08:00",
+    "forecast_at": "2026-11-09T20:00+08:00",
+    "window_start": "2026-11-09T13:00:00+08:00",
+    "window_end": "2026-11-09T23:30:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://investors.cecoenviro.com/news-events/news-releases",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0000003197.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.globenewswire.com/search/keyword/CECO%20Environmental",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "TGTX",
+    "company": "TG Therapeutics",
+    "aliases": [
+      "TG Therapeutics"
+    ],
+    "cik": "0001001316",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-09T21:30:00+08:00",
+    "forecast_at": "2026-11-09T20:00+08:00",
+    "window_start": "2026-11-09T13:00:00+08:00",
+    "window_end": "2026-11-09T22:30:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://ir.tgtherapeutics.com/press-releases",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001001316.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3ATG%20Therapeutics",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "SKYD",
+    "company": "Skydance",
+    "aliases": [
+      "Skydance",
+      "Paramount Skydance"
+    ],
+    "cik": "0002041610",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-10T06:00:00+08:00",
+    "forecast_at": "2026-11-10T05:00+08:00",
+    "window_start": "2026-11-09T13:00:00+08:00",
+    "window_end": "2026-11-10T07:00:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://ir.skydance.com/events-news/press-releases",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0002041610.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.prnewswire.com/search/news/?keyword=Skydance",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "TTD",
+    "company": "The Trade Desk",
+    "aliases": [
+      "The Trade Desk"
+    ],
+    "cik": "0001671933",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-10T05:00:00+08:00",
+    "forecast_at": "2026-11-10T05:01+08:00",
+    "window_start": "2026-11-10T04:45:00+08:00",
+    "window_end": "2026-11-10T12:59:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://www.thetradedesk.com/press-room",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001671933.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3AThe%20Trade%20Desk",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "XENE",
+    "company": "Xenon Pharmaceuticals",
+    "aliases": [
+      "Xenon Pharmaceuticals"
+    ],
+    "cik": "0001582313",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-10T05:00:00+08:00",
+    "forecast_at": "2026-11-10T05:01+08:00",
+    "window_start": "2026-11-10T04:45:00+08:00",
+    "window_end": "2026-11-10T12:59:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://investor.xenon-pharma.com/news-events/press-releases",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001582313.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.globenewswire.com/search/keyword/Xenon%20Pharmaceuticals",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "ACHR",
+    "company": "Archer Aviation",
+    "aliases": [
+      "Archer Aviation"
+    ],
+    "cik": "0001824502",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-10T05:00:00+08:00",
+    "forecast_at": "2026-11-10T05:05+08:00",
+    "window_start": "2026-11-10T04:45:00+08:00",
+    "window_end": "2026-11-10T12:59:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://investors.archer.com/rss/pressrelease.aspx",
+        "kind": "rss"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001824502.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3AArcher%20Aviation",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "HIMS",
+    "company": "Hims & Hers",
+    "aliases": [
+      "Hims & Hers",
+      "Hims and Hers",
+      "Hims & Hers Health"
+    ],
+    "cik": "0001773751",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-10T05:00:00+08:00",
+    "forecast_at": "2026-11-10T05:05+08:00",
+    "window_start": "2026-11-10T04:45:00+08:00",
+    "window_end": "2026-11-10T12:59:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://investors.hims.com/rss/pressrelease.aspx",
+        "kind": "rss"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001773751.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.businesswire.com/newsroom?keywords=Hims%20%26%20Hers",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "LCID",
+    "company": "Lucid",
+    "aliases": [
+      "Lucid"
+    ],
+    "cik": "0001811210",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-10T06:30:00+08:00",
+    "forecast_at": "2026-11-10T05:05+08:00",
+    "window_start": "2026-11-09T13:00:00+08:00",
+    "window_end": "2026-11-10T07:30:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://ir.lucidmotors.com/financials/quarterly-results",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001811210.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.prnewswire.com/news/lucid-group/",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "RKLB",
+    "company": "Rocket Lab",
+    "aliases": [
+      "Rocket Lab"
+    ],
+    "cik": "0001819994",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-10T05:00:00+08:00",
+    "forecast_at": "2026-11-10T05:05+08:00",
+    "window_start": "2026-11-10T04:45:00+08:00",
+    "window_end": "2026-11-10T12:59:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://investors.rocketlabcorp.com/news",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001819994.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.globenewswire.com/search/keyword/Rocket%20Lab",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "TTWO",
+    "company": "Take-Two Interactive",
+    "aliases": [
+      "Take-Two Interactive"
+    ],
+    "cik": "0000946581",
+    "fiscal_year": 2027,
+    "quarter": 2,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-10T05:00:00+08:00",
+    "forecast_at": "2026-11-10T05:05+08:00",
+    "window_start": "2026-11-10T04:45:00+08:00",
+    "window_end": "2026-11-10T12:59:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://www.take2games.com/ir/press-releases",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0000946581.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3ATake-Two%20Interactive",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "OXY",
+    "company": "Occidental",
+    "aliases": [
+      "Occidental"
+    ],
+    "cik": "0000797468",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-10T05:00:00+08:00",
+    "forecast_at": "2026-11-10T05:15+08:00",
+    "window_start": "2026-11-10T04:45:00+08:00",
+    "window_end": "2026-11-10T12:59:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://www.oxy.com/investors/quarterly-earnings/",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0000797468.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.globenewswire.com/search/keyword/Occidental",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "ONON",
+    "company": "On Holding",
+    "aliases": [
+      "On Holding"
+    ],
+    "cik": "0001858985",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-10T22:30:00+08:00",
+    "forecast_at": "2026-11-10T18:00+08:00",
+    "window_start": "2026-11-10T13:00:00+08:00",
+    "window_end": "2026-11-10T23:30:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://investors.on-running.com/rss/pressrelease.aspx",
+        "kind": "rss"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001858985.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3AOn%20Holding",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "SE",
+    "company": "Sea",
+    "aliases": [
+      "Sea Limited"
+    ],
+    "cik": "0001703399",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-10T22:30:00+08:00",
+    "forecast_at": "2026-11-10T19:30+08:00",
+    "window_start": "2026-11-10T13:00:00+08:00",
+    "window_end": "2026-11-10T23:30:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://www.sea.com/api/financial/resource",
+        "kind": "sea_financial_json"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001703399.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3ASea",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "QBTS",
+    "company": "D-Wave Quantum",
+    "aliases": [
+      "D-Wave Quantum"
+    ],
+    "cik": "0001907982",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-10T22:30:00+08:00",
+    "forecast_at": "2026-11-10T20:00+08:00",
+    "window_start": "2026-11-10T13:00:00+08:00",
+    "window_end": "2026-11-10T23:30:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://ir.dwavequantum.com/rss/pressrelease.aspx",
+        "kind": "rss"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001907982.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3AD-Wave%20Quantum",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "TDG",
+    "company": "TransDigm Group",
+    "aliases": [
+      "TransDigm Group"
+    ],
+    "cik": "0001260221",
+    "fiscal_year": 2026,
+    "quarter": 4,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-10T22:30:00+08:00",
+    "forecast_at": "2026-11-10T20:15+08:00",
+    "window_start": "2026-11-10T13:00:00+08:00",
+    "window_end": "2026-11-10T23:30:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://www.transdigm.com/investor-relations/news-releases/",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001260221.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.prnewswire.com/search/news/?keyword=TransDigm%20Group",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "MRDN",
+    "company": "Meridian Holdings",
+    "aliases": [
+      "Meridian Holdings"
+    ],
+    "cik": "0001437925",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-10T22:30:00+08:00",
+    "forecast_at": "2026-11-17T19:00+08:00",
+    "window_start": "2026-11-10T13:00:00+08:00",
+    "window_end": "2026-11-10T23:30:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://meridian-holdings.com/quarterly-results/",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001437925.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.newmediawire.com/",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "NCMI",
+    "company": "National CineMedia",
+    "aliases": [
+      "National CineMedia"
+    ],
+    "cik": "0001377630",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-10-01",
+    "scheduled_at": "2026-11-11T05:00:00+08:00",
+    "forecast_at": "2026-11-11T05:05+08:00",
+    "window_start": "2026-11-11T04:45:00+08:00",
+    "window_end": "2026-11-11T12:59:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://nationalcinemedia.gcs-web.com/news/press-releases",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001377630.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.businesswire.com/newsroom?keywords=National%20CineMedia",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "RGTI",
+    "company": "Rigetti Computing",
+    "aliases": [
+      "Rigetti Computing"
+    ],
+    "cik": "0001838359",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-11T05:00:00+08:00",
+    "forecast_at": "2026-11-11T05:05+08:00",
+    "window_start": "2026-11-11T04:45:00+08:00",
+    "window_end": "2026-11-11T12:59:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://investors.rigetti.com/rss/news-releases.xml",
+        "kind": "rss"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001838359.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.globenewswire.com/search/keyword/Rigetti%20Computing",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "GIB",
+    "company": "CGI",
+    "aliases": [
+      "CGI Inc.",
+      "CGI Inc",
+      "CGI Group",
+      "CGI"
+    ],
+    "cik": "0001061574",
+    "fiscal_year": 2026,
+    "quarter": 4,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-11T22:30:00+08:00",
+    "forecast_at": "2026-11-11T19:30+08:00",
+    "window_start": "2026-11-11T13:00:00+08:00",
+    "window_end": "2026-11-11T23:30:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://www.cgi.com/en/newsroom",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001061574.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.prnewswire.com/search/news/?keyword=CGI",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "FNV",
+    "company": "Franco-Nevada",
+    "aliases": [
+      "Franco-Nevada"
+    ],
+    "cik": "0001456346",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-12T05:00:00+08:00",
+    "forecast_at": "2026-11-12T06:30+08:00",
+    "window_start": "2026-11-12T04:45:00+08:00",
+    "window_end": "2026-11-12T12:59:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://www.franco-nevada.com/investors/news-releases/",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001456346.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.prnewswire.com/search/news/?keyword=Franco-Nevada",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "BN",
+    "company": "Brookfield Corporation",
+    "aliases": [
+      "Brookfield Corporation"
+    ],
+    "cik": "0001001085",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-12T20:00:00+08:00",
+    "forecast_at": "2026-11-12T19:45+08:00",
+    "window_start": "2026-11-12T19:30:00+08:00",
+    "window_end": "2026-11-12T22:00:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://bn.brookfield.com/events-news/press-releases",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001001085.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.globenewswire.com/search/organization/Brookfield%2520Corporation",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "NBIS",
+    "company": "Nebius Group",
+    "aliases": [
+      "Nebius Group"
+    ],
+    "cik": "0001513845",
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_end": "2026-09-30",
+    "scheduled_at": "2026-11-12T22:30:00+08:00",
+    "forecast_at": "2026-11-12T20:42+08:00",
+    "window_start": "2026-11-12T13:00:00+08:00",
+    "window_end": "2026-11-12T23:30:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://nebius.com/newsroom",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001513845.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.businesswire.com/newsroom?searchTerm=Nebius",
+        "kind": "html"
+      }
+    ]
+  },
+  {
+    "symbol": "CSCO",
+    "company": "思科",
+    "aliases": [
+      "Cisco",
+      "Cisco Systems",
+      "Cisco Systems Inc."
+    ],
+    "cik": "0000858877",
+    "fiscal_year": 2027,
+    "quarter": 1,
+    "period_end": "2026-10-24",
+    "scheduled_at": "2026-11-13T05:00:00+08:00",
+    "forecast_at": "2026-11-13T05:05+08:00",
+    "window_start": "2026-11-13T04:45:00+08:00",
+    "window_end": "2026-11-13T12:59:00+08:00",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://newsroom.cisco.com/c/r/newsroom/en/us/index.html",
+        "kind": "html"
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0000858877.json",
+        "kind": "sec_json"
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.prnewswire.com/news/cisco-systems%2C-inc./",
+        "kind": "html"
+      }
+    ]
+  }
+]

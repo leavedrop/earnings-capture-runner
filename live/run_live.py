@@ -1,0 +1,249 @@
+"""Run the existing collector in one US window and publish safe evidence to this repo."""
+from __future__ import annotations
+
+import argparse
+import base64
+from contextlib import closing
+from datetime import datetime, timedelta, timezone
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import signal
+import sqlite3
+import subprocess
+import sys
+import tempfile
+import time
+
+import httpx
+
+BASE = Path(__file__).resolve().parent
+sys.path.insert(0, str(BASE))
+import progress
+
+PUBLIC_REPORT = re.compile(r"reports/[A-Za-z0-9._-]+\.(?:html|pdf|txt|json)")
+
+
+def utc():
+    return datetime.now(timezone.utc).isoformat(timespec="milliseconds")
+
+
+def public_bytes(value):
+    body = value if isinstance(value, bytes) else json.dumps(value, ensure_ascii=False, indent=2).encode()
+    identity = os.environ.get("SEC_USER_AGENT", "")
+    private = [identity, os.environ.get("GITHUB_TOKEN", ""), *re.findall(r"\S+@\S+", identity)]
+    if any(secret and secret.encode() in body for secret in private):
+        raise ValueError("Private identity or token found in public evidence")
+    return body
+
+
+def write_public(path, value):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(public_bytes(value))
+
+
+def snapshot(runtime, checkout, metadata, cached):
+    """Whitelist projection only: never publish the source DB, headers or metadata."""
+    database = runtime / "observations.sqlite3"
+    failures, requests, failed_requests = [], 0, 0
+    if database.exists():
+        with closing(sqlite3.connect(database.as_uri() + "?mode=ro", uri=True)) as connection:
+            connection.execute("PRAGMA query_only=ON")
+            starts = {json.loads(payload)["run_id"]: datetime.fromtimestamp(at / 1e9, timezone.utc)
+                      for at, payload in connection.execute("select at_ns,payload from log where kind='run_start'")}
+            for ident, payload in connection.execute("select id,payload from log where kind='capture' order by id"):
+                if ident in cached:
+                    continue
+                record = json.loads(payload)
+                row = progress.capture_row(record, runtime, runtime, starts.get(record.get("run_id")))
+                stem = "reports/" + row["symbol"].replace(".", "_") + "_" + row["channel"] + "_" + record["sha256"][:12]
+                artifacts = []
+                for artifact in row["artifacts"]:
+                    relative = artifact["path"]
+                    source = (runtime / relative).resolve()
+                    if not PUBLIC_REPORT.fullmatch(relative) or source.parent != runtime / "reports":
+                        raise ValueError("Artifact outside the public reports directory")
+                    body = source.read_bytes()
+                    if source.suffix in (".html", ".pdf") and hashlib.sha256(body).hexdigest() != record["sha256"]:
+                        raise ValueError("Original report SHA-256 mismatch")
+                    write_public(checkout / relative, body)
+                    artifacts.append({"path": relative, "sha256": hashlib.sha256(body).hexdigest(),
+                                      "bytes": len(body), "kind": source.suffix[1:]})
+                report = json.loads((runtime / (stem + ".json")).read_text(encoding="utf-8"))
+                parsed = {"text": (runtime / (stem + ".txt")).read_text(encoding="utf-8"),
+                          "tables": report["tables"]}
+                parsed.update({key: report[key] for key in ("table_details", "page_diagnostics") if key in report})
+                body = public_bytes(parsed)
+                write_public(checkout / (stem + ".json"), body)
+                artifacts.append({"path": stem + ".json", "sha256": hashlib.sha256(body).hexdigest(),
+                                  "bytes": len(body), "kind": "json"})
+                row.update(evidence_id=metadata["run_id"] + ":" + str(ident),
+                           mode="live", retry=record.get("retry"),
+                           artifacts=artifacts, sha256=record["sha256"],
+                           started_utc=record.get("discovered_utc"), parsed_utc=record.get("validated_utc"),
+                           parse_ms=record.get("parse_ms"), queue_ms=record.get("queue_ms"))
+                cached[ident] = row
+            groups = connection.execute("""
+                select symbol,channel,json_extract(payload,'$.status'),
+                    case when json_extract(payload,'$.status') is null then
+                      substr(coalesce(json_extract(payload,'$.error'),'RequestError'),1,
+                        case when instr(coalesce(json_extract(payload,'$.error'),''),':')>0
+                        then instr(json_extract(payload,'$.error'),':')-1 else 40 end)
+                    else '' end,
+                    count(*),max(at_ns) from log where kind='request' group by 1,2,3,4
+            """).fetchall()
+            for symbol, channel, status, error_type, count, at in groups:
+                requests += count
+                if status is not None and status < 400:
+                    continue
+                failed_requests += count
+                failures.append({"symbol": symbol, "channel": channel,
+                                 "failure_type": "HTTP " + str(status) if status is not None else
+                                 error_type if re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,39}", error_type) else "RequestError",
+                                 "count": count, "lastseen": datetime.fromtimestamp(at / 1e9, timezone.utc).isoformat()})
+    status = progress.read_json(runtime / "status.json")
+    data = {**metadata, "schema_version": 1, "updated_utc": utc(),
+            "collector_heartbeat_utc": status.get("updated_utc"),
+            "captures": list(cached.values()), "capture_count": len(cached),
+            "source_patrols": progress.source_patrols(status, "US live runner"),
+            "request_failures": {"requests": requests, "failed_requests": failed_requests},
+            "failure_groups": failures,
+            "publication_scope": "Public documents and safe fields; no raw database, headers or private identity",
+            "timing_scope": "Discovery to full parse; CI startup and evidence publication are outside this duration"}
+    write_public(checkout / "latest.json", data)
+    write_public(checkout / "runs" / metadata["run_id"] / "latest.json", data)
+    return data
+
+
+def git(arguments, directory, env):
+    result = subprocess.run(["git", *arguments], cwd=directory, env=env, capture_output=True, text=True)
+    if result.returncode:
+        raise RuntimeError("Evidence git operation failed: " + arguments[0])
+    return result.stdout.strip()
+
+
+def evidence_checkout(directory, repository, token):
+    env = dict(os.environ)
+    authorization = base64.b64encode(("x-access-token:" + token).encode()).decode()
+    env.update(GIT_TERMINAL_PROMPT="0", GIT_CONFIG_COUNT="1",
+               GIT_CONFIG_KEY_0="http.https://github.com/.extraheader",
+               GIT_CONFIG_VALUE_0="AUTHORIZATION: basic " + authorization)
+    git(["init", "--quiet"], directory, env)
+    git(["remote", "add", "origin", "https://github.com/" + repository + ".git"], directory, env)
+    exists = git(["ls-remote", "--heads", "origin", "refs/heads/evidence"], directory, env)
+    if exists:
+        git(["fetch", "--depth=1", "origin", "evidence"], directory, env)
+        git(["checkout", "-B", "evidence", "FETCH_HEAD"], directory, env)
+    else:
+        git(["checkout", "--orphan", "evidence"], directory, env)
+    git(["config", "user.name", "github-actions[bot]"], directory, env)
+    git(["config", "user.email", "41898282+github-actions[bot]@users.noreply.github.com"], directory, env)
+    (directory / ".gitattributes").write_text("reports/** -text\n", encoding="utf-8")
+    return env
+
+
+def publish(checkout, env, run_id):
+    git(["add", "--", ".gitattributes", "latest.json", "runs/" + run_id], checkout, env)
+    if (checkout / "reports").exists():
+        git(["add", "--", "reports"], checkout, env)
+    if git(["diff", "--cached", "--name-only"], checkout, env):
+        git(["commit", "--quiet", "-m", "Update public live earnings evidence"], checkout, env)
+        git(["push", "origin", "HEAD:refs/heads/evidence"], checkout, env)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--duration-minutes", type=int, default=300)
+    parser.add_argument("--symbols", default="")
+    parser.add_argument("--output", type=Path, default=BASE / "outputs")
+    args = parser.parse_args()
+    if not 1 <= args.duration_minutes <= 300:
+        parser.error("duration must be between 1 and 300 minutes")
+    repository, token = os.environ.get("GITHUB_REPOSITORY", ""), os.environ.get("GITHUB_TOKEN", "")
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repository) or not token:
+        parser.error("This entry requires its own GitHub repository and job token")
+    hashes = json.loads((BASE / "source_manifest.json").read_text(encoding="utf-8"))
+    if any(hashlib.sha256((BASE / name).read_bytes()).hexdigest() != value["sha256"] for name, value in hashes.items()):
+        raise ValueError("Production source copy hash mismatch")
+    args.output = args.output.resolve()
+    args.output.mkdir(parents=True, exist_ok=False)
+    runtime = args.output / "private_runtime"
+    runtime.mkdir()
+    run_id = os.environ.get("GITHUB_RUN_ID", "") + "-" + os.environ.get("GITHUB_RUN_ATTEMPT", "1")
+    if not re.fullmatch(r"[0-9]+-[0-9]+", run_id):
+        raise ValueError("Expected a GitHub run identity")
+    stop = False
+    def interrupt(signum, frame):
+        nonlocal stop
+        stop = True
+    signal.signal(signal.SIGTERM, interrupt)
+    signal.signal(signal.SIGINT, interrupt)
+    with tempfile.TemporaryDirectory(prefix="earnings-public-evidence-") as temporary:
+        checkout = Path(temporary)
+        env = evidence_checkout(checkout, repository, token)
+        node = {"loc": None, "colo": None}
+        try:
+            with httpx.Client(trust_env=False, timeout=10) as client:
+                response = client.get("https://www.cloudflare.com/cdn-cgi/trace")
+            if response.status_code == 200:
+                fields = dict(line.split("=", 1) for line in response.text.splitlines() if line.startswith(("loc=", "colo=")))
+                node = {"loc": fields.get("loc"), "colo": fields.get("colo")}
+        except httpx.HTTPError:
+            pass
+        started = datetime.now(timezone.utc)
+        until = min(started + timedelta(minutes=args.duration_minutes), datetime.fromisoformat("2026-11-13T13:03:00+08:00"))
+        metadata = {"run_id": run_id, "node": node, "started_utc": started.isoformat(),
+                    "until_utc": until.isoformat(), "state": "starting", "mode": "live",
+                    "source_sha256": hashes, "startup_gap_semantics": "Monitoring starts only after the collector's first actual source request"}
+        cached = {}
+        if node.get("loc") != "US" or not node.get("colo") or not os.environ.get("SEC_USER_AGENT", "").strip() or until <= started:
+            metadata["state"] = "not_us" if node.get("loc") != "US" or not node.get("colo") else "deadline_reached" if until <= started else "identity_missing"
+            data = snapshot(runtime, checkout, metadata, cached)
+            publish(checkout, env, run_id)
+            write_public(args.output / "latest.json", data)
+            return 1
+        child_env = dict(os.environ)
+        for key in ("GITHUB_TOKEN", "GH_TOKEN", "HTTPS_PROXY", "HTTP_PROXY", "ALL_PROXY", "https_proxy", "http_proxy", "all_proxy"):
+            child_env.pop(key, None)
+        command = [sys.executable, str(BASE / "watch.py"), "run", "--manifest", str(BASE / "watchlist.json"),
+                   "--output", str(runtime), "--symbols", args.symbols,
+                   "--node", "github-actions-" + node["loc"] + "-" + node["colo"] + "-" + run_id,
+                   "--until", until.isoformat()]
+        with (runtime / "launcher.log").open("w", encoding="utf-8") as log:
+            process = subprocess.Popen(command, env=child_env, cwd=BASE, stdout=log, stderr=log)
+            last_publish, last_count = 0., -1
+            try:
+                while process.poll() is None and not stop and datetime.now(timezone.utc) < until:
+                    count = 0
+                    database = runtime / "observations.sqlite3"
+                    if database.exists():
+                        with closing(sqlite3.connect(database.as_uri() + "?mode=ro", uri=True)) as connection:
+                            count = connection.execute("select count(*) from log where kind='capture'").fetchone()[0]
+                    if time.monotonic() - last_publish >= 120 or count != last_count and time.monotonic() - last_publish >= 10:
+                        metadata["state"] = "running"
+                        try:
+                            data = snapshot(runtime, checkout, metadata, cached)
+                            publish(checkout, env, run_id)
+                            write_public(args.output / "latest.json", data)
+                        except Exception as exc:
+                            print("Public evidence publication failed: " + type(exc).__name__, flush=True)
+                        last_publish, last_count = time.monotonic(), count
+                    time.sleep(5)
+            finally:
+                (runtime / "STOP").touch()
+                try:
+                    process.wait(timeout=60)
+                except subprocess.TimeoutExpired:
+                    process.terminate()
+                    process.wait(timeout=15)
+                metadata.update(state="finished" if process.returncode == 0 else "collector_failed", collector_exit_code=process.returncode)
+                data = snapshot(runtime, checkout, metadata, cached)
+                publish(checkout, env, run_id)
+                write_public(args.output / "latest.json", data)
+    return 0 if process.returncode == 0 else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

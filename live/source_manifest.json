@@ -1,0 +1,42 @@
+{
+  "watch.py": {
+    "sha256": "d9c1c87eda21334769493c6db1bdf40fe9235668f72fdfc496a5447e343d2ae5",
+    "production_sha256": "3f722886dac16ea8dd200ab8a2c795e4be0b3594e612dbbab07af9c1ca3499c3",
+    "normalization": "UTF-8 LF; code unchanged",
+    "source": "watch.py"
+  },
+  "sources.py": {
+    "sha256": "a195d26d0b030b766fec988daef4710cba5e079f839961f8c308e2ae76d1b361",
+    "production_sha256": "fa0cf3bd2aee02ca822caee6b793e55e3938c244ff2a581c9ebdb130332e23dd",
+    "normalization": "UTF-8 LF; code unchanged",
+    "source": "sources.py"
+  },
+  "pdf_tables.py": {
+    "sha256": "fc5ab98582be508c82a1c024dab6f55e8058c3d82557fda3a95f435d419df703",
+    "production_sha256": "a0c647760486c14734db43679bd52f06efc5119be73ea2c7a2c4cfdfb301a3e2",
+    "normalization": "UTF-8 LF; code unchanged",
+    "source": "pdf_tables.py"
+  },
+  "network.py": {
+    "sha256": "b9a1846180a3974bfa20c45224ac2dfbfe3e9088daac0a3a5f2a4f72d0b80f70",
+    "production_sha256": "b9a1846180a3974bfa20c45224ac2dfbfe3e9088daac0a3a5f2a4f72d0b80f70",
+    "normalization": "UTF-8 LF; code unchanged",
+    "source": "network.py"
+  },
+  "sec_stream.py": {
+    "sha256": "d773e9104d91af2f832ea94f4ca2658d10fb8e9e00e6b99c52a6f570451e93c9",
+    "production_sha256": "d773e9104d91af2f832ea94f4ca2658d10fb8e9e00e6b99c52a6f570451e93c9",
+    "normalization": "UTF-8 LF; code unchanged",
+    "source": "sec_stream.py"
+  },
+  "progress.py": {
+    "sha256": "200d7183f7207a01743346851ef8378c37c59cc73392d2d7a255e3c36c008ee7",
+    "production_sha256": "200d7183f7207a01743346851ef8378c37c59cc73392d2d7a255e3c36c008ee7",
+    "normalization": "UTF-8 LF; code unchanged",
+    "source": "progress.py"
+  },
+  "watchlist.json": {
+    "sha256": "bd93050618e5d29361784459e7308facb81bf82131f54632e6d49475c7237c22",
+    "source": "public event/source whitelist; 34 companies"
+  }
+}

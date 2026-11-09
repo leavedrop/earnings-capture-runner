@@ -1,11 +1,13 @@
 import asyncio
 import argparse
 from collections import deque
+import hashlib
 import json
 import os
 from pathlib import Path
 import tempfile
 import unittest
+import sqlite3
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
@@ -129,6 +131,53 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(row["attempts"], 0)
         self.assertIsNone(row["discovery_to_parsed_ms"])
         self.assertFalse(row["budget_passed"])
+
+
+class LiveExportTest(unittest.TestCase):
+    def test_public_snapshot_keeps_report_bytes_and_excludes_private_log_fields(self):
+        from live.run_live import snapshot
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            runtime, published = root / "runtime", root / "public"
+            (runtime / "reports").mkdir(parents=True)
+            published.mkdir()
+            raw = b"<html><h1>Example</h1><table><tr><td>Revenue</td><td>123</td></tr></table></html>"
+            sha = hashlib.sha256(raw).hexdigest()
+            stem = "reports/TEST_official_" + sha[:12]
+            (runtime / (stem + ".html")).write_bytes(raw)
+            (runtime / (stem + ".txt")).write_text("Example Revenue 123", encoding="utf-8")
+            (runtime / (stem + ".json")).write_text(json.dumps({"tables": [[["Revenue", "123"]]],
+                "metadata": {"authorization": "SECRET_TEST_TOKEN", "user_agent": "Example secret@example.invalid"}}), encoding="utf-8")
+            with sqlite3.connect(runtime / "observations.sqlite3") as connection:
+                connection.execute("create table log(id integer primary key,kind text,symbol text,channel text,at_ns integer,payload text)")
+                capture = {"run_id": "collector-test", "symbol": "TEST", "channel": "official", "mode": "run",
+                           "url": "https://example.com/report", "sha256": sha, "original_document_path": stem + ".html",
+                           "discovered_utc": "2026-11-09T10:00:00+00:00", "validated_utc": "2026-11-09T10:00:00.025+00:00",
+                           "already_present_on_first_poll": False, "discovery_to_parsed_ms": 25,
+                           "validation": {"accepted": True, "tables_complete": True},
+                           "response_headers": {"set-cookie": "SECRET_TEST_TOKEN"}, "private_path": r"C:\Users\private\secret"}
+                connection.execute("insert into log values(1,'capture','TEST','official',1,?)", (json.dumps(capture),))
+                connection.execute("insert into log values(2,'request','TEST','official',2,?)", (json.dumps({"status": None,"error": "ConnectError: SECRET_TEST_TOKEN"}),))
+            connection.close()
+            metadata = {"run_id": "123-1", "node": {"loc": "US", "colo": "TEST"}, "state": "running"}
+            with patch.dict(os.environ, {"SEC_USER_AGENT": "Example secret@example.invalid", "GITHUB_TOKEN": "SECRET_TEST_TOKEN"}):
+                data = snapshot(runtime.resolve(), published, metadata, {})
+            rendered = json.dumps(data)
+            self.assertNotIn("SECRET_TEST_TOKEN", rendered)
+            self.assertNotIn("secret@example.invalid", rendered)
+            self.assertNotIn("response_headers", rendered)
+            self.assertNotIn("private_path", rendered)
+            self.assertEqual(data["captures"][0]["context"], "live")
+            self.assertEqual(data["captures"][0]["discovery_to_parsed_ms"], 25)
+            self.assertEqual(data["failure_groups"][0]["failure_type"], "ConnectError")
+            self.assertEqual((published / (stem + ".html")).read_bytes(), raw)
+            parsed = json.loads((published / (stem + ".json")).read_text(encoding="utf-8"))
+            self.assertEqual(set(parsed), {"text", "tables"})
+            self.assertTrue(all(hashlib.sha256((published / a["path"]).read_bytes()).hexdigest() == a["sha256"]
+                                for a in data["captures"][0]["artifacts"]))
+            (runtime / (stem + ".html")).write_bytes(raw + b"changed")
+            with self.assertRaisesRegex(ValueError, "SHA-256 mismatch"):
+                snapshot(runtime.resolve(), published, metadata, {})
 
 
 if __name__ == "__main__":
