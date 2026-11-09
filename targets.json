@@ -1,0 +1,431 @@
+[
+  {
+    "target_id": "BAM_sec_225661fc1ebb",
+    "channel": "sec",
+    "url": "https://www.sec.gov/Archives/edgar/data/1937926/000117184326007210/exh_991.htm",
+    "event": {
+      "symbol": "BAM",
+      "company": "Brookfield Asset Management",
+      "aliases": [
+        "Brookfield Asset Management"
+      ],
+      "fiscal_year": 2026,
+      "quarter": 3,
+      "period_end": "2026-09-30",
+      "cik": "0001937926",
+      "sources": [
+        {
+          "channel": "official",
+          "url": "https://bam.brookfield.com/events-news/press-releases"
+        }
+      ]
+    }
+  },
+  {
+    "target_id": "ENB_sec_44af1187294c",
+    "channel": "sec",
+    "url": "https://www.sec.gov/Archives/edgar/data/895728/000119312526450711/enb-ex99_1.htm",
+    "event": {
+      "symbol": "ENB",
+      "company": "Enbridge",
+      "aliases": [
+        "Enbridge"
+      ],
+      "fiscal_year": 2026,
+      "quarter": 3,
+      "period_end": "2026-09-30",
+      "cik": "0000895728",
+      "sources": [
+        {
+          "channel": "official",
+          "url": "https://enbridge.mediaroom.com/index.php?s=2429"
+        }
+      ]
+    }
+  },
+  {
+    "target_id": "ENB_sec_96927e95e19b",
+    "channel": "sec",
+    "url": "https://www.sec.gov/Archives/edgar/data/895728/000119312526450714/enb-20260930.htm",
+    "event": {
+      "symbol": "ENB",
+      "company": "Enbridge",
+      "aliases": [
+        "Enbridge"
+      ],
+      "fiscal_year": 2026,
+      "quarter": 3,
+      "period_end": "2026-09-30",
+      "cik": "0000895728",
+      "sources": [
+        {
+          "channel": "official",
+          "url": "https://enbridge.mediaroom.com/index.php?s=2429"
+        }
+      ]
+    }
+  },
+  {
+    "target_id": "HUM_sec_71569db1dd7c",
+    "channel": "sec",
+    "url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000064/hum-2026q3xex99x1briefxsep.htm",
+    "event": {
+      "symbol": "HUM",
+      "company": "Humana",
+      "aliases": [
+        "Humana"
+      ],
+      "fiscal_year": 2026,
+      "quarter": 3,
+      "period_end": "2026-09-30",
+      "cik": "0000049071",
+      "sources": [
+        {
+          "channel": "official",
+          "url": "https://humana.gcs-web.com/rss/news-releases.xml"
+        }
+      ]
+    }
+  },
+  {
+    "target_id": "HUM_sec_aa9ea840159e",
+    "channel": "sec",
+    "url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000064/hum-2026q3xex99x2detailedx.htm",
+    "event": {
+      "symbol": "HUM",
+      "company": "Humana",
+      "aliases": [
+        "Humana"
+      ],
+      "fiscal_year": 2026,
+      "quarter": 3,
+      "period_end": "2026-09-30",
+      "cik": "0000049071",
+      "sources": [
+        {
+          "channel": "official",
+          "url": "https://humana.gcs-web.com/rss/news-releases.xml"
+        }
+      ]
+    }
+  },
+  {
+    "target_id": "HUM_sec_8d18e7aab03d",
+    "channel": "sec",
+    "url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/hum-20260930.htm",
+    "event": {
+      "symbol": "HUM",
+      "company": "Humana",
+      "aliases": [
+        "Humana"
+      ],
+      "fiscal_year": 2026,
+      "quarter": 3,
+      "period_end": "2026-09-30",
+      "cik": "0000049071",
+      "sources": [
+        {
+          "channel": "official",
+          "url": "https://humana.gcs-web.com/rss/news-releases.xml"
+        }
+      ]
+    }
+  },
+  {
+    "target_id": "MSGK_sec_41d0fe8d4904",
+    "channel": "sec",
+    "url": "https://www.sec.gov/Archives/edgar/data/1636519/000162828026071321/msgknickerbockerscorpex991.htm",
+    "event": {
+      "symbol": "MSGK",
+      "company": "MSG Knickerbockers Corp.",
+      "aliases": [
+        "MSG Knickerbockers",
+        "Madison Square Garden Sports"
+      ],
+      "fiscal_year": 2027,
+      "quarter": 1,
+      "period_end": "2026-09-30",
+      "cik": "0001636519",
+      "sources": [
+        {
+          "channel": "official",
+          "url": "https://www.msgknicks.com/company-news/"
+        }
+      ]
+    }
+  },
+  {
+    "target_id": "MSGK_sec_0551df05c7c8",
+    "channel": "sec",
+    "url": "https://www.sec.gov/Archives/edgar/data/1636519/000162828026071322/msgk-20260930.htm",
+    "event": {
+      "symbol": "MSGK",
+      "company": "MSG Knickerbockers Corp.",
+      "aliases": [
+        "MSG Knickerbockers",
+        "Madison Square Garden Sports"
+      ],
+      "fiscal_year": 2027,
+      "quarter": 1,
+      "period_end": "2026-09-30",
+      "cik": "0001636519",
+      "sources": [
+        {
+          "channel": "official",
+          "url": "https://www.msgknicks.com/company-news/"
+        }
+      ]
+    }
+  },
+  {
+    "target_id": "MSGR_sec_8e10918f3cc4",
+    "channel": "sec",
+    "url": "https://www.sec.gov/Archives/edgar/data/2132873/000162828026071324/msgrangerscorpex991forearn.htm",
+    "event": {
+      "symbol": "MSGR",
+      "company": "MSG Rangers Corp.",
+      "aliases": [
+        "MSG Rangers",
+        "MSG Rangers Corp."
+      ],
+      "fiscal_year": 2027,
+      "quarter": 1,
+      "period_end": "2026-09-30",
+      "cik": "0002132873",
+      "sources": [
+        {
+          "channel": "official",
+          "url": "https://www.msgrangers.com/company-news/"
+        }
+      ]
+    }
+  },
+  {
+    "target_id": "MSGR_sec_9e94821a4182",
+    "channel": "sec",
+    "url": "https://www.sec.gov/Archives/edgar/data/2132873/000162828026071325/msgr-20260930.htm",
+    "event": {
+      "symbol": "MSGR",
+      "company": "MSG Rangers Corp.",
+      "aliases": [
+        "MSG Rangers",
+        "MSG Rangers Corp."
+      ],
+      "fiscal_year": 2027,
+      "quarter": 1,
+      "period_end": "2026-09-30",
+      "cik": "0002132873",
+      "sources": [
+        {
+          "channel": "official",
+          "url": "https://www.msgrangers.com/company-news/"
+        }
+      ]
+    }
+  },
+  {
+    "target_id": "OKLO_sec_70c991f710c3",
+    "channel": "sec",
+    "url": "https://www.sec.gov/Archives/edgar/data/1849056/000162828026071319/oklo-20260930.htm",
+    "event": {
+      "symbol": "OKLO",
+      "company": "Oklo",
+      "aliases": [
+        "Oklo"
+      ],
+      "fiscal_year": 2026,
+      "quarter": 3,
+      "period_end": "2026-09-30",
+      "cik": "0001849056",
+      "sources": [
+        {
+          "channel": "official",
+          "url": "https://oklo.com/newsroom"
+        }
+      ]
+    }
+  },
+  {
+    "target_id": "BRK_B_official_f1ace517c280",
+    "channel": "official",
+    "url": "https://www.berkshirehathaway.com/qtrly/3rdqtr26.pdf",
+    "event": {
+      "symbol": "BRK.B",
+      "company": "伯克希尔哈撒韦",
+      "aliases": [
+        "Berkshire Hathaway",
+        "Berkshire Hathaway Inc."
+      ],
+      "fiscal_year": 2026,
+      "quarter": 3,
+      "period_end": "2026-09-30",
+      "cik": "0001067983",
+      "sources": [
+        {
+          "channel": "official",
+          "url": "https://www.berkshirehathaway.com/reports.html"
+        }
+      ]
+    }
+  },
+  {
+    "target_id": "BAM_official_4cabc568e1aa",
+    "channel": "official",
+    "url": "https://bam.brookfield.com/press-releases/brookfield-asset-management-announces-strong-third-quarter-results-0",
+    "event": {
+      "symbol": "BAM",
+      "company": "Brookfield Asset Management",
+      "aliases": [
+        "Brookfield Asset Management"
+      ],
+      "fiscal_year": 2026,
+      "quarter": 3,
+      "period_end": "2026-09-30",
+      "cik": "0001937926",
+      "sources": [
+        {
+          "channel": "official",
+          "url": "https://bam.brookfield.com/events-news/press-releases"
+        }
+      ]
+    }
+  },
+  {
+    "target_id": "BAM_newswire_ac103ca487b1",
+    "channel": "newswire",
+    "url": "https://www.globenewswire.com/news-release/2026/11/06/3397448/0/en/brookfield-asset-management-announces-strong-third-quarter-results.html",
+    "event": {
+      "symbol": "BAM",
+      "company": "Brookfield Asset Management",
+      "aliases": [
+        "Brookfield Asset Management"
+      ],
+      "fiscal_year": 2026,
+      "quarter": 3,
+      "period_end": "2026-09-30",
+      "cik": "0001937926",
+      "sources": [
+        {
+          "channel": "official",
+          "url": "https://bam.brookfield.com/events-news/press-releases"
+        }
+      ]
+    }
+  },
+  {
+    "target_id": "HUM_official_53b786e28c61",
+    "channel": "official",
+    "url": "https://humana.gcs-web.com/news-releases/news-release-details/humana-reports-third-quarter-2026-financial-results-raises-full",
+    "event": {
+      "symbol": "HUM",
+      "company": "Humana",
+      "aliases": [
+        "Humana"
+      ],
+      "fiscal_year": 2026,
+      "quarter": 3,
+      "period_end": "2026-09-30",
+      "cik": "0000049071",
+      "sources": [
+        {
+          "channel": "official",
+          "url": "https://humana.gcs-web.com/rss/news-releases.xml"
+        }
+      ]
+    }
+  },
+  {
+    "target_id": "MSGK_newswire_6fea675ac841",
+    "channel": "newswire",
+    "url": "https://www.businesswire.com/news/home/20261106470261/en/MSG-Knickerbockers-Corp.-Reports-Fiscal-2027-First-Quarter-Results",
+    "event": {
+      "symbol": "MSGK",
+      "company": "MSG Knickerbockers Corp.",
+      "aliases": [
+        "MSG Knickerbockers",
+        "Madison Square Garden Sports"
+      ],
+      "fiscal_year": 2027,
+      "quarter": 1,
+      "period_end": "2026-09-30",
+      "cik": "0001636519",
+      "sources": [
+        {
+          "channel": "official",
+          "url": "https://www.msgknicks.com/company-news/"
+        }
+      ]
+    }
+  },
+  {
+    "target_id": "MSGR_newswire_4cf46d0949e9",
+    "channel": "newswire",
+    "url": "https://www.businesswire.com/news/home/20261106876135/en/MSG-Rangers-Corp.-Reports-Fiscal-2027-First-Quarter-Results",
+    "event": {
+      "symbol": "MSGR",
+      "company": "MSG Rangers Corp.",
+      "aliases": [
+        "MSG Rangers",
+        "MSG Rangers Corp."
+      ],
+      "fiscal_year": 2027,
+      "quarter": 1,
+      "period_end": "2026-09-30",
+      "cik": "0002132873",
+      "sources": [
+        {
+          "channel": "official",
+          "url": "https://www.msgrangers.com/company-news/"
+        }
+      ]
+    }
+  },
+  {
+    "target_id": "SOHU_official_68fdb94a3ff4",
+    "channel": "official",
+    "url": "https://investors.sohu.com/news-releases/news-release-details/sohucom-reports-third-quarter-2026-unaudited-financial-results",
+    "event": {
+      "symbol": "SOHU",
+      "company": "搜狐",
+      "aliases": [
+        "Sohu",
+        "Sohu.com",
+        "Sohu.com Limited"
+      ],
+      "fiscal_year": 2026,
+      "quarter": 3,
+      "period_end": "2026-09-30",
+      "cik": "0001734107",
+      "sources": [
+        {
+          "channel": "official",
+          "url": "https://investors.sohu.com/rss/news-releases.xml"
+        }
+      ]
+    }
+  },
+  {
+    "target_id": "SOHU_newswire_01f24ceb6161",
+    "channel": "newswire",
+    "url": "https://www.prnewswire.com/news-releases/sohucom-reports-third-quarter-2026-unaudited-financial-results-302932892.html",
+    "event": {
+      "symbol": "SOHU",
+      "company": "搜狐",
+      "aliases": [
+        "Sohu",
+        "Sohu.com",
+        "Sohu.com Limited"
+      ],
+      "fiscal_year": 2026,
+      "quarter": 3,
+      "period_end": "2026-09-30",
+      "cik": "0001734107",
+      "sources": [
+        {
+          "channel": "official",
+          "url": "https://investors.sohu.com/rss/news-releases.xml"
+        }
+      ]
+    }
+  }
+]

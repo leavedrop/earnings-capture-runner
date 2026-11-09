@@ -1,0 +1,10 @@
+{
+  "sources.py": {
+    "source": "earnings_watch/sources.py",
+    "sha256": "fa0cf3bd2aee02ca822caee6b793e55e3938c244ff2a581c9ebdb130332e23dd"
+  },
+  "pdf_tables.py": {
+    "source": "earnings_watch/pdf_tables.py",
+    "sha256": "a0c647760486c14734db43679bd52f06efc5119be73ea2c7a2c4cfdfb301a3e2"
+  }
+}

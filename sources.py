@@ -1,0 +1,646 @@
+"""Financial-release discovery and conservative document validation.
+
+The validator is a collection gate, not an assertion about accounting accuracy.
+Publisher timestamps retain their own precision; they are never request clocks.
+"""
+from __future__ import annotations
+
+import json
+import re
+import threading
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
+from urllib.parse import parse_qs, unquote, urljoin, urlparse, urlunparse
+from xml.etree import ElementTree
+from zoneinfo import ZoneInfo
+
+from bs4 import BeautifulSoup
+from lxml import etree
+
+_ANNOUNCEMENT = re.compile(
+    r"\b(?:to\s+(?:report|release|announce|host)|will\s+(?:report|release|announce|host)|"
+    r"sets?\s+(?:date|earnings)|schedules?\s+(?:earnings|conference)|"
+    r"(?:earnings|results)\s+conference\s+call|webcast\s+to\s+discuss)\b", re.I)
+_FINANCIAL = re.compile(r"\b(?:results|earnings|financial\s+(?:statements|report)|"
+                        r"quarterly\s+report|shareholder\s+letter|form\s+10-[qk])\b", re.I)
+_METRICS = re.compile(r"\b(?:revenues?|net\s+(?:income|loss)|earnings\s+per\s+share|"
+                      r"assets|liabilities|cash\s+flows?|operating\s+(?:income|loss)|"
+                      r"diluted|balance\s+sheets?)\b", re.I)
+_ORDINAL = {1: "first", 2: "second", 3: "third", 4: "fourth"}
+_PDF_LOCK = threading.Lock()  # PyMuPDF table extraction mutates module-global CHARS/EDGES.
+_DIGIT = re.compile(r"\d")
+_TEXT_NODES = etree.XPath(".//text()", smart_strings=False)
+
+
+def _clean(value):
+    return " ".join((value or "").split())
+
+
+def _normal(value):
+    return re.sub(r"[^a-z0-9]", "", value.lower())
+
+
+def _target(text, event):
+    """Require quarter and fiscal year in the same short phrase."""
+    q, year = int(event["quarter"]), int(event["fiscal_year"])
+    quarter = rf"(?:Q\s*{q}|{q}\s*Q|{_ORDINAL[q]}[\s-]+quarter|quarter\s+{q})"
+    yr = rf"(?:FY\s*)?(?:{year}|['’]{str(year)[2:]})"
+    return bool(re.search(rf"\b{quarter}[\s\w,()'-]{{0,24}}\b{yr}\b|"
+                          rf"\b{yr}[\s\w,()'-]{{0,24}}\b{quarter}\b|"
+                          rf"\b{q}Q{str(year)[2:]}\b|\bQ{q}[ '’-]*{str(year)[2:]}\b",
+                          text, re.I))
+
+
+def _period_end_in_lead(text, event):
+    try:
+        day = datetime.fromisoformat(event["period_end"])
+    except (KeyError, ValueError):
+        return False
+    date = rf"(?:{day:%B}\s+{day.day},?\s+{day.year}|{day:%b}\.?\s+{day.day},?\s+{day.year}|{day:%Y-%m-%d})"
+    return bool(re.search(rf"(?:quarter|three\s+months|period)\s+ended\s+{date}", text, re.I))
+
+
+def _quarter_without_year(title, event):
+    if re.search(r"\b(?:20\d{2}|FY\s*['’]?\d{2})\b", title, re.I):
+        return False
+    match = re.search(r"\b(?:(first|second|third|fourth)[\s-]+quarter|Q\s*([1-4]))\b", title, re.I)
+    if not match:
+        return False
+    quarter = int(match[2]) if match[2] else next(q for q, word in _ORDINAL.items() if word == match[1].lower())
+    return quarter == int(event["quarter"])
+
+
+def _date_in_release_window(day, event):
+    if not event.get("window_start") or not event.get("window_end"):
+        return False
+    eastern = ZoneInfo("America/New_York")
+    start = datetime.fromisoformat(event["window_start"]).astimezone(eastern).date()
+    end = datetime.fromisoformat(event["window_end"]).astimezone(eastern).date()
+    return start <= day <= end
+
+
+def _trusted_issuer_url(url, event):
+    parsed = urlparse(url or "")
+    hostname = (parsed.hostname or "").lower()
+    if hostname.endswith("sec.gov") and event.get("cik"):
+        match = re.search(r"/Archives/edgar/data/(\d+)/", parsed.path)
+        if match and int(match[1]) == int(event["cik"]):
+            return True
+    return any(source.get("channel") == "official" and
+               (urlparse(source.get("url", "")).hostname or "").lower() == hostname
+               for source in event.get("sources", []))
+
+
+def _identity(text, event, url=None):
+    normal = _normal(text)
+    aliases = [event.get("company", ""), *event.get("aliases", [])]
+    for alias in aliases:
+        cleaned = _normal(alias)
+        if len(cleaned) >= 4 and cleaned in normal:
+            return True
+        if not 2 <= len(cleaned) <= 3:
+            continue
+        word = rf"(?<![A-Za-z0-9]){re.escape(alias)}(?![A-Za-z0-9])"
+        if alias.isupper() and re.search(word, text):
+            return True
+        # Common short words (Sea/On) need a company role or a verified issuer URL.
+        if re.search(word, text) and (_trusted_issuer_url(url, event) or re.search(
+                word + r"\s+(?:Limited|Ltd\.?|Inc\.?|Reports|Announces|Releases)\b", text)):
+            return True
+    return False
+
+
+def _url(base, href):
+    result = urljoin(base, href.strip())
+    parsed = urlparse(result)
+    if parsed.scheme not in ("https", "http"):
+        return None
+    if parsed.hostname and parsed.hostname.endswith("sec.gov"):
+        doc = parse_qs(parsed.query).get("doc")
+        if doc:
+            result = urljoin("https://www.sec.gov", doc[0])
+            parsed = urlparse(result)
+    return urlunparse(parsed._replace(fragment=""))
+
+
+def _stamp(value, kind="publisher_page"):
+    if not value:
+        return {"value": None, "precision": "unknown", "kind": kind}
+    value = str(value).strip()
+    if re.fullmatch(r"\d{4}-\d\d-\d\d", value):
+        return {"value": value, "precision": "day", "kind": kind}
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        if parsed.tzinfo is None:
+            return {"value": value, "precision": "unknown", "kind": kind,
+                    "note": "Publisher timezone unspecified"}
+        precision = "second" if re.search(r"[T ]\d\d:\d\d:\d\d", value) else "minute"
+        return {"value": parsed.isoformat(), "precision": precision, "kind": kind}
+    except ValueError:
+        try:
+            parsed = parsedate_to_datetime(value)
+            if parsed.tzinfo:
+                return {"value": parsed.isoformat(), "precision": "second", "kind": kind}
+        except (ValueError, TypeError):
+            pass
+        return {"value": value, "precision": "unknown", "kind": kind}
+
+
+def _published_in_json(obj):
+    if isinstance(obj, dict):
+        if obj.get("datePublished"):
+            return obj["datePublished"]
+        for child in obj.values():
+            value = _published_in_json(child)
+            if value:
+                return value
+    elif isinstance(obj, list):
+        for child in obj:
+            value = _published_in_json(child)
+            if value:
+                return value
+    return None
+
+
+def _timestamp(soup):
+    for selector in ('meta[property="article:published_time"]',
+                     'meta[itemprop="datePublished"]', 'meta[name="datePublished"]'):
+        tag = soup.select_one(selector)
+        if tag and tag.get("content"):
+            return _stamp(tag["content"])
+    for tag in soup.select('script[type="application/ld+json"]'):
+        try:
+            value = _published_in_json(json.loads(tag.get_text()))
+            if value:
+                return _stamp(value)
+        except (ValueError, TypeError):
+            pass
+    tag = soup.select_one('time[datetime]')
+    return _stamp(tag.get("datetime") if tag else None)
+
+
+def _document(body):
+    return etree.fromstring(body if body.strip() else b"<html></html>", etree.HTMLParser())
+
+
+def _text(node, separator=" ", strip=True):
+    values = _TEXT_NODES(node) if len(node) else ((node.text,) if node.text else ())
+    if strip:
+        return separator.join(part for value in values if (part := value.strip()))
+    return separator.join(values)
+
+
+def _drop_content(root, *tags):
+    for node in list(root.iter(*tags)):
+        # Preserve the separation between text nodes that BeautifulSoup kept on
+        # either side of a removed node; lxml otherwise joins their tails.
+        parent = node.getparent()
+        if node.tail:
+            previous = node.getprevious()
+            if previous is not None:
+                previous.tail = (previous.tail or "") + " " + node.tail
+            else:
+                parent.text = (parent.text or "") + " " + node.tail
+        parent.remove(node)
+
+
+def _native_timestamp(root):
+    for attribute, value in (("property", "article:published_time"),
+                             ("itemprop", "datePublished"), ("name", "datePublished")):
+        tag = next((tag for tag in root.iter("meta") if tag.get(attribute) == value), None)
+        if tag is not None and tag.get("content"):
+            return _stamp(tag.get("content"))
+    for tag in root.iter("script"):
+        if tag.get("type") != "application/ld+json":
+            continue
+        try:
+            value = _published_in_json(json.loads(tag.text or ""))
+            if value:
+                return _stamp(value)
+        except (ValueError, TypeError):
+            pass
+    tag = next((tag for tag in root.iter("time") if tag.get("datetime") is not None), None)
+    return _stamp(tag.get("datetime") if tag is not None else None)
+
+
+def _sec_report_facts(tree, url, event):
+    """Read the filing's own DEI cover facts, never comparative XBRL contexts."""
+    if (urlparse(url).hostname or "").lower() not in ("sec.gov", "www.sec.gov"):
+        return None
+    required = {"DocumentType", "DocumentPeriodEndDate", "DocumentFiscalYearFocus",
+                "DocumentFiscalPeriodFocus", "EntityRegistrantName", "EntityCentralIndexKey"}
+    contexts = {}
+    for node in tree.iter("ix:nonnumeric"):
+        name = node.get("name", "")
+        if name.startswith("dei:") and name[4:] in required:
+            contexts.setdefault(node.get("contextref"), {}).setdefault(name[4:], set()).add(_clean(_text(node)))
+    covers = [values for values in contexts.values()
+              if values.get("DocumentType", set()) & {"10-Q", "10-K"}]
+    if not covers:
+        return None
+    if len(covers) != 1 or set(covers[0]) != required or any(len(v) != 1 for v in covers[0].values()):
+        return {"identity": False, "reporting_period": False, "facts": {},
+                "reason": "missing_or_conflicting_cover_facts"}
+    facts = {key: next(iter(values)) for key, values in covers[0].items()}
+    period_end = None
+    for pattern in ("%B %d, %Y", "%Y-%m-%d"):
+        try:
+            period_end = datetime.strptime(facts["DocumentPeriodEndDate"], pattern).date().isoformat()
+            break
+        except ValueError:
+            pass
+    identity = (bool(event.get("cik")) and _trusted_issuer_url(url, event) and
+                facts["EntityCentralIndexKey"].lstrip("0") == str(event["cik"]).lstrip("0") and
+                _identity(facts["EntityRegistrantName"], event, url))
+    fiscal_period = "FY" if facts["DocumentType"] == "10-K" and int(event["quarter"]) == 4 else f"Q{event['quarter']}"
+    reporting_period = (facts["DocumentFiscalYearFocus"] == str(event["fiscal_year"]) and
+                        facts["DocumentFiscalPeriodFocus"] == fiscal_period and
+                        period_end == event.get("period_end"))
+    return {"identity": bool(identity), "reporting_period": reporting_period, "facts": facts}
+
+
+def _candidate(url, title, timestamp=None, **extra):
+    timestamp = timestamp or _stamp(None)
+    return {"url": url, "title": _clean(title), "role": "candidate",
+            "published_at": timestamp["value"],
+            "published_precision": timestamp["precision"], **extra}
+
+
+def sec_supporting_title(form, description, *, body=None, event=None, validation=None):
+    """Recognize a prepared-remarks exhibit without exempting an exhibit number."""
+    if not re.fullmatch(r"EX-99(?:\.\d+)?", form or "", re.I):
+        return None
+    if validation is not None:
+        checks = validation.get("checks", {})
+        if (validation.get("accepted") or validation.get("tables")
+                or not all(checks.get(key) is True for key in ("identity", "reporting_period", "not_announcement"))):
+            return None
+    remarks = r"\bprepared\s+(?:management\s+)?remarks\s*$"
+    if re.search(remarks, _clean(description), re.I):
+        return _clean(description)
+    if body is None or event is None or validation is None:
+        return None
+    lead = _clean(validation.get("text", ""))[:500]
+    for node in _document(body).iter():
+        heading = _clean(node.text)
+        if (len(heading) <= 200 and re.search(remarks, heading, re.I) and heading in lead
+                and _identity(heading, event) and _target(heading, event)):
+            return heading
+    return None
+
+
+def discover(body: bytes, url: str, content_type: str, event: dict) -> list[dict]:
+    """Return target-period links, SEC filing indexes, or EX-99 attachments."""
+    found = []
+    hostname = (urlparse(url).hostname or "").lower()
+    newswire = any(hostname == domain or hostname.endswith("." + domain) for domain in
+                   ("businesswire.com", "globenewswire.com", "prnewswire.com", "newmediawire.com"))
+    if "json" in content_type or body.lstrip().startswith(b"{"):
+        try:
+            payload = json.loads(body)
+        except (ValueError, UnicodeError):
+            return []
+        if hostname in ("sea.com", "www.sea.com") and urlparse(url).path.rstrip("/") == "/api/financial/resource":
+            if not isinstance(payload, list) or event.get("symbol") != "SE":
+                return []
+            for year in payload:
+                if year.get("year") != int(event["fiscal_year"]):
+                    continue
+                for report in year.get("data", []):
+                    if report.get("quarter") == f"Q{int(event['quarter'])}" and report.get("press_release"):
+                        target = _url(url, report["press_release"])
+                        if target:
+                            found.append(_candidate(target, f"Sea Limited Q{event['quarter']} {event['fiscal_year']} Financial Results",
+                                                    identity_verified=True))
+            return found
+        if not isinstance(payload, dict):
+            return []
+        recent = payload.get("filings", {}).get("recent", {})
+        if not recent:
+            return []
+        expected = str(event.get("cik", "")).lstrip("0")
+        if not expected or str(payload.get("cik", "")).lstrip("0") != expected:
+            return []
+        filing_start = event.get("period_end", "")
+        if event.get("window_start"):
+            filing_start = datetime.fromisoformat(event["window_start"]).astimezone(
+                ZoneInfo("America/New_York")).date().isoformat()
+        for i, form in enumerate(recent.get("form", [])[:100]):
+            if form not in ("8-K", "6-K", "10-Q", "10-K", "8-K/A", "6-K/A"):
+                continue
+            def at(key, default=""):
+                seq = recent.get(key, [])
+                return seq[i] if i < len(seq) else default
+            # Realtime monitoring must not spend the release window on old filings.
+            if at("filingDate") < filing_start:
+                continue
+            accession = at("accessionNumber")
+            if not re.fullmatch(r"\d{10}-\d{2}-\d{6}", accession):
+                continue
+            directory = f"https://www.sec.gov/Archives/edgar/data/{expected}/{accession.replace('-', '')}/"
+            accepted = at("acceptanceDateTime") or None
+            found.append(_candidate(directory + accession + "-index.html", form,
+                                    role="filing_index", sec_accepted_at=accepted,
+                                    identity_verified=True))
+            if form in ("10-Q", "10-K") and at("primaryDocument"):
+                found.append(_candidate(urljoin(directory, at("primaryDocument")), form,
+                                        sec_accepted_at=accepted, identity_verified=True,
+                                        form=form, inspection_only=False))
+        return found
+    if body.startswith(b"%PDF") or "pdf" in content_type:
+        return []
+    if "xml" in content_type or body.lstrip().startswith((b"<?xml", b"<rss", b"<feed")):
+        try:
+            root = ElementTree.fromstring(body)
+        except ElementTree.ParseError:
+            return []
+        for item in root.iter():
+            if item.tag.rsplit("}", 1)[-1] not in ("item", "entry"):
+                continue
+            fields = {child.tag.rsplit("}", 1)[-1]: child for child in item}
+            title = fields["title"].text or "" if "title" in fields else ""
+            if not _target(title, event) or not _FINANCIAL.search(title) or _ANNOUNCEMENT.search(title):
+                continue
+            if not _trusted_issuer_url(url, event) and not _identity(title, event):
+                continue
+            link = fields.get("link")
+            href = (link.get("href") or link.text) if link is not None else None
+            date = next((fields[k].text for k in ("published", "pubDate", "updated") if k in fields), None)
+            if href and (target := _url(url, href)):
+                found.append(_candidate(target, title, _stamp(date, "feed")))
+        return found
+    tree = _document(body)
+    _drop_content(tree, "script", "style")
+    if hostname == "www.berkshirehathaway.com" and event.get("symbol") == "BRK.B":
+        # The official reports grid uses image-only links, then a quarterly
+        # index. Match the published link itself; do not guess a PDF URL.
+        ordinal = {1: "1st", 2: "2nd", 3: "3rd", 4: "4th"}[int(event["quarter"])]
+        stem = f"{ordinal}qtr{str(event['fiscal_year'])[-2:]}"
+        path = urlparse(url).path
+        expected = "/qtrly/links" + stem + ".html" if path == "/reports.html" else "/qtrly/" + stem + ".pdf"
+        if path in ("/reports.html", "/qtrly/links" + stem + ".html"):
+            for anchor in tree.iter("a"):
+                if anchor.get("href") and (target := _url(url, anchor.get("href"))):
+                    if urlparse(target).hostname == hostname and urlparse(target).path == expected:
+                        found.append(_candidate(target, f"Berkshire Hathaway Q{event['quarter']} {event['fiscal_year']} Quarterly Report"))
+            return found
+    if hostname == "bam.brookfield.com" and event.get("symbol") == "BAM":
+        rows = tree.xpath(".//div[contains(concat(' ', normalize-space(@class), ' '), ' press-data-wrapper ')]")
+        if rows:
+            for row in rows:
+                titles = row.xpath(".//div[contains(concat(' ', normalize-space(@class), ' '), ' press-data-title ')]")
+                dates = row.xpath(".//div[contains(concat(' ', normalize-space(@class), ' '), ' press-data-date ')]")
+                if not titles or not dates:
+                    continue
+                title = _clean(_text(titles[0]))
+                if not (_identity(title, event) and _FINANCIAL.search(title) and
+                        (_target(title, event) or _quarter_without_year(title, event))) or _ANNOUNCEMENT.search(title):
+                    continue
+                try:
+                    published_day = datetime.strptime(_clean(_text(dates[0])), "%b %d, %Y").date()
+                except ValueError:
+                    continue
+                if not _date_in_release_window(published_day, event):
+                    continue
+                for anchor in row.iter("a"):
+                    if anchor.get("href") and (target := _url(url, anchor.get("href"))):
+                        found.append(_candidate(target, title, discovery_date=published_day.isoformat()))
+            return list({item["url"]: item for item in found}.values())
+    sec_index = "sec.gov/Archives/edgar/data/" in url and "-index" in url
+    if sec_index:
+        for row in tree.xpath(".//table[contains(concat(' ', normalize-space(@class), ' '), ' tableFile ')]//tr"):
+            cells = list(row.iter("td"))
+            if len(cells) < 4:
+                continue
+            form = _clean(_text(cells[3], "", False)).upper()
+            financial_form = bool(re.fullmatch(r"EX-99(?:\.\d+)?", form)) or form in ("10-Q", "10-K")
+            description = _text(cells[1]) or form
+            supporting_title = sec_supporting_title(form, description)
+            financial_required = financial_form and supporting_title is None
+            exhibit = form.startswith("EX-") if event.get("symbol") in ("MSGK", "MSGR") else financial_form
+            if not (exhibit or form in ("10-Q", "10-K")):
+                continue
+            anchor = next((tag for tag in cells[2].iter("a") if tag.get("href") is not None), None)
+            if anchor is not None:
+                target = _url(url, anchor.get("href"))
+                if target:
+                    candidate = _candidate(target, description, identity_verified=True, form=form,
+                                           inspection_only=not financial_required)
+                    if supporting_title:
+                        candidate.update(supporting_title=supporting_title, classification_basis="sec_index_description")
+                    found.append(candidate)
+        return found
+    # RSS/Atom timestamps belong to each item, never to the whole feed.
+    for item in tree.iter("item", "entry"):
+        title_tag = next(item.iter("title"), None)
+        title = _text(title_tag) if title_tag is not None else ""
+        if not _target(title, event) or not _FINANCIAL.search(title) or _ANNOUNCEMENT.search(title):
+            continue
+        if not _trusted_issuer_url(url, event) and not _identity(title, event):
+            continue
+        link = next(item.iter("link"), None)
+        href = link.get("href") or _text(link, "") if link is not None else None
+        if href and (target := _url(url, href)):
+            dt = next(item.iter("published", "pubdate", "updated"), None)
+            ts = _stamp(_text(dt, "") if dt is not None else None, "feed")
+            found.append(_candidate(target, title, ts))
+    previous_heading = None
+    context_text = {}
+    for anchor in tree.iter("a", "h2", "h3", "h4"):
+        if anchor.tag != "a":
+            previous_heading = anchor
+            continue
+        if anchor.get("href") is None:
+            continue
+        target = _url(url, anchor.get("href"))
+        if not target:
+            continue
+        title = _clean(_text(anchor) or anchor.get("title", ""))
+        if newswire and not _identity(title, event):
+            # Distributor search pages contain many other companies' same-quarter releases.
+            continue
+        href_hint = unquote(urlparse(target).path).replace("-", " ").replace("_", " ")
+        direct = title + " " + href_hint
+        if _ANNOUNCEMENT.search(direct):
+            continue
+        if hostname == "enbridge.mediaroom.com" and event.get("symbol") == "ENB":
+            # This actual headline puts its year in a distant guidance clause.
+            # Its own dated URL bounds discovery; deep validation still checks
+            # the report period, so guidance cannot certify the financial body.
+            dated_path = re.match(r"/(\d{4}-\d{2}-\d{2})-", urlparse(target).path)
+            quarter_title = re.sub(r"\b20\d{2}\b", "", title)
+            years = set(re.findall(r"\b20\d{2}\b", title))
+            if (dated_path and _identity(title, event) and _FINANCIAL.search(title) and
+                    _quarter_without_year(quarter_title, event) and
+                    years <= {str(event["fiscal_year"])} and
+                    _date_in_release_window(datetime.strptime(dated_path[1], "%Y-%m-%d").date(), event)):
+                found.append(_candidate(target, title, discovery_date=dated_path[1]))
+                continue
+        if hostname.endswith("globenewswire.com") and _FINANCIAL.search(title) and _quarter_without_year(title, event):
+            date_path = re.search(r"/news-release/(\d{4})/(\d{2})/(\d{2})/", urlparse(target).path)
+            if date_path:
+                published_day = datetime(*map(int, date_path.groups())).date()
+                if _date_in_release_window(published_day, event):
+                    found.append(_candidate(target, title, discovery_date=published_day.isoformat()))
+                    continue
+        if _target(direct, event) and _FINANCIAL.search(direct):
+            found.append(_candidate(target, title or href_hint))
+            continue
+        if _FINANCIAL.search(title) and re.search(
+                r"\b(?:Q[1-4]|(?:first|second|third|fourth)[ -]+quarter)\b", title, re.I):
+            # A neighboring article must not supply the target quarter to this link.
+            continue
+        # Quarterly-report grids commonly use Q3 + an enclosing 2026 heading.
+        if not (_FINANCIAL.search(title) or re.search(r"\bQ[1-4]\b", title, re.I)
+                or urlparse(target).path.lower().endswith(".pdf")):
+            continue
+        context = ""
+        for level, parent in enumerate(anchor.iterancestors()):
+            if level == 3 or parent.tag in ("body", "html"):
+                break
+            if parent not in context_text:
+                context_text[parent] = _clean(_text(parent))
+            value = context_text[parent]
+            if len(value) <= 800:
+                context = value
+        if not _target(context + " " + href_hint, event):
+            if previous_heading is not None:
+                context = _text(previous_heading) + " " + direct
+        if _target(context, event) and not _ANNOUNCEMENT.search(title) and (
+                _FINANCIAL.search(context) or re.search(r"\bQ[1-4]\b", title, re.I)):
+            found.append(_candidate(target, title))
+    return list({item["url"]: item for item in found}.values())
+
+
+def _financial_table(rows):
+    if len(rows) < 3:
+        return False
+    numeric = 0
+    for row in rows:
+        for cell in row:
+            if _DIGIT.search(str(cell or "")):
+                numeric += 1
+                if numeric == 8:
+                    break
+        if numeric == 8:
+            break
+    if numeric < 8:
+        return False
+    text = " ".join(" ".join(str(cell or "") for cell in row) for row in rows)
+    matches = _METRICS.finditer(text)
+    return next(matches, None) is not None and next(matches, None) is not None
+
+
+def validate(body: bytes, url: str, content_type: str, event: dict) -> dict:
+    """Validate identity, current reporting period and financial content together.
+
+    Rejected documents remain useful raw evidence and can be reviewed manually.
+    """
+    tables = []
+    timestamp = _stamp(None)
+    pdf = body.startswith(b"%PDF") or "pdf" in content_type
+    cover = None
+    pdf_pages_total = pdf_pages_processed = 0
+    native_pdf = None
+    if pdf:
+        pages = []
+        title = text = ""
+        try:
+            import fitz
+            parsed_url = urlparse(url)
+            if event.get("symbol") == "BRK.B" and parsed_url.hostname in ("berkshirehathaway.com", "www.berkshirehathaway.com") and parsed_url.path.startswith("/qtrly/"):
+                from pdf_tables import extract_pdf_tables
+                with _PDF_LOCK:
+                    native_pdf = extract_pdf_tables(body)
+                text = native_pdf["text"]
+                tables = native_pdf["tables"]
+                pdf_pages_total = native_pdf["pdf_pages_total"]
+                pdf_pages_processed = native_pdf["pdf_pages_processed"]
+                title = _clean(" ".join(text.splitlines()[:8]))[:800]
+            else:
+                with _PDF_LOCK, fitz.open(stream=body, filetype="pdf") as document:
+                    pdf_pages_total = len(document)
+                    for page in document:
+                        pages.append(page.get_text())
+                    text = "\n".join(pages)
+                    title = _clean(" ".join(text.splitlines()[:8]))[:800]
+                    for page in document:
+                        first_table_on_page = len(tables)
+                        for table in page.find_tables().tables:
+                            rows = table.extract()
+                            if any(str(cell or "").strip() for row in rows for cell in row):
+                                tables.append(rows)
+                        if not any(_financial_table(rows) for rows in tables[first_table_on_page:]):
+                            for table in page.find_tables(strategy="text").tables:
+                                rows = table.extract()
+                                if any(str(cell or "").strip() for row in rows for cell in row):
+                                    tables.append(rows)
+                        pdf_pages_processed += 1
+        except Exception as exc:
+            return {"accepted": False, "reason": "pdf_parse_error: " + type(exc).__name__,
+                    "title": title, "text": "\n".join(pages), "tables": tables, "publisher_timestamp": timestamp,
+                    "checks": {"parse": False, "tables_complete": False}, "tables_extraction_scope": "partial",
+                    "tables_complete": False, "pdf_pages_total": pdf_pages_total,
+                    "pdf_pages_processed": pdf_pages_processed, "pdf_pages_text_extracted": len(pages)}
+    else:
+        tree = _document(body)
+        cover = _sec_report_facts(tree, url, event)
+        timestamp = _native_timestamp(tree)
+        root = next(tree.iter("article"), None)
+        if root is None:
+            root = next(tree.iter("main"), tree)
+        _drop_content(root, "script", "style")
+        h1 = next(root.iter("h1"), None)
+        og = next((tag for tag in tree.iter("meta") if tag.get("property") == "og:title"), None)
+        title_tag = next(tree.iter("title"), None)
+        title = _clean(_text(h1) if h1 is not None else
+                       og.get("content", "") if og is not None else
+                       _text(title_tag) if title_tag is not None else "")
+        _drop_content(root, "nav", "header", "footer")
+        text = _text(root)
+        for table in root.iter("table"):
+            rows = [[_clean(_text(cell)) for cell in row if cell.tag in ("td", "th")]
+                    for row in table.iter("tr")]
+            rows = [row for row in rows if any(row)]
+            if rows:
+                tables.append(rows)
+    lead = _clean(text)[:2000]
+    title_report = bool(_FINANCIAL.search(title))
+    current_period = _target(title, event) or (
+        not title_report and _target(lead[:900], event) and bool(_FINANCIAL.search(lead[:900])))
+    # Releases and SEC 10-Qs may name an exact quarter-end instead of Q1/Q2/Q3/Q4.
+    # Do not let a comparison period override an explicitly different title.
+    period_date = _period_end_in_lead(lead, event)
+    explicit_quarter = bool(re.search(r"\b(?:Q[1-4]|(?:first|second|third|fourth)[ -]+quarter)\b", title, re.I))
+    title_years = re.findall(r"\b20\d{2}\b", title)
+    if period_date and (not explicit_quarter or _target(title, event) or _quarter_without_year(title, event)) and (
+            not title_years or str(event["fiscal_year"]) in title_years):
+        current_period = True
+    announcement = bool(_ANNOUNCEMENT.search(title or lead[:400]))
+    body_metrics = _METRICS.finditer(text)
+    checks = {
+        "identity": cover["identity"] if cover is not None else _identity(title + " " + lead, event, url),
+        "reporting_period": cover["reporting_period"] if cover is not None else bool(current_period),
+        "not_announcement": not announcement,
+        "financial_body": len(text) >= 1200 and all(next(body_metrics, None) is not None for _ in range(5)),
+        # Financial classification is an acceptance gate, never a content filter.
+        "financial_tables": any(_financial_table(rows) for rows in tables),
+    }
+    if native_pdf is not None:
+        checks["tables_complete"] = native_pdf["tables_complete"]
+    accepted = all(checks.values())
+    result = {"accepted": accepted,
+            "reason": "validated_release" if accepted else "needs_review: " + ",".join(k for k, v in checks.items() if not v),
+            "title": title, "text": text, "tables": tables,
+            "publisher_timestamp": timestamp, "checks": checks,
+            "tables_extraction_scope": "full_detected", "tables_complete": True}
+    if native_pdf is not None:
+        result.update({key:native_pdf[key] for key in ("table_details", "page_diagnostics", "pdf_structure_checks", "tables_extraction_scope", "tables_complete", "quality_reason")})
+        result["pdf_parse_ms"] = native_pdf["parse_ms"]
+        result["pdf_parse_phases_ms"] = native_pdf["phases_ms"]
+    if cover is not None:
+        result["document_facts"] = cover["facts"]
+    if pdf:
+        result.update(pdf_pages_total=pdf_pages_total, pdf_pages_processed=pdf_pages_processed,
+                      pdf_pages_text_extracted=native_pdf["pdf_pages_text_extracted"] if native_pdf is not None else len(pages))
+    return result

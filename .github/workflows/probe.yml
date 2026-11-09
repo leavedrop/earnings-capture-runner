@@ -1,0 +1,33 @@
+name: Public earnings document replay
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install verified parser dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Check continuous timing and failure evidence offline
+        run: python -m unittest -q test_probe.py
+      - name: Download and parse the 19 public reports once
+        run: python probe.py --output outputs
+      - name: Preserve all results including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-earnings-replay-${{ github.run_id }}
+          path: outputs/
+          retention-days: 1
+          if-no-files-found: warn
