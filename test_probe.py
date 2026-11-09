@@ -16,6 +16,45 @@ from probe import BASE, collect_one, collect_watch_case, content_hashes, pace, r
 
 
 class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
+    async def test_alternate_routes_head_only_warms_origin_and_fetches_each_target_once(self):
+        targets = select_targets(json.loads((BASE / "targets.json").read_text(encoding="utf-8")), "alternate-routes")
+        self.assertEqual([(t["event"]["symbol"], t["channel"]) for t in targets], [("BAM", "newswire"), ("MSGK", "official")])
+        self.assertEqual(targets[1]["canonical_channel"], "newswire")
+        self.assertEqual(targets[1]["document_variant"], "issuer_copy")
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory); (output / "raw").mkdir(); (output / "parsed").mkdir()
+            def head(request):
+                self.assertEqual(request.method, "HEAD")
+                self.assertEqual(request.url.path, "/")
+                return httpx.Response(200, headers={"content-length": "1234"})
+            warm = {**targets[0], "url": targets[0]["warmup_url"], "method": "HEAD", "purpose": "connection_warmup"}
+            async with httpx.AsyncClient(transport=httpx.MockTransport(head)) as client:
+                row = await collect_one(client, warm, output, {"loc": "US", "colo": "TEST"}, {}, {})
+            self.assertTrue(row["http_response_complete"])
+            self.assertEqual(row["bytes"], 0)
+            self.assertFalse(row["complete"])
+            self.assertTrue((output / "warmup.ndjson").exists())
+            self.assertFalse((output / "results.ndjson").exists())
+        for refused in (False, True):
+            clients = [MagicMock(), MagicMock()]
+            for client in clients:
+                client.__aenter__ = AsyncMock(return_value=client)
+                client.__aexit__ = AsyncMock(return_value=False)
+            async def sample(client, target, *unused):
+                is_head = target.get("method") == "HEAD"
+                denied = refused and is_head and target["event"]["symbol"] == "BAM"
+                return {"status": 403 if denied else 200, "http_response_complete": True,
+                        "complete": not is_head, "archived": not is_head, "budget_passed": False}
+            with tempfile.TemporaryDirectory() as directory:
+                args = argparse.Namespace(targets=BASE / "targets.json", output=Path(directory) / "outputs", scope="alternate-routes")
+                with patch("probe.httpx.AsyncClient", side_effect=clients), patch("probe.prewarm_pdf_pool", return_value={}), \
+                        patch("probe.identify_node", new_callable=AsyncMock, return_value={"loc": "US", "colo": "TEST"}), \
+                        patch("probe.collect_one", new_callable=AsyncMock, side_effect=sample) as collect:
+                    self.assertEqual(await run(args), 1 if refused else 0)
+                called = [call.args[1] for call in collect.await_args_list]
+                self.assertEqual(sum(t.get("method") == "HEAD" for t in called), 2)
+                self.assertEqual([t["url"] for t in called if t.get("method") != "HEAD"], [t["url"] for t in targets if not refused or t["event"]["symbol"] != "BAM"])
+
     async def test_remaining_two_use_print_and_one_production_seed_probe(self):
         targets = select_targets(json.loads((BASE / "targets.json").read_text(encoding="utf-8")), "remaining-paths")
         self.assertEqual([(x["event"]["symbol"], x["channel"]) for x in targets], [("BAM", "newswire"), ("MSGK", "newswire")])

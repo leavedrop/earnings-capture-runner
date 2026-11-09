@@ -601,7 +601,12 @@ def validate(body: bytes, url: str, content_type: str, event: dict) -> dict:
         tree = _document(body)
         cover = _sec_report_facts(tree, url, event)
         timestamp = _native_timestamp(tree)
-        root = next(tree.iter("article"), None)
+        root = None
+        if event.get("symbol") == "MSGK" and urlparse(url).hostname == "investor.msgknicks.com":
+            root = next((node for node in tree.iter("div") if
+                         {"evergreen-news-details", "module-news-details"}.intersection(node.get("class", "").split())), None)
+        if root is None:
+            root = next(tree.iter("article"), None)
         if root is None:
             root = next(tree.iter("main"), tree)
         _drop_content(root, "script", "style")

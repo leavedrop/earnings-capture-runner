@@ -46,5 +46,21 @@
       "689c79c58957b6727b4dd60a40c9f6afc0a9bd3863849a54b514a34d9bf17ef4",
       "ff205bd0eba301a65840ae3e0d51c873abfb279c0859be55456b136b309284e6"
     ]
+  },
+  "MSGK_ISSUER": {
+    "url": "https://investor.msgknicks.com/press-releases/news-details/2026/MSG-Knickerbockers-Corp--Reports-Fiscal-2027-First-Quarter-Results/default.aspx",
+    "raw_sha256": "ff9ef67cbedeb85ff8fe95c7dd517e6a603cb9a3ecda7850f838e2fd8b34c097",
+    "text_sha256": "b7e97e101d7cb0dbef75b246b6b14b54c078b1ec86015dbe6e00f1df3b586a26",
+    "table_sha256": [
+      "ab73ff0f13b1a85a179cf3e8c59df962bab66f4b8e669479599c73bed03a9a3a",
+      "11c6b9ddfa684b78a039906e12295e81fd40bed41ea185613dd3629daf1c27b6",
+      "fe0c4b30e7c3f8fd21a7ede450214933d7e3d8e1ba503bf07fc4c5bcab0d1024",
+      "826890803e42f888633a7bf3637862f1a70136ff867c4df7f6f3a0490cda0e15",
+      "ea8df5a4c9323f824b26911c90c9722eb7464aca206abc3d628d4bf26f8e2413",
+      "ea38cea48a79f15b1a3db8ecee475160e00c78a5707f2f18ae22c032214f7f8c"
+    ],
+    "independent_wire_url": "https://www.businesswire.com/news/home/20261106470261/en/MSG-Knickerbockers-Corp.-Reports-Fiscal-2027-First-Quarter-Results",
+    "independent_wire_raw_sha256": "0e18d2ec04fa8d580be3e33f1bed02f15fba5acb55842a13f34d6d6c99ac8bf4",
+    "reference_scope": "Full issuer evergreen-news-body text including contacts; all 6 report tables exactly equal the independent BusinessWire report; 4 footer layout tables excluded"
   }
 }

@@ -85,11 +85,20 @@ async def identify_node(client):
 def select_targets(targets, scope):
     if scope == "all":
         return targets
+    if scope == "alternate-routes":
+        bam = select_targets(targets, "bam-pdf")[0]
+        wire = next(row for row in targets if row["event"]["symbol"] == "MSGK" and row["channel"] == "newswire")
+        reference = json.loads((BASE / "remaining_references.json").read_text(encoding="utf-8"))["MSGK_ISSUER"]
+        issuer = {**wire, "target_id": "MSGK_official_issuer_copy", "channel": "official", "url": reference["url"],
+                  "canonical_url": wire["url"], "canonical_channel": "newswire", "document_variant": "issuer_copy",
+                  "route_note": "公司官网副本", "reference": reference, "cache_profile": "ordinary"}
+        return [{**target, "warmup_url": urlsplit(target["url"])._replace(path="/", query="", fragment="").geturl()}
+                for target in (bam, issuer)]
     if scope == "bam-pdf":
         target = next(row for row in targets if row["event"]["symbol"] == "BAM" and row["channel"] == "newswire")
         reference = json.loads((BASE / "remaining_references.json").read_text(encoding="utf-8"))["BAM_PDF"]
         return [{**target, "target_id": target["target_id"] + "_official_pdf", "url": reference["url"],
-                 "canonical_url": target["url"], "canonical_previous_status": 403, "canonical_previous_run": "42573904389",
+                 "canonical_url": target["url"], "canonical_channel": "newswire", "canonical_previous_status": 403, "canonical_previous_run": "42573904389",
                  "document_variant": "official_pdf_alternative", "route_note": "财经稿（官方PDF备用）",
                  "cache_profile": "ordinary", "reference": reference}]
     if scope == "msgk-cache-control-reverse":
@@ -163,10 +172,11 @@ async def collect_one(client, target, output, node, recent, blocked):
            "http_response_complete": False, "archived": False, "artifacts": [],
            "timing_scope": "known URL invocation through rate queue, real network download, hash and full parse; excludes subsequent artifact writes",
            "new_release_evidence": False}
-    row.update({key: target[key] for key in ("canonical_url", "canonical_previous_status", "canonical_previous_run", "document_variant", "route_note") if key in target})
+    row.update({key: target[key] for key in ("canonical_url", "canonical_channel", "canonical_previous_status", "canonical_previous_run", "document_variant", "route_note") if key in target})
     if target.get("document_variant"):
         row["actual_source_url"] = target["url"]
     row.update({key: target[key] for key in ("cache_profile", "purpose") if key in target})
+    row["request_method"] = target.get("method", "GET")
     body, parsed = bytearray(), None
     trace_started, trace_ms, trace_count, connections = {}, {}, 0, 0
     async def trace(name, info):
@@ -199,7 +209,7 @@ async def collect_one(client, target, output, node, recent, blocked):
         # HTTPX invokes this for redirects too, preserving the per-host request budget.
         client.event_hooks["request"] = [limited_request]
         request_start = time.perf_counter_ns()
-        async with client.stream("GET", target["url"], headers=headers, extensions={"trace": trace}) as response:
+        async with client.stream(row["request_method"], target["url"], headers=headers, extensions={"trace": trace}) as response:
             headers_at = time.perf_counter_ns()
             row.update(status=response.status_code, final_url=str(response.url), http_version=response.http_version,
                        headers_ms=(headers_at - request_start) / 1e6,
@@ -434,6 +444,14 @@ async def run(args):
                 continue
             host = urlsplit(target["url"]).hostname
             selected = businesswire_client if host == "businesswire.com" or host.endswith(".businesswire.com") else client
+            if target.get("warmup_url"):
+                warmup_target = {**target, "url": target["warmup_url"], "target_id": target["target_id"] + "_head_warmup",
+                                 "method": "HEAD", "purpose": "connection_warmup"}
+                warmup_result = await collect_one(selected, warmup_target, args.output, node, recent, blocked)
+                metadata.setdefault("connection_warmups", []).append(warmup_result)
+                if not warmup_result["http_response_complete"] or warmup_result["status"] in (401, 403, 429) or warmup_result["status"] >= 500:
+                    metadata.setdefault("skipped_targets_after_warmup", []).append(target["target_id"])
+                    continue
             results.append(await collect_one(selected, target, args.output, node, recent, blocked))
             if args.scope.startswith("msgk-cache-control") and (results[-1]["status"] != 200 or not results[-1]["http_response_complete"]):
                 metadata["comparison_stopped"] = "target_request_not_successful"
@@ -443,14 +461,14 @@ async def run(args):
                     passed=sum(row["budget_passed"] for row in results),
                     failures=sum(bool(row.get("error_type")) for row in results))
     (args.output / "summary.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-    return 0 if results and all(row["complete"] and row["archived"] for row in results) and not metadata.get("comparison_stopped") else 1
+    return 0 if results and all(row["complete"] and row["archived"] for row in results) and not metadata.get("comparison_stopped") and not metadata.get("skipped_targets_after_warmup") else 1
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf"), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes"), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 

@@ -14,6 +14,7 @@ on:
           - msgk-cache-control
           - msgk-cache-control-reverse
           - bam-pdf
+          - alternate-routes
         default: all
 
 permissions:
