@@ -85,6 +85,9 @@ async def identify_node(client):
 def select_targets(targets, scope):
     if scope == "all":
         return targets
+    if scope == "msgk-issuer-cold":
+        target = {key: value for key, value in select_targets(targets, "alternate-routes")[1].items() if key != "warmup_url"}
+        return [{**target, "http1": True}]
     if scope == "alternate-routes":
         bam = select_targets(targets, "bam-pdf")[0]
         wire = next(row for row in targets if row["event"]["symbol"] == "MSGK" and row["channel"] == "newswire")
@@ -424,7 +427,7 @@ async def run(args):
                     "started_utc": utc(), "parser_sources": source_manifest,
                     "pdf_pool": warmup, "target_document_preparsed": False, "targets": len(targets),
                     "requests_per_second": {"sec.gov_shared": 8, "other_hosts": 4},
-                    "transport_policy": {"businesswire.com": "HTTP/1.1 persistent client after observed HTTP/2 StreamReset error_code=2", "default": "HTTP/2 enabled"}}
+                    "transport_policy": {"businesswire.com": "HTTP/1.1 persistent client after observed HTTP/2 StreamReset error_code=2", "msgk-issuer-cold": "HTTP/1.1 cold client matching the production official collector", "default": "HTTP/2 enabled"}}
         (args.output / "run.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
         results = []
         if args.scope.startswith("msgk-cache-control"):
@@ -443,7 +446,7 @@ async def run(args):
                 results.append(await collect_watch_case(target, args.output, node))
                 continue
             host = urlsplit(target["url"]).hostname
-            selected = businesswire_client if host == "businesswire.com" or host.endswith(".businesswire.com") else client
+            selected = businesswire_client if target.get("http1") or host == "businesswire.com" or host.endswith(".businesswire.com") else client
             if target.get("warmup_url"):
                 warmup_target = {**target, "url": target["warmup_url"], "target_id": target["target_id"] + "_head_warmup",
                                  "method": "HEAD", "purpose": "connection_warmup"}
@@ -468,7 +471,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes"), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold"), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 

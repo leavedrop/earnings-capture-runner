@@ -199,6 +199,11 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(pdf[0]["canonical_previous_status"], 403)
         self.assertEqual(pdf[0]["reference"]["pdf_pages_total"], 10)
         self.assertEqual(len(pdf[0]["reference"]["financial_row_sha256"]), 6)
+        issuer = select_targets(targets, "msgk-issuer-cold")
+        self.assertEqual(len(issuer), 1)
+        self.assertEqual((issuer[0]["event"]["symbol"], issuer[0]["channel"]), ("MSGK", "official"))
+        self.assertNotIn("warmup_url", issuer[0])
+        self.assertTrue(issuer[0]["http1"])
 
     def target(self):
         return {"target_id": "TEST_official", "channel": "official", "url": "https://example.com/report",

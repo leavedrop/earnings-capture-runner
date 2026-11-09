@@ -15,6 +15,7 @@ on:
           - msgk-cache-control-reverse
           - bam-pdf
           - alternate-routes
+          - msgk-issuer-cold
         default: all
 
 permissions:
