@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 from collections import deque
+from contextlib import AsyncExitStack
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 import hashlib
@@ -85,6 +86,11 @@ async def identify_node(client):
 def select_targets(targets, scope):
     if scope == "all":
         return targets
+    if scope == "msgk-browser-transport":
+        wire = select_targets(targets, "msgk-cache-control")[1]
+        issuer = select_targets(targets, "msgk-issuer-cold")[0]
+        return [{**target, "target_id": target["target_id"] + "_chrome", "transport": "curl_cffi_chrome"}
+                for target in (wire, issuer)]
     if scope == "msgk-issuer-cold":
         target = {key: value for key, value in select_targets(targets, "alternate-routes")[1].items() if key != "warmup_url"}
         return [{**target, "http1": True}]
@@ -181,6 +187,9 @@ async def collect_one(client, target, output, node, recent, blocked):
     row.update({key: target[key] for key in ("cache_profile", "purpose") if key in target})
     row["request_method"] = target.get("method", "GET")
     body, parsed = bytearray(), None
+    browser = target.get("transport") == "curl_cffi_chrome"
+    if browser:
+        row["transport"] = "curl_cffi_chrome"
     trace_started, trace_ms, trace_count, connections = {}, {}, 0, 0
     async def trace(name, info):
         nonlocal trace_count, connections
@@ -210,13 +219,21 @@ async def collect_one(client, target, output, node, recent, blocked):
             row["queue_ms"] += (time.perf_counter_ns() - queued) / 1e6
 
         # HTTPX invokes this for redirects too, preserving the per-host request budget.
-        client.event_hooks["request"] = [limited_request]
         request_start = time.perf_counter_ns()
-        async with client.stream(row["request_method"], target["url"], headers=headers, extensions={"trace": trace}) as response:
+        if browser:
+            from browser_transport import browser_response, browser_timing
+            await limited_request(httpx.Request(row["request_method"], target["url"]))
+            transfer = browser_response(client, row["request_method"], target["url"], headers)
+        else:
+            client.event_hooks["request"] = [limited_request]
+            transfer = client.stream(row["request_method"], target["url"], headers=headers, extensions={"trace": trace})
+        async with transfer as response:
             headers_at = time.perf_counter_ns()
             row.update(status=response.status_code, final_url=str(response.url), http_version=response.http_version,
-                       headers_ms=(headers_at - request_start) / 1e6,
+                       headers_ms=None if browser else (headers_at - request_start) / 1e6,
                        content_type=response.headers.get("content-type", ""))
+            if browser:
+                row.update(browser_timing(response))
             if target.get("document_variant"):
                 row["actual_source_url"] = str(response.url)
             row["response_cache_headers"] = {key: response.headers[key] for key in
@@ -229,14 +246,17 @@ async def collect_one(client, target, output, node, recent, blocked):
                                   parsedate_to_datetime(retry_after).timestamp() - time.time())
                 except (ValueError, TypeError, OverflowError):
                     pass
-                path = response.url.path if response.status_code == 403 else ""
+                path = urlsplit(str(response.url)).path if response.status_code == 403 else ""
                 blocked[(host_key(str(response.url)), path)] = time.perf_counter() + seconds
                 row.update(cooldown_seconds=seconds, cooldown_scope="path" if path else "host")
-            async for chunk in response.aiter_bytes():
-                body.extend(chunk)
+            if browser:
+                body.extend(response.content)
+            else:
+                async for chunk in response.aiter_bytes():
+                    body.extend(chunk)
         body_at = time.perf_counter_ns()
         row.update(http_response_complete=True, body_complete_utc=utc(),
-                   body_ms=(body_at - headers_at) / 1e6,
+                   body_ms=None if browser else (body_at - headers_at) / 1e6,
                    request_total_ms=(body_at - request_start) / 1e6,
                    discovery_to_body_ms=(body_at - started) / 1e6)
         raw = bytes(body)
@@ -273,8 +293,9 @@ async def collect_one(client, target, output, node, recent, blocked):
         row["error_type"] = type(exc).__name__
         row["error_message"] = safe_error_message(exc)
     finally:
-        row.update(transport_trace_ms=trace_ms, new_tcp_connections=connections,
-                   connection_reused=connections == 0 if trace_count else None)
+        if not browser:
+            row.update(transport_trace_ms=trace_ms, new_tcp_connections=connections,
+                       connection_reused=connections == 0 if trace_count else None)
         row["ended_utc"] = utc()
         row["invocation_to_end_ms"] = (time.perf_counter_ns() - started) / 1e6
         try:
@@ -416,13 +437,22 @@ async def run(args):
         (args.output / name).mkdir()
     warmup = await asyncio.to_thread(prewarm_pdf_pool)
     recent, blocked = {}, {}
-    async with httpx.AsyncClient(http2=True, trust_env=False, follow_redirects=True, max_redirects=5,
+    async with AsyncExitStack() as stack, httpx.AsyncClient(http2=True, trust_env=False, follow_redirects=True, max_redirects=5,
                                 timeout=httpx.Timeout(12, connect=5),
                                 limits=httpx.Limits(max_connections=8, max_keepalive_connections=8, keepalive_expiry=60)) as client, \
                httpx.AsyncClient(http2=False, trust_env=False, follow_redirects=True, max_redirects=5,
                                  timeout=httpx.Timeout(12, connect=5),
                                  limits=httpx.Limits(max_connections=2, max_keepalive_connections=2, keepalive_expiry=60)) as businesswire_client:
-        node = await identify_node(client)
+        browser_client = None
+        if args.scope == "msgk-browser-transport":
+            from browser_transport import browser_session
+            browser_client = await stack.enter_async_context(browser_session())
+        try:
+            node = await identify_node(browser_client or client)
+        except Exception as exc:
+            if browser_client is None:
+                raise
+            node = {"loc": None, "colo": None, "is_us": False, "error_type": type(exc).__name__}
         metadata = {"scope": "old_public_document_real_download_replay_not_new_release", "node": node,
                     "started_utc": utc(), "parser_sources": source_manifest,
                     "pdf_pool": warmup, "target_document_preparsed": False, "targets": len(targets),
@@ -446,7 +476,7 @@ async def run(args):
                 results.append(await collect_watch_case(target, args.output, node))
                 continue
             host = urlsplit(target["url"]).hostname
-            selected = businesswire_client if target.get("http1") or host == "businesswire.com" or host.endswith(".businesswire.com") else client
+            selected = browser_client if target.get("transport") == "curl_cffi_chrome" else businesswire_client if target.get("http1") or host == "businesswire.com" or host.endswith(".businesswire.com") else client
             if target.get("warmup_url"):
                 warmup_target = {**target, "url": target["warmup_url"], "target_id": target["target_id"] + "_head_warmup",
                                  "method": "HEAD", "purpose": "connection_warmup"}
@@ -471,7 +501,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold"), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport"), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 

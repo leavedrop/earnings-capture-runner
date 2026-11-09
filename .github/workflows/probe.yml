@@ -16,6 +16,7 @@ on:
           - bam-pdf
           - alternate-routes
           - msgk-issuer-cold
+          - msgk-browser-transport
         default: all
 
 permissions:

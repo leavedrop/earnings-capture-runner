@@ -3,10 +3,13 @@ import argparse
 from collections import deque
 import hashlib
 import gzip
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 import os
 from pathlib import Path
 import tempfile
+import threading
+import time
 import unittest
 import sqlite3
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -16,6 +19,49 @@ from probe import BASE, collect_one, collect_watch_case, content_hashes, pace, r
 
 
 class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
+    async def test_browser_transport_uses_native_first_byte_and_preserves_403_body(self):
+        from browser_transport import browser_session
+        text = "Example Corporation revenues net income earnings per share assets cash flows operating income. " * 20
+        body = ("<html><h1>Example Corporation Third Quarter 2026 Financial Results</h1><p>" + text +
+                "</p><table><tr><td>Revenue</td><td>2026</td><td>2025</td></tr><tr><td>Revenue</td><td>200</td><td>100</td></tr>"
+                "<tr><td>Net income</td><td>20</td><td>10</td></tr><tr><td>Cash flows</td><td>30</td><td>15</td></tr></table></html>").encode()
+        class Handler(BaseHTTPRequestHandler):
+            protocol_version = "HTTP/1.1"
+            def do_GET(self):
+                denied = self.path == "/denied"
+                content = b"Just a moment... Enable JavaScript and cookies" if denied else body
+                time.sleep(.02)
+                self.send_response(403 if denied else 200)
+                self.send_header("Content-Type", "text/html")
+                self.send_header("Content-Length", str(len(content)))
+                self.end_headers()
+                time.sleep(.03)
+                self.wfile.write(content)
+            def log_message(self, *args):
+                pass
+        server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                output = Path(directory); (output / "raw").mkdir(); (output / "parsed").mkdir()
+                target = {**self.target(), "url": f"http://127.0.0.1:{server.server_port}/report",
+                          "transport": "curl_cffi_chrome", "cache_profile": "ordinary"}
+                async with browser_session() as client:
+                    row = await collect_one(client, target, output, {"loc": "TEST", "colo": "LOOPBACK"}, {}, {})
+                    self.assertTrue(row["complete"])
+                    self.assertIsNone(row["headers_ms"])
+                    self.assertIsNone(row["body_ms"])
+                    self.assertLess(row["curl_cumulative_ms"]["first_response_byte"], row["curl_cumulative_ms"]["transfer_done"])
+                    self.assertGreaterEqual(row["discovery_to_parsed_ms"], 50)
+                    self.assertEqual((output / row["raw_document_artifact"]).read_bytes(), body)
+                    denied = await collect_one(client, {**target, "target_id": "TEST_denied", "url": target["url"].replace("/report", "/denied")}, output, {"loc": "TEST", "colo": "LOOPBACK"}, {}, {})
+                    self.assertEqual(denied["status"], 403)
+                    self.assertFalse(denied["complete"])
+                    self.assertIn(b"JavaScript", (output / denied["raw_document_artifact"]).read_bytes())
+        finally:
+            server.shutdown(); server.server_close(); thread.join()
+
     async def test_alternate_routes_head_only_warms_origin_and_fetches_each_target_once(self):
         targets = select_targets(json.loads((BASE / "targets.json").read_text(encoding="utf-8")), "alternate-routes")
         self.assertEqual([(t["event"]["symbol"], t["channel"]) for t in targets], [("BAM", "newswire"), ("MSGK", "official")])
@@ -204,6 +250,9 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual((issuer[0]["event"]["symbol"], issuer[0]["channel"]), ("MSGK", "official"))
         self.assertNotIn("warmup_url", issuer[0])
         self.assertTrue(issuer[0]["http1"])
+        browser = select_targets(targets, "msgk-browser-transport")
+        self.assertEqual([target["channel"] for target in browser], ["newswire", "official"])
+        self.assertTrue(all(target["transport"] == "curl_cffi_chrome" and "warmup_url" not in target for target in browser))
 
     def target(self):
         return {"target_id": "TEST_official", "channel": "official", "url": "https://example.com/report",
