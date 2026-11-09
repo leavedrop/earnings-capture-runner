@@ -1,16 +1,51 @@
 import asyncio
+import argparse
+from collections import deque
 import json
 import os
 from pathlib import Path
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
-from probe import BASE, collect_one, select_targets
+from probe import BASE, collect_one, pace, run, select_targets
 
 
 class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
+    async def test_sec_hosts_share_eight_request_budget(self):
+        clock = [.25]
+        recent = {"sec.gov": deque([0.] * 7)}
+
+        async def sleep(delay):
+            clock[0] += delay
+
+        with patch("probe.time.perf_counter", side_effect=lambda: clock[0]), patch("probe.asyncio.sleep", new_callable=AsyncMock, side_effect=sleep) as wait:
+            await pace("https://www.sec.gov/one", recent, {})
+            wait.assert_not_awaited()
+            self.assertEqual(len(recent["sec.gov"]), 8)
+            await pace("https://data.sec.gov/two", recent, {})
+            wait.assert_awaited_once_with(.75)
+
+    async def test_run_keeps_businesswire_on_one_separate_http1_client(self):
+        clients = [MagicMock(), MagicMock()]
+        for client in clients:
+            client.__aenter__ = AsyncMock(return_value=client)
+            client.__aexit__ = AsyncMock(return_value=False)
+        with tempfile.TemporaryDirectory() as directory:
+            args = argparse.Namespace(targets=BASE / "targets.json", output=Path(directory) / "outputs", scope="sec-businesswire")
+            with patch("probe.httpx.AsyncClient", side_effect=clients) as factory, \
+                    patch("probe.prewarm_pdf_pool", return_value={"workers": 0}), \
+                    patch("probe.identify_node", new_callable=AsyncMock, return_value={"loc": "US", "colo": "TEST", "is_us": True}), \
+                    patch("probe.collect_one", new_callable=AsyncMock, return_value={"complete": True, "archived": True, "budget_passed": False}) as collect:
+                self.assertEqual(await run(args), 0)
+            self.assertTrue(factory.call_args_list[0].kwargs["http2"])
+            self.assertFalse(factory.call_args_list[1].kwargs["http2"])
+            self.assertEqual(collect.await_count, 13)
+            for call in collect.await_args_list:
+                expected = clients[0] if call.args[1]["channel"] == "sec" else clients[1]
+                self.assertIs(call.args[0], expected)
+
     def test_manifest_filters_keep_only_eleven_sec_and_two_businesswire(self):
         targets = json.loads((BASE / "targets.json").read_text(encoding="utf-8"))
         self.assertEqual(len(select_targets(targets, "all")), 19)

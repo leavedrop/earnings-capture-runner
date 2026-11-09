@@ -50,13 +50,14 @@ def host_key(url):
 
 async def pace(url, recent, blocked):
     host, path = host_key(url), urlsplit(url).path
+    limit = 8 if host == "sec.gov" else 4  # Shared SEC budget stays below its 10 requests/second ceiling.
     history = recent.setdefault(host, deque())
     while True:
         now = time.perf_counter()
         while history and history[0] <= now - 1:
             history.popleft()
         until = max(blocked.get((host, ""), 0), blocked.get((host, path), 0),
-                    history[0] + 1 if len(history) >= 4 else 0)
+                    history[0] + 1 if len(history) >= limit else 0)
         if until <= now:
             history.append(now)
             return
@@ -203,13 +204,22 @@ async def run(args):
     recent, blocked = {}, {}
     async with httpx.AsyncClient(http2=True, trust_env=False, follow_redirects=True, max_redirects=5,
                                 timeout=httpx.Timeout(12, connect=5),
-                                limits=httpx.Limits(max_connections=8, max_keepalive_connections=8, keepalive_expiry=60)) as client:
+                                limits=httpx.Limits(max_connections=8, max_keepalive_connections=8, keepalive_expiry=60)) as client, \
+               httpx.AsyncClient(http2=False, trust_env=False, follow_redirects=True, max_redirects=5,
+                                 timeout=httpx.Timeout(12, connect=5),
+                                 limits=httpx.Limits(max_connections=2, max_keepalive_connections=2, keepalive_expiry=60)) as businesswire_client:
         node = await identify_node(client)
         metadata = {"scope": "old_public_document_real_download_replay_not_new_release", "node": node,
                     "started_utc": utc(), "parser_sources": source_manifest,
-                    "pdf_pool": warmup, "target_document_preparsed": False, "targets": len(targets)}
+                    "pdf_pool": warmup, "target_document_preparsed": False, "targets": len(targets),
+                    "requests_per_second": {"sec.gov_shared": 8, "other_hosts": 4},
+                    "transport_policy": {"businesswire.com": "HTTP/1.1 persistent client after observed HTTP/2 StreamReset error_code=2", "default": "HTTP/2 enabled"}}
         (args.output / "run.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-        results = [await collect_one(client, target, args.output, node, recent, blocked) for target in targets]
+        results = []
+        for target in targets:
+            host = urlsplit(target["url"]).hostname
+            selected = businesswire_client if host == "businesswire.com" or host.endswith(".businesswire.com") else client
+            results.append(await collect_one(selected, target, args.output, node, recent, blocked))
     metadata.update(finished_utc=utc(), attempted=len(results),
                     complete=sum(row["complete"] for row in results),
                     passed=sum(row["budget_passed"] for row in results),
