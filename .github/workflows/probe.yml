@@ -2,6 +2,15 @@ name: Public earnings document replay
 
 on:
   workflow_dispatch:
+    inputs:
+      scope:
+        description: Public report subset
+        type: choice
+        options:
+          - all
+          - sec
+          - sec-businesswire
+        default: all
 
 permissions:
   contents: read
@@ -21,8 +30,11 @@ jobs:
         run: python -m pip install -r requirements.txt
       - name: Check continuous timing and failure evidence offline
         run: python -m unittest -q test_probe.py
-      - name: Download and parse the 19 public reports once
-        run: python probe.py --output outputs
+      - name: Download and parse the selected public reports once
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+          PROBE_SCOPE: ${{ inputs.scope }}
+        run: python probe.py --output outputs --scope "$PROBE_SCOPE"
       - name: Preserve all results including failures
         if: always()
         uses: actions/upload-artifact@v4

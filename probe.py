@@ -8,7 +8,9 @@ from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 import hashlib
 import json
+import os
 from pathlib import Path
+import re
 import time
 from urllib.parse import urlsplit
 
@@ -27,6 +29,18 @@ def utc():
 
 def digest(value):
     return hashlib.sha256(value).hexdigest()
+
+
+def safe_error_message(exc):
+    message = str(exc)
+    identity = os.environ.get("SEC_USER_AGENT", "")
+    if identity:
+        message = message.replace(identity, "[redacted identity]")
+    message = re.sub(r"https?://[^\s\"'<>]+", lambda match: "https://" + (urlsplit(match[0]).hostname or "[host]"), message)
+    message = re.sub(r"\b(?:\d{1,3}\.){3}\d{1,3}\b|\b(?:[0-9a-fA-F]{0,4}:){2,}[0-9a-fA-F]{0,4}\b", "[IP]", message)
+    message = re.sub(r"(?i)(authorization|cookie|token|api[-_]key|password)\s*[:=]\s*[^\s,;]+", r"\1=[redacted]", message)
+    message = re.sub(r"[^\s@]+@[^\s@]+", "[redacted email]", message)
+    return message[:500]
 
 
 def host_key(url):
@@ -61,6 +75,13 @@ async def identify_node(client):
         return {"loc": None, "colo": None, "is_us": False, "error_type": type(exc).__name__}
 
 
+def select_targets(targets, scope):
+    if scope == "all":
+        return targets
+    return [row for row in targets if row["channel"] == "sec" or
+            scope == "sec-businesswire" and urlsplit(row["url"]).hostname == "www.businesswire.com"]
+
+
 async def collect_one(client, target, output, node, recent, blocked):
     started = time.perf_counter_ns()
     row = {"target_id": target["target_id"], "symbol": target["event"]["symbol"],
@@ -74,6 +95,13 @@ async def collect_one(client, target, output, node, recent, blocked):
     body, parsed = bytearray(), None
     try:
         row["queue_ms"] = 0
+        headers = dict(HEADERS)
+        if host_key(target["url"]) == "sec.gov":
+            identity = os.environ.get("SEC_USER_AGENT", "").strip()
+            if not identity:
+                row.update(error_type="identity_missing", request_skipped=True, attempts=0)
+                return row
+            headers["User-Agent"] = identity
 
         async def limited_request(request):
             queued = time.perf_counter_ns()
@@ -83,7 +111,7 @@ async def collect_one(client, target, output, node, recent, blocked):
         # HTTPX invokes this for redirects too, preserving the per-host request budget.
         client.event_hooks["request"] = [limited_request]
         request_start = time.perf_counter_ns()
-        async with client.stream("GET", target["url"], headers=HEADERS) as response:
+        async with client.stream("GET", target["url"], headers=headers) as response:
             headers_at = time.perf_counter_ns()
             row.update(status=response.status_code, final_url=str(response.url), http_version=response.http_version,
                        headers_ms=(headers_at - request_start) / 1e6,
@@ -134,6 +162,7 @@ async def collect_one(client, target, output, node, recent, blocked):
             row["error_type"] = "HTTP_" + str(row["status"])
     except Exception as exc:
         row["error_type"] = type(exc).__name__
+        row["error_message"] = safe_error_message(exc)
     finally:
         row["ended_utc"] = utc()
         row["invocation_to_end_ms"] = (time.perf_counter_ns() - started) / 1e6
@@ -160,9 +189,9 @@ async def collect_one(client, target, output, node, recent, blocked):
 
 
 async def run(args):
-    targets = json.loads(args.targets.read_text(encoding="utf-8"))
-    if len(targets) != 19 or len({row["url"] for row in targets}) != 19:
-        raise ValueError("Expected the approved 19 distinct public report URLs")
+    targets = select_targets(json.loads(args.targets.read_text(encoding="utf-8")), args.scope)
+    if not targets or len({row["url"] for row in targets}) != len(targets):
+        raise ValueError("Expected a nonempty set of distinct public report URLs")
     source_manifest = json.loads((BASE / "parser_sources.json").read_text(encoding="utf-8"))
     for name, entry in source_manifest.items():
         if digest((BASE / name).read_bytes()) != entry["sha256"]:
@@ -193,6 +222,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire"), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 
