@@ -297,6 +297,47 @@ def sec_supporting_title(form, description, *, body=None, event=None, validation
     return None
 
 
+def listing_structure(body: bytes, url: str, content_type: str, event: dict) -> str | None:
+    """A readable source is required before absence can be a negative observation.
+
+    Historical announcement links establish an HTML list, while an application
+    shell or verification page does not. These are the same evidence categories
+    used by the US runner's handoff readiness check.
+    """
+    parsed = urlparse(url)
+    try:
+        if "json" in content_type or body.lstrip().startswith((b"{", b"[")):
+            payload = json.loads(body)
+            if parsed.hostname == "data.sec.gov" and parsed.path.startswith("/submissions/") and isinstance(payload, dict):
+                filings = payload.get("filings")
+                recent = filings.get("recent") if isinstance(filings, dict) else None
+                if (str(payload.get("cik", "")).lstrip("0") == str(event.get("cik", "")).lstrip("0")
+                        and event.get("cik") and isinstance(recent, dict) and isinstance(recent.get("form"), list)):
+                    return "SEC submissions CIK and recent filings structure"
+            if parsed.hostname in ("sea.com", "www.sea.com") and parsed.path.rstrip("/") == "/api/financial/resource" and event.get("symbol") == "SE":
+                if isinstance(payload, list) and any(isinstance(row, dict) and row.get("year") and isinstance(row.get("data"), list) for row in payload):
+                    return "Official financial resource years and report entries"
+            return None
+        if any(kind in content_type for kind in ("xml", "rss", "atom")) or body.lstrip().startswith((b"<?xml", b"<rss", b"<feed")):
+            document = ElementTree.fromstring(body)
+            for item in document.iter():
+                if item.tag.rsplit("}", 1)[-1] not in ("item", "entry"):
+                    continue
+                fields = {child.tag.rsplit("}", 1)[-1]: child for child in item}
+                title, link = fields.get("title"), fields.get("link")
+                if title is not None and title.text and link is not None and (link.text or link.get("href")):
+                    return "Parsed public feed with titled entry links"
+            return None
+        for link in _document(body).iter("a"):
+            if _clean(_text(link)) and re.search(
+                    r"/(?:news-release-details|news-details|press-release-details)/|/news/home/\d+/|"
+                    r"/(?:20\d{2})/.*(?:results|earnings|reports)", link.get("href", ""), re.I):
+                return "Public announcement links present; current-quarter candidate may be absent"
+    except (ValueError, UnicodeError, ElementTree.ParseError):
+        pass
+    return None
+
+
 def discover(body: bytes, url: str, content_type: str, event: dict) -> list[dict]:
     """Return target-period links, SEC filing indexes, or EX-99 attachments."""
     found = []

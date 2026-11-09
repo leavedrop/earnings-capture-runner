@@ -168,7 +168,7 @@ class RateLimit:
     async def wait(self, url, purpose="discovery", *, discovery_interval=None):
         key = self.key(url)
         path_key = (key, urlsplit(url).path or "/")
-        pacing = 0.25 if key == "sec.gov" else (max(1/3, discovery_interval) if discovery_interval is not None else 1.0)
+        pacing = max(0.25, 1/max(1, self.sec_rps-1)) if key == "sec.gov" else (max(1/3, discovery_interval) if discovery_interval is not None else 1.0)
         reasons = set()
         # Listing probes retain their pacing. Newly discovered documents can use
         # reserved capacity immediately, within a single rolling host budget.
@@ -627,7 +627,7 @@ class Collector:
                                            discovered_mono_ns=observed_mono_ns))
 
     async def source_loop(self, session, event, source, once=False):
-        from sources import discover
+        from sources import discover, listing_structure
         channel, url = source["channel"], source["url"]
         key = (event["symbol"], channel)
         status_key = event["symbol"] + ":" + channel
@@ -635,6 +635,7 @@ class Collector:
         last_negative = None
         last_negative_mono = None
         last_sha = None
+        last_listing_basis = None
         while not self.stop.is_set():
             now = self.clock.stamp()[1]/1e9
             start, end = epoch(event["window_start"]), epoch(event["window_end"])
@@ -680,19 +681,28 @@ class Collector:
                         last_sha = digest
                         # Some sources are permanent quarterly result URLs updated in place.
                         result, parse_timing = await self.validate_document(body, rec.get("final_url", url), ctype, event)
+                        checks = result.get("checks", {})
+                        permanent_report = (bool(checks) and result.get("tables_complete") is True
+                                            and all(value for check, value in checks.items() if check != "reporting_period"))
+                        last_listing_basis = ("Validated permanent financial report" if permanent_report else
+                                              await asyncio.to_thread(listing_structure, body, rec.get("final_url", url), ctype, event))
                         if result.get("accepted"):
                             is_report = True
                             self.launch(self.candidate(session, event, channel, {"url": url, "listing_request_id": rec["id"]},
                                                        seen_at, previous_negative, existing=(rec, body, result, parse_timing),
                                                        discovered_mono_ns=rec["body_complete_mono_ns"], last_negative_mono_ns=previous_negative_mono))
+                    basis = "Target-period announcement links parsed" if found else last_listing_basis
+                    rec.update(valid_discovery=basis is not None, validity_basis=basis)
                     if found or is_report:
                         rec.update(last_negative_listing_ns=previous_negative,
                                    last_negative_listing_mono_ns=previous_negative_mono,
                                    listing_observation_gap_ms=(rec["body_complete_mono_ns"]-previous_negative_mono)/1e6
                                    if previous_negative_mono is not None else None)
-                    if not found and not is_report:
+                    if not found and not is_report and basis is not None:
                         last_negative = seen_at
                         last_negative_mono = rec["body_complete_mono_ns"]
+                    elif basis is None:
+                        self.status[status_key].update(state="source_error", error="unreadable_listing")
             except Exception as exc:
                 self.store.add("worker_error", {"symbol": event["symbol"], "channel": channel, "error": repr(exc)})
                 logging.exception("Source loop failed %s", status_key)
@@ -700,7 +710,7 @@ class Collector:
                 if rec is not None:
                     self.status[status_key].update({name: rec.get(name) for name in (
                         "request_start_utc", "request_end_utc", "request_start_mono_ns", "request_end_mono_ns",
-                        "listing_observation_gap_ms")},
+                        "listing_observation_gap_ms", "valid_discovery", "validity_basis")},
                         last_negative_listing_ns=last_negative,
                         last_negative_listing_mono_ns=last_negative_mono)
                 if rec is not None and rec.pop("_deferred_evidence", False):

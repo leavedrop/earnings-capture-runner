@@ -497,7 +497,11 @@ def read_us_runner(root):
                                     for suffix, label in ((".html", "公司官网副本解析HTML" if issuer_copy else "官方PDF解析HTML"), (".txt", "全文文本"), (".json", "文本与表格JSON"))]
                 report_url = "/employer-files/" + stem + ".html"
                 parsed_artifact = (path.parent / parsed_path).relative_to(root).as_posix()
-            metric_scope = ("先请求列表，再调用已知旧文档地址并经过生产队列、下载与全文解析；正文耗时从旧URL调用起计，列表请求与归档另列，不代表实时发现。"
+            actual_rss = (pipeline == "production_watch_list_seed" and record.get("discovery_route") == "actual_issuer_rss"
+                          and record.get("seed_listing_contains_candidate") is True and record.get("discovery_clock_preserved") is True)
+            metric_scope = ("实际从公司RSS发现已发布公告，沿同一次发现时钟完成排队、正文下载和全文解析；RSS请求开始至解析完成另列，归档和传回国内另计。属于旧公告验证，不是新公告首发。"
+                            if actual_rss else
+                            "先请求列表，再调用已知旧文档地址并经过生产队列、下载与全文解析；正文耗时从旧URL调用起计，列表请求与归档另列，不代表实时发现。"
                             if pipeline == "production_watch_list_seed" else
                             "美国节点调用已知文档地址起，包含限速排队、真实下载、哈希与全文解析；不含列表发现、归档和传回国内。")
             rows.append({
@@ -508,6 +512,8 @@ def read_us_runner(root):
                 "scope": "us_runner_document_replay", "context": "replay", "context_label": "美国节点旧报告重抓", "mode": "replay",
                 "metric_scope": metric_scope + route_note,
                 "route_note": route_note, "pipeline": pipeline,
+                "discovery_route": record.get("discovery_route"),
+                "discovery_clock_preserved": record.get("discovery_clock_preserved"),
                 "document_variant": "official_pdf_alternative" if pdf_alternative else "issuer_copy" if issuer_copy else None,
                 "actual_source_url": public_url(record.get("final_url") or record.get("url")),
                 "pdf_pages_total": parsed.get("pdf_pages_total"),
@@ -643,7 +649,7 @@ def read_attachments(root):
     return rows
 
 
-def read_us_live(root):
+def read_us_live(root, now=None):
     database = root / "us_live_observations.sqlite3"
     if not database.is_file():
         return [], {}, [], {"failed_records": 0, "groups": []}
@@ -658,18 +664,33 @@ def read_us_live(root):
             row.update(context="unknown", context_label=CONTEXTS["unknown"],
                        context_explanation="缺少此前未见公告的原始观察时间，不能认作首发记录。")
     captures.sort(key=lambda row: row.get("parsed_at_beijing") or "", reverse=True)
-    latest = max(runs, key=lambda row: row.get("updated_utc") or "", default={})
-    info = {"run_id": latest.get("run_id"), "state": latest.get("state"), "node_region": latest.get("node_region"),
-            "us_execution_qualified": latest.get("us_execution_qualified") is True,
-            "heartbeat_at_beijing": beijing(latest.get("collector_heartbeat_utc")),
-            "updated_at_beijing": beijing(latest.get("updated_utc")), "until_at_beijing": beijing(latest.get("until_utc")),
+    now = now or datetime.now(timezone.utc)
+    bridge_status = read_json(root / "us_live_bridge_status.json")
+    selected_id = bridge_status.get("selected_run_id")
+    selected = next((run for run in runs if run.get("run_id") == selected_id), {})
+    heartbeat = date_value(selected.get("collector_heartbeat_utc"))
+    selection_checked = date_value(bridge_status.get("updated_utc"))
+    active_ids = {str(value) for value in bridge_status.get("active_run_ids", [])}
+    healthy = bool(selected and selected.get("state") == "running" and selected.get("us_execution_qualified") is True
+                   and heartbeat and 0 <= (now-heartbeat).total_seconds() <= 300
+                   and selection_checked and 0 <= (now-selection_checked).total_seconds() <= 300
+                   and selected_id.split("-", 1)[0] in active_ids
+                   and selected.get("request_failures", {}).get("requests", 0) > 0)
+    current = selected if healthy else {}
+    info = {"run_id": current.get("run_id"), "selected_run_id": selected_id,
+            "state": "running" if healthy else "unconfirmed", "node_region": current.get("node_region"),
+            "selection_status": "healthy_selected_run" if healthy else "selected_run_unconfirmed" if selected_id else "no_selected_run",
+            "bridge_state": bridge_status.get("state"), "selection_checked_at_beijing": beijing(selection_checked),
+            "us_execution_qualified": healthy,
+            "heartbeat_at_beijing": beijing(current.get("collector_heartbeat_utc")),
+            "updated_at_beijing": beijing(current.get("updated_utc")), "until_at_beijing": beijing(current.get("until_utc")),
             "requests": sum(run.get("request_failures", {}).get("requests", 0) for run in runs),
             "failed_requests": sum(run.get("request_failures", {}).get("failed_requests", 0) for run in runs)}
     failures = [{"symbol": row.get("symbol"), "channel_label": "美国采集器 / " + CHANNELS.get(row.get("channel"), "其他来源"),
                  "failure_type": row.get("failure_type"), "count": row.get("count", 0),
                  "last_seen_beijing": beijing(row.get("lastseen"))}
                 for run in runs for row in run.get("failure_groups", [])]
-    return captures, info, latest.get("source_patrols", []), {"failed_records": info["failed_requests"], "groups": failures}
+    return captures, info, current.get("source_patrols", []), {"failed_records": info["failed_requests"], "groups": failures}
 
 
 def build_progress(runtime, replay_runtimes=None, now=None):
@@ -688,7 +709,7 @@ def build_progress(runtime, replay_runtimes=None, now=None):
     replays.extend(row for row in captures if row["context"] == "replay")
     captures = [row for row in captures if row["context"] != "replay"]
     local_captures = captures
-    us_captures, us_live, us_patrols, us_failures = read_us_live(runtime)
+    us_captures, us_live, us_patrols, us_failures = read_us_live(runtime, now)
     replays.extend(row for row in us_captures if row["context"] == "replay")
     us_captures = [row for row in us_captures if row["context"] != "replay"]
     captures = local_captures + us_captures
