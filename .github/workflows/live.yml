@@ -12,12 +12,22 @@ on:
         description: Comma-separated symbols; blank uses the complete public watchlist
         default: ''
         type: string
+      handoff_slot:
+        description: Two bounded handoff slots; use the opposite slot for the successor
+        default: '0'
+        type: choice
+        options: ['0', '1']
+      sec_rps:
+        description: SEC rolling budget; 2 during legacy 8-rps migration, then 4 per run
+        default: '2'
+        type: choice
+        options: ['2', '4']
 
 permissions:
   contents: write
 
 concurrency:
-  group: earnings-live
+  group: earnings-live-${{ inputs.handoff_slot }}
   cancel-in-progress: false
 
 jobs:
@@ -41,8 +51,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DURATION_MINUTES: ${{ inputs.duration_minutes }}
           WATCH_SYMBOLS: ${{ inputs.symbols }}
+          HANDOFF_SLOT: ${{ inputs.handoff_slot }}
+          SEC_RPS: ${{ inputs.sec_rps }}
           PYTHONUNBUFFERED: '1'
-        run: python live/run_live.py --duration-minutes "$DURATION_MINUTES" --symbols "$WATCH_SYMBOLS" --output live/outputs
+        run: python live/run_live.py --duration-minutes "$DURATION_MINUTES" --symbols "$WATCH_SYMBOLS" --handoff-slot "$HANDOFF_SLOT" --sec-rps "$SEC_RPS" --output live/outputs
       - name: Preserve the final safe snapshot
         if: always()
         uses: actions/upload-artifact@v4

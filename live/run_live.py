@@ -5,6 +5,7 @@ import argparse
 import base64
 from contextlib import closing
 from datetime import datetime, timedelta, timezone
+import gzip
 import hashlib
 import json
 import os
@@ -16,6 +17,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import xml.etree.ElementTree as ET
 
 import httpx
 
@@ -42,6 +44,75 @@ def public_bytes(value):
 def write_public(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(public_bytes(value))
+
+
+def handoff_sources(runtime, status, connection, metadata):
+    """Read completed discovery evidence; a successful HTML shell is not readiness."""
+    events = json.loads((BASE / "watchlist.json").read_text(encoding="utf-8"))
+    selected = set(filter(None, metadata.get("symbols", "").split(",")))
+    latest, first = {}, {}
+    if connection is not None:
+        for symbol, channel, payload in connection.execute("""
+            SELECT symbol,channel,payload FROM log WHERE id IN (
+              SELECT max(id) FROM log WHERE kind='request' AND json_extract(payload,'$.purpose')='discovery'
+              GROUP BY symbol,channel)"""):
+            latest[(symbol, channel)] = json.loads(payload)
+        for symbol, channel, payload in connection.execute("""
+            SELECT symbol,channel,payload FROM log WHERE id IN (
+              SELECT min(id) FROM log WHERE kind='request' AND json_extract(payload,'$.purpose')='discovery'
+              GROUP BY symbol,channel)"""):
+            first[(symbol, channel)] = json.loads(payload)
+    now = datetime.now(timezone.utc)
+    rows = []
+    for event in events:
+        if selected and event["symbol"] not in selected:
+            continue
+        for source in event["sources"]:
+            symbol, channel = event["symbol"], source["channel"]
+            key = (symbol, channel)
+            patrol = status.get("source_status", {}).get(symbol + ":" + channel, {})
+            completed = patrol.get("state") in ("captured", "captured_monitoring_later_filings")
+            required = (not completed and datetime.fromisoformat(event["window_start"]) <= now
+                        <= datetime.fromisoformat(event["window_end"]))
+            rec, initial = latest.get(key, {}), first.get(key, {})
+            valid, basis = False, None
+            if required and rec.get("status") in (200, 304) and rec.get("request_end_utc"):
+                digest = rec.get("sha256") or rec.get("reused_sha256")
+                if digest:
+                    try:
+                        with gzip.open(runtime / "raw" / (digest + ".gz"), "rb") as stream:
+                            body = stream.read()
+                        if channel == "sec":
+                            document = json.loads(body)
+                            valid = (int(document.get("cik", -1)) == int(event["cik"])
+                                     and isinstance(document.get("filings", {}).get("recent"), dict))
+                            basis = "SEC submissions CIK and recent filings structure"
+                        elif source.get("kind") == "rss" or body.lstrip().startswith(b"<?xml"):
+                            document = ET.fromstring(body)
+                            valid = any(item.tag.rsplit("}", 1)[-1] in ("item", "entry") for item in document.iter())
+                            basis = "Parsed public feed with entries"
+                        else:
+                            from sources import discover
+                            valid = bool(discover(body, rec.get("final_url") or source["url"],
+                                                 rec.get("response_headers", {}).get("content-type", ""), event))
+                            if not valid:
+                                from bs4 import BeautifulSoup
+                                page = BeautifulSoup(body, "lxml")
+                                # Historical entries establish a functioning list before the new quarter appears.
+                                valid = any(re.search(r"/(?:news-release-details|news-details|press-release-details)/|/(?:20\d{2})/.*(?:results|earnings|reports)",
+                                                      link.get("href", ""), re.I) for link in page.select("a[href]"))
+                            basis = "Public announcement links present; current-quarter candidate may be absent"
+                    except (ValueError, OSError, ET.ParseError):
+                        pass
+            rows.append({"symbol": symbol, "channel": channel, "url": source["url"],
+                         "window_start": event["window_start"], "window_end": event["window_end"],
+                         "completed": completed, "required": required, "state": patrol.get("state"),
+                         "status": rec.get("status"), "request_start_utc": rec.get("request_start_utc"),
+                         "request_end_utc": rec.get("request_end_utc"),
+                         "first_request_start_utc": initial.get("request_start_utc"),
+                         "first_request_end_utc": initial.get("request_end_utc"),
+                         "valid_discovery": valid, "validity_basis": basis if valid else None})
+    return rows
 
 
 def snapshot(runtime, checkout, metadata, cached):
@@ -104,10 +175,16 @@ def snapshot(runtime, checkout, metadata, cached):
                                  error_type if re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,39}", error_type) else "RequestError",
                                  "count": count, "lastseen": datetime.fromtimestamp(at / 1e9, timezone.utc).isoformat()})
     status = progress.read_json(runtime / "status.json")
+    if database.exists():
+        with closing(sqlite3.connect(database.as_uri() + "?mode=ro", uri=True)) as connection:
+            readiness = handoff_sources(runtime, status, connection, metadata)
+    else:
+        readiness = handoff_sources(runtime, status, None, metadata)
     data = {**metadata, "schema_version": 1, "updated_utc": utc(),
             "collector_heartbeat_utc": status.get("updated_utc"),
             "captures": list(cached.values()), "capture_count": len(cached),
             "source_patrols": progress.source_patrols(status, "US live runner"),
+            "handoff_sources": readiness,
             "request_failures": {"requests": requests, "failed_requests": failed_requests},
             "failure_groups": failures,
             "publication_scope": "Public documents and safe fields; no raw database, headers or private identity",
@@ -118,13 +195,13 @@ def snapshot(runtime, checkout, metadata, cached):
 
 
 def git(arguments, directory, env):
-    result = subprocess.run(["git", *arguments], cwd=directory, env=env, capture_output=True, text=True)
+    result = subprocess.run(["git", *arguments], cwd=directory, env=env, capture_output=True, text=True, timeout=45)
     if result.returncode:
         raise RuntimeError("Evidence git operation failed: " + arguments[0])
     return result.stdout.strip()
 
 
-def evidence_checkout(directory, repository, token):
+def evidence_checkout(directory, repository, token, branch):
     env = dict(os.environ)
     authorization = base64.b64encode(("x-access-token:" + token).encode()).decode()
     env.update(GIT_TERMINAL_PROMPT="0", GIT_CONFIG_COUNT="1",
@@ -132,12 +209,12 @@ def evidence_checkout(directory, repository, token):
                GIT_CONFIG_VALUE_0="AUTHORIZATION: basic " + authorization)
     git(["init", "--quiet"], directory, env)
     git(["remote", "add", "origin", "https://github.com/" + repository + ".git"], directory, env)
-    exists = git(["ls-remote", "--heads", "origin", "refs/heads/evidence"], directory, env)
+    exists = git(["ls-remote", "--heads", "origin", "refs/heads/" + branch], directory, env)
     if exists:
-        git(["fetch", "--depth=1", "origin", "evidence"], directory, env)
-        git(["checkout", "-B", "evidence", "FETCH_HEAD"], directory, env)
+        git(["fetch", "--depth=1", "origin", branch], directory, env)
+        git(["checkout", "-B", branch, "FETCH_HEAD"], directory, env)
     else:
-        git(["checkout", "--orphan", "evidence"], directory, env)
+        git(["checkout", "--orphan", branch], directory, env)
     git(["config", "user.name", "github-actions[bot]"], directory, env)
     git(["config", "user.email", "41898282+github-actions[bot]@users.noreply.github.com"], directory, env)
     (directory / ".gitattributes").write_text("reports/** -text\n", encoding="utf-8")
@@ -150,13 +227,28 @@ def publish(checkout, env, run_id):
         git(["add", "--", "reports"], checkout, env)
     if git(["diff", "--cached", "--name-only"], checkout, env):
         git(["commit", "--quiet", "-m", "Update public live earnings evidence"], checkout, env)
-        git(["push", "origin", "HEAD:refs/heads/evidence"], checkout, env)
+        git(["push", "origin", "HEAD:refs/heads/evidence-" + run_id], checkout, env)
+
+
+def retirement_requested(repository, token, run_id):
+    # Separate control branch: the bridge never edits a producer's evidence branch.
+    with httpx.Client(trust_env=False, timeout=5) as client:
+        response = client.get(f"https://api.github.com/repos/{repository}/contents/controls/retire-{run_id}.json",
+                              params={"ref": "handoff-control"},
+                              headers={"Authorization": "Bearer " + token, "Cache-Control": "no-cache"})
+    if response.status_code == 404:
+        return False
+    response.raise_for_status()
+    command = json.loads(base64.b64decode(response.json()["content"]))
+    return command.get("run_id") == run_id and command.get("action") == "retire_after_healthy_successor"
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--duration-minutes", type=int, default=300)
     parser.add_argument("--symbols", default="")
+    parser.add_argument("--handoff-slot", type=int, choices=(0, 1), default=0)
+    parser.add_argument("--sec-rps", type=int, choices=(2, 4), default=2)
     parser.add_argument("--output", type=Path, default=BASE / "outputs")
     args = parser.parse_args()
     if not 1 <= args.duration_minutes <= 300:
@@ -182,7 +274,7 @@ def main():
     signal.signal(signal.SIGINT, interrupt)
     with tempfile.TemporaryDirectory(prefix="earnings-public-evidence-") as temporary:
         checkout = Path(temporary)
-        env = evidence_checkout(checkout, repository, token)
+        env = evidence_checkout(checkout, repository, token, "evidence-" + run_id)
         node = {"loc": None, "colo": None}
         try:
             with httpx.Client(trust_env=False, timeout=10) as client:
@@ -194,8 +286,12 @@ def main():
             pass
         started = datetime.now(timezone.utc)
         until = min(started + timedelta(minutes=args.duration_minutes), datetime.fromisoformat("2026-11-13T13:03:00+08:00"))
+        hard_stop = min(until + timedelta(minutes=20), datetime.fromisoformat("2026-11-13T13:03:00+08:00"))
         metadata = {"run_id": run_id, "node": node, "started_utc": started.isoformat(),
-                    "until_utc": until.isoformat(), "state": "starting", "mode": "live",
+                    "until_utc": until.isoformat(), "hard_stop_utc": hard_stop.isoformat(), "state": "starting", "mode": "live",
+                    "handoff_slot": args.handoff_slot, "sec_rps": args.sec_rps, "symbols": args.symbols,
+                    "handoff_control_version": 1,
+                    "evidence_branch": "evidence-" + run_id,
                     "source_sha256": hashes, "startup_gap_semantics": "Monitoring starts only after the collector's first actual source request"}
         cached = {}
         if node.get("loc") != "US" or not node.get("colo") or not os.environ.get("SEC_USER_AGENT", "").strip() or until <= started:
@@ -210,12 +306,21 @@ def main():
         command = [sys.executable, str(BASE / "watch.py"), "run", "--manifest", str(BASE / "watchlist.json"),
                    "--output", str(runtime), "--symbols", args.symbols,
                    "--node", "github-actions-" + node["loc"] + "-" + node["colo"] + "-" + run_id,
-                   "--until", until.isoformat()]
+                   "--sec-rps", str(args.sec_rps), "--until", hard_stop.isoformat()]
         with (runtime / "launcher.log").open("w", encoding="utf-8") as log:
             process = subprocess.Popen(command, env=child_env, cwd=BASE, stdout=log, stderr=log)
-            last_publish, last_count = 0., -1
+            last_publish, last_count, last_control = 0., -1, 0.
             try:
-                while process.poll() is None and not stop and datetime.now(timezone.utc) < until:
+                while process.poll() is None and not stop and datetime.now(timezone.utc) < hard_stop:
+                    metadata["collector_last_alive_utc"] = utc()
+                    if time.monotonic() - last_control >= 30:
+                        try:
+                            if retirement_requested(repository, token, run_id):
+                                metadata["retirement_instruction_received_utc"] = utc()
+                                break
+                        except httpx.HTTPError as exc:
+                            print("Handoff control check failed: " + type(exc).__name__, flush=True)
+                        last_control = time.monotonic()
                     count = 0
                     database = runtime / "observations.sqlite3"
                     if database.exists():
@@ -238,7 +343,8 @@ def main():
                 except subprocess.TimeoutExpired:
                     process.terminate()
                     process.wait(timeout=15)
-                metadata.update(state="finished" if process.returncode == 0 else "collector_failed", collector_exit_code=process.returncode)
+                metadata.update(state="finished" if process.returncode == 0 else "collector_failed", collector_exit_code=process.returncode,
+                                collector_stopped_observed_utc=utc())
                 data = snapshot(runtime, checkout, metadata, cached)
                 publish(checkout, env, run_id)
                 write_public(args.output / "latest.json", data)

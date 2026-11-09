@@ -375,6 +375,9 @@ class LiveExportTest(unittest.TestCase):
                            "url": "https://example.com/report", "sha256": sha, "original_document_path": stem + ".html",
                            "discovered_utc": "2026-11-09T10:00:00+00:00", "validated_utc": "2026-11-09T10:00:00.025+00:00",
                            "already_present_on_first_poll": False, "discovery_to_parsed_ms": 25,
+                           "last_negative_listing_ns": 1794218399800000000,
+                           "last_negative_listing_mono_ns": 1000000000,
+                           "discovered_mono_ns": 1200000000, "validated_mono_ns": 1225000000,
                            "validation": {"accepted": True, "tables_complete": True},
                            "response_headers": {"set-cookie": "SECRET_TEST_TOKEN"}, "private_path": r"C:\Users\private\secret"}
                 connection.execute("insert into log values(1,'capture','TEST','official',1,?)", (json.dumps(capture),))
