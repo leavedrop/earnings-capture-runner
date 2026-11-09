@@ -84,6 +84,8 @@ async def identify_node(client):
 def select_targets(targets, scope):
     if scope == "all":
         return targets
+    if scope == "msgk-cache-control-reverse":
+        return list(reversed(select_targets(targets, "msgk-cache-control")))
     if scope == "msgk-cache-control":
         target = next(row for row in targets if row["event"]["symbol"] == "MSGK" and row["channel"] == "newswire")
         reference = json.loads((BASE / "remaining_references.json").read_text(encoding="utf-8"))["MSGK"]
@@ -358,7 +360,7 @@ async def collect_watch_case(target, output, node):
 
 async def run(args):
     targets = select_targets(json.loads(args.targets.read_text(encoding="utf-8")), args.scope)
-    if not targets or args.scope != "msgk-cache-control" and len({row["url"] for row in targets}) != len(targets):
+    if not targets or not args.scope.startswith("msgk-cache-control") and len({row["url"] for row in targets}) != len(targets):
         raise ValueError("Expected a nonempty set of distinct public report URLs")
     source_manifest = json.loads((BASE / "parser_sources.json").read_text(encoding="utf-8"))
     for name, entry in source_manifest.items():
@@ -383,13 +385,14 @@ async def run(args):
                     "transport_policy": {"businesswire.com": "HTTP/1.1 persistent client after observed HTTP/2 StreamReset error_code=2", "default": "HTTP/2 enabled"}}
         (args.output / "run.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
         results = []
-        if args.scope == "msgk-cache-control":
+        if args.scope.startswith("msgk-cache-control"):
             warmup_target = {**targets[0], "url": "https://www.businesswire.com/", "target_id": "MSGK_businesswire_homepage_warmup",
                              "cache_profile": "ordinary", "purpose": "connection_warmup"}
             warmup_result = await collect_one(businesswire_client, warmup_target, args.output, node, recent, blocked)
             metadata["connection_warmup"] = {key: warmup_result.get(key) for key in
                 ("status", "http_response_complete", "request_total_ms", "queue_ms", "transport_trace_ms", "error_type", "raw_document_artifact")}
-            metadata["comparison_scope"] = "Sequential old-document replay, no-cache then ordinary; second request may benefit from the first CDN fetch. Not a causal estimate or new-release evidence."
+            metadata["profile_order"] = [target["cache_profile"] for target in targets]
+            metadata["comparison_scope"] = "Sequential old-document replay in profile_order; second request may benefit from the first CDN fetch. Not a causal estimate or new-release evidence."
             if warmup_result["status"] != 200 or not warmup_result["http_response_complete"]:
                 metadata["comparison_stopped"] = "homepage_preconnect_not_successful"
                 targets = []
@@ -400,7 +403,7 @@ async def run(args):
             host = urlsplit(target["url"]).hostname
             selected = businesswire_client if host == "businesswire.com" or host.endswith(".businesswire.com") else client
             results.append(await collect_one(selected, target, args.output, node, recent, blocked))
-            if args.scope == "msgk-cache-control" and (results[-1]["status"] != 200 or not results[-1]["http_response_complete"]):
+            if args.scope.startswith("msgk-cache-control") and (results[-1]["status"] != 200 or not results[-1]["http_response_complete"]):
                 metadata["comparison_stopped"] = "target_request_not_successful"
                 break
     metadata.update(finished_utc=utc(), attempted=len(results),
@@ -415,7 +418,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control"), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse"), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 

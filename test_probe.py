@@ -84,6 +84,8 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
         targets = select_targets(json.loads((BASE / "targets.json").read_text(encoding="utf-8")), "msgk-cache-control")
         self.assertEqual([row["cache_profile"] for row in targets], ["no_cache", "ordinary"])
         self.assertEqual(targets[0]["url"], targets[1]["url"])
+        reversed_targets = select_targets(json.loads((BASE / "targets.json").read_text(encoding="utf-8")), "msgk-cache-control-reverse")
+        self.assertEqual(reversed_targets, list(reversed(targets)))
         for profile in ("no_cache", "ordinary"):
             async def response(request):
                 self.assertEqual(request.headers.get("cache-control"), "no-cache" if profile == "no_cache" else None)

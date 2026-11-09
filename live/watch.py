@@ -255,7 +255,9 @@ class Collector:
                 first_body_mono = time.perf_counter_ns()
             chunks.extend(chunk)
         user_agent = self.args.user_agent if RateLimit.key(url) == "sec.gov" else "EarningsWatch/1.0 automated-public-filings-research"
-        headers = {"User-Agent": user_agent, "Accept": "*/*", "Cache-Control": "no-cache"}
+        headers = {"User-Agent": user_agent, "Accept": "*/*"}
+        if purpose == "discovery":
+            headers["Cache-Control"] = "no-cache"
         cached = self.cache.get(url)
         if conditional and cached:
             if cached.get("etag"):

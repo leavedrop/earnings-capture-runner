@@ -12,6 +12,7 @@ on:
           - sec-businesswire
           - remaining-paths
           - msgk-cache-control
+          - msgk-cache-control-reverse
         default: all
 
 permissions:
