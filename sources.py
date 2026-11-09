@@ -679,6 +679,10 @@ def validate(body: bytes, url: str, content_type: str, event: dict) -> dict:
                 from pdf_tables import extract_bam_pdf_tables
                 with _PDF_LOCK:
                     native_pdf = extract_bam_pdf_tables(body, event)
+            elif event.get("symbol") == "KKR" and parsed_url.hostname == "ir.kkr.com" and parsed_url.path.startswith("/media/document/"):
+                from pdf_tables import extract_kkr_pdf_tables
+                with _PDF_LOCK:
+                    native_pdf = extract_kkr_pdf_tables(body)
             else:
                 with _PDF_LOCK, fitz.open(stream=body, filetype="pdf") as document:
                     pdf_pages_total = len(document)
@@ -788,7 +792,7 @@ def validate(body: bytes, url: str, content_type: str, event: dict) -> dict:
     if native_pdf is not None:
         result.update({key:native_pdf[key] for key in ("table_details", "page_diagnostics", "pdf_structure_checks", "tables_extraction_scope", "tables_complete", "quality_reason")})
         result["pdf_parse_ms"] = native_pdf["parse_ms"]
-        result["pdf_parse_phases_ms"] = native_pdf["phases_ms"]
+        result["pdf_parse_phases_ms"] = native_pdf.get("phases_ms")
     elif publisher_pdf_needs_review:
         result.update(tables_complete=False, tables_extraction_scope="unverified_text_alignment",
                       quality_reason="publisher_pdf_table_cells_not_verified")

@@ -6,14 +6,14 @@
     "source": "watch.py"
   },
   "sources.py": {
-    "sha256": "fe4cda1ed71b8ef7a5396acaf2be217ea5585be6bb7c4baa0f624963a624c331",
-    "production_sha256": "d0cbaf8befd91cbb48e02697b635b713e5a6114523d7cb01de233c7645d6ea00",
+    "sha256": "0bb134a61e330577fed63ac0fdc9425d4beca18a73ef14ed05420d51c38983be",
+    "production_sha256": "5e71f7d4959588ad194ce03f23ff5d49137d78270a0da4c4a5654535e027cddd",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "sources.py"
   },
   "pdf_tables.py": {
-    "sha256": "1a3554832dba52e8f4acd4b397516abc37d20e8d34f0b100eb866b1f20d4f1a3",
-    "production_sha256": "606e88c00cd870bb6a1154d8de539ae1e773dc9563528fdc3fc0051eaaa6ca14",
+    "sha256": "95d773d8b3982db6d7ab0c8d4c8ba8751fe6b16852a9fab7d6fe5e4af5474480",
+    "production_sha256": "f55b822700f6f70287f44afaf66dcd64b8b31c3eae9d7c332b420afe69eaf8c2",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "pdf_tables.py"
   },
@@ -30,8 +30,8 @@
     "source": "sec_stream.py"
   },
   "progress.py": {
-    "sha256": "26f19dd58b7d1cd3c4ad54271ebb87d2e484c8a679eefe5a86d3b125b10286df",
-    "production_sha256": "26f19dd58b7d1cd3c4ad54271ebb87d2e484c8a679eefe5a86d3b125b10286df",
+    "sha256": "d7d1f046b832e03004f0ae9a2928e50a8ec8faa8fc5ce861cdf8a8d0a862c4fa",
+    "production_sha256": "d7d1f046b832e03004f0ae9a2928e50a8ec8faa8fc5ce861cdf8a8d0a862c4fa",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "progress.py"
   },

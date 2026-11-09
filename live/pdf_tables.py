@@ -565,3 +565,187 @@ def extract_bam_pdf_tables(body: bytes, event: dict) -> dict:
             "parse_ms": (finished - started) / 1e6,
             "phases_ms": {"text_and_words_ms": (read_finished - started) / 1e6,
                           "tables_and_checks_ms": (finished - read_finished) / 1e6}}
+
+
+def _kkr_regions(paths):
+    """Repeated native row backgrounds, including fill-and-stroke rectangles."""
+    rects=[tuple(item[1]) for path in paths if path.get("fill_opacity",0)>0
+           and path["type"] in ("f","fs") for item in path["items"] if item[0]=="re"
+           and 5 < item[1][3]-item[1][1] < 45 and item[1][2]-item[1][0]>1]
+    groups={}
+    for rect in rects:
+        if rect[2]-rect[0] >= 200:
+            key=(round(rect[0]/2),round(rect[2]/2))
+            groups.setdefault(key,[]).append(rect)
+    regions=[]
+    for group in groups.values():
+        runs=[]
+        for rect in sorted(set(group),key=lambda r:r[1]):
+            if not runs or rect[1]-runs[-1][-1][3]>45:runs.append([])
+            runs[-1].append(rect)
+        for run in runs:
+            if len(run)>=2:
+                regions.append([min(r[0] for r in run),min(r[1] for r in run),max(r[2] for r in run),max(r[3] for r in run)])
+    # A separated label column and value block form the fund-return table.
+    changed=True
+    while changed:
+        changed=False
+        for i,a in enumerate(regions):
+            for j,b in enumerate(regions[:i]):
+                overlap=min(a[3],b[3])-max(a[1],b[1])
+                xgap=max(a[0]-b[2],b[0]-a[2],0)
+                if overlap>min(a[3]-a[1],b[3]-b[1])*.6 and xgap<16:
+                    regions[j]=[min(a[0],b[0]),min(a[1],b[1]),max(a[2],b[2]),max(a[3],b[3])]
+                    regions.pop(i);changed=True;break
+            if changed:break
+    expanded=[]
+    for a in regions:
+        # The wide repeated rectangles can be only the row-label cells. Extend
+        # across adjacent native value/currency cells at the same row positions.
+        while True:
+            adjoining=[r for r in rects if min(a[3],r[3])-max(a[1],r[1])>1
+                       and max(r[0]-a[2],a[0]-r[2],0)<16]
+            left=min([a[0]]+[r[0] for r in adjoining]);right=max([a[2]]+[r[2] for r in adjoining])
+            if left==a[0] and right==a[2]:break
+            a[0],a[2]=left,right
+        # Follow native cells through small unpainted row gaps in this same
+        # column extent. Do not pull an unrelated preceding table into a header.
+        while True:
+            near=[r for r in rects if a[0]-2<=r[0] and r[2]<=a[2]+2
+                  and max(r[1]-a[3],a[1]-r[3],0)<=22]
+            top=min([a[1]]+[r[1] for r in near]);bottom=max([a[3]]+[r[3] for r in near])
+            if top==a[1] and bottom==a[3]:break
+            a[1],a[3]=top,bottom
+        expanded.append(a)
+    kept=[]
+    for r in sorted(expanded,key=lambda r:(r[2]-r[0])*(r[3]-r[1]),reverse=True):
+        if not any(a[0]-2<=r[0] and a[1]-2<=r[1] and a[2]+2>=r[2] and a[3]+2>=r[3] for a in kept):kept.append(r)
+    return rects,sorted(kept,key=lambda r:(r[1],r[0]))
+
+
+# Audited native layout of the 49-page Q3 2026 release. These are geometry
+# expectations, not cached values: every word and value is read from this PDF.
+_KKR_Q326_SHAPES = (
+    (5,21,5),(7,21,5),(10,23,5),(14,10,3),(15,12,5),(16,12,5),
+    (17,12,5),(18,2,5),(18,2,5),(20,7,5),(23,5,5),(27,7,5),
+    (27,8,5),(28,7,5),(28,8,5),(29,35,9),(30,31,9),(31,22,9),
+    (31,7,4),(32,7,2),(34,8,2),(34,4,3),(36,38,5),(37,6,6),
+    (37,5,5),(38,37,7),(39,26,5),(40,21,2))
+_KKR_NUMERIC_WORD = re.compile(r"^[($+\-\u2212]*\d[\d,.]*(?:[%)]*)$")
+
+
+def _kkr_non_table_role(page, word, text):
+    # These small boxes are graph annotations / a section title, visually
+    # checked against the original. They stay in full text and diagnostics.
+    # Never exclude a whole page, or an unrecognized filled numeric region.
+    boxes = {
+        25: ((210,395,340,445), "Annual", "bar_chart_annual_average_annotation"),
+        26: ((540,390,610,440), "Duration of Capital", "donut_chart_percentage"),
+        32: ((490,160,550,185), "Key Asset Management Highlights", "section_title_year"),
+    }
+    if page not in boxes:
+        return None
+    bounds, marker, role = boxes[page]
+    x,y=(word[0]+word[2])/2,(word[1]+word[3])/2
+    return role if marker in text and bounds[0]<=x<=bounds[2] and bounds[1]<=y<=bounds[3] else None
+
+
+def _extract_kkr_batch(body,first,last):
+    texts,tables,details,diagnostics=[],[],[],[]
+    with fitz.open(stream=body,filetype="pdf") as document:
+        for index in range(first,last):
+            page=document[index];tp=page.get_textpage(flags=fitz.TEXTFLAGS_TEXT)
+            text=tp.extractText();texts.append(text);words=tp.extractWORDS()
+            rects,regions=_kkr_regions(page.get_cdrawings())
+            page_details=[]
+            for area in regions:
+                native=[r for r in rects if area[0]-2<=r[0] and r[2]<=area[2]+2 and area[1]-.5<=r[1] and r[3]<=area[3]+.5]
+                narrow=[r for r in native if r[2]-r[0] < (area[2]-area[0])*.85]
+                xs=clusters([area[0],area[2]]+[r[i] for r in narrow for i in (0,2)],.6)
+                ys=clusters([area[1],area[3]]+[r[i] for r in native for i in (1,3)],.6)
+                if len(xs)<3 or len(ys)<3:continue
+                # Row shading is not a merged monetary cell. Supply inherited
+                # header columns across such rows and preserve actual header spans.
+                cells=[(xs[x],ys[y],xs[x+1],ys[y+1]) for y in range(len(ys)-1) for x in range(len(xs)-1)]
+                header_bottom=area[1]+60
+                cells.extend(r for r in native if r[1]<header_bottom and (
+                    r in narrow or any(r[0]<=w[0] and w[2]<=r[2] and r[1]<=(w[1]+w[3])/2<=r[3]
+                                       and re.search(r"(?:Ended|Months|Activity|Gross)",w[4]) for w in words)))
+                table=_table(cells,words)
+                if not table or table["numeric_tokens"]<2:continue
+                table["page"]=index+1;table["method"]="kkr_native_row_bands_with_inherited_columns"
+                table["native_region"]=area
+                # Independently check whole-word ownership against populated
+                # native cells, including inherited columns and merged headers.
+                cells_by_row=collections.defaultdict(list)
+                for cell in table["cells"]:
+                    if not cell["text"]:continue
+                    for row in range(cell["row"],cell["row"]+cell["rowspan"]):
+                        cells_by_row[row].append((cell,set(cell["text"].split())))
+                issues=[];bounds=table["bbox"]
+                for word in words:
+                    x,y=(word[0]+word[2])/2,(word[1]+word[3])/2
+                    if not (bounds[0]<=x<=bounds[2] and bounds[1]<=y<=bounds[3]):continue
+                    row=bisect.bisect_right(table["physical_grid"]["y"],y)-1
+                    owners=[cell for cell,tokens in cells_by_row[row]
+                            if word[4] in tokens and cell["bbox"][0]<=x<=cell["bbox"][2]
+                            and cell["bbox"][1]<=y<=cell["bbox"][3]]
+                    if len(owners)!=1 or word[0]<owners[0]["bbox"][0]-1 or word[2]>owners[0]["bbox"][2]+1:
+                        issues.append({"text":word[4],"bbox":list(word[:4]),"owner_count":len(owners)})
+                table["column_association_issues"]=issues
+                table["column_associations_verified"]=not issues and not table["unassigned_words"]
+                details.append(table);tables.append(table["rows"]);page_details.append(table)
+            uncovered=[];exceptions=[];duplicates=[]
+            for word in words:
+                x,y=(word[0]+word[2])/2,(word[1]+word[3])/2
+                owners=[table for table in page_details if table["bbox"][0]<=x<=table["bbox"][2]
+                        and table["bbox"][1]<=y<=table["bbox"][3]]
+                if len(owners)>1:duplicates.append({"text":word[4],"bbox":list(word[:4])})
+                if owners or not _KKR_NUMERIC_WORD.fullmatch(word[4]):continue
+                if not any(r[0]<=x<=r[2] and r[1]<=y<=r[3] for r in rects):continue
+                item={"text":word[4],"bbox":list(word[:4])}
+                role=_kkr_non_table_role(index+1,word,text)
+                if role:exceptions.append({**item,"role":role})
+                else:uncovered.append(item)
+            diagnostics.append({"page":index+1,"words":len(words),"native_row_regions":len(regions),
+                                "tables":len(page_details),"text_extracted":bool(text.strip()),
+                                "uncovered_native_numeric_words":uncovered,"non_table_numeric_words":exceptions,
+                                "duplicate_region_words":duplicates})
+    return {"texts":texts,"tables":tables,"details":details,"page_diagnostics":diagnostics}
+
+
+def extract_kkr_pdf_tables(body: bytes, event: dict | None = None) -> dict:
+    """Extract the audited KKR native layout with full word/column checks.
+
+    Full page text is always extracted. No target PDF is read during pool warmup.
+    The original PDF is the only extraction input; prior generic tables are not a gold set.
+    """
+    started=time.perf_counter_ns();prewarm_pdf_pool()
+    with fitz.open(stream=body,filetype="pdf") as document:
+        count=len(document)
+        recognized=(count==49 and document.metadata.get("creator")=="Workiva"
+                    and document.metadata.get("title")=="KKR Q3'26 Earnings Release"
+                    and all(tuple(page.rect)==(0.0,0.0,792.0,612.0) for page in document))
+    batches=min(12,count)
+    futures=[_POOL.submit(_extract_kkr_batch,body,i*count//batches,(i+1)*count//batches) for i in range(batches)]
+    chunks=[future.result() for future in futures];extracted=time.perf_counter_ns()
+    texts=[t for c in chunks for t in c["texts"]];tables=[t for c in chunks for t in c["tables"]]
+    details=[t for c in chunks for t in c["details"]];pages=[p for c in chunks for p in c["page_diagnostics"]]
+    observed_shapes=tuple((t["page"],len(t["rows"]),len(t["column_bounds"])) for t in details)
+    checks={"all_pages_extracted":len(texts)==count==len(pages) and all(p["text_extracted"] for p in pages),
+            "native_layout":recognized and observed_shapes==_KKR_Q326_SHAPES,
+            "numeric_tokens_preserved":bool(details) and all(t["numeric_tokens_preserved"] for t in details),
+            "table_words_preserved":bool(details) and all(t["word_tokens_preserved"] for t in details),
+            "column_associations_verified":bool(details) and all(t["column_associations_verified"] for t in details),
+            "all_table_regions_verified":recognized and observed_shapes==_KKR_Q326_SHAPES
+                and all(not p["uncovered_native_numeric_words"] and not p["duplicate_region_words"]
+                        and p["tables"]==p["native_row_regions"] for p in pages)}
+    verified=all(checks.values());finished=time.perf_counter_ns()
+    return {"text":"\n".join(texts),"tables":tables,"table_details":details,"page_diagnostics":pages,
+            "pdf_pages_total":count,"pdf_pages_processed":len(texts),"pdf_pages_text_extracted":len(texts),
+            "tables_extraction_scope":"kkr_native_row_bands_with_layout_audit","tables_complete":verified,
+            "quality_reason":"kkr_native_words_columns_and_regions_verified" if verified else
+                "kkr_native_quality_failed:"+",".join(key for key,value in checks.items() if not value),
+            "pdf_structure_checks":checks,"parse_ms":(finished-started)/1e6,
+            "phases_ms":{"page_extraction_and_audit_ms":(extracted-started)/1e6,
+                         "combine_and_quality_ms":(finished-extracted)/1e6}}

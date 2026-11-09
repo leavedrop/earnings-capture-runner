@@ -731,6 +731,7 @@ def read_us_live(root, now=None):
 
 def build_progress(runtime, replay_runtimes=None, now=None):
     runtime = Path(runtime).resolve()
+    fixed_now = now
     now = now or datetime.now(timezone.utc)
     captures, failures = read_database(runtime, runtime)
     if replay_runtimes is None:
@@ -745,13 +746,12 @@ def build_progress(runtime, replay_runtimes=None, now=None):
     replays.extend(row for row in captures if row["context"] == "replay")
     captures = [row for row in captures if row["context"] != "replay"]
     local_captures = captures
-    us_captures, us_live, us_patrols, us_failures = read_us_live(runtime, now)
+    us_captures, us_live, us_patrols, us_failures = read_us_live(runtime, fixed_now)
     replays.extend(row for row in us_captures if row["context"] == "replay")
     us_captures = [row for row in us_captures if row["context"] != "replay"]
     captures = local_captures + us_captures
     status = read_json(runtime / "status.json")
     heartbeat = date_value(status.get("updated_utc"))
-    age = max(0, (now - heartbeat).total_seconds()) if heartbeat else None
     cloud = read_cloud(runtime) + read_us_runner(runtime)
     cloud_captures, cloud_failures = read_cloud_observations(runtime)
     cloud_failures["groups"].extend(us_failures["groups"])
@@ -762,6 +762,8 @@ def build_progress(runtime, replay_runtimes=None, now=None):
     patrols = source_patrols(status, "本地") + source_patrols(cloud_status, "云端") + us_patrols
     patrols.sort(key=lambda row: row["last_patrol_at_beijing"] or "", reverse=True)
     attachments = read_attachments(runtime)
+    now = fixed_now or datetime.now(timezone.utc)
+    age = max(0, (now - heartbeat).total_seconds()) if heartbeat else None
     return {
         "schema_version": 1,
         "generated_at_beijing": beijing(now),
