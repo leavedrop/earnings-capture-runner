@@ -26,6 +26,7 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
         sha = hashlib.sha256(raw).hexdigest()
         target = {**targets[1], "reference": {"url": targets[1]["url"], "raw_sha256": sha, **content_hashes(parsed)}}
         self.assertFalse(reference_match({**parsed, "tables": []}, target["reference"])["reference_tables_match"])
+        eof_proven = [True]
 
         def collector(command, **kwargs):
             self.assertEqual(command[command.index("--samples") + 1], "1")
@@ -43,6 +44,9 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
                 with gzip.open(runtime / path, "wb") as stream: stream.write(body)
                 requests.append({"purpose": purpose, "url": url, "status": 200, "raw_path": path,
                                  "queued_mono_ns": 0, "request_total_ms": 50, "queue_ms": 30,
+                                 "body_bytes": len(body), "sha256": hashlib.sha256(body).hexdigest(),
+                                 "body_complete_mono_ns": 100 if eof_proven[0] else None,
+                                 "request_end_mono_ns": 100,
                                  "response_headers_received_ms": 40, "connection_reused": purpose == "candidate",
                                  "response_headers": {"set-cookie": "SECRET_TEST_TOKEN"}})
             capture = {"original_document_path": stem + ".html", "validation": {"accepted": True, "tables_complete": True},
@@ -67,7 +71,43 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
             self.assertTrue(row["connection_reused"])
             self.assertFalse(row["seed_listing_contains_candidate"])
             self.assertEqual(row["mode"], "replay")
+            self.assertTrue(row["http_response_complete"])
+            self.assertEqual((output / row["raw_document_artifact"]).read_bytes(), raw)
             self.assertNotIn("SECRET_TEST_TOKEN", (output / ("requests_" + target["target_id"] + ".ndjson")).read_text())
+            eof_proven[0] = False
+            with patch("probe.subprocess.run", side_effect=collector):
+                missing_eof = await collect_watch_case(target, output, {"loc": "US", "colo": "TEST"})
+            self.assertFalse(missing_eof["http_response_complete"])
+            self.assertFalse(missing_eof["complete"])
+
+    async def test_cache_profiles_keep_download_trace_and_stop_after_rejection(self):
+        targets = select_targets(json.loads((BASE / "targets.json").read_text(encoding="utf-8")), "msgk-cache-control")
+        self.assertEqual([row["cache_profile"] for row in targets], ["no_cache", "ordinary"])
+        self.assertEqual(targets[0]["url"], targets[1]["url"])
+        for profile in ("no_cache", "ordinary"):
+            async def response(request):
+                self.assertEqual(request.headers.get("cache-control"), "no-cache" if profile == "no_cache" else None)
+                trace = request.extensions["trace"]
+                await trace("connection.connect_tcp.started", {})
+                await asyncio.sleep(.001)
+                await trace("connection.connect_tcp.complete", {})
+                return httpx.Response(403, content=b"Denied", headers={"age": "10", "set-cookie": "PRIVATE_COOKIE"})
+            row = await self.execute(response, {**self.target(), "cache_profile": profile})
+            self.assertFalse(row["connection_reused"])
+            self.assertGreater(row["transport_trace_ms"]["connection.connect_tcp"], 0)
+            self.assertEqual(row["response_cache_headers"], {"age": "10"})
+        clients = [MagicMock(), MagicMock()]
+        for client in clients:
+            client.__aenter__ = AsyncMock(return_value=client)
+            client.__aexit__ = AsyncMock(return_value=False)
+        with tempfile.TemporaryDirectory() as directory:
+            args = argparse.Namespace(targets=BASE / "targets.json", output=Path(directory) / "outputs", scope="msgk-cache-control")
+            with patch("probe.httpx.AsyncClient", side_effect=clients), patch("probe.prewarm_pdf_pool", return_value={}), \
+                    patch("probe.identify_node", new_callable=AsyncMock, return_value={"loc": "US", "colo": "TEST"}), \
+                    patch("probe.collect_one", new_callable=AsyncMock, return_value={"status": 403, "http_response_complete": True}) as collect:
+                self.assertEqual(await run(args), 1)
+                collect.assert_awaited_once()
+                self.assertEqual(collect.await_args.args[1]["url"], "https://www.businesswire.com/")
 
     async def test_sec_hosts_share_eight_request_budget(self):
         clock = [.25]

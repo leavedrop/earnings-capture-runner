@@ -11,6 +11,7 @@ on:
           - sec
           - sec-businesswire
           - remaining-paths
+          - msgk-cache-control
         default: all
 
 permissions:

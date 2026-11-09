@@ -84,6 +84,11 @@ async def identify_node(client):
 def select_targets(targets, scope):
     if scope == "all":
         return targets
+    if scope == "msgk-cache-control":
+        target = next(row for row in targets if row["event"]["symbol"] == "MSGK" and row["channel"] == "newswire")
+        reference = json.loads((BASE / "remaining_references.json").read_text(encoding="utf-8"))["MSGK"]
+        return [{**target, "target_id": target["target_id"] + "_" + profile,
+                 "cache_profile": profile, "reference": reference} for profile in ("no_cache", "ordinary")]
     if scope == "remaining-paths":
         references = json.loads((BASE / "remaining_references.json").read_text(encoding="utf-8"))
         selected = []
@@ -129,10 +134,24 @@ async def collect_one(client, target, output, node, recent, blocked):
            "timing_scope": "known URL invocation through rate queue, real network download, hash and full parse; excludes subsequent artifact writes",
            "new_release_evidence": False}
     row.update({key: target[key] for key in ("canonical_url", "canonical_previous_status", "canonical_previous_run") if key in target})
+    row.update({key: target[key] for key in ("cache_profile", "purpose") if key in target})
     body, parsed = bytearray(), None
+    trace_started, trace_ms, trace_count, connections = {}, {}, 0, 0
+    async def trace(name, info):
+        nonlocal trace_count, connections
+        trace_count += 1
+        stage, event = name.rsplit(".", 1)
+        if name.endswith("connect_tcp.started"):
+            connections += 1
+        if event == "started":
+            trace_started[stage] = time.perf_counter_ns()
+        elif event in ("complete", "failed") and stage in trace_started:
+            trace_ms[stage] = trace_ms.get(stage, 0) + (time.perf_counter_ns() - trace_started.pop(stage)) / 1e6
     try:
         row["queue_ms"] = 0
         headers = dict(HEADERS)
+        if target.get("cache_profile") == "ordinary":
+            headers.pop("Cache-Control")
         if host_key(target["url"]) == "sec.gov":
             identity = os.environ.get("SEC_USER_AGENT", "").strip()
             if not identity:
@@ -148,11 +167,13 @@ async def collect_one(client, target, output, node, recent, blocked):
         # HTTPX invokes this for redirects too, preserving the per-host request budget.
         client.event_hooks["request"] = [limited_request]
         request_start = time.perf_counter_ns()
-        async with client.stream("GET", target["url"], headers=headers) as response:
+        async with client.stream("GET", target["url"], headers=headers, extensions={"trace": trace}) as response:
             headers_at = time.perf_counter_ns()
             row.update(status=response.status_code, final_url=str(response.url), http_version=response.http_version,
                        headers_ms=(headers_at - request_start) / 1e6,
                        content_type=response.headers.get("content-type", ""))
+            row["response_cache_headers"] = {key: response.headers[key] for key in
+                ("cache-control", "age", "x-cache", "x-cache-hits", "cf-cache-status", "date", "etag", "last-modified", "connection") if key in response.headers}
             if response.status_code in (403, 429):
                 retry_after = response.headers.get("retry-after", "")
                 seconds = 120
@@ -173,7 +194,7 @@ async def collect_one(client, target, output, node, recent, blocked):
                    discovery_to_body_ms=(body_at - started) / 1e6)
         raw = bytes(body)
         row.update(bytes=len(raw), sha256=digest(raw))
-        if row["status"] == 200:
+        if row["status"] == 200 and target.get("purpose") != "connection_warmup":
             parse_queued = time.perf_counter_ns()
 
             def parse():
@@ -199,12 +220,14 @@ async def collect_one(client, target, output, node, recent, blocked):
                        checks=parsed.get("checks"), quality_reason=parsed.get("quality_reason") or parsed.get("reason"),
                        pdf_pages_total=parsed.get("pdf_pages_total"), pdf_pages_processed=parsed.get("pdf_pages_processed"),
                        pdf_structure_checks=parsed.get("pdf_structure_checks"))
-        else:
+        elif row["status"] != 200:
             row["error_type"] = "HTTP_" + str(row["status"])
     except Exception as exc:
         row["error_type"] = type(exc).__name__
         row["error_message"] = safe_error_message(exc)
     finally:
+        row.update(transport_trace_ms=trace_ms, new_tcp_connections=connections,
+                   connection_reused=connections == 0 if trace_count else None)
         row["ended_utc"] = utc()
         row["invocation_to_end_ms"] = (time.perf_counter_ns() - started) / 1e6
         try:
@@ -213,6 +236,7 @@ async def collect_one(client, target, output, node, recent, blocked):
                 name = target["target_id"] + suffix
                 (output / "raw" / name).write_bytes(body)
                 row["artifacts"].append("raw/" + name)
+                row["raw_document_artifact"] = "raw/" + name
                 row.setdefault("bytes", len(body))
                 row.setdefault("sha256", digest(body))
             if parsed is not None:
@@ -223,7 +247,8 @@ async def collect_one(client, target, output, node, recent, blocked):
         except OSError as exc:
             row["archive_error_type"] = type(exc).__name__
         row["invocation_to_archived_ms"] = (time.perf_counter_ns() - started) / 1e6
-        with (output / "results.ndjson").open("a", encoding="utf-8") as stream:
+        log_name = "warmup.ndjson" if target.get("purpose") == "connection_warmup" else "results.ndjson"
+        with (output / log_name).open("a", encoding="utf-8") as stream:
             stream.write(json.dumps(row, ensure_ascii=False) + "\n")
         print(json.dumps({key: row.get(key) for key in ("target_id", "symbol", "status", "discovery_to_parsed_ms", "complete", "budget_passed", "error_type")}), flush=True)
     return row
@@ -235,6 +260,7 @@ async def collect_watch_case(target, output, node):
            "channel": target["channel"], "url": target["url"], "mode": "replay", "node": node,
            "started_utc": utc(), "parsed_utc": None, "status": None, "attempts": 1,
            "discovery_to_parsed_ms": None, "budget_passed": False, "complete": False,
+           "http_response_complete": False,
            "archived": False, "artifacts": [], "new_release_evidence": False,
            "pipeline": "production_watch_list_seed",
            "timing_scope": "Known old URL invocation after one real listing request; production queue/download/full parse. Listing request and CLI startup reported separately. Reference hash comparison is a post-capture audit.",
@@ -283,6 +309,14 @@ async def collect_watch_case(target, output, node):
                     row.update(status=request.get("status"), queue_ms=request.get("queue_ms"),
                                headers_ms=request.get("response_headers_received_ms"), request_total_ms=request.get("request_total_ms"),
                                http_version=request.get("http_version"), connection_reused=request.get("connection_reused"))
+                    body_verified = bool(raw) and len(raw) == request.get("body_bytes") and digest(raw) == request.get("sha256")
+                    row["http_response_complete"] = (body_verified and request.get("body_complete_mono_ns") is not None
+                        and request.get("request_end_mono_ns") == request["body_complete_mono_ns"] and not request.get("error"))
+                    if body_verified:
+                        canonical = "raw/" + target["target_id"] + ".html"
+                        (output / canonical).write_bytes(raw)
+                        row["artifacts"].append(canonical)
+                        row.update(raw_document_artifact=canonical, bytes=len(raw), sha256=digest(raw))
                 public_requests.append(safe)
             request_log = "requests_" + target["target_id"] + ".ndjson"
             (output / request_log).write_text("".join(json.dumps(record, ensure_ascii=False) + "\n" for record in public_requests), encoding="utf-8")
@@ -295,7 +329,7 @@ async def collect_watch_case(target, output, node):
                 comparison = reference_match(parsed, target["reference"])
                 verdict = capture["validation"]
                 parsed.update({key: verdict[key] for key in ("accepted", "tables_complete", "checks", "reason", "title") if key in verdict})
-                complete = verdict.get("accepted") is True and verdict.get("tables_complete") is True and comparison["reference_text_matches"] and comparison["reference_tables_match"]
+                complete = row["http_response_complete"] and verdict.get("accepted") is True and verdict.get("tables_complete") is True and comparison["reference_text_matches"] and comparison["reference_tables_match"]
                 elapsed = capture.get("discovery_to_parsed_ms")
                 row.update(**comparison, complete=complete, discovery_to_parsed_ms=elapsed,
                            budget_passed=complete and elapsed is not None and elapsed <= 300,
@@ -324,7 +358,7 @@ async def collect_watch_case(target, output, node):
 
 async def run(args):
     targets = select_targets(json.loads(args.targets.read_text(encoding="utf-8")), args.scope)
-    if not targets or len({row["url"] for row in targets}) != len(targets):
+    if not targets or args.scope != "msgk-cache-control" and len({row["url"] for row in targets}) != len(targets):
         raise ValueError("Expected a nonempty set of distinct public report URLs")
     source_manifest = json.loads((BASE / "parser_sources.json").read_text(encoding="utf-8"))
     for name, entry in source_manifest.items():
@@ -349,6 +383,16 @@ async def run(args):
                     "transport_policy": {"businesswire.com": "HTTP/1.1 persistent client after observed HTTP/2 StreamReset error_code=2", "default": "HTTP/2 enabled"}}
         (args.output / "run.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
         results = []
+        if args.scope == "msgk-cache-control":
+            warmup_target = {**targets[0], "url": "https://www.businesswire.com/", "target_id": "MSGK_businesswire_homepage_warmup",
+                             "cache_profile": "ordinary", "purpose": "connection_warmup"}
+            warmup_result = await collect_one(businesswire_client, warmup_target, args.output, node, recent, blocked)
+            metadata["connection_warmup"] = {key: warmup_result.get(key) for key in
+                ("status", "http_response_complete", "request_total_ms", "queue_ms", "transport_trace_ms", "error_type", "raw_document_artifact")}
+            metadata["comparison_scope"] = "Sequential old-document replay, no-cache then ordinary; second request may benefit from the first CDN fetch. Not a causal estimate or new-release evidence."
+            if warmup_result["status"] != 200 or not warmup_result["http_response_complete"]:
+                metadata["comparison_stopped"] = "homepage_preconnect_not_successful"
+                targets = []
         for target in targets:
             if target.get("pipeline") == "production_watch_list_seed":
                 results.append(await collect_watch_case(target, args.output, node))
@@ -356,19 +400,22 @@ async def run(args):
             host = urlsplit(target["url"]).hostname
             selected = businesswire_client if host == "businesswire.com" or host.endswith(".businesswire.com") else client
             results.append(await collect_one(selected, target, args.output, node, recent, blocked))
+            if args.scope == "msgk-cache-control" and (results[-1]["status"] != 200 or not results[-1]["http_response_complete"]):
+                metadata["comparison_stopped"] = "target_request_not_successful"
+                break
     metadata.update(finished_utc=utc(), attempted=len(results),
                     complete=sum(row["complete"] for row in results),
                     passed=sum(row["budget_passed"] for row in results),
                     failures=sum(bool(row.get("error_type")) for row in results))
     (args.output / "summary.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-    return 0 if all(row["complete"] and row["archived"] for row in results) else 1
+    return 0 if results and all(row["complete"] and row["archived"] for row in results) and not metadata.get("comparison_stopped") else 1
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths"), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control"), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 
