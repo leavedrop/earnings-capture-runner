@@ -560,11 +560,12 @@ def validate(body: bytes, url: str, content_type: str, event: dict) -> dict:
                 from pdf_tables import extract_pdf_tables
                 with _PDF_LOCK:
                     native_pdf = extract_pdf_tables(body)
-                text = native_pdf["text"]
-                tables = native_pdf["tables"]
-                pdf_pages_total = native_pdf["pdf_pages_total"]
-                pdf_pages_processed = native_pdf["pdf_pages_processed"]
-                title = _pdf_title(text)
+            elif event.get("symbol") == "BAM" and (
+                parsed_url.hostname in ("globenewswire.com", "www.globenewswire.com") and parsed_url.path.startswith("/news-release/")
+                or parsed_url.hostname == "pnr-files.pro1.gus.wdc.dianum.io" and parsed_url.path.startswith("/globenewswire/articles/")):
+                from pdf_tables import extract_bam_pdf_tables
+                with _PDF_LOCK:
+                    native_pdf = extract_bam_pdf_tables(body, event)
             else:
                 with _PDF_LOCK, fitz.open(stream=body, filetype="pdf") as document:
                     pdf_pages_total = len(document)
@@ -584,6 +585,12 @@ def validate(body: bytes, url: str, content_type: str, event: dict) -> dict:
                                 if any(str(cell or "").strip() for row in rows for cell in row):
                                     tables.append(rows)
                         pdf_pages_processed += 1
+            if native_pdf is not None:
+                text = native_pdf["text"]
+                tables = native_pdf["tables"]
+                pdf_pages_total = native_pdf["pdf_pages_total"]
+                pdf_pages_processed = native_pdf["pdf_pages_processed"]
+                title = _pdf_title(text)
         except Exception as exc:
             return {"accepted": False, "reason": "pdf_parse_error: " + type(exc).__name__,
                     "title": title, "text": "\n".join(pages), "tables": tables, "publisher_timestamp": timestamp,

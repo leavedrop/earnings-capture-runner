@@ -28,5 +28,23 @@
       "ea8df5a4c9323f824b26911c90c9722eb7464aca206abc3d628d4bf26f8e2413",
       "ea38cea48a79f15b1a3db8ecee475160e00c78a5707f2f18ae22c032214f7f8c"
     ]
+  },
+  "BAM_PDF": {
+    "url": "https://pnr-files.pro1.gus.wdc.dianum.io/globenewswire/articles/3397448/en/brookfield-asset-management-announces-strong.pdf",
+    "raw_sha256": "de527e184fe48c8085876ad1e11f17ad0fc3e970287bb2e0fcea3087bdc86783",
+    "text_sha256": "1156f9d3fcc0337c5b0a3a4508f8521090dc5761ffd829d1454af494a01c7127",
+    "pdf_pages_total": 10,
+    "independent_html_raw_sha256": "06d02b902af2c890889a1941dc098a46aab636d55b0f695738ee9f6ad1681bcb",
+    "independent_html_financial_tables": 6,
+    "independent_html_verified_rows": 79,
+    "reference_scope": "PDF complete native page text and 6 geometric financial tables; all 79 rows verified independently against canonical HTML; parser does not read reference HTML",
+    "financial_row_sha256": [
+      "b94551a8d1f0bc7d6817ebf7ad012be1efc2c5b66a3efd3542fb77c0b4bb75a9",
+      "ed1f6763c7a86c611569105baac28b7099b1f27a4524bde61ccf02606770d430",
+      "3c1bbfb5bd3b72b5ee47aed392e4c76a7e3d691c0be8737c5642396c5ee72734",
+      "3296a1b50cd1956674260107e3023ebf4fb2493894a99f3268ecb619111f547a",
+      "689c79c58957b6727b4dd60a40c9f6afc0a9bd3863849a54b514a34d9bf17ef4",
+      "ff205bd0eba301a65840ae3e0d51c873abfb279c0859be55456b136b309284e6"
+    ]
   }
 }

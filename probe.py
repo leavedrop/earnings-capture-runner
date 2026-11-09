@@ -17,6 +17,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import unicodedata
 from urllib.parse import urlsplit
 
 import httpx
@@ -84,6 +85,13 @@ async def identify_node(client):
 def select_targets(targets, scope):
     if scope == "all":
         return targets
+    if scope == "bam-pdf":
+        target = next(row for row in targets if row["event"]["symbol"] == "BAM" and row["channel"] == "newswire")
+        reference = json.loads((BASE / "remaining_references.json").read_text(encoding="utf-8"))["BAM_PDF"]
+        return [{**target, "target_id": target["target_id"] + "_official_pdf", "url": reference["url"],
+                 "canonical_url": target["url"], "canonical_previous_status": 403, "canonical_previous_run": "42573904389",
+                 "document_variant": "official_pdf_alternative", "route_note": "财经稿（官方PDF备用）",
+                 "cache_profile": "ordinary", "reference": reference}]
     if scope == "msgk-cache-control-reverse":
         return list(reversed(select_targets(targets, "msgk-cache-control")))
     if scope == "msgk-cache-control":
@@ -118,11 +126,31 @@ def content_hashes(parsed):
                              for table in parsed["tables"]]}
 
 
+def financial_row_hashes(tables):
+    hashes = []
+    for table in tables:
+        rows = []
+        for row in table:
+            label = re.sub(r"[^a-z]", "", unicodedata.normalize("NFKC", row[0]).lower())
+            cells = " ".join(str(cell or "") for cell in row[1:])
+            cells = re.sub(r"\s+\)", ")", re.sub(r"\(\s+", "(", cells))
+            rows.append([label, *re.findall(r"\(?[+\-\u2212]?\d[\d,]*(?:\.\d+)?\)?|[\u2014\u2013]", cells)])
+        hashes.append(digest(json.dumps(rows, ensure_ascii=False, separators=(",", ":")).encode()))
+    return hashes
+
+
 def reference_match(parsed, reference):
     actual = content_hashes(parsed)
-    return {**actual, "reference_text_matches": actual["text_sha256"] == reference["text_sha256"],
-            "reference_tables_match": actual["table_sha256"] == reference["table_sha256"],
+    result = {**actual, "reference_text_matches": actual["text_sha256"] == reference["text_sha256"],
+            "reference_tables_match": actual["table_sha256"] == reference.get("table_sha256"),
             "reference_raw_sha256": reference["raw_sha256"], "reference_url": reference["url"]}
+    if "pdf_pages_total" in reference:
+        result["reference_pages_match"] = parsed.get("pdf_pages_total") == parsed.get("pdf_pages_processed") == reference["pdf_pages_total"]
+    if "financial_row_sha256" in reference:
+        actual_rows = financial_row_hashes([table["data_rows"] for table in parsed.get("table_details", [])])
+        result.update(financial_row_sha256=actual_rows, reference_tables_match=actual_rows == reference["financial_row_sha256"],
+                      reference_tables_basis="all 79 financial data rows; normalized labels and exact numeric tokens; headers retained and checked by native PDF structure gates")
+    return result
 
 
 async def collect_one(client, target, output, node, recent, blocked):
@@ -135,7 +163,9 @@ async def collect_one(client, target, output, node, recent, blocked):
            "http_response_complete": False, "archived": False, "artifacts": [],
            "timing_scope": "known URL invocation through rate queue, real network download, hash and full parse; excludes subsequent artifact writes",
            "new_release_evidence": False}
-    row.update({key: target[key] for key in ("canonical_url", "canonical_previous_status", "canonical_previous_run") if key in target})
+    row.update({key: target[key] for key in ("canonical_url", "canonical_previous_status", "canonical_previous_run", "document_variant", "route_note") if key in target})
+    if target.get("document_variant"):
+        row["actual_source_url"] = target["url"]
     row.update({key: target[key] for key in ("cache_profile", "purpose") if key in target})
     body, parsed = bytearray(), None
     trace_started, trace_ms, trace_count, connections = {}, {}, 0, 0
@@ -174,6 +204,8 @@ async def collect_one(client, target, output, node, recent, blocked):
             row.update(status=response.status_code, final_url=str(response.url), http_version=response.http_version,
                        headers_ms=(headers_at - request_start) / 1e6,
                        content_type=response.headers.get("content-type", ""))
+            if target.get("document_variant"):
+                row["actual_source_url"] = str(response.url)
             row["response_cache_headers"] = {key: response.headers[key] for key in
                 ("cache-control", "age", "x-cache", "x-cache-hits", "cf-cache-status", "date", "etag", "last-modified", "connection") if key in response.headers}
             if response.status_code in (403, 429):
@@ -211,7 +243,7 @@ async def collect_one(client, target, output, node, recent, blocked):
             total = (parse_end - started) / 1e6
             complete = parsed.get("accepted") is True and parsed.get("tables_complete") is True
             if comparison:
-                complete = complete and comparison["reference_text_matches"] and comparison["reference_tables_match"]
+                complete = complete and comparison["reference_text_matches"] and comparison["reference_tables_match"] and comparison.get("reference_pages_match", True)
                 row.update(comparison)
             row.update(parsed_utc=parsed_utc, parse_ms=(parse_end - parse_start) / 1e6,
                        validation_queue_ms=(parse_start - parse_queued) / 1e6,
@@ -418,7 +450,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse"), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf"), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 

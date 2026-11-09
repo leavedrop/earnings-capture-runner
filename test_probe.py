@@ -152,6 +152,14 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(selected), 13)
         self.assertEqual(sum(row["channel"] == "sec" for row in selected), 11)
         self.assertEqual({row["event"]["symbol"] for row in selected if row["channel"] != "sec"}, {"MSGK", "MSGR"})
+        pdf = select_targets(targets, "bam-pdf")
+        self.assertEqual(len(pdf), 1)
+        self.assertTrue(pdf[0]["url"].endswith("brookfield-asset-management-announces-strong.pdf"))
+        self.assertNotEqual(pdf[0]["canonical_url"], pdf[0]["url"])
+        self.assertEqual(pdf[0]["document_variant"], "official_pdf_alternative")
+        self.assertEqual(pdf[0]["canonical_previous_status"], 403)
+        self.assertEqual(pdf[0]["reference"]["pdf_pages_total"], 10)
+        self.assertEqual(len(pdf[0]["reference"]["financial_row_sha256"]), 6)
 
     def target(self):
         return {"target_id": "TEST_official", "channel": "official", "url": "https://example.com/report",

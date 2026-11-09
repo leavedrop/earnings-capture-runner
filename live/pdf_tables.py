@@ -15,6 +15,7 @@ import multiprocessing
 from multiprocessing.connection import wait as wait_for_process
 import os
 import re
+import statistics
 import threading
 import time
 
@@ -345,3 +346,222 @@ def extract_pdf_tables(body: bytes) -> dict:
             "pdf_structure_checks":checks,
             "numeric_tokens_preserved":numbers_preserved,"unassigned_table_words":unassigned,
             "page_diagnostics":page_diagnostics,"parse_ms":(time.perf_counter_ns()-started)/1e6,"phases_ms":dict(phases)}
+
+
+_BAM_VALUE = re.compile(r"\(?[+\-\u2212]?\d[\d,]*(?:\.\d+)?\)?|[\u2014\u2013]")
+# Structural profile of the independently verified publisher PDF, not values
+# or row-name templates. A changed profile remains rejected for review.
+_BAM_ROWS = (5, 22, 21, 20, 5, 6)
+_BAM_COLUMNS = (4, 2, 4, 4, 4, 4)
+
+
+def _bam_cell(items, row, column, *, colspan=1, role="data"):
+    boxes = {}
+    for word in items:
+        box = boxes.setdefault(word["page"], list(word["bbox"]))
+        box[:] = [min(box[0], word["bbox"][0]), min(box[1], word["bbox"][1]),
+                  max(box[2], word["bbox"][2]), max(box[3], word["bbox"][3])]
+    return {"row": row, "column": column, "rowspan": 1, "colspan": colspan,
+            "logical_row": row, "logical_column": column,
+            "logical_rowspan": 1, "logical_colspan": colspan,
+            "text": " ".join(word["text"] for word in items), "role": role,
+            "page_bboxes": [{"page": page, "bbox": box} for page, box in boxes.items()],
+            "word_ids": [[word["page"], word["word"]] for word in items]}
+
+
+def extract_bam_pdf_tables(body: bytes, event: dict) -> dict:
+    """Read the verified BAM publisher layout without HTML or cached results.
+
+    Main-font baselines keep superscripts from reordering row labels. PDF-native
+    year columns, not known financial values, determine the regions and cells.
+    Every region word retains its page/box and exactly one cell assignment.
+    """
+    started = time.perf_counter_ns()
+    years = {str(int(event["fiscal_year"])), str(int(event["fiscal_year"]) - 1)}
+    texts, words, headers, groups, diagnostics = [], [], [], [], []
+    offset, text_offset = 0.0, 0
+    with fitz.open(stream=body, filetype="pdf") as document:
+        page_count, producer = len(document), document.metadata.get("producer")
+        for page in document:
+            tp = page.get_textpage(flags=fitz.TEXTFLAGS_TEXT)
+            text = tp.extractText()
+            texts.append(text)
+            lines = {}
+            for block in tp.extractDICT()["blocks"]:
+                for index, line in enumerate(block.get("lines", [])):
+                    lines[block["number"], index] = max(line["spans"], key=lambda span: span["size"])
+            page_words = []
+            for index, word in enumerate(tp.extractWORDS()):
+                main = lines[word[5], word[6]]
+                item = {"page": page.number + 1, "word": index, "text": word[4],
+                        "bbox": list(word[:4]), "x": (word[0] + word[2]) / 2,
+                        "y": offset + main["origin"][1], "right": word[2],
+                        "font": main["font"], "size": main["size"],
+                        "pdf_block": word[5], "pdf_line": word[6]}
+                page_words.append(item)
+                words.append(item)
+            page_groups = []
+            for word in sorted(page_words, key=lambda item: item["y"]):
+                if not page_groups or word["y"] - page_groups[-1]["y"] > word["size"] * .12:
+                    page_groups.append({"y": word["y"], "words": [word]})
+                else:
+                    page_groups[-1]["words"].append(word)
+            for group in page_groups:
+                group["words"].sort(key=lambda word: word["bbox"][0])
+                groups.append(group)
+                period = [word for word in group["words"] if word["text"] in years]
+                if {word["text"] for word in period} == years and len(period) in (2, 4):
+                    centers = [word["x"] for word in period]
+                    spacing = statistics.median(b - a for a, b in zip(centers, centers[1:]))
+                    headers.append({"page": page.number + 1, "y": group["y"],
+                                    "years": [word["text"] for word in period],
+                                    "rights": [word["right"] for word in period], "spacing": spacing,
+                                    "emphasis_font": period[0]["font"], "size": period[0]["size"],
+                                    "label_boundary": centers[0] - spacing / 2})
+            diagnostics.append({"page": page.number + 1, "method": "publisher_native_baselines",
+                                "words": len(page_words), "tables": 0,
+                                "text_start": text_offset, "text_end": text_offset + len(text),
+                                "word_details": page_words})
+            text_offset += len(text) + 1
+            offset += page.rect.height
+    read_finished = time.perf_counter_ns()
+    tables, details = [], []
+    basic_layout = (producer == "Skia/PDF m119" and page_count == 10 and len(headers) == 6
+                    and tuple(len(header["years"]) for header in headers) == _BAM_COLUMNS)
+    for header in headers:
+        unaudited = max((word["y"] for word in words if word["page"] == header["page"]
+                         and word["text"] == "Unaudited" and word["y"] <= header["y"]), default=header["y"])
+        header["start_y"] = unaudited - header["size"] / 2
+    # An unrecognized region count cannot silently become a smaller successful
+    # report. Full page text and native words are still returned for inspection.
+    for index, header in enumerate(headers if len(headers) == 6 else []):
+        end = headers[index + 1]["start_y"] if index + 1 < len(headers) else offset
+        cut, classified = header["label_boundary"], []
+        for group in groups:
+            if not header["y"] + header["size"] * .12 < group["y"] < end:
+                continue
+            cells = [[] for _ in header["rights"]]
+            for word in group["words"]:
+                if word["x"] < cut or not _BAM_VALUE.fullmatch(word["text"]):
+                    continue
+                column = min(range(len(cells)), key=lambda col: abs(word["right"] - header["rights"][col]))
+                cells[column].append(word)
+            classified.append({"group": group,
+                               "labels": [word for word in group["words"] if word["x"] < cut and word["text"] != "$"],
+                               "cells": cells, "numeric_row": all(len(cell) == 1 for cell in cells)})
+        numeric_rows = [i for i, row in enumerate(classified) if row["numeric_row"]]
+        if not numeric_rows:
+            continue
+        classified = classified[:numeric_rows[-1] + 1]
+        data_rows, data_cells, pending, assignments, alignment_errors = [], [], [], [], []
+
+        def assign(items, role, row, column=None):
+            assignments.extend({"page": word["page"], "word": word["word"], "role": role,
+                                "row": row, "column": column} for word in items)
+
+        for row_index, entry in enumerate(classified):
+            label_words = entry["labels"]
+            if not entry["numeric_row"]:
+                label = " ".join(word["text"] for word in label_words)
+                gap = (classified[row_index + 1]["group"]["y"] - entry["group"]["y"]
+                       if row_index + 1 < len(classified) else 0)
+                section = bool(label_words) and not pending and (label.endswith(":") or (
+                    gap >= header["size"] * 1.25
+                    and all(word["font"] == header["emphasis_font"] for word in label_words)))
+                if section:
+                    assign(label_words, "section_label", len(data_rows), 0)
+                    data_cells.append(_bam_cell(label_words, len(data_rows), 0, role="section_label"))
+                    data_rows.append([label, *([""] * len(header["rights"]))])
+                else:
+                    pending.extend(label_words)
+                continue
+            label_words = pending + label_words
+            pending = []
+            number = len(data_rows)
+            assign(label_words, "row_label", number, 0)
+            data_cells.append(_bam_cell(label_words, number, 0, role="row_label"))
+            cell_words = [list(cell) for cell in entry["cells"]]
+            for column, cell in enumerate(entry["cells"], 1):
+                assign(cell, "financial_value", number, column)
+                if abs(cell[0]["right"] - header["rights"][column - 1]) > header["size"] * .75:
+                    alignment_errors.append({"page": cell[0]["page"], "word": cell[0]["word"], "column": column})
+            extra = [word for word in entry["group"]["words"] if (word["x"] >= cut or word["text"] == "$")
+                     and not _BAM_VALUE.fullmatch(word["text"])]
+            for word in extra:
+                following = [(i, cell[0]) for i, cell in enumerate(entry["cells"], 1)
+                             if cell[0]["bbox"][0] >= word["right"] - 1]
+                column = following[0][0] if following else len(entry["cells"])
+                assign([word], "value_prefix_or_suffix", number, column)
+                cell_words[column - 1].append(word)
+            values = []
+            for column, items in enumerate(cell_words, 1):
+                items.sort(key=lambda word: (word["y"], word["bbox"][0]))
+                cell = _bam_cell(items, number, column)
+                data_cells.append(cell)
+                values.append(cell["text"])
+            data_rows.append([" ".join(word["text"] for word in label_words), *values])
+        final_y = classified[-1]["group"]["y"] + header["size"] * .12
+        header_words = [word for word in words if header["start_y"] <= word["y"] <= header["y"] + header["size"] * .12]
+        assign(header_words, "column_header", None)
+        # Keep native header lines as cells, including their merged spans.
+        header_lines = collections.defaultdict(list)
+        for word in header_words:
+            header_lines[word["page"], word["pdf_block"], word["pdf_line"]].append(word)
+        header_cells, header_rows, baselines = [], [], []
+        for items in sorted(header_lines.values(), key=lambda items: (items[0]["y"], items[0]["bbox"][0])):
+            items.sort(key=lambda word: word["bbox"][0])
+            y = items[0]["y"]
+            if not baselines or y - baselines[-1] > header["size"] * .12:
+                baselines.append(y)
+                header_rows.append([""] * (len(header["rights"]) + 1))
+            left, right = min(word["bbox"][0] for word in items), max(word["right"] for word in items)
+            covered = [col + 1 for col, bound in enumerate(header["rights"])
+                       if min(right, bound) - max(left, header["rights"][col - 1] if col else bound - header["spacing"]) > 1]
+            column, colspan = (covered[0], len(covered)) if covered and (left + right) / 2 >= cut else (0, 1)
+            cell = _bam_cell(items, len(header_rows) - 1, column, colspan=colspan, role="column_header")
+            header_cells.append(cell)
+            header_rows[-1][column] = " ".join(filter(None, [header_rows[-1][column], cell["text"]]))
+        for cell in data_cells:
+            cell["row"] += len(header_rows)
+            cell["logical_row"] += len(header_rows)
+        rows = header_rows + data_rows
+        source_words = [word for word in words if header["start_y"] <= word["y"] <= final_y]
+        numeric_source = [word for word in source_words if word["y"] > header["y"] + header["size"] * .12
+                          and word["x"] >= cut and _BAM_VALUE.fullmatch(word["text"])]
+        assigned = collections.Counter((item["page"], item["word"]) for item in assignments)
+        missed = [word for word in source_words if not assigned[word["page"], word["word"]]]
+        missed_numbers = [word for word in numeric_source if not assigned[word["page"], word["word"]]]
+        source_tokens = collections.Counter(token for word in source_words for token in word["text"].split())
+        output_tokens = collections.Counter(token for row in rows for cell in row for token in cell.split())
+        source_numbers = collections.Counter(word["text"] for word in numeric_source)
+        output_numbers = collections.Counter(value for row in data_rows for cell in row[1:] for value in _BAM_VALUE.findall(cell))
+        detail = {"page": header["page"], "pages": sorted({word["page"] for word in source_words}),
+                  "rows": rows, "data_rows": data_rows, "data_row_start": len(header_rows),
+                  "cells": header_cells + data_cells, "period_columns": header["years"],
+                  "header_words": header_words, "source_words": source_words, "word_assignments": assignments,
+                  "source_word_count": len(source_words), "numeric_tokens": len(numeric_source),
+                  "unassigned_words": missed, "unassigned_numeric_words": missed_numbers,
+                  "duplicate_assignments": [list(key) for key, count in assigned.items() if count > 1],
+                  "word_tokens_preserved": source_tokens == output_tokens,
+                  "numeric_tokens_preserved": source_numbers == output_numbers,
+                  "alignment_errors": alignment_errors}
+        tables.append(rows)
+        details.append(detail)
+        for page in detail["pages"]:
+            diagnostics[page - 1]["tables"] += 1
+    checks = {"all_pages_extracted": len(texts) == page_count and all(text.strip() for text in texts),
+              "native_layout": basic_layout and tuple(len(detail["data_rows"]) for detail in details) == _BAM_ROWS,
+              "all_table_words_assigned": len(details) == 6 and all(not detail["unassigned_words"]
+                  and not detail["duplicate_assignments"] and detail["word_tokens_preserved"] for detail in details),
+              "numeric_tokens_preserved": len(details) == 6 and all(detail["numeric_tokens_preserved"]
+                  and not detail["unassigned_numeric_words"] and not detail["alignment_errors"] for detail in details)}
+    verified = all(checks.values())
+    finished = time.perf_counter_ns()
+    return {"text": "\n".join(texts), "tables": tables, "table_details": details,
+            "pdf_pages_total": page_count, "pdf_pages_processed": len(texts), "pdf_pages_text_extracted": len(texts),
+            "page_diagnostics": diagnostics, "tables_extraction_scope": "bam_publisher_native_baselines",
+            "tables_complete": verified, "pdf_structure_checks": checks,
+            "quality_reason": "bam_native_words_and_layout_verified" if verified else "bam_publisher_pdf_layout_unverified",
+            "parse_ms": (finished - started) / 1e6,
+            "phases_ms": {"text_and_words_ms": (read_finished - started) / 1e6,
+                          "tables_and_checks_ms": (finished - read_finished) / 1e6}}
