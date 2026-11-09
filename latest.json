@@ -52,8 +52,8 @@
   },
   "startup_gap_semantics": "Monitoring starts only after the collector's first actual source request",
   "schema_version": 1,
-  "updated_utc": "2026-11-09T08:44:39.746+00:00",
-  "collector_heartbeat_utc": "2026-11-09T08:44:24.771350+00:00",
+  "updated_utc": "2026-11-09T08:46:43.713+00:00",
+  "collector_heartbeat_utc": "2026-11-09T08:46:24.789128+00:00",
   "captures": [
     {
       "symbol": "SOHU",
@@ -463,7 +463,7 @@
       "site": "data.sec.gov",
       "state": "巡视中",
       "status": 200,
-      "last_patrol_at_beijing": "2026-11-09T16:44:23.984+08:00",
+      "last_patrol_at_beijing": "2026-11-09T16:46:23.062+08:00",
       "new_count": null,
       "bridge_roundtrip_ms": null
     },
@@ -567,7 +567,7 @@
       "site": "ir.kkr.com",
       "state": "巡视中",
       "status": 304,
-      "last_patrol_at_beijing": "2026-11-09T16:44:23.320+08:00",
+      "last_patrol_at_beijing": "2026-11-09T16:46:23.483+08:00",
       "new_count": null,
       "bridge_roundtrip_ms": null
     },
@@ -580,7 +580,7 @@
       "site": "data.sec.gov",
       "state": "巡视中",
       "status": 200,
-      "last_patrol_at_beijing": "2026-11-09T16:44:24.538+08:00",
+      "last_patrol_at_beijing": "2026-11-09T16:46:23.628+08:00",
       "new_count": null,
       "bridge_roundtrip_ms": null
     },
@@ -606,7 +606,7 @@
       "site": "investors.cecoenviro.com",
       "state": "巡视失败",
       "status": 403,
-      "last_patrol_at_beijing": "2026-11-09T16:43:24.939+08:00",
+      "last_patrol_at_beijing": "2026-11-09T16:45:24.972+08:00",
       "new_count": null,
       "bridge_roundtrip_ms": null
     },
@@ -619,7 +619,7 @@
       "site": "data.sec.gov",
       "state": "巡视中",
       "status": 200,
-      "last_patrol_at_beijing": "2026-11-09T16:44:23.307+08:00",
+      "last_patrol_at_beijing": "2026-11-09T16:46:24.419+08:00",
       "new_count": null,
       "bridge_roundtrip_ms": null
     },
@@ -632,7 +632,7 @@
       "site": "www.globenewswire.com",
       "state": "巡视中",
       "status": 200,
-      "last_patrol_at_beijing": "2026-11-09T16:44:24.651+08:00",
+      "last_patrol_at_beijing": "2026-11-09T16:46:22.876+08:00",
       "new_count": null,
       "bridge_roundtrip_ms": null
     },
@@ -645,7 +645,7 @@
       "site": "ir.tgtherapeutics.com",
       "state": "巡视中",
       "status": 200,
-      "last_patrol_at_beijing": "2026-11-09T16:44:23.417+08:00",
+      "last_patrol_at_beijing": "2026-11-09T16:46:23.372+08:00",
       "new_count": null,
       "bridge_roundtrip_ms": null
     },
@@ -658,7 +658,7 @@
       "site": "data.sec.gov",
       "state": "巡视中",
       "status": 200,
-      "last_patrol_at_beijing": "2026-11-09T16:44:23.734+08:00",
+      "last_patrol_at_beijing": "2026-11-09T16:46:22.807+08:00",
       "new_count": null,
       "bridge_roundtrip_ms": null
     },
@@ -671,7 +671,7 @@
       "site": "www.businesswire.com",
       "state": "巡视失败",
       "status": 403,
-      "last_patrol_at_beijing": "2026-11-09T16:43:28.490+08:00",
+      "last_patrol_at_beijing": "2026-11-09T16:45:28.612+08:00",
       "new_count": null,
       "bridge_roundtrip_ms": null
     },
@@ -684,7 +684,7 @@
       "site": "ir.skydance.com",
       "state": "巡视中",
       "status": 200,
-      "last_patrol_at_beijing": "2026-11-09T16:44:23.328+08:00",
+      "last_patrol_at_beijing": "2026-11-09T16:46:22.809+08:00",
       "new_count": null,
       "bridge_roundtrip_ms": null
     },
@@ -697,7 +697,7 @@
       "site": "data.sec.gov",
       "state": "巡视中",
       "status": 200,
-      "last_patrol_at_beijing": "2026-11-09T16:44:24.235+08:00",
+      "last_patrol_at_beijing": "2026-11-09T16:46:23.315+08:00",
       "new_count": null,
       "bridge_roundtrip_ms": null
     },
@@ -710,7 +710,7 @@
       "site": "www.prnewswire.com",
       "state": "巡视中",
       "status": 304,
-      "last_patrol_at_beijing": "2026-11-09T16:44:23.591+08:00",
+      "last_patrol_at_beijing": "2026-11-09T16:46:23.456+08:00",
       "new_count": null,
       "bridge_roundtrip_ms": null
     },
@@ -879,7 +879,7 @@
       "site": "ir.lucidmotors.com",
       "state": "巡视中",
       "status": 200,
-      "last_patrol_at_beijing": "2026-11-09T16:44:23.365+08:00",
+      "last_patrol_at_beijing": "2026-11-09T16:46:23.323+08:00",
       "new_count": null,
       "bridge_roundtrip_ms": null
     },
@@ -892,7 +892,7 @@
       "site": "data.sec.gov",
       "state": "巡视中",
       "status": 200,
-      "last_patrol_at_beijing": "2026-11-09T16:44:22.771+08:00",
+      "last_patrol_at_beijing": "2026-11-09T16:46:23.879+08:00",
       "new_count": null,
       "bridge_roundtrip_ms": null
     },
@@ -905,7 +905,7 @@
       "site": "www.prnewswire.com",
       "state": "巡视中",
       "status": 304,
-      "last_patrol_at_beijing": "2026-11-09T16:44:24.613+08:00",
+      "last_patrol_at_beijing": "2026-11-09T16:46:24.484+08:00",
       "new_count": null,
       "bridge_roundtrip_ms": null
     },
@@ -1496,8 +1496,8 @@
     }
   ],
   "request_failures": {
-    "requests": 31311,
-    "failed_requests": 83
+    "requests": 32106,
+    "failed_requests": 85
   },
   "failure_groups": [
     {
@@ -1511,8 +1511,8 @@
       "symbol": "CECO",
       "channel": "official",
       "failure_type": "HTTP 403",
-      "count": 41,
-      "lastseen": "2026-11-09T08:43:24.971037+00:00"
+      "count": 42,
+      "lastseen": "2026-11-09T08:45:24.998776+00:00"
     },
     {
       "symbol": "KKR",
@@ -1525,8 +1525,8 @@
       "symbol": "TGTX",
       "channel": "newswire",
       "failure_type": "HTTP 403",
-      "count": 18,
-      "lastseen": "2026-11-09T08:43:28.609589+00:00"
+      "count": 19,
+      "lastseen": "2026-11-09T08:45:28.798024+00:00"
     }
   ],
   "publication_scope": "Public documents and safe fields; no raw database, headers or private identity",
