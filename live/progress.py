@@ -34,6 +34,11 @@ CONTEXTS = {
     "retry": "重试取得",
     "recovery": "已下载文件补齐解析",
 }
+OBSERVATION_FIELDS = (
+    "last_negative_listing_ns", "last_negative_listing_mono_ns",
+    "last_negative_listing_utc", "last_negative_listing_at_beijing",
+    "listing_observation_gap_ms", "last_negative_to_parsed_ms", "observation_gap_semantics",
+)
 
 
 def date_value(value):
@@ -114,14 +119,34 @@ def source_patrols(status, observer):
             state = "巡视完成，本次未新增记录"
         elif isinstance(new_count, int) and new_count > 0:
             state = f"本次记录 {new_count} 份文档"
+        negative_ns = source.get("last_negative_listing_ns")
+        negative_at = (datetime.fromtimestamp(negative_ns // 1_000_000_000, timezone.utc)
+                       .replace(microsecond=negative_ns % 1_000_000_000 // 1_000)
+                       if type(negative_ns) is int and negative_ns > 0 else None)
         rows.append({"observer": observer, "symbol": symbol, "channel": channel,
                      "channel_label": CHANNELS.get(channel, "其他来源"), "url": url,
                      "site": urlsplit(url).hostname if url else None, "state": state,
                      "status": http_status if isinstance(http_status, int) else None,
-                     "last_patrol_at_beijing": beijing(source.get("last_completed_utc") or source.get("last_request_utc")),
+                     "last_patrol_at_beijing": beijing(source.get("request_end_utc") or source.get("last_completed_utc") or source.get("last_request_utc")),
+                     "request_start_utc": source.get("request_start_utc"),
+                     "request_end_utc": source.get("request_end_utc"),
+                     "request_start_mono_ns": source.get("request_start_mono_ns"),
+                     "request_end_mono_ns": source.get("request_end_mono_ns"),
+                     "request_start_at_beijing": beijing(source.get("request_start_utc")),
+                     "request_end_at_beijing": beijing(source.get("request_end_utc")),
+                     "last_negative_listing_ns": negative_ns,
+                     "last_negative_listing_mono_ns": source.get("last_negative_listing_mono_ns"),
+                     "last_negative_listing_utc": negative_at.isoformat(timespec="microseconds") if negative_at else None,
+                     "last_negative_listing_at_beijing": beijing(negative_at),
+                     "listing_observation_gap_ms": source.get("listing_observation_gap_ms"),
                      "new_count": new_count if isinstance(new_count, int) else None,
                      "bridge_roundtrip_ms": milliseconds(source.get("bridge_roundtrip_ms"))})
     return rows
+
+
+def has_negative_observation(record):
+    observed = record.get("last_negative_listing_ns")
+    return record.get("already_present_on_first_poll") is False and type(observed) is int and observed > 0
 
 
 def context(record, run_started, replay):
@@ -135,8 +160,10 @@ def context(record, run_started, replay):
         if published and run_started and published < run_started:
             return "backfill", "首次轮询已存在，且来源发布标时早于本次运行启动；据此归为补采。"
         return "initially_present", "首次轮询即存在，缺少此前未发布的观察证据。"
-    if first is False:
+    if has_negative_observation(record):
         return "live", "记录包含此前未出现该公告的观察；不等于发布端毫秒级时刻已知。"
+    if first is False:
+        return "unknown", "缺少此前未见公告的原始观察时间，不能认作首发记录。"
     return "unknown", "日志未记录首次轮询或重放属性。"
 
 
@@ -167,11 +194,18 @@ def capture_timing(record):
 
 
 @lru_cache(maxsize=128)
-def archived_table_check(original, report_path, original_mtime, report_mtime):
+def archived_table_check(original, report_path, original_mtime, report_mtime, msgk_issuer=False):
     """Check the saved product against its own HTML, not an old acceptance flag."""
     from sources import _clean, _document, _drop_content, _text
     tree = _document(Path(original).read_bytes())
-    root = next(tree.iter("article"), None)
+    root = None
+    if msgk_issuer:
+        root = next((node for node in tree.iter("div") if
+                     {"evergreen-news-details", "module-news-details"}.intersection(node.get("class", "").split())), None)
+        if root is None:
+            return False, "未找到公司官网的财报正文范围。"
+    if root is None:
+        root = next(tree.iter("article"), None)
     if root is None:
         root = next(tree.iter("main"), tree)
     _drop_content(root, "script", "style", "nav", "header", "footer")
@@ -222,7 +256,8 @@ def capture_row(record, root, output_root, run_started, replay=False):
             if saved_html:
                 original_html = root / saved_html
                 complete, quality_note = archived_table_check(str(original_html), str(root / report_path),
-                                                               original_html.stat().st_mtime_ns, (root / report_path).stat().st_mtime_ns)
+                    original_html.stat().st_mtime_ns, (root / report_path).stat().st_mtime_ns,
+                    symbol == "MSGK" and urlsplit(url or "").hostname == "investor.msgknicks.com")
                 if not complete:
                     tables_complete = False
     semantics = record.get("discovery_timestamp_semantics")
@@ -234,6 +269,10 @@ def capture_row(record, root, output_root, run_started, replay=False):
         timing_start = "采集器记录的发现时刻"
     else:
         timing_start = "计时起点细节未记录"
+    negative_ns = record.get("last_negative_listing_ns")
+    negative_at = (datetime.fromtimestamp(negative_ns // 1_000_000_000, timezone.utc)
+                   .replace(microsecond=negative_ns % 1_000_000_000 // 1_000)
+                   if type(negative_ns) is int and negative_ns > 0 else None)
     return {
         "symbol": symbol,
         "channel": channel,
@@ -246,6 +285,13 @@ def capture_row(record, root, output_root, run_started, replay=False):
         "context_label": CONTEXTS[category],
         "context_explanation": explanation,
         "already_present_on_first_poll": record.get("already_present_on_first_poll"),
+        "last_negative_listing_ns": negative_ns,
+        "last_negative_listing_mono_ns": record.get("last_negative_listing_mono_ns"),
+        "last_negative_listing_utc": negative_at.isoformat(timespec="microseconds") if negative_at else None,
+        "last_negative_listing_at_beijing": beijing(negative_at),
+        "listing_observation_gap_ms": record.get("listing_observation_gap_ms"),
+        "last_negative_to_parsed_ms": record.get("last_negative_to_parsed_ms"),
+        "observation_gap_semantics": record.get("observation_gap_semantics"),
         "discovered_at_beijing": beijing(record.get("discovered_utc")),
         "parsed_at_beijing": beijing(record.get("validated_utc")),
         "discovery_to_parsed_ms": duration,
@@ -335,8 +381,11 @@ def read_cloud(root):
                     "url": public_url(sample.get("final_url") or sample.get("url") or probe.get("url")),
                     "scope": scope,
                     "metric_scope": "云端重放调用至单文档全文解析，不含结果传回国内的耗时。",
-                    "started_at_beijing": beijing(sample.get("started_utc")),
+                    "started_at_beijing": beijing(sample.get("started_utc") or sample.get("bridge_first_request_utc")),
                     "parsed_at_beijing": beijing(sample.get("parsed_utc")),
+                    "status": sample.get("status"),
+                    "error_type": "HTTP_" + str(sample["status"]) if (sample.get("status") or 0) >= 400 else None,
+                    "attempt_elapsed_ms": milliseconds(sample.get("bridge_roundtrip_ms")) if not accepted else None,
                     "context_label": label,
                     "discovery_to_parsed_ms": elapsed,
                     "request_to_parsed_upper_ms": milliseconds(sample.get("request_to_parsed_upper_ms")),
@@ -356,13 +405,38 @@ def read_us_runner(root):
     rows = []
     for path in sorted(root.glob("us_runner_*/results.ndjson")):
         run = read_json(path.parent / "run.json")
+        prior_profile_urls = set()
         for index, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
             if not line.strip():
                 continue
             record = json.loads(line)
             target = record["target_id"]
+            issuer_copy = (record.get("symbol") == "MSGK" and record.get("channel") == "official"
+                           and record.get("document_variant") == "issuer_copy"
+                           and urlsplit(record.get("url", "")).hostname == "investor.msgknicks.com")
             artifacts = record.get("artifacts", [])
             raw_name = next((name for name in artifacts if name in (f"raw/{target}.html", f"raw/{target}.pdf")), None)
+            pipeline = record.get("pipeline")
+            candidate, seed = {}, {}
+            response_complete = record.get("http_response_complete") is True
+            if pipeline == "production_watch_list_seed":
+                request_name = f"requests_{target}.ndjson"
+                request_path = artifact_path(path.parent, request_name, path.parent) if request_name in artifacts else None
+                requests = [json.loads(value) for value in (path.parent / request_path).read_text(encoding="utf-8").splitlines() if value.strip()] if request_path else []
+                seed = next((item for item in requests if item.get("purpose") == "discovery"
+                             and item.get("id") == record.get("seed", {}).get("id")), {})
+                candidate = next((item for item in requests if item.get("purpose") == "candidate"
+                    and item.get("symbol") == record.get("symbol") and item.get("channel") == record.get("channel")
+                    and item.get("url") == record.get("url") and item.get("final_url") == record.get("url")
+                    and item.get("status") == 200 and item.get("sha256") == record.get("sha256")
+                    and item.get("body_bytes") == record.get("bytes")), {})
+                artifact = candidate.get("artifact", "")
+                raw_name = artifact if artifact in artifacts and re.fullmatch(r"raw/" + re.escape(target) + r"_\d+_candidate\.(?:html|pdf)", artifact) else None
+                times = [date_value(candidate.get(key)) for key in ("request_start_utc", "body_complete_utc", "request_end_utc")]
+                parsed_at = date_value(record.get("parsed_utc"))
+                monotonic = [candidate.get(key) for key in ("queued_mono_ns", "request_start_mono_ns", "body_complete_mono_ns", "request_end_mono_ns")]
+                response_complete = bool(raw_name and all(times) and parsed_at and times[0] <= times[1] <= times[2] <= parsed_at
+                    and all(type(value) is int for value in monotonic) and 0 <= monotonic[0] <= monotonic[1] <= monotonic[2] <= monotonic[3])
             parsed_name = f"parsed/{target}.json"
             raw_path = artifact_path(path.parent, raw_name, path.parent) if raw_name else None
             parsed_path = artifact_path(path.parent, parsed_name, path.parent) if parsed_name in artifacts else None
@@ -374,8 +448,12 @@ def read_us_runner(root):
             tables_verified = bool(parsed) and hashlib.sha256(json.dumps(tables, ensure_ascii=False,
                 separators=(",", ":")).encode("utf-8")).hexdigest() == record.get("tables_sha256")
             text_verified = bool(parsed.get("text")) and len(parsed["text"]) == record.get("text_characters")
+            if pipeline == "production_watch_list_seed" or record.get("transport") == "curl_cffi_chrome":
+                text_verified = text_verified and hashlib.sha256(parsed["text"].encode("utf-8")).hexdigest() == record.get("text_sha256")
+                tables_verified = tables_verified and [hashlib.sha256(json.dumps(table, ensure_ascii=False,
+                    separators=(",", ":")).encode("utf-8")).hexdigest() for table in tables] == record.get("table_sha256")
             checks = parsed.get("checks", {})
-            accepted = (record.get("status") == 200 and record.get("http_response_complete") is True
+            accepted = (record.get("status") == 200 and response_complete
                         and parsed.get("accepted") is True and all(checks.get(key) is True for key in
                         ("identity", "reporting_period", "not_announcement", "financial_body", "financial_tables")))
             table_complete = (parsed.get("tables_complete") is True and bool(tables)
@@ -390,7 +468,7 @@ def read_us_runner(root):
                 else:
                     raw_file, parsed_file = path.parent / raw_path, path.parent / parsed_path
                     table_complete = archived_table_check(str(raw_file), str(parsed_file),
-                        raw_file.stat().st_mtime_ns, parsed_file.stat().st_mtime_ns)[0]
+                        raw_file.stat().st_mtime_ns, parsed_file.stat().st_mtime_ns, issuer_copy)[0]
             complete = (record.get("complete") is True and accepted and raw_verified and tables_verified
                         and text_verified and table_complete)
             node = record.get("node") or run.get("node") or {}
@@ -405,13 +483,52 @@ def read_us_runner(root):
             elapsed = milliseconds(record.get("discovery_to_parsed_ms")) if record.get("parsed_utc") else None
             archived = record.get("archived") is True
             readback = archived and raw_verified and (tables_verified if record.get("parsed_utc") else True)
+            route_note = "发布网站提供的打印入口（print=1）；原发布页状态单独记录。" if urlsplit(record.get("url", "")).query == "print=1" else ""
+            pdf_alternative = (record.get("symbol") == "BAM" and record.get("channel") == "newswire"
+                               and record.get("document_variant") == "official_pdf_alternative")
+            if pdf_alternative:
+                route_note = "财经稿（官方PDF备用）"
+            elif issuer_copy:
+                route_note = "公司官网副本"
+            replay_artifacts, report_url, parsed_artifact = [], None, None
+            if complete and (pdf_alternative and raw.startswith(b"%PDF") or issuer_copy):
+                stem = f"reports/replay_us_{path.parent.name.removeprefix('us_runner_')}_{target}_{record['sha256'][:12]}"
+                replay_artifacts = [{"path": stem + suffix, "label": label, "local_only": False}
+                                    for suffix, label in ((".html", "公司官网副本解析HTML" if issuer_copy else "官方PDF解析HTML"), (".txt", "全文文本"), (".json", "文本与表格JSON"))]
+                report_url = "/employer-files/" + stem + ".html"
+                parsed_artifact = (path.parent / parsed_path).relative_to(root).as_posix()
+            metric_scope = ("先请求列表，再调用已知旧文档地址并经过生产队列、下载与全文解析；正文耗时从旧URL调用起计，列表请求与归档另列，不代表实时发现。"
+                            if pipeline == "production_watch_list_seed" else
+                            "美国节点调用已知文档地址起，包含限速排队、真实下载、哈希与全文解析；不含列表发现、归档和传回国内。")
             rows.append({
                 "run_id": path.parent.name.removeprefix("us_runner_"), "target_id": target,
                 "symbol": record.get("symbol"), "channel": record.get("channel"), "case": target, "sample": index,
                 "node_region": cloud_region({"country": node.get("loc"), "colo": node.get("colo")}), "us_node_verified": is_us,
                 "url": public_url(record.get("final_url") or record.get("url")),
                 "scope": "us_runner_document_replay", "context": "replay", "context_label": "美国节点旧报告重抓", "mode": "replay",
-                "metric_scope": "美国节点调用已知文档地址起，包含限速排队、真实下载、哈希与全文解析；不含列表发现、归档和传回国内。",
+                "metric_scope": metric_scope + route_note,
+                "route_note": route_note, "pipeline": pipeline,
+                "document_variant": "official_pdf_alternative" if pdf_alternative else "issuer_copy" if issuer_copy else None,
+                "actual_source_url": public_url(record.get("final_url") or record.get("url")),
+                "pdf_pages_total": parsed.get("pdf_pages_total"),
+                "report_url": report_url, "replay_artifacts": replay_artifacts, "parsed_artifact": parsed_artifact,
+                "canonical_url": public_url(record.get("canonical_url")), "canonical_previous_status": record.get("canonical_previous_status"),
+                "canonical_channel": "newswire" if pdf_alternative or issuer_copy else None,
+                "http_response_complete": response_complete, "request_eof_verified": response_complete if pipeline == "production_watch_list_seed" else None,
+                "seed_status": seed.get("status"), "seed_url": public_url(seed.get("url")),
+                "seed_request_total_ms": milliseconds(seed.get("request_total_ms")),
+                "seed_listing_contains_candidate": record.get("seed_listing_contains_candidate"),
+                "seed_request_to_parsed_ms": milliseconds(record.get("seed_request_to_parsed_ms")),
+                "connection_reused": candidate.get("connection_reused") if pipeline == "production_watch_list_seed" else record.get("connection_reused"),
+                "new_tcp_connections": record.get("new_tcp_connections"),
+                "transport": record.get("transport") if record.get("transport") == "curl_cffi_chrome" else None,
+                "transport_version": record.get("transport_version") if record.get("transport") == "curl_cffi_chrome" else None,
+                "curl_cumulative_ms": {key: milliseconds(value) for key, value in record.get("curl_cumulative_ms", {}).items()
+                                       if key in ("dns_done", "connect_done", "tls_done", "pretransfer_done", "first_response_byte", "transfer_done")},
+                "response_cache_headers": {key: value for key, value in record.get("response_cache_headers", {}).items()
+                                           if key in ("age", "x-cache", "cf-cache-status") and isinstance(value, str)},
+                "cli_start_to_archived_upper_ms": milliseconds(record.get("cli_start_to_archived_upper_ms")),
+                "archive_timing_note": "归档结束没有连续计时；CLI结束只提供上界。" if record.get("archive_timing_note") else None,
                 "started_at_beijing": beijing(record.get("started_utc")), "parsed_at_beijing": beijing(record.get("parsed_utc")),
                 "ended_at_beijing": beijing(record.get("ended_utc")), "status": record.get("status"), "error_type": error,
                 "attempt_elapsed_ms": milliseconds(record.get("invocation_to_end_ms")),
@@ -429,6 +546,10 @@ def read_us_runner(root):
                 "raw_sha256_verified": raw_verified, "tables_sha256_verified": tables_verified,
                 "text_length_verified": text_verified,
             })
+            if record.get("cache_profile") in ("ordinary", "no_cache"):
+                profile_url = record.get("url")
+                rows[-1].update(cache_profile=record["cache_profile"], prior_target_fetch=profile_url in prior_profile_urls)
+                prior_profile_urls.add(profile_url)
     return rows
 
 
@@ -530,6 +651,12 @@ def read_us_live(root):
         connection.execute("PRAGMA query_only=ON")
         captures = [json.loads(row[0]) for row in connection.execute("SELECT payload FROM captures")]
         runs = [json.loads(row[0]) for row in connection.execute("SELECT payload FROM runs")]
+    for row in captures:
+        for key in OBSERVATION_FIELDS:
+            row.setdefault(key, None)
+        if row.get("context") == "live" and not has_negative_observation(row):
+            row.update(context="unknown", context_label=CONTEXTS["unknown"],
+                       context_explanation="缺少此前未见公告的原始观察时间，不能认作首发记录。")
     captures.sort(key=lambda row: row.get("parsed_at_beijing") or "", reverse=True)
     latest = max(runs, key=lambda row: row.get("updated_utc") or "", default={})
     info = {"run_id": latest.get("run_id"), "state": latest.get("state"), "node_region": latest.get("node_region"),

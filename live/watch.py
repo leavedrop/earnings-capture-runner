@@ -147,7 +147,8 @@ class Store:
 
 class RateLimit:
     """One shared SEC budget includes listing, index, documents, and retries."""
-    def __init__(self):
+    def __init__(self, sec_rps=8):
+        self.sec_rps = sec_rps
         self.locks = {}
         self.next = {}
         self.blocked = {}
@@ -164,13 +165,14 @@ class RateLimit:
                 return wire
         return host
 
-    async def wait(self, url, purpose="discovery"):
+    async def wait(self, url, purpose="discovery", *, discovery_interval=None):
         key = self.key(url)
         path_key = (key, urlsplit(url).path or "/")
+        pacing = 0.25 if key == "sec.gov" else (max(1/3, discovery_interval) if discovery_interval is not None else 1.0)
         reasons = set()
         # Listing probes retain their pacing. Newly discovered documents can use
         # reserved capacity immediately, within a single rolling host budget.
-        limit = 8 if key == "sec.gov" else 4
+        limit = self.sec_rps if key == "sec.gov" else 4
         while True:
             async with self.locks.setdefault(key, asyncio.Lock()):
                 now = time.monotonic()
@@ -188,7 +190,7 @@ class RateLimit:
                 if remaining <= 0:
                     recent.append(now)
                     if purpose == "discovery":
-                        self.next[key] = now + (0.25 if key == "sec.gov" else 1.0)
+                        self.next[key] = now + pacing
                     return {"queue_reasons": sorted(reasons)}
                 reasons.update(name for name, until in constraints.items() if until > now)
             # Do not hold the host lock while a low-priority listing sleeps.
@@ -207,7 +209,7 @@ class Collector:
         self.args = args
         self.store = Store(Path(args.output))
         self.clock = Clock()
-        self.rate = RateLimit()
+        self.rate = RateLimit(getattr(args, "sec_rps", 8))
         self.run_id = str(uuid.uuid4())
         self.proxy = args.proxy or os.environ.get("HTTPS_PROXY") or os.environ.get("ALL_PROXY")
         self.status = {}
@@ -227,9 +229,10 @@ class Collector:
         self.sec_stream_session = None
         self.browser_session = None
 
-    async def fetch(self, session, url, event, channel, purpose, conditional=True, sec_exhibit=False):
+    async def fetch(self, session, url, event, channel, purpose, conditional=True, sec_exhibit=False, discovery_interval=None):
         queued = time.perf_counter_ns()
-        queue_details = await self.rate.wait(url, purpose) or {}
+        queue_details = await self.rate.wait(url, purpose, **(
+            {"discovery_interval": discovery_interval} if discovery_interval is not None else {})) or {}
         started = time.perf_counter_ns()
         raw_start, start = self.clock.stamp()
         clock_snapshot = self.clock.state.copy()
@@ -645,12 +648,21 @@ class Collector:
             if key in self.completed and channel != "sec" and not once:
                 self.status.setdefault(status_key, {}).update({"state": "captured", "url": url})
                 return
+            # Forecasts only select density; broad release windows remain monitored.
+            target = epoch(event.get("forecast_at") or event["scheduled_at"])
+            hot = abs(now-target) <= 1800
+            hot_discovery = hot and channel in ("official", "newswire")
+            interval = (1/3 if hot_discovery else 1) if hot else (2 if now <= end else 120)
             rec, body = None, b""
+            cycle_started_mono = time.perf_counter_ns()
             try:
-                rec, body = await self.fetch(session, url, event, channel, "discovery")
+                rec, body = await self.fetch(session, url, event, channel, "discovery",
+                                             discovery_interval=interval if hot_discovery else None)
+                rec["configured_poll_interval_seconds"] = interval
                 self.status[status_key] = {"state": ("captured_monitoring_later_filings" if channel == "sec" and key in self.completed else "polling") if rec["status"] in (200, 304) else "source_error",
                                           "status": rec["status"], "error": rec.get("error"), "url": url,
-                                          "last_request_utc": rec["request_start_utc"], "total_ms": rec["request_total_ms"]}
+                                          "last_request_utc": rec["request_start_utc"], "total_ms": rec["request_total_ms"],
+                                          "configured_poll_interval_seconds": interval}
                 if rec["status"] in (200, 304):
                     digest = rec.get("sha256") or rec.get("reused_sha256")
                     ctype = rec.get("response_headers", {}).get("content-type") or self.cache.get(url, {}).get("content_type", "")
@@ -673,6 +685,11 @@ class Collector:
                             self.launch(self.candidate(session, event, channel, {"url": url, "listing_request_id": rec["id"]},
                                                        seen_at, previous_negative, existing=(rec, body, result, parse_timing),
                                                        discovered_mono_ns=rec["body_complete_mono_ns"], last_negative_mono_ns=previous_negative_mono))
+                    if found or is_report:
+                        rec.update(last_negative_listing_ns=previous_negative,
+                                   last_negative_listing_mono_ns=previous_negative_mono,
+                                   listing_observation_gap_ms=(rec["body_complete_mono_ns"]-previous_negative_mono)/1e6
+                                   if previous_negative_mono is not None else None)
                     if not found and not is_report:
                         last_negative = seen_at
                         last_negative_mono = rec["body_complete_mono_ns"]
@@ -680,6 +697,12 @@ class Collector:
                 self.store.add("worker_error", {"symbol": event["symbol"], "channel": channel, "error": repr(exc)})
                 logging.exception("Source loop failed %s", status_key)
             finally:
+                if rec is not None:
+                    self.status[status_key].update({name: rec.get(name) for name in (
+                        "request_start_utc", "request_end_utc", "request_start_mono_ns", "request_end_mono_ns",
+                        "listing_observation_gap_ms")},
+                        last_negative_listing_ns=last_negative,
+                        last_negative_listing_mono_ns=last_negative_mono)
                 if rec is not None and rec.pop("_deferred_evidence", False):
                     # Candidate tasks have been dispatched with the original body
                     # observation clock. Persist the listing without delaying GETs.
@@ -689,11 +712,12 @@ class Collector:
                                               if not done.cancelled() and done.exception() is None else None)
             if once:
                 return
-            # Broad before/after windows remain monitored; forecasts only select sampling density.
-            target = epoch(event.get("forecast_at") or event["scheduled_at"])
-            hot = abs(now-target) <= 1800
-            interval = 1 if hot else (2 if now <= end else 120)
-            await asyncio.sleep(interval)
+            request_started = rec["request_start_mono_ns"] if rec is not None else cycle_started_mono
+            remaining = interval - (time.perf_counter_ns()-request_started)/1e9
+            # Anchor each interval to its actual request, so missed deadlines
+            # never accumulate catch-up requests. Yield even after an overrun;
+            # fetch still applies the shared host pacing and cooldowns.
+            await asyncio.sleep(max(0, remaining))
 
     def summary(self):
         captures = self.store.records("capture")
@@ -962,6 +986,8 @@ def main():
     parser.add_argument("--candidate-url", default=None, help="Replay a known public document through the actual capture pipeline; probe only")
     parser.add_argument("--channel", choices=["official", "sec", "newswire"], default="official")
     parser.add_argument("--samples", type=int, default=5, help="Bounded replay samples, including any cold connection")
+    parser.add_argument("--sec-rps", type=int, choices=range(1, 9), default=8,
+                        help="Shared SEC rolling budget for all discovery, documents and retries")
     parser.add_argument("--proxy", default=None)
     parser.add_argument("--node", default="windows-workstation-via-user-US-proxy")
     parser.add_argument("--until", default="2026-11-13T13:03:00+08:00")
