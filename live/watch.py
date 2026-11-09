@@ -225,6 +225,7 @@ class Collector:
         self.archive_tasks = set()
         self.stop = asyncio.Event()
         self.sec_stream_session = None
+        self.browser_session = None
 
     async def fetch(self, session, url, event, channel, purpose, conditional=True, sec_exhibit=False):
         queued = time.perf_counter_ns()
@@ -275,19 +276,29 @@ class Collector:
         body = b""
         exhibit = None
         extractor = None
+        browser = urlsplit(url).hostname == "investor.msgknicks.com"
         if sec_exhibit:
             from sec_stream import IncrementalExhibit
             extractor = IncrementalExhibit()
         try:
-            async with session.stream("GET", url, headers=headers, extensions={"trace": trace}) as response:
-                headers_mono = time.perf_counter_ns()
-                headers_at = frozen_stamp()[1]
-                async for chunk in response.aiter_bytes():
-                    receive(chunk)
-                    if extractor is not None:
-                        exhibit = extractor.feed(chunk)
-                        if exhibit is not None:
-                            break
+            if browser:
+                from browser_transport import browser_response, browser_timing
+                transfer = browser_response(self.browser_session, "GET", url, headers)
+                record["transport"] = "curl_cffi_chrome"
+            else:
+                transfer = session.stream("GET", url, headers=headers, extensions={"trace": trace})
+            async with transfer as response:
+                headers_mono = None if browser else time.perf_counter_ns()
+                headers_at = None if browser else frozen_stamp()[1]
+                if browser:
+                    chunks.extend(response.content)
+                else:
+                    async for chunk in response.aiter_bytes():
+                        receive(chunk)
+                        if extractor is not None:
+                            exhibit = extractor.feed(chunk)
+                            if exhibit is not None:
+                                break
             done_mono = time.perf_counter_ns()
             raw_done, done = frozen_stamp()
             container_received = len(chunks)
@@ -304,12 +315,15 @@ class Collector:
                            "first_body_callback_ms": (first_body_mono-started)/1e6 if first_body_mono else None,
                            "request_total_ms": (done_mono-started)/1e6,
                            "response_headers_received_ns": headers_at,
-                           "response_headers_received_ms": (headers_mono-started)/1e6,
+                           "response_headers_received_ms": (headers_mono-started)/1e6 if headers_mono is not None else None,
                            "first_byte_semantics": "application first decoded body chunk, not NIC/wire byte",
                            "raw_body_semantics": "HTTP content decoded body, original encoding in response headers",
                            "connection_reused": new_connections == 0 if trace_events else None,
                            "new_tcp_connections": new_connections,
                            "http_version": response.http_version})
+            if browser:
+                record.update(browser_timing(response), http_response_complete=True,
+                              first_byte_semantics="No application first-chunk timestamp for eager transfer; native first_response_byte timing is recorded separately")
             if extractor is not None:
                 record.update({"sec_stream_attempt": True, "target_document_complete": exhibit is not None,
                                "container_decoded_bytes_received": container_received,
@@ -841,6 +855,7 @@ class Collector:
 
     async def run(self):
         from network import apply_proxy_tls_fix
+        from browser_transport import browser_session
         apply_proxy_tls_fix()
         import sources  # Load the parsers before an announcement can be discovered.
         import fitz
@@ -852,7 +867,7 @@ class Collector:
                                     "proxy_endpoint": urlsplit(self.proxy).netloc if self.proxy else None,
                                     "pid": os.getpid(), "until": self.args.until,
                                     "code_sha256": {name: hashlib.sha256((BASE/name).read_bytes()).hexdigest()
-                                                    for name in ("watch.py", "sources.py", "network.py", "sec_stream.py", "pdf_tables.py")}})
+                                                    for name in ("watch.py", "sources.py", "network.py", "sec_stream.py", "pdf_tables.py", "browser_transport.py")}})
         events = json.loads(Path(self.args.manifest).read_text(encoding="utf-8"))
         if self.args.symbols:
             events = [e for e in events if e["symbol"] in self.args.symbols.split(",")]
@@ -866,8 +881,10 @@ class Collector:
                                      limits=httpx.Limits(max_connections=32, max_keepalive_connections=24, keepalive_expiry=60)) as session, \
                    httpx.AsyncClient(proxy=self.proxy, trust_env=False, follow_redirects=True, http2=True,
                                      timeout=httpx.Timeout(12, connect=5),
-                                     limits=httpx.Limits(max_connections=8, max_keepalive_connections=4, keepalive_expiry=60)) as sec_stream_session:
+                                     limits=httpx.Limits(max_connections=8, max_keepalive_connections=4, keepalive_expiry=60)) as sec_stream_session, \
+                   browser_session(proxy=self.proxy) as browser_client:
             self.sec_stream_session = sec_stream_session
+            self.browser_session = browser_client
             if self.args.command == "run":
                 self.launch(self.keep_sec_connection_warm(events))
             by_symbol = {e["symbol"]: e for e in events}

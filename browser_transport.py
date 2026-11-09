@@ -6,8 +6,8 @@ from curl_cffi.const import CurlInfo, CurlHttpVersion
 from curl_cffi.requests import AsyncSession
 
 
-def browser_session():
-    return AsyncSession(max_clients=1, trust_env=False, timeout=(5, 12), retry=0,
+def browser_session(proxy=None):
+    return AsyncSession(max_clients=1, trust_env=False, proxy=proxy, timeout=(5, 12), retry=0,
                         impersonate="chrome", allow_redirects=False, discard_cookies=True, cache=None,
                         curl_infos=[CurlInfo.NAMELOOKUP_TIME, CurlInfo.CONNECT_TIME, CurlInfo.APPCONNECT_TIME,
                                     CurlInfo.PRETRANSFER_TIME, CurlInfo.STARTTRANSFER_TIME, CurlInfo.TOTAL_TIME,
@@ -18,7 +18,7 @@ def browser_session():
 async def browser_response(session, method, url, headers):
     # Eager transfer intentionally: libcurl's native first-response-byte timing
     # remains distinct from this function returning the complete decoded body.
-    request_headers = {key: value for key, value in headers.items() if key.lower() == "cache-control"}
+    request_headers = {key: value for key, value in headers.items() if key.lower() in ("cache-control", "if-none-match", "if-modified-since")}
     response = await session.request(method, url, headers=request_headers)
     yield response
 

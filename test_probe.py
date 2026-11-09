@@ -115,27 +115,39 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
 
         def collector(command, **kwargs):
             self.assertEqual(command[command.index("--samples") + 1], "1")
-            self.assertEqual(command[command.index("--candidate-url") + 1], target["url"])
+            actual = target.get("discovery_route") == "actual_issuer_rss"
+            if actual:
+                self.assertNotIn("--candidate-url", command)
+                self.assertEqual(command[command.index("--channel") + 1], "official")
+                manifest = json.loads(Path(command[command.index("--manifest") + 1]).read_text(encoding="utf-8"))
+                self.assertEqual(len(manifest[0]["sources"]), 1)
+                self.assertEqual(manifest[0]["sources"][0]["url"], "https://investor.msgknicks.com/rss/pressrelease.aspx")
+            else:
+                self.assertEqual(command[command.index("--candidate-url") + 1], target["url"])
             self.assertNotIn("SEC_USER_AGENT", kwargs["env"])
             runtime = Path(command[command.index("--output") + 1])
             (runtime / "reports").mkdir(); (runtime / "raw").mkdir()
-            stem = "reports/MSGK_newswire_" + sha[:12]
+            stem = "reports/MSGK_" + target["channel"] + "_" + sha[:12]
             (runtime / (stem + ".html")).write_bytes(raw)
             (runtime / (stem + ".txt")).write_text(parsed["text"], encoding="utf-8")
             (runtime / (stem + ".json")).write_text(json.dumps({"tables": parsed["tables"], "metadata": {"private": "SECRET_TEST_TOKEN"}}), encoding="utf-8")
             requests = []
-            for purpose, body, url in [("discovery", b"<html>News listing</html>", "https://www.businesswire.com/newsroom"), ("candidate", raw, target["url"])]:
+            listing = ("<rss><channel><item><title>MSG Knickerbockers Corp. Reports Fiscal 2027 First Quarter Results</title><link>" + target["url"] + "</link></item></channel></rss>").encode() if actual else b"<html>News listing</html>"
+            listing_url = "https://investor.msgknicks.com/rss/pressrelease.aspx" if actual else "https://www.businesswire.com/newsroom"
+            for purpose, body, url in [("discovery", listing, listing_url), ("candidate", raw, target["url"])]:
                 path = "raw/" + purpose + ".gz"
                 with gzip.open(runtime / path, "wb") as stream: stream.write(body)
-                requests.append({"purpose": purpose, "url": url, "status": 200, "raw_path": path,
+                completed = 100000000 if purpose == "discovery" else 190000000
+                requests.append({"id": purpose, "purpose": purpose, "url": url, "status": 200, "raw_path": path,
                                  "queued_mono_ns": 0, "request_total_ms": 50, "queue_ms": 30,
                                  "body_bytes": len(body), "sha256": hashlib.sha256(body).hexdigest(),
-                                 "body_complete_mono_ns": 100 if eof_proven[0] else None,
-                                 "request_end_mono_ns": 100,
+                                 "body_complete_mono_ns": completed if eof_proven[0] else None,
+                                 "request_end_mono_ns": completed,
                                  "response_headers_received_ms": 40, "connection_reused": purpose == "candidate",
                                  "response_headers": {"set-cookie": "SECRET_TEST_TOKEN"}})
             capture = {"original_document_path": stem + ".html", "validation": {"accepted": True, "tables_complete": True},
-                       "discovery_to_parsed_ms": 60, "discovered_utc": "2026-11-09T00:00:00.140Z",
+                       "discovery_to_parsed_ms": 100 if actual else 60, "discovered_utc": "2026-11-09T00:00:00.100Z" if actual else "2026-11-09T00:00:00.140Z",
+                       "discovered_mono_ns": 100000000 if actual else 140000000, "listing_request_id": "discovery" if actual else None,
                        "validated_utc": "2026-11-09T00:00:00.200Z", "validated_mono_ns": 200000000,
                        "parse_ms": 10, "sha256": sha, "body_bytes": len(raw), "candidate_attempt": 1, "retry": False}
             with sqlite3.connect(runtime / "observations.sqlite3") as connection:
@@ -164,6 +176,18 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
                 missing_eof = await collect_watch_case(target, output, {"loc": "US", "colo": "TEST"})
             self.assertFalse(missing_eof["http_response_complete"])
             self.assertFalse(missing_eof["complete"])
+            eof_proven[0] = True
+            actual_target = select_targets(json.loads((BASE / "targets.json").read_text(encoding="utf-8")), "msgk-production-issuer")[0]
+            target = {**actual_target, "reference": target["reference"]}
+            with patch("probe.subprocess.run", side_effect=collector):
+                actual = await collect_watch_case(target, output, {"loc": "US", "colo": "TEST"})
+            self.assertTrue(actual["complete"])
+            self.assertTrue(actual["seed_listing_contains_candidate"])
+            self.assertTrue(actual["discovery_clock_preserved"])
+            self.assertEqual(actual["discovery_to_parsed_ms"], 100)
+            self.assertEqual(actual["seed_request_to_parsed_ms"], 200)
+            self.assertEqual(actual["channel"], "official")
+            self.assertEqual(actual["document_variant"], "issuer_copy")
 
     async def test_cache_profiles_keep_download_trace_and_stop_after_rejection(self):
         targets = select_targets(json.loads((BASE / "targets.json").read_text(encoding="utf-8")), "msgk-cache-control")

@@ -10,5 +10,11 @@
     "sha256": "1a3554832dba52e8f4acd4b397516abc37d20e8d34f0b100eb866b1f20d4f1a3",
     "source_sha256": "606e88c00cd870bb6a1154d8de539ae1e773dc9563528fdc3fc0051eaaa6ca14",
     "normalization": "UTF-8 LF; code unchanged"
+  },
+  "browser_transport.py": {
+    "source": "earnings_watch/browser_transport.py",
+    "sha256": "8b8f4fd393919c19f07bf218f571901a4d68c9a8a3778ab6af407967032725a8",
+    "source_sha256": "8b8f4fd393919c19f07bf218f571901a4d68c9a8a3778ab6af407967032725a8",
+    "normalization": "UTF-8 LF; code unchanged"
   }
 }

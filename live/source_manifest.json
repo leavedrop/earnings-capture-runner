@@ -1,7 +1,7 @@
 {
   "watch.py": {
-    "sha256": "abb41e10fb11b428e3448c894c5be5fac170d0934dfe9ef96a9ea6876258f696",
-    "production_sha256": "74c1579ac38690f4f7b582d84441c883b332d373a7573c74fcb09549a6fb8f2e",
+    "sha256": "5fe9a8ef5911f15f8c8b00299b4d92d5baef7164c18b26b3884a66a6dec189cb",
+    "production_sha256": "9d11f84d7de1f3ca64a25173cbbeefaedbd52c9397e08e42bce7b73898bc0c30",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "watch.py"
   },
@@ -36,7 +36,13 @@
     "source": "progress.py"
   },
   "watchlist.json": {
-    "sha256": "bd93050618e5d29361784459e7308facb81bf82131f54632e6d49475c7237c22",
+    "sha256": "295507e539daddb476fed746418cc9000acf73defe93667803320cc53694ba03",
     "source": "public event/source whitelist; 34 companies"
+  },
+  "browser_transport.py": {
+    "sha256": "8b8f4fd393919c19f07bf218f571901a4d68c9a8a3778ab6af407967032725a8",
+    "production_sha256": "8b8f4fd393919c19f07bf218f571901a4d68c9a8a3778ab6af407967032725a8",
+    "normalization": "UTF-8 LF; code unchanged",
+    "source": "browser_transport.py"
   }
 }

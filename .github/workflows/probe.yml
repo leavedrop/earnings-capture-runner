@@ -17,6 +17,7 @@ on:
           - alternate-routes
           - msgk-issuer-cold
           - msgk-browser-transport
+          - msgk-production-issuer
         default: all
 
 permissions:

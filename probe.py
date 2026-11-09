@@ -86,6 +86,9 @@ async def identify_node(client):
 def select_targets(targets, scope):
     if scope == "all":
         return targets
+    if scope == "msgk-production-issuer":
+        return [{**select_targets(targets, "msgk-issuer-cold")[0], "pipeline": "production_watch_list_seed",
+                 "discovery_route": "actual_issuer_rss"}]
     if scope == "msgk-browser-transport":
         wire = select_targets(targets, "msgk-cache-control")[1]
         issuer = select_targets(targets, "msgk-issuer-cold")[0]
@@ -333,14 +336,31 @@ async def collect_watch_case(target, output, node):
            "pipeline": "production_watch_list_seed",
            "timing_scope": "Known old URL invocation after one real listing request; production queue/download/full parse. Listing request and CLI startup reported separately. Reference hash comparison is a post-capture audit.",
            "discovery_timestamp_semantics": "replay_invocation_not_live_discovery"}
+    row.update({key: target[key] for key in ("canonical_url", "canonical_channel", "document_variant", "route_note") if key in target})
+    if target.get("document_variant"):
+        row["actual_source_url"] = target["url"]
+    actual_discovery = target.get("discovery_route") == "actual_issuer_rss"
+    if actual_discovery:
+        row.update(discovery_route="actual_issuer_rss", discovery_timestamp_semantics="listing_response_complete_not_earliest_candidate_byte",
+                   timing_scope="Production RSS discovery to full parse; original listing-complete monotonic clock includes candidate queue/download/parse. RSS request to parse is separately retained.")
     started = time.perf_counter_ns()
     try:
         with tempfile.TemporaryDirectory(prefix="earnings-production-probe-") as directory:
             runtime = Path(directory)
             command = [sys.executable, str(BASE / "live/watch.py"), "probe", "--manifest", str(BASE / "live/watchlist.json"),
                        "--output", str(runtime), "--symbols", target["event"]["symbol"], "--channel", target["channel"],
-                       "--candidate-url", target["url"], "--samples", "1",
+                       "--samples", "1",
                        "--node", "github-actions-" + str(node.get("loc")) + "-" + str(node.get("colo"))]
+            discovery_event = target["event"]
+            if actual_discovery:
+                discovery_event = next(event for event in json.loads((BASE / "live/watchlist.json").read_text(encoding="utf-8"))
+                                       if event["symbol"] == target["event"]["symbol"])
+                discovery_event = {**discovery_event, "sources": [source for source in discovery_event["sources"] if source["channel"] == target["channel"]]}
+                manifest = runtime / "public_probe_manifest.json"
+                manifest.write_text(json.dumps([discovery_event], ensure_ascii=False), encoding="utf-8")
+                command[command.index("--manifest") + 1] = str(manifest)
+            else:
+                command.extend(["--candidate-url", target["url"]])
             child_env = {key: value for key, value in os.environ.items()
                          if key not in ("GITHUB_TOKEN", "GH_TOKEN", "SEC_USER_AGENT", "HTTPS_PROXY", "HTTP_PROXY", "ALL_PROXY", "https_proxy", "http_proxy", "all_proxy")}
             result = await asyncio.to_thread(subprocess.run, command, cwd=BASE / "live", env=child_env,
@@ -358,7 +378,8 @@ async def collect_watch_case(target, output, node):
                             "queued_mono_ns", "request_start_mono_ns", "request_end_mono_ns", "body_complete_mono_ns",
                             "queue_ms", "queue_reasons", "request_total_ms", "response_headers_received_ms", "body_download_ms",
                             "first_body_callback_ms", "connection_reused", "new_tcp_connections", "sha256", "body_bytes",
-                            "cooldown_seconds", "cooldown_scope")
+                            "cooldown_seconds", "cooldown_scope", "transport", "transport_version", "curl_cumulative_ms",
+                            "header_timing_semantics", "body_timing_semantics", "http_response_complete")
             for index, request in enumerate(requests):
                 safe = {key: request[key] for key in request_keys if key in request}
                 if request.get("error"):
@@ -372,11 +393,14 @@ async def collect_watch_case(target, output, node):
                 if request["purpose"] == "discovery":
                     row["seed"] = safe
                     row["seed_listing_contains_candidate"] = any(item["url"].rstrip("/") == target["url"].rstrip("/")
-                         for item in discover(raw, request.get("final_url", request["url"]), "text/html", target["event"])) if raw and request.get("status") == 200 else False
+                         for item in discover(raw, request.get("final_url", request["url"]), "text/html", discovery_event)) if raw and request.get("status") == 200 else False
                 else:
                     row.update(status=request.get("status"), queue_ms=request.get("queue_ms"),
                                headers_ms=request.get("response_headers_received_ms"), request_total_ms=request.get("request_total_ms"),
                                http_version=request.get("http_version"), connection_reused=request.get("connection_reused"))
+                    row.update({key: request[key] for key in ("transport", "transport_version", "curl_cumulative_ms", "header_timing_semantics", "body_timing_semantics") if key in request})
+                    if target.get("document_variant"):
+                        row["actual_source_url"] = request.get("final_url", target["url"])
                     body_verified = bool(raw) and len(raw) == request.get("body_bytes") and digest(raw) == request.get("sha256")
                     row["http_response_complete"] = (body_verified and request.get("body_complete_mono_ns") is not None
                         and request.get("request_end_mono_ns") == request["body_complete_mono_ns"] and not request.get("error"))
@@ -398,6 +422,11 @@ async def collect_watch_case(target, output, node):
                 verdict = capture["validation"]
                 parsed.update({key: verdict[key] for key in ("accepted", "tables_complete", "checks", "reason", "title") if key in verdict})
                 complete = row["http_response_complete"] and verdict.get("accepted") is True and verdict.get("tables_complete") is True and comparison["reference_text_matches"] and comparison["reference_tables_match"]
+                if actual_discovery:
+                    row["discovery_clock_preserved"] = (capture.get("listing_request_id") == row.get("seed", {}).get("id")
+                        and capture.get("discovered_mono_ns") is not None
+                        and capture["discovered_mono_ns"] == row.get("seed", {}).get("body_complete_mono_ns"))
+                    complete = complete and row["discovery_clock_preserved"] and row.get("seed_listing_contains_candidate") is True
                 elapsed = capture.get("discovery_to_parsed_ms")
                 row.update(**comparison, complete=complete, discovery_to_parsed_ms=elapsed,
                            budget_passed=complete and elapsed is not None and elapsed <= 300,
@@ -406,6 +435,8 @@ async def collect_watch_case(target, output, node):
                            table_count=len(parsed["tables"]), text_characters=len(parsed["text"]), sha256=capture["sha256"],
                            bytes=capture["body_bytes"], tables_sha256=digest(json.dumps(parsed["tables"], ensure_ascii=False, separators=(",", ":")).encode()),
                            candidate_attempt=capture.get("candidate_attempt"), retry=capture.get("retry"),
+                           discovered_mono_ns=capture.get("discovered_mono_ns"), validated_mono_ns=capture.get("validated_mono_ns"),
+                           listing_request_id=capture.get("listing_request_id"),
                            discovery_to_archive_ms=None, archive_timing_note="Production archive completion has no recorded continuous timestamp; CLI end is only an upper bound")
                 if requests:
                     row["seed_request_to_parsed_ms"] = (capture["validated_mono_ns"] - requests[0]["queued_mono_ns"]) / 1e6
@@ -501,7 +532,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport"), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer"), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 

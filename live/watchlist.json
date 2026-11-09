@@ -145,8 +145,9 @@
     "sources": [
       {
         "channel": "official",
-        "url": "https://www.msgknicks.com/company-news/",
-        "kind": "html"
+        "url": "https://investor.msgknicks.com/rss/pressrelease.aspx",
+        "kind": "rss",
+        "original_url": "https://www.msgknicks.com/company-news/"
       },
       {
         "channel": "sec",
