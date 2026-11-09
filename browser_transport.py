@@ -15,11 +15,12 @@ def browser_session(proxy=None):
 
 
 @asynccontextmanager
-async def browser_response(session, method, url, headers):
+async def browser_response(session, method, url, headers, request_json=None):
     # Eager transfer intentionally: libcurl's native first-response-byte timing
     # remains distinct from this function returning the complete decoded body.
-    request_headers = {key: value for key, value in headers.items() if key.lower() in ("cache-control", "if-none-match", "if-modified-since")}
-    response = await session.request(method, url, headers=request_headers)
+    request_headers = {key: value for key, value in headers.items() if key.lower() in ("cache-control", "if-none-match", "if-modified-since", "content-type", "origin", "referer")}
+    response = await session.request(method, url, headers=request_headers,
+                                     **({"json": request_json} if request_json is not None else {}))
     yield response
 
 

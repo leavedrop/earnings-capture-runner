@@ -366,8 +366,10 @@
     "sources": [
       {
         "channel": "official",
-        "url": "https://ir.kkr.com/",
-        "kind": "html"
+        "url": "https://tools.cms-eqs.com/fcf5b4/content/events/eventbox?dateOrder=DESC&timeOrder=DESC&localId.languageCode=en&page=1&limit=20&timeline=upcoming",
+        "kind": "json",
+        "original_url": "https://ir.kkr.com/",
+        "public_client_config_url": "https://ir.kkr.com/_app/immutable/chunks/DAY4boZ0.js"
       },
       {
         "channel": "sec",

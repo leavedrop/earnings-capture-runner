@@ -3,14 +3,17 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import base64
 from collections import deque
 import csv
 import gzip
 import hashlib
+import hmac
 import json
 import logging
 from logging.handlers import RotatingFileHandler
 import os
+import re
 from pathlib import Path
 import socket
 import sqlite3
@@ -228,6 +231,41 @@ class Collector:
         self.stop = asyncio.Event()
         self.sec_stream_session = None
         self.browser_session = None
+        self.kkr_public_client = None
+
+    async def kkr_authorization(self, session, event, record):
+        """Reproduce the issuer's public browser client; retain keys only in memory."""
+        if self.kkr_public_client is None:
+            config_url = next(source["public_client_config_url"] for source in event["sources"]
+                              if source.get("public_client_config_url"))
+            started = time.perf_counter_ns()
+            response = await session.get(config_url, follow_redirects=False,
+                                         headers={"User-Agent": "EarningsWatch/1.0 automated-public-filings-research"})
+            record["public_client_initialization_ms"] = (time.perf_counter_ns()-started)/1e6
+            self.store.add("public_client_init", {"symbol": event["symbol"], "channel": "official",
+                           "run_id": self.run_id, "mode": self.args.command, "url": config_url,
+                           "status": response.status_code, "body_bytes": len(response.content),
+                           "sha256": hashlib.sha256(response.content).hexdigest(),
+                           "elapsed_ms": record["public_client_initialization_ms"],
+                           "body_not_archived": "public client credentials are held only in memory"})
+            if response.status_code != 200:
+                raise ValueError(f"KKR public configuration HTTP {response.status_code}")
+            values = {match[1]: json.loads(match[2]) for match in re.finditer(
+                r'(?:const |,)([A-Za-z_$][\w$]*)=("(?:\\.|[^"\\])*")', response.text)}
+            fields = {match[1]: values.get(match[2]) for match in re.finditer(
+                r'(PUBLIC_[A-Z0-9_]+):([A-Za-z_$][\w$]*)', response.text)}
+            if (fields.get("PUBLIC_API_ENDPOINT") != "https://tools.cms-eqs.com"
+                    or fields.get("PUBLIC_API_PREFIX") != "fcf5b4"
+                    or not fields.get("PUBLIC_AUTH_JWT_KEY") or not fields.get("PUBLIC_AUTH_JWT_SECRET")):
+                raise ValueError("KKR public configuration does not match the verified issuer API")
+            self.kkr_public_client = (fields["PUBLIC_AUTH_JWT_KEY"], fields["PUBLIC_AUTH_JWT_SECRET"])
+        key, secret = self.kkr_public_client
+        def encode(value):
+            return base64.urlsafe_b64encode(value).rstrip(b"=")
+        unsigned = encode(b'{"alg":"HS256","typ":"JWT"}') + b"." + encode(json.dumps(
+            {"iss": key, "exp": time.time()+20}, separators=(",", ":")).encode())
+        signature = hmac.new(secret.encode(), unsigned, hashlib.sha256).digest()
+        return "Bearer " + (unsigned+b"."+encode(signature)).decode()
 
     async def fetch(self, session, url, event, channel, purpose, conditional=True, sec_exhibit=False, discovery_interval=None, method="GET", request_json=None):
         queued = time.perf_counter_ns()
@@ -283,17 +321,24 @@ class Collector:
         exhibit = None
         extractor = None
         browser = urlsplit(url).hostname in ("investor.msgknicks.com", "www.barrick.com")
+        kkr_api = (event.get("symbol") == "KKR" and urlsplit(url).scheme == "https"
+                   and urlsplit(url).hostname == "tools.cms-eqs.com"
+                   and urlsplit(url).path == "/fcf5b4/content/events/eventbox")
         if sec_exhibit:
             from sec_stream import IncrementalExhibit
             extractor = IncrementalExhibit()
         try:
+            if kkr_api:
+                headers.update({"Authorization": await self.kkr_authorization(session, event, record),
+                                "Content-Type": "application/json"})
             if browser:
                 from browser_transport import browser_response, browser_timing
                 transfer = browser_response(self.browser_session, method, url, headers, request_json=request_json)
                 record["transport"] = "curl_cffi_chrome"
             else:
                 transfer = session.stream(method, url, headers=headers, extensions={"trace": trace},
-                                          **({"json": request_json} if request_json is not None else {}))
+                                          **({"json": request_json} if request_json is not None else {}),
+                                          **({"follow_redirects": False} if kkr_api else {}))
             async with transfer as response:
                 headers_mono = None if browser else time.perf_counter_ns()
                 headers_at = None if browser else frozen_stamp()[1]
@@ -483,7 +528,7 @@ class Collector:
             validated_mono = parse_timing["validated_mono_ns"]
             validated = rec["body_complete_ns"] + (validated_mono-rec["body_complete_mono_ns"])
             discovery_to_parsed = (validated_mono-discovered_mono_ns)/1e6 if discovered_mono_ns is not None else None
-            verdict = {k: v for k, v in result.items() if k not in ("text", "tables", "table_details", "page_diagnostics")}
+            verdict = {k: v for k, v in result.items() if k not in ("text", "tables", "table_spans", "table_details", "page_diagnostics")}
             if "table_details" in result:
                 verdict["pdf_table_count"] = len(result["table_details"])
                 verdict["pdf_table_word_count"] = sum(t["source_word_count"] for t in result["table_details"])
@@ -539,7 +584,7 @@ class Collector:
                 captured["original_document_path"] = str(original.relative_to(self.store.root))
                 target.with_suffix(".txt").write_text(result.get("text", ""), encoding="utf-8")
                 atomic_json(target.with_suffix(".json"), {"metadata": captured, "tables": result.get("tables", []),
-                            **{key: result[key] for key in ("table_details", "page_diagnostics") if key in result}})
+                            **{key: result[key] for key in ("table_spans", "table_details", "page_diagnostics") if key in result}})
                 self.store.add("capture", captured)
                 self.captured_documents.add((event["symbol"], channel, document_url))
                 self.completed.add((event["symbol"], channel))

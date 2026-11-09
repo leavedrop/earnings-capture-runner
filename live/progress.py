@@ -209,24 +209,39 @@ def archived_table_check(original, report_path, original_mtime, report_mtime, ms
     if root is None:
         root = next(tree.iter("main"), tree)
     _drop_content(root, "script", "style", "nav", "header", "footer")
-    expected = []
+    expected, expected_spans = [], []
     for table in root.iter("table"):
-        rows = [[_clean(_text(cell)) for cell in row if cell.tag in ("td", "th")]
-                for row in table.iter("tr")]
-        rows = [row for row in rows if any(row)]
+        rows, spans = [], []
+        for row in table.iter("tr"):
+            cells = [cell for cell in row if cell.tag in ("td", "th")]
+            values = [_clean(_text(cell)) for cell in cells]
+            if not any(values):
+                continue
+            rows.append(values)
+            spans.append([[int(value) if value.isdecimal() and (name == "rowspan" or int(value) > 0) else 1
+                           for name in ("rowspan", "colspan")
+                           for value in [cell.get(name, "1").strip()]] for cell in cells])
         if rows:
             expected.append(rows)
-    saved = read_json(Path(report_path)).get("tables", [])
+            expected_spans.append(spans)
+    report = read_json(Path(report_path))
+    saved = report.get("tables", [])
     def signature(table):
         return tuple(tuple(re.sub(r"\s+", " ", str(cell or "")).strip() for cell in row) for row in table)
     absent = Counter(signature(table) for table in expected) - Counter(signature(table) for table in saved)
     complete = not absent
     note = (f"核对原始HTML发现有{len(expected)}张表，旧产物保存{len(saved)}张，其中{sum(absent.values())}张未完整保留；该次不算全文和表格完整达标。"
             if not complete else "")
+    if complete and any(pair != [1, 1] for table in expected_spans for row in table for pair in row):
+        if report.get("table_spans") != expected_spans:
+            complete = False
+            note = "原文和单元格文字已保留，但原文的合并行列跨度未完整保存；季度表头与数值列结构不完整，原耗时保留，不计完整解析达标。"
     return complete, note
 
 
 def capture_row(record, root, output_root, run_started, replay=False):
+    from sources import is_tgtx_announcement_index
+
     category, explanation = context(record, run_started, replay)
     validation = record.get("validation") or {}
     duration, timing_basis, timing_note = capture_timing(record)
@@ -273,12 +288,17 @@ def capture_row(record, root, output_root, run_started, replay=False):
     negative_at = (datetime.fromtimestamp(negative_ns // 1_000_000_000, timezone.utc)
                    .replace(microsecond=negative_ns % 1_000_000_000 // 1_000)
                    if type(negative_ns) is int and negative_ns > 0 else None)
+    announcement_index = is_tgtx_announcement_index(url or "")
+    if announcement_index:
+        accepted = tables_complete = False
+        quality_note = "公告目录不是完整财报；原始记录和耗时保留，不计全文采集或300ms通过。"
     return {
         "symbol": symbol,
         "channel": channel,
         "channel_label": CHANNELS.get(channel, "其他来源"),
         "site": urlsplit(url).hostname if url else None,
         "title": validation.get("title") or record.get("title") or f"{symbol} 财报文档",
+        "document_kind": "announcement_listing" if announcement_index else None,
         "url": url,
         "url_parameters_removed": bool(url and url != (record.get("target_document_url") or record.get("final_url") or record.get("url"))),
         "context": category,
@@ -650,6 +670,8 @@ def read_attachments(root):
 
 
 def read_us_live(root, now=None):
+    from sources import is_tgtx_announcement_index
+
     database = root / "us_live_observations.sqlite3"
     if not database.is_file():
         return [], {}, [], {"failed_records": 0, "groups": []}
@@ -663,6 +685,20 @@ def read_us_live(root, now=None):
         if row.get("context") == "live" and not has_negative_observation(row):
             row.update(context="unknown", context_label=CONTEXTS["unknown"],
                        context_explanation="缺少此前未见公告的原始观察时间，不能认作首发记录。")
+        if is_tgtx_announcement_index(row.get("url") or ""):
+            row.update(accepted=False, tables_complete=False, latency_budget_passed=False,
+                       document_kind="announcement_listing",
+                       quality_note="公告目录不是完整财报；原始记录和耗时保留，不计全文采集或300ms通过。")
+        else:
+            original = next((artifact_path(root, item.get("path"), root) for item in row.get("artifacts", [])
+                             if str(item.get("path", "")).endswith(".html")), None)
+            if original and (report_path := (root / original).with_suffix(".json")).is_file():
+                original_path = root / original
+                complete, note = archived_table_check(str(original_path), str(report_path),
+                    original_path.stat().st_mtime_ns, report_path.stat().st_mtime_ns,
+                    msgk_issuer=row.get("symbol") == "MSGK" and urlsplit(row.get("url") or "").hostname == "investor.msgknicks.com")
+                if not complete:
+                    row.update(tables_complete=False, latency_budget_passed=False, quality_note=note)
     captures.sort(key=lambda row: row.get("parsed_at_beijing") or "", reverse=True)
     now = now or datetime.now(timezone.utc)
     bridge_status = read_json(root / "us_live_bridge_status.json")

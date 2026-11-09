@@ -191,6 +191,22 @@ def _document(body):
     return etree.fromstring(body if body.strip() else b"<html></html>", etree.HTMLParser())
 
 
+def check_table_spans(tables, spans):
+    """Verify the public cell-span array contains only aligned integer pairs."""
+    if not isinstance(spans, list) or len(spans) != len(tables):
+        raise ValueError("table_spans_shape_mismatch")
+    for table, table_spans in zip(tables, spans):
+        if not isinstance(table_spans, list) or len(table_spans) != len(table):
+            raise ValueError("table_spans_shape_mismatch")
+        for row, row_spans in zip(table, table_spans):
+            if not isinstance(row_spans, list) or len(row_spans) != len(row):
+                raise ValueError("table_spans_shape_mismatch")
+            for pair in row_spans:
+                if (not isinstance(pair, list) or len(pair) != 2 or
+                        any(type(value) is not int for value in pair) or pair[0] < 0 or pair[1] < 1):
+                    raise ValueError("table_spans_not_integer_pairs")
+
+
 def _text(node, separator=" ", strip=True):
     values = _TEXT_NODES(node) if len(node) else ((node.text,) if node.text else ())
     if strip:
@@ -297,6 +313,58 @@ def sec_supporting_title(form, description, *, body=None, event=None, validation
     return None
 
 
+def listing_structure(body: bytes, url: str, content_type: str, event: dict) -> str | None:
+    """A readable source is required before absence can be a negative observation.
+
+    Historical announcement links establish an HTML list, while an application
+    shell or verification page does not. These are the same evidence categories
+    used by the US runner's handoff readiness check.
+    """
+    parsed = urlparse(url)
+    try:
+        if "json" in content_type or body.lstrip().startswith((b"{", b"[")):
+            payload = json.loads(body)
+            if (event.get("symbol") == "KKR" and parsed.hostname == "tools.cms-eqs.com"
+                    and parsed.path == "/fcf5b4/content/events/eventbox" and isinstance(payload, dict)
+                    and payload.get("@type") == "hydra:Collection"
+                    and isinstance(payload.get("hydra:member"), list)
+                    and all(isinstance(row, dict) and isinstance(row.get("boxItems"), list)
+                            for row in payload["hydra:member"])):
+                return "Official KKR event document entries with published file paths"
+            if parsed.hostname == "www.barrick.com" and parsed.path == "/Services/PressReleaseService.svc/GetPressReleaseList" and event.get("symbol") == "B":
+                entries = payload.get("GetPressReleaseListResult") if isinstance(payload, dict) else None
+                if isinstance(entries, list) and all(isinstance(row, dict) and row.get("Headline") and row.get("LinkToDetailPage") for row in entries):
+                    return "Official Q4 press release entries with titles and document links"
+            if parsed.hostname == "data.sec.gov" and parsed.path.startswith("/submissions/") and isinstance(payload, dict):
+                filings = payload.get("filings")
+                recent = filings.get("recent") if isinstance(filings, dict) else None
+                if (str(payload.get("cik", "")).lstrip("0") == str(event.get("cik", "")).lstrip("0")
+                        and event.get("cik") and isinstance(recent, dict) and isinstance(recent.get("form"), list)):
+                    return "SEC submissions CIK and recent filings structure"
+            if parsed.hostname in ("sea.com", "www.sea.com") and parsed.path.rstrip("/") == "/api/financial/resource" and event.get("symbol") == "SE":
+                if isinstance(payload, list) and any(isinstance(row, dict) and row.get("year") and isinstance(row.get("data"), list) for row in payload):
+                    return "Official financial resource years and report entries"
+            return None
+        if any(kind in content_type for kind in ("xml", "rss", "atom")) or body.lstrip().startswith((b"<?xml", b"<rss", b"<feed")):
+            document = ElementTree.fromstring(body)
+            for item in document.iter():
+                if item.tag.rsplit("}", 1)[-1] not in ("item", "entry"):
+                    continue
+                fields = {child.tag.rsplit("}", 1)[-1]: child for child in item}
+                title, link = fields.get("title"), fields.get("link")
+                if title is not None and title.text and link is not None and (link.text or link.get("href")):
+                    return "Parsed public feed with titled entry links"
+            return None
+        for link in _document(body).iter("a"):
+            if _clean(_text(link)) and re.search(
+                    r"/(?:news-release-details|news-details|press-release-details)/|/news/home/\d+/|"
+                    r"/(?:20\d{2})/.*(?:results|earnings|reports)", link.get("href", ""), re.I):
+                return "Public announcement links present; current-quarter candidate may be absent"
+    except (ValueError, UnicodeError, ElementTree.ParseError):
+        pass
+    return None
+
+
 def discover(body: bytes, url: str, content_type: str, event: dict) -> list[dict]:
     """Return target-period links, SEC filing indexes, or EX-99 attachments."""
     found = []
@@ -323,6 +391,41 @@ def discover(body: bytes, url: str, content_type: str, event: dict) -> list[dict
             return found
         if not isinstance(payload, dict):
             return []
+        if (event.get("symbol") == "KKR" and hostname == "tools.cms-eqs.com"
+                and urlparse(url).path == "/fcf5b4/content/events/eventbox"):
+            if payload.get("@type") != "hydra:Collection":
+                return []
+            seen = set()
+            for row in payload.get("hydra:member", []):
+                for document in row.get("boxItems", []):
+                    title = document.get("title", "")
+                    path = document.get("filePath") or ""
+                    if (document.get("fileType") != "application/pdf" or not path.startswith("/media/document/")
+                            or not _target(title, event) or not _FINANCIAL.search(title)
+                            or _ANNOUNCEMENT.search(title)):
+                        continue
+                    target = "https://ir.kkr.com" + path
+                    if target not in seen:
+                        seen.add(target)
+                        found.append(_candidate(target, "KKR " + title, identity_verified=True,
+                                                discovery_route="official_eqs_event_document",
+                                                source_document_date=document.get("date")))
+            return found
+        if hostname == "www.barrick.com" and urlparse(url).path == "/Services/PressReleaseService.svc/GetPressReleaseList" and event.get("symbol") == "B":
+            for row in payload.get("GetPressReleaseListResult", []):
+                title = row.get("Headline", "")
+                if not (_target(title, event) and _FINANCIAL.search(title) and _identity(title, event)) or _ANNOUNCEMENT.search(title):
+                    continue
+                target = _url(url, row.get("LinkToDetailPage", ""))
+                if not target or urlparse(target).hostname != hostname:
+                    continue
+                try:
+                    published = datetime.strptime(row.get("PressReleaseDate", ""), "%m/%d/%Y %H:%M:%S").replace(tzinfo=ZoneInfo("America/New_York")).isoformat()
+                except ValueError:
+                    published = None
+                found.append(_candidate(target, title, _stamp(published, "official_q4_list") if published else None,
+                                        identity_verified=True))
+            return found
         recent = payload.get("filings", {}).get("recent", {})
         if not recent:
             return []
@@ -539,12 +642,22 @@ def _financial_table(rows):
     return next(matches, None) is not None and next(matches, None) is not None
 
 
+def is_tgtx_announcement_index(url: str) -> bool:
+    parsed = urlparse(url)
+    return parsed.hostname == "ir.tgtherapeutics.com" and parsed.path.rstrip("/") == "/press-releases"
+
+
 def validate(body: bytes, url: str, content_type: str, event: dict) -> dict:
     """Validate identity, current reporting period and financial content together.
 
     Rejected documents remain useful raw evidence and can be reviewed manually.
     """
+    if is_tgtx_announcement_index(url):
+        return {"accepted": False, "reason": "announcement_index_not_full_report", "title": "Press Releases",
+                "text": "", "tables": [], "publisher_timestamp": _stamp(None),
+                "checks": {"full_report": False}, "tables_complete": False, "tables_extraction_scope": "not_a_report"}
     tables = []
+    table_spans = []
     timestamp = _stamp(None)
     pdf = body.startswith(b"%PDF") or "pdf" in content_type
     cover = None
@@ -619,11 +732,19 @@ def validate(body: bytes, url: str, content_type: str, event: dict) -> dict:
         _drop_content(root, "nav", "header", "footer")
         text = _text(root)
         for table in root.iter("table"):
-            rows = [[_clean(_text(cell)) for cell in row if cell.tag in ("td", "th")]
-                    for row in table.iter("tr")]
-            rows = [row for row in rows if any(row)]
+            rows, spans = [], []
+            for row in table.iter("tr"):
+                cells = [cell for cell in row if cell.tag in ("td", "th")]
+                values = [_clean(_text(cell)) for cell in cells]
+                if not any(values):
+                    continue
+                rows.append(values)
+                spans.append([[int(value) if value.isdecimal() and (name == "rowspan" or int(value) > 0) else 1
+                               for name in ("rowspan", "colspan")
+                               for value in [cell.get(name, "1").strip()]] for cell in cells])
             if rows:
                 tables.append(rows)
+                table_spans.append(spans)
     lead = _clean(text)[:2000]
     title_report = bool(_FINANCIAL.search(title))
     current_period = _target(title, event) or (
@@ -648,8 +769,9 @@ def validate(body: bytes, url: str, content_type: str, event: dict) -> dict:
     }
     if native_pdf is not None:
         checks["tables_complete"] = native_pdf["tables_complete"]
-    publisher_pdf_needs_review = (pdf and native_pdf is None and event.get("symbol") == "BAM"
-        and parsed_url.hostname in ("globenewswire.com", "www.globenewswire.com", "pnr-files.pro1.gus.wdc.dianum.io"))
+    publisher_pdf_needs_review = (pdf and native_pdf is None and (
+        event.get("symbol") == "BAM" and parsed_url.hostname in ("globenewswire.com", "www.globenewswire.com", "pnr-files.pro1.gus.wdc.dianum.io")
+        or event.get("symbol") == "KKR" and parsed_url.hostname == "ir.kkr.com" and parsed_url.path.startswith("/media/document/")))
     if publisher_pdf_needs_review:
         # This publisher's untagged PDF has no native cell rectangles. The
         # text-alignment fallback clips prose and splits financial amounts.
@@ -661,6 +783,8 @@ def validate(body: bytes, url: str, content_type: str, event: dict) -> dict:
             "title": title, "text": text, "tables": tables,
             "publisher_timestamp": timestamp, "checks": checks,
             "tables_extraction_scope": "full_detected", "tables_complete": True}
+    if not pdf:
+        result["table_spans"] = table_spans
     if native_pdf is not None:
         result.update({key:native_pdf[key] for key in ("table_details", "page_diagnostics", "pdf_structure_checks", "tables_extraction_scope", "tables_complete", "quality_reason")})
         result["pdf_parse_ms"] = native_pdf["parse_ms"]

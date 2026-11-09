@@ -92,9 +92,11 @@ def handoff_sources(runtime, status, connection, metadata):
                             valid = any(item.tag.rsplit("}", 1)[-1] in ("item", "entry") for item in document.iter())
                             basis = "Parsed public feed with entries"
                         else:
-                            from sources import discover
+                            from sources import discover, listing_structure
                             valid = bool(discover(body, rec.get("final_url") or source["url"],
-                                                 rec.get("response_headers", {}).get("content-type", ""), event))
+                                                 rec.get("response_headers", {}).get("content-type", ""), event)
+                                         or listing_structure(body, rec.get("final_url") or source["url"],
+                                                              rec.get("response_headers", {}).get("content-type", ""), event))
                             if not valid:
                                 from bs4 import BeautifulSoup
                                 page = BeautifulSoup(body, "lxml")
@@ -145,6 +147,10 @@ def snapshot(runtime, checkout, metadata, cached):
                 report = json.loads((runtime / (stem + ".json")).read_text(encoding="utf-8"))
                 parsed = {"text": (runtime / (stem + ".txt")).read_text(encoding="utf-8"),
                           "tables": report["tables"]}
+                if "table_spans" in report:
+                    from sources import check_table_spans
+                    check_table_spans(report["tables"], report["table_spans"])
+                    parsed["table_spans"] = report["table_spans"]
                 parsed.update({key: report[key] for key in ("table_details", "page_diagnostics") if key in report})
                 body = public_bytes(parsed)
                 write_public(checkout / (stem + ".json"), body)

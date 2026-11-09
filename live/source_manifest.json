@@ -1,13 +1,13 @@
 {
   "watch.py": {
-    "sha256": "44fda5f9716d7399a2aa6a5b6fd5296fffffabc096b35ef5e0c9851e24fbe2b2",
-    "production_sha256": "4b59a4d7e135bb659685e4d6984fd589e81e6a8ad681dea5a4b62241039a2ee6",
+    "sha256": "d382bdafe5eaa7978610fcdee104208bf951e80f42ac5c065e553e6be56766d8",
+    "production_sha256": "c5f50f6e9c7d21446ce4bfd56d5deb4d1c47b76dbfe951d9b25ab6f3d61d1e84",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "watch.py"
   },
   "sources.py": {
-    "sha256": "f1bfb5e22fee78a02747e98c3ce28a9477d915530e0059330912d74554f6f65c",
-    "production_sha256": "a4946efa38198d9f5ac7c85bb80976973c87e8976d992f829480ff1f203e9bdf",
+    "sha256": "fe4cda1ed71b8ef7a5396acaf2be217ea5585be6bb7c4baa0f624963a624c331",
+    "production_sha256": "d0cbaf8befd91cbb48e02697b635b713e5a6114523d7cb01de233c7645d6ea00",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "sources.py"
   },
@@ -30,13 +30,13 @@
     "source": "sec_stream.py"
   },
   "progress.py": {
-    "sha256": "33c74aa48f7bc46a08c5b2d6685d413fafc00f79162a2cc87dc36f2fd8726957",
-    "production_sha256": "33c74aa48f7bc46a08c5b2d6685d413fafc00f79162a2cc87dc36f2fd8726957",
+    "sha256": "26f19dd58b7d1cd3c4ad54271ebb87d2e484c8a679eefe5a86d3b125b10286df",
+    "production_sha256": "26f19dd58b7d1cd3c4ad54271ebb87d2e484c8a679eefe5a86d3b125b10286df",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "progress.py"
   },
   "watchlist.json": {
-    "sha256": "f5586e720a77a23340b09ad831a9fdc9f1fea77ffcaad65d937b1e91870c298d",
+    "sha256": "4b0927e84a28ea1fe8d93f9a23011180545cb15557d0398f79b6ebf5c63c9f64",
     "source": "public event/source whitelist; 34 companies"
   },
   "browser_transport.py": {
