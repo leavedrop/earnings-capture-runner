@@ -308,6 +308,10 @@ def listing_structure(body: bytes, url: str, content_type: str, event: dict) -> 
     try:
         if "json" in content_type or body.lstrip().startswith((b"{", b"[")):
             payload = json.loads(body)
+            if parsed.hostname == "www.barrick.com" and parsed.path == "/Services/PressReleaseService.svc/GetPressReleaseList" and event.get("symbol") == "B":
+                entries = payload.get("GetPressReleaseListResult") if isinstance(payload, dict) else None
+                if isinstance(entries, list) and all(isinstance(row, dict) and row.get("Headline") and row.get("LinkToDetailPage") for row in entries):
+                    return "Official Q4 press release entries with titles and document links"
             if parsed.hostname == "data.sec.gov" and parsed.path.startswith("/submissions/") and isinstance(payload, dict):
                 filings = payload.get("filings")
                 recent = filings.get("recent") if isinstance(filings, dict) else None
@@ -364,6 +368,21 @@ def discover(body: bytes, url: str, content_type: str, event: dict) -> list[dict
             return found
         if not isinstance(payload, dict):
             return []
+        if hostname == "www.barrick.com" and urlparse(url).path == "/Services/PressReleaseService.svc/GetPressReleaseList" and event.get("symbol") == "B":
+            for row in payload.get("GetPressReleaseListResult", []):
+                title = row.get("Headline", "")
+                if not (_target(title, event) and _FINANCIAL.search(title) and _identity(title, event)) or _ANNOUNCEMENT.search(title):
+                    continue
+                target = _url(url, row.get("LinkToDetailPage", ""))
+                if not target or urlparse(target).hostname != hostname:
+                    continue
+                try:
+                    published = datetime.strptime(row.get("PressReleaseDate", ""), "%m/%d/%Y %H:%M:%S").replace(tzinfo=ZoneInfo("America/New_York")).isoformat()
+                except ValueError:
+                    published = None
+                found.append(_candidate(target, title, _stamp(published, "official_q4_list") if published else None,
+                                        identity_verified=True))
+            return found
         recent = payload.get("filings", {}).get("recent", {})
         if not recent:
             return []

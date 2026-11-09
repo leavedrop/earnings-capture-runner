@@ -229,7 +229,7 @@ class Collector:
         self.sec_stream_session = None
         self.browser_session = None
 
-    async def fetch(self, session, url, event, channel, purpose, conditional=True, sec_exhibit=False, discovery_interval=None):
+    async def fetch(self, session, url, event, channel, purpose, conditional=True, sec_exhibit=False, discovery_interval=None, method="GET", request_json=None):
         queued = time.perf_counter_ns()
         queue_details = await self.rate.wait(url, purpose, **(
             {"discovery_interval": discovery_interval} if discovery_interval is not None else {})) or {}
@@ -262,6 +262,9 @@ class Collector:
         headers = {"User-Agent": user_agent, "Accept": "*/*"}
         if purpose == "discovery":
             headers["Cache-Control"] = "no-cache"
+        if method == "POST" and urlsplit(url).hostname == "www.barrick.com":
+            headers.update({"Content-Type": "application/json; charset=utf-8", "Origin": "https://www.barrick.com",
+                            "Referer": "https://www.barrick.com/English/news/default.aspx"})
         cached = self.cache.get(url)
         if conditional and cached:
             if cached.get("etag"):
@@ -269,7 +272,7 @@ class Collector:
             elif cached.get("last_modified"):
                 headers["If-Modified-Since"] = cached["last_modified"]
         record = {"id": str(uuid.uuid4()), "run_id": self.run_id, "mode": self.args.command, "symbol": event["symbol"],
-                  "channel": channel, "purpose": purpose, "url": url,
+                  "channel": channel, "purpose": purpose, "url": url, "method": method,
                   "node": self.args.node, "route": "configured_proxy" if self.proxy else "direct",
                   "clock": clock_snapshot, "request_start_raw_ns": raw_start,
                   "queued_mono_ns": queued, **queue_details,
@@ -279,17 +282,18 @@ class Collector:
         body = b""
         exhibit = None
         extractor = None
-        browser = urlsplit(url).hostname == "investor.msgknicks.com"
+        browser = urlsplit(url).hostname in ("investor.msgknicks.com", "www.barrick.com")
         if sec_exhibit:
             from sec_stream import IncrementalExhibit
             extractor = IncrementalExhibit()
         try:
             if browser:
                 from browser_transport import browser_response, browser_timing
-                transfer = browser_response(self.browser_session, "GET", url, headers)
+                transfer = browser_response(self.browser_session, method, url, headers, request_json=request_json)
                 record["transport"] = "curl_cffi_chrome"
             else:
-                transfer = session.stream("GET", url, headers=headers, extensions={"trace": trace})
+                transfer = session.stream(method, url, headers=headers, extensions={"trace": trace},
+                                          **({"json": request_json} if request_json is not None else {}))
             async with transfer as response:
                 headers_mono = None if browser else time.perf_counter_ns()
                 headers_at = None if browser else frozen_stamp()[1]
@@ -658,7 +662,9 @@ class Collector:
             cycle_started_mono = time.perf_counter_ns()
             try:
                 rec, body = await self.fetch(session, url, event, channel, "discovery",
-                                             discovery_interval=interval if hot_discovery else None)
+                                             discovery_interval=interval if hot_discovery else None,
+                                             **({"method": source["method"], "request_json": source["request_json"]}
+                                                if source.get("method") == "POST" else {}))
                 rec["configured_poll_interval_seconds"] = interval
                 self.status[status_key] = {"state": ("captured_monitoring_later_filings" if channel == "sec" and key in self.completed else "polling") if rec["status"] in (200, 304) else "source_error",
                                           "status": rec["status"], "error": rec.get("error"), "url": url,

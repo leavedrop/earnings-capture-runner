@@ -279,8 +279,28 @@
     "sources": [
       {
         "channel": "official",
-        "url": "https://www.barrick.com/English/news/default.aspx",
-        "kind": "html"
+        "url": "https://www.barrick.com/Services/PressReleaseService.svc/GetPressReleaseList",
+        "kind": "q4_json",
+        "original_url": "https://www.barrick.com/English/news/default.aspx",
+        "method": "POST",
+        "request_json": {
+          "serviceDto": {
+            "ViewType": "2",
+            "ViewDate": "",
+            "RevisionNumber": "1",
+            "LanguageId": "1",
+            "Signature": "",
+            "ItemCount": -1,
+            "StartIndex": 0,
+            "TagList": [],
+            "IncludeTags": true
+          },
+          "pressReleaseBodyType": 0,
+          "pressReleaseSelection": 3,
+          "pressReleaseCategoryWorkflowId": "1cb807d2-208f-4bc3-9133-6a9ad45ac3b0",
+          "excludeSelection": 1,
+          "year": 2026
+        }
       },
       {
         "channel": "sec",
