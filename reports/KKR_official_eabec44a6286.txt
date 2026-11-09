@@ -1,0 +1,4549 @@
+KKR & Co. Inc. 
+Reports Third Quarter 2026 
+Financial Results
+November 9, 2026
+
+i
+For the second consecutive quarter, 
+KKR is reporting record Fee Related 
+Earnings, Total Operating Earnings and 
+Adjusted Net Income per share, both on 
+a quarterly and trailing twelve-month 
+basis. We continue to monetize 
+investments and return capital to our 
+clients at record levels. In 2026, we 
+expect to return more than $40 billion 
+to our clients, exceeding our previous 
+annual record by more than 50%.
+Conference Call
+A conference call to discuss KKR's financial results will be held on 
+November 9, 2026 at 10:00 a.m. ET. The conference call may be 
+accessed by dialing +1 (877) 407-0312 (U.S. callers) or +1 (201) 
+389-0899 (non-U.S. callers); a pass code is not required. 
+Additionally, the conference call will be broadcast live over the 
+Internet and may be accessed through the Investor Center 
+section 
+of 
+KKR's 
+website 
+at 
+https://ir.kkr.com/events-
+presentations/. A replay of the live broadcast will be available on 
+KKR's website beginning approximately one hour after the live 
+broadcast ends.
+About KKR
+KKR is a leading global investment firm that offers alternative 
+asset management as well as capital markets and insurance 
+solutions. KKR aims to generate attractive investment returns by 
+following a patient and disciplined investment approach, 
+employing world-class people, and supporting growth in its 
+portfolio companies and communities. KKR sponsors investment 
+funds that invest in private equity, credit and real assets and has 
+strategic partners that manage hedge funds. KKR’s insurance 
+subsidiaries offer retirement, life and reinsurance products under 
+the management of The Global Atlantic Financial Group. 
+References to KKR’s investments may include the activities of its 
+sponsored funds and insurance subsidiaries. For additional 
+information about KKR & Co. Inc. (NYSE: KKR), please visit KKR's 
+website at www.kkr.com. For additional information about 
+Global Atlantic Financial Group, please visit Global Atlantic 
+Financial Group's website at www.globalatlantic.com.
+New York, November 9, 2026 – KKR & Co. Inc. (NYSE: KKR) today reported its third quarter 2026 results.
+KKR Reports Third Quarter 2026 Financial Results
+Joseph Y. Bae and Scott C. Nuttall
+Co-Chief Executive Officers
+
+ii
+KKR Reports Third Quarter 2026 Financial Results
+Investor Relations
+Craig Larson
+Phone: +1 (877) 610-4910 in U.S. / +1 (212) 230-9410
+investor-relations@kkr.com
+Media
+Kristi Huller
+Phone: +1 (212) 750-8300
+media@kkr.com
+Legal Disclosures
+This presentation has been prepared by KKR & Co. Inc. solely for informational purposes for its public stockholders in connection with evaluating the business, operations 
+and financial results of KKR & Co. Inc. and its subsidiaries (collectively, “KKR”), which includes The Global Atlantic Financial Group LLC and its subsidiaries (collectively, “Global 
+Atlantic” or “GA”), unless the context requires otherwise. This presentation is not, and shall not be construed, as an offer to purchase or sell, or the solicitation of an offer to 
+purchase or sell any securities of KKR in any jurisdiction in which such offer, solicitation or sale would be unlawful. This presentation may not be distributed, referenced, 
+quoted or linked by website, in whole or in part, except as agreed to in writing by KKR & Co. Inc.
+The statements contained in this presentation are made as of the date of this presentation, other than financial figures, which are as of September 30, 2026, unless another 
+time is specified in relation to such statements or financial figures, and access to this presentation at any given time shall not give rise to any implication that there has been 
+no change in the facts set forth in this presentation since such date. 
+This presentation contains certain forward-looking statements pertaining to KKR, including with respect to the investment funds, and vehicles and accounts managed by KKR 
+and the Global Atlantic insurance companies. Forward-looking statements relate to expectations, estimates, beliefs, projections, future plans and strategies, anticipated 
+events or trends and similar expressions concerning matters that are not historical facts. You can identify these forward-looking statements by the use of words such as 
+“opportunity,” “outlook,” “believe,” “think,” “expect,” “feel,” “potential,” “continue,” “may,” “should,” “seek,” “approximately,” “predict,” “intend,” “will,” “plan,” 
+“estimate,” “anticipate,” “visibility,” “positioned,” “path to,” “conviction,” the negative version of these words, other comparable words or other statements that do not 
+relate strictly to historical or factual matters. These forward-looking statements are based on KKR’s beliefs, assumptions and expectations, but these beliefs, assumptions and 
+expectations can change as a result of many possible events or factors, not all of which are known to KKR or within its control. Due to various risks and uncertainties, actual 
+events or results may differ materially from those reflected or contemplated in such forward-looking statements. Past performance is no guarantee of future results. All 
+forward-looking statements speak only as of the date of this presentation. KKR does not undertake any obligation to update any forward-looking statements to reflect 
+circumstances or events that occur after the date of this presentation except as required by law. Please see the Appendix for additional important information about 
+forward-looking statements, including the assumptions and risks concerning projections and estimates of future performance.
+This presentation includes certain non-GAAP measures, including adjusted net income (“ANI”), total segment earnings, total investing earnings, total operating earnings 
+(“TOE”), fee related earnings (“FRE”), strategic holdings operating earnings, and total asset management segment revenues. These non-GAAP measures are in addition to, 
+and not a substitute for, measures of financial and operating performance prepared in accordance with U.S. GAAP. While we believe that providing these non-GAAP 
+measures is helpful to investors in assessing the overall performance of KKR’s business, they may not include all items that are significant to an investor’s analysis of our 
+financial results. Please see the Appendix for additional important information about the non-GAAP measures presented herein.
+Please see the Appendix for other important information. In addition, information about factors affecting KKR, including a description of risks that should be considered 
+when making a decision to purchase or sell any securities of KKR, can be found in KKR & Co. Inc.’s Annual Report on Form 10-K for the fiscal year ended December 31, 2025, 
+filed with the SEC on February 27, 2026, and its other filings with the SEC, which are available at www.sec.gov.
+From time to time, we may use our website as a channel of distribution of material information. Financial and other material information regarding KKR is routinely posted 
+on and accessible at www.kkr.com. Financial and other material information regarding Global Atlantic is routinely posted on and accessible at www.globalatlantic.com. 
+Information on these websites are not incorporated by reference herein and are not a part of this presentation.
+Contact Information
+
+KKR & Co. Inc. 
+Third Quarter Earnings
+
+1
+Third Quarter 2026 GAAP Results (Unaudited)
+GAAP Net Income (Loss) Attributable to KKR & Co. Inc. Common Stockholders was $1.1 billion for the quarter and 
+$2.1 billion YTD
+($ in thousands, except share data)
+3Q'25
+3Q'26
+3Q'25 YTD
+3Q'26 YTD
+Revenues
+Asset Management and Strategic Holdings
+$ 
+1,744,002 
+$ 
+1,761,785 
+$ 
+5,625,083 
+$ 
+5,993,303 
+Insurance
+ 
+3,781,973 
+ 
+2,801,894 
+ 
+8,099,918 
+ 
+8,614,250 
+Total Revenues
+$ 
+5,525,975 
+$ 
+4,563,679 
+$ 
+13,725,001 
+$ 
+14,607,553 
+Expenses
+Asset Management and Strategic Holdings
+$ 
+1,400,471 
+$ 
+1,105,587 
+$ 
+4,504,605 
+$ 
+4,256,096 
+Insurance
+ 
+3,623,800 
+ 
+2,611,403 
+ 
+9,097,065 
+ 
+8,737,288 
+Total Expenses
+$ 
+5,024,271 
+$ 
+3,716,990 
+$ 
+13,601,670 
+$ 
+12,993,384 
+Total Investment Income (Loss) - Asset Management and Strategic Holdings
+$ 
+1,697,857 
+$ 
+663,763 
+$ 
+4,376,065 
+$ 
+1,733,157 
+Income Tax Expense (Benefit)
+ 
+359,739 
+ 
+272,543 
+ 
+620,612 
+ 
+704,033 
+Redeemable Noncontrolling Interests
+ 
+34,058 
+ 
+4,091 
+ 
+110,727 
+ 
+57,360 
+Noncontrolling Interests
+ 
+905,407 
+ 
+72,212 
+ 
+2,543,501 
+ 
+318,616 
+Preferred Stock Dividends
+ 
+40,430 
+ 
+40,430 
+ 
+78,166 
+ 
+121,289 
+Net Income (Loss) - KKR Common Stockholders
+$ 
+859,927 
+$ 
+1,121,176 
+$ 
+1,146,390 
+$ 
+2,146,028 
+Net Income (Loss) Attributable to KKR & Co. Inc. Per Share of Common Stock
+Basic
+$ 
+0.97 
+$ 
+1.25 
+$ 
+1.27 
+$ 
+2.40 
+Diluted
+$ 
+0.90 
+$ 
+1.19 
+$ 
+1.19 
+$ 
+2.26 
+Weighted Average Shares of Common Stock Outstanding
+Basic
+890,961,714
+897,534,193
+889,984,777
+894,778,408
+Diluted
+955,751,429
+943,613,509
+955,793,116
+947,790,326
+Note: 
+See Appendix for detailed GAAP income statement. Totals may not sum due to rounding in this presentation.
+
+2
+•
+Share Repurchase Program: From June 30th through November 4th, KKR used $567 million to 
+repurchase and retire 6.2 million shares at an average price per share of $92. In addition, on 
+November 6th, KKR approved an increase to its share repurchase program by $500 million
+•
+Regular dividend of $0.195 per share of common stock was declared for the quarter
+•
+Sale of USI Insurance Services (“USI”): On August 31st, KKR announced the sale of USI, its 
+inaugural Core Private Equity investment, which is expected to close in the fourth quarter of 
+2026. Subject to closing, KKR expects to generate approximately $2.0 billion of ANI, or over 
+$2.00 ANI per share in its 4Q'26 results
+Capital Metrics
+Third Quarter 2026 Highlights
+•
+Fee Related Earnings (“FRE”) of $1.3 billion ($1.42/adj. share) in the quarter, up 27% year-
+over-year
+•
+FRE was $4.5 billion in the LTM ($4.96/adj. share), up 26% year-over-year
+•
+Total Operating Earnings (“TOE”) of $1.7 billion ($1.88/adj. share) in the quarter, up 25% 
+year-over-year
+•
+TOE was $5.9 billion in the LTM ($6.46/adj. share), up 23% year-over-year
+•
+Insurance Operating Earnings of $230 million in the quarter included a charge of $26 
+million related to GA's annual actuarial assumption review and other related items. 
+Excluding this impact, Insurance Operating Earnings would have been $257 million
+•
+Adjusted Net Income (“ANI”) of $1.6 billion ($1.78/adj. share) in the quarter, up 29% year-
+over-year
+•
+ANI was $5.4 billion in the LTM ($5.92/adj. share), up 18% year-over-year
+•
+The per share figures referenced above — across FRE, TOE and ANI — are all record figures 
+for KKR as a public company on both a quarterly and LTM basis
+•
+Assets Under Management (“AUM”) of $804 billion, up 11% year-over-year
+•
+Fee Paying Assets Under Management (“FPAUM”) of $648 billion, up 11% year-over-year
+•
+New Capital Raised of $25 billion in the quarter and $116 billion in the LTM
+•
+Capital Invested of $20 billion in the quarter and $98 billion in the LTM
+Note: 
+Adj. share refers to adjusted shares. See the Appendix for GAAP reconciliations and other important information. See page 29 for record and payment dates for common and mandatory convertible 
+preferred stock. The sale of USI is subject to closing conditions, and there can be no assurance as to whether or when the transaction will be completed. Statements about the impact of USI are forward-
+looking statements. See Appendix for important information regarding cautionary factors about forward-looking statements.
+Financial Measures
+Corporate
+
+3
+Third Quarter 2026 Segment Earnings
+($ in thousands, except per share data)
+3Q'25
+3Q'26
+3Q'25 YTD
+3Q'26 YTD
+Management Fees
+$ 
+1,063,553 
+$ 
+1,201,108 
+$ 
+2,976,650 
+$ 
+3,643,576 
+Transaction and Monitoring Fees, Net
+ 
+328,124 
+ 
+327,864 
+ 
+823,882 
+ 
+801,842 
+Fee Related Performance Revenues
+ 
+73,177 
+ 
+326,347 
+ 
+148,191 
+ 
+604,808 
+Fee Related Compensation
+ 
+(256,350) 
+ 
+(324,680) 
+ 
+(691,027) 
+ 
+(883,913) 
+Other Operating Expenses
+ 
+(175,568) 
+ 
+(214,669) 
+ 
+(515,403) 
+ 
+(619,820) 
+Fee Related Earnings
+$ 
+1,032,936 
+$ 
+1,315,970 
+$ 
+2,742,293 
+$ 
+3,546,493 
+Insurance Operating Earnings
+$ 
+304,653 
+$ 
+230,273 
+$ 
+841,357 
+$ 
+778,823 
+Strategic Holdings Operating Earnings
+$ 
+57,663 
+$ 
+191,574 
+$ 
+118,270 
+$ 
+276,906 
+Total Operating Earnings
+$ 
+1,395,252 
+$ 
+1,737,817 
+$ 
+3,701,920 
+$ 
+4,602,222 
+Net Realized Performance Income
+ 
+232,665 
+ 
+150,578 
+ 
+429,968 
+ 
+559,653 
+Net Realized Investment Income
+ 
+73,632 
+ 
+198,884 
+ 
+389,793 
+ 
+493,825 
+Total Investing Earnings
+$ 
+306,297 
+$ 
+349,462 
+$ 
+819,761 
+$ 
+1,053,478 
+Total Segment Earnings
+$ 
+1,701,549 
+$ 
+2,087,279 
+$ 
+4,521,681 
+$ 
+5,655,700 
+Interest Expense, Net and Other
+ 
+(102,789) 
+ 
+(129,956) 
+ 
+(287,866) 
+ 
+(393,804) 
+Income Taxes on Adjusted Earnings
+ 
+(325,158) 
+ 
+(311,830) 
+ 
+(862,875) 
+ 
+(874,170) 
+Adjusted Net Income
+$ 
+1,273,602 
+$ 
+1,645,493 
+$ 
+3,370,940 
+$ 
+4,387,726 
+Adjusted Per Share Measures:
+FRE per Adjusted Share
+$ 
+1.15 
+$ 
+1.42 
+$ 
+3.05 
+$ 
+3.88 
+TOE per Adjusted Share
+$ 
+1.55 
+$ 
+1.88 
+$ 
+4.12 
+$ 
+5.04 
+ANI per Adjusted Share
+$ 
+1.41 
+$ 
+1.78 
+$ 
+3.75 
+$ 
+4.80 
+Note: 
+See Appendix for GAAP reconciliations, endnotes about taxes affecting Adjusted Net Income and other important information. 
+
+4
+Total Operating Earnings
+($ in billions)
+$4.8
+$5.9
+3Q'25
+LTM
+3Q'26
+LTM
+Total Operating Earnings
+•
+Total Operating Earnings – the sum of Fee Related Earnings, Insurance Operating Earnings and Strategic Holdings Operating 
+Earnings – represents the more durable and recurring portion of KKR's total segment earnings
+•
+TOE increased 23% over the last 12 months primarily driven by the growth in Fee Related Earnings. Over time, we expect 
+Strategic Holdings Operating Earnings to contribute more meaningfully to Total Operating Earnings
+$1.4
+$1.7
+3Q'25
+3Q'26
+Total Segment Earnings
+$7.0
+3Q'26
+LTM
+($ in billions)
+Insurance Operating Earnings
+Fee Related Earnings
+Total Investing Earnings
+Strategic Holdings Operating Earnings
+$5.9
+84% 
+ of segment 
+earnings are 
+from the more 
+durable and 
+recurring 
+portions of total 
+segment 
+earnings
+
+Asset Management 
+
+6
+Asset Management Segment
+($ in thousands, except per share data)
+3Q'25
+3Q'26
+3Q'25 YTD
+3Q'26 YTD
+Management Fees
+$ 
+1,063,553 
+$ 
+1,201,108 
+$ 
+2,976,650 
+$ 
+3,643,576 
+Transaction and Monitoring Fees, Net
+ 
+328,124 
+ 
+327,864 
+ 
+823,882 
+ 
+801,842 
+Fee Related Performance Revenues
+ 
+73,177 
+ 
+326,347 
+ 
+148,191 
+ 
+604,808 
+Fee Related Compensation
+ 
+(256,350) 
+ 
+(324,680) 
+ 
+(691,027) 
+ 
+(883,913) 
+Other Operating Expenses
+ 
+(175,568) 
+ 
+(214,669) 
+ 
+(515,403) 
+ 
+(619,820) 
+Fee Related Earnings
+$ 
+1,032,936 
+$ 
+1,315,970 
+$ 
+2,742,293 
+$ 
+3,546,493 
+Realized Performance Income
+ 
+930,659 
+ 
+602,315 
+ 
+1,697,429 
+ 
+2,205,814 
+Realized Performance Income Compensation
+ 
+(697,994) 
+ 
+(451,737) 
+ 
+(1,267,461) 
+ 
+(1,646,161) 
+Net Realized Performance Income
+$ 
+232,665 
+$ 
+150,578 
+$ 
+429,968 
+$ 
+559,653 
+Realized Investment Income
+ 
+4,436 
+ 
+150,171 
+ 
+376,391 
+ 
+461,790 
+Realized Investment Income Compensation
+ 
+(665) 
+ 
+(22,526) 
+ 
+(56,459) 
+ 
+(69,269) 
+Net Realized Investment Income
+$ 
+3,771 
+$ 
+127,645 
+$ 
+319,932 
+$ 
+392,521 
+Total Investing Earnings
+$ 
+236,436 
+$ 
+278,223 
+$ 
+749,900 
+$ 
+952,174 
+Asset Management Segment Earnings
+$ 
+1,269,372 
+$ 
+1,594,193 
+$ 
+3,492,193 
+$ 
+4,498,667 
+Additional Financial Measures and Capital Metrics:
+FRE per Adjusted Share
+$ 
+1.15 
+$ 
+1.42 
+$ 
+3.05 
+$ 
+3.88 
+Total Asset Management Segment Revenues
+$ 
+2,399,949 
+$ 
+2,607,805 
+$ 
+6,022,543 
+$ 
+7,717,830 
+Assets Under Management
+$ 
+723,190,000 
+$ 
+804,388,000 
+$ 
+723,190,000 
+$ 
+804,388,000 
+Fee Paying Assets Under Management
+$ 
+585,045,000 
+$ 
+647,887,000 
+$ 
+585,045,000 
+$ 
+647,887,000 
+New Capital Raised (AUM)
+$ 
+42,614,000 
+$ 
+25,171,000 
+$ 
+101,140,000 
+$ 
+87,246,000 
+Capital Invested
+$ 
+26,100,000 
+$ 
+20,132,000 
+$ 
+62,775,000 
+$ 
+66,063,000 
+Uncalled Commitments
+$ 
+125,776,000 
+$ 
+145,638,000 
+$ 
+125,776,000 
+$ 
+145,638,000 
+Note: 
+Beginning in 2Q'26, KKR has reported realized performance fees from its K-Series Private Equity vehicles in Fee Related Performance Revenues. Historically, these realized performance fees were included 
+within Realized Performance Income. See Appendix for further information, as well as GAAP reconciliations, and other important information.
+
+7
+•
+Increased 24% year-over-year driven primarily by the 
+growth in management fees and fee related 
+performance revenues
+Management Fees and Fee Related Earnings
+Management Fees
+Fee Related Earnings Per Adjusted Share
+•
+Increased by 23% to $4.8 billion in the LTM
+•
+Growth has primarily been driven by an increase in Fee 
+Paying AUM from organic new capital raised
+($ in billions)
+$3.99
+$4.96
+69%
+70%
+FRE per adjusted share
+FRE margin
+3Q'25
+LTM
+3Q'26
+LTM
+$3.0
+$3.5
+$4.1
+$3.9
+$4.8
+2023
+2024
+2025
+3Q'25
+LTM
+3Q'26
+LTM
+
+8
+Assets Under Management
+•
+AUM of $804 billion, up 11% year-over-year, with $25 billion of organic new capital raised in the quarter and $116 billion in the 
+LTM
+•
+K-Series AUM totaled $45 billion across asset classes compared to $29 billion a year prior
+•
+Fee Paying AUM of $648 billion, up 11% year-over-year, with $25 billion of organic new capital raised in the quarter and $113 
+billion in the LTM
+•
+Perpetual Capital of $344 billion, up 11% year-over-year driven primarily by the organic growth of Global Atlantic and inflows 
+into and appreciation of our K-Series vehicles. Perpetual capital represents 43% of AUM and 50% of FPAUM
+AUM
+Fee Paying AUM
+Perpetual Capital
+($ in billions)
+($ in billions)
+($ in billions)
+$723
+$804
+3Q'25
+3Q'26
+$585
+$648
+3Q'25
+3Q'26
+$309
+$344
+3Q'25
+3Q'26
+Note: 
+Perpetual capital is capital of indefinite duration, which may be reduced or terminated under certain conditions. See Appendix for endnotes about perpetual capital and other important information.
+
+9
+$428
+$493
+3Q'25
+3Q'26
+Additional Capital Detail
+•
+Dry Powder: Uncalled commitments of $146 billion remain diversified across the firm’s investment strategies
+•
+AUM Not Yet Paying Fees: At quarter end, there was $75 billion of committed capital with a weighted average management fee 
+rate of approximately 90 bps that becomes payable when the capital is either invested or enters its investment period
+•
+Carry Eligible AUM: Of the $415 billion of carried interest eligible AUM, $332 billion is above cost and accruing carry
+•
+Performance Fee Eligible AUM: $493 billion, up 15% year-over-year
+Performance Fee Eligible AUM
+Uncalled Commitments
+($ in billions)
+($ in billions)
+$126
+$146
+3Q'25
+3Q'26
+Note: 
+See Appendix for endnotes for additional information relating to uncalled commitments.
+
+10
+Gross unrealized carried interest totals $9.7 billion as of September 30, 2026
+Fund Investment Performance
+Private Equity
+Real Assets
+Infrastructure Portfolio
+ Opportunistic Real Estate Portfolio
+Credit
+Alternative Credit Composite
+Traditional Private Equity Portfolio
+Leveraged Credit Composite
+3Q'26
+(2)%
+LTM
+Gross Return
+(2)%
+7%
+0%
+4%
+3%
+9%
+4%
+4%
+1%
+Note: 
+Traditional private equity does not include core or growth. See Appendix for endnotes explaining composition of the portfolios and composites presented on this page and for other important information.
+Past performance is no guarantee of future results. 
+
+11
+•
+AUM: Increased 1% quarter-over-quarter and 15% year-over-year to $256 billion with organic new capital raised of $4 billion in 
+the quarter and $18 billion YTD
+•
+New capital raised in the quarter was primarily driven by K-Series Private Equity, Asian Fund V and Arctos Sports Fund III
+•
+Realizations: Carried Interest drivers in 3Q included public and private realization events across global impact and traditional 
+private equity
+•
+Capital Invested: $3 billion in the quarter and $11 billion YTD. In 3Q, deployment was primarily driven by traditional private equity 
+in North America
+•
+Performance: The traditional private equity portfolio appreciated 7% in the LTM 
+Asset Management Segment − Private Equity
+($ in thousands)
+3Q'25
+3Q'26
+3Q'25 YTD
+3Q'26 YTD
+Management Fees
+$ 
+394,380 
+$ 
+466,113 
+$ 
+1,101,266 
+$ 
+1,417,258 
+Transaction and Monitoring Fees, Net
+ 
+30,327 
+ 
+15,944 
+ 
+69,661 
+ 
+66,659 
+Fee Related Performance Revenues
+ 
+— 
+ 
+219,743 
+ 
+— 
+ 
+388,549 
+Fee Related Revenues
+$ 
+424,707 
+$ 
+701,800 
+$ 
+1,170,927 
+$ 
+1,872,466 
+Realized Performance Income
+$ 
+702,475 
+$ 
+489,681 
+$ 
+1,392,027 
+$ 
+2,014,062 
+Capital Metrics:
+Assets Under Management
+$ 
+222,189,000 
+$ 
+256,092,000 
+$ 
+222,189,000 
+$ 
+256,092,000 
+Fee Paying Assets Under Management
+$ 
+149,729,000 
+$ 
+170,602,000 
+$ 
+149,729,000 
+$ 
+170,602,000 
+New Capital Raised (AUM)
+$ 
+5,473,000 
+$ 
+4,064,000 
+$ 
+21,959,000 
+$ 
+18,319,000 
+Capital Invested
+$ 
+5,971,000 
+$ 
+3,311,000 
+$ 
+15,187,000 
+$ 
+10,719,000 
+Uncalled Commitments
+$ 
+54,493,000 
+$ 
+64,794,000 
+$ 
+54,493,000 
+$ 
+64,794,000 
+Note: 
+See Appendix for endnotes about our private equity business line and other important information. During the nine months ended September 30, 2026, $71 million of management fees were earned on 
+new capital raised that were retroactive to the start of the relevant fund's investment period.
+
+12
+Asset Management Segment − Real Assets
+•
+AUM: Flat quarter-over-quarter and increased 14% year-over-year to $212 billion with organic new capital raised of $7 billion in 
+the quarter and $30 billion YTD
+•
+New capital raised in the quarter was widespread and included infrastructure funds globally across multiple strategies, 
+including K-Series Infrastructure, Helix Digital Infrastructure, core infrastructure, Asia Infrastructure III and Global 
+Infrastructure V
+•
+Global Infrastructure V held its final close in August, bringing total commitments to $19.2 billion. The fund is KKR's largest 
+infrastructure fund raised to date
+•
+Realizations: Carried Interest in 3Q was driven by infrastructure
+•
+Capital Invested: $8 billion in the quarter and $24 billion YTD. In 3Q, deployment was primarily driven by core infrastructure and 
+real estate equity in North America
+•
+Performance: The infrastructure portfolio appreciated 9% and the opportunistic real estate portfolio declined 2% in the LTM
+($ in thousands)
+3Q'25
+3Q'26
+3Q'25 YTD
+3Q'26 YTD
+Management Fees
+$ 
+350,225 
+$ 
+394,904 
+$ 
+941,197 
+$ 
+1,196,196 
+Transaction and Monitoring Fees, Net
+ 
+20,290 
+ 
+21,628 
+ 
+39,516 
+ 
+38,867 
+Fee Related Performance Revenues
+ 
+55,373 
+ 
+100,168 
+ 
+93,196 
+ 
+185,535 
+Fee Related Revenues
+$ 
+425,888 
+$ 
+516,700 
+$ 
+1,073,909 
+$ 
+1,420,598 
+Realized Performance Income
+$ 
+197,593 
+$ 
+103,083 
+$ 
+234,364 
+$ 
+148,256 
+Capital Metrics:
+Assets Under Management
+$ 
+186,335,000 
+$ 
+211,719,000 
+$ 
+186,335,000 
+$ 
+211,719,000 
+Fee Paying Assets Under Management
+$ 
+155,739,000 
+$ 
+176,485,000 
+$ 
+155,739,000 
+$ 
+176,485,000 
+New Capital Raised (AUM)
+$ 
+10,286,000 
+$ 
+6,704,000 
+$ 
+23,747,000 
+$ 
+30,176,000 
+Capital Invested
+$ 
+9,368,000 
+$ 
+8,395,000 
+$ 
+19,214,000 
+$ 
+23,984,000 
+Uncalled Commitments
+$ 
+38,287,000 
+$ 
+47,695,000 
+$ 
+38,287,000 
+$ 
+47,695,000 
+Note: 
+During the three and nine months ended September 30, 2026, $17 million and $109 million of management fees were earned on new capital raised that were retroactive to the start of the relevant fund's 
+investment period, respectively.
+
+13
+•
+AUM: Increased 2% quarter-over-quarter and 7% year-over-year to $337 billion with organic new capital raised of $14 billion in 
+the quarter and $39 billion YTD
+•
+New capital raised in the quarter was primarily driven by inflows at Global Atlantic, as well as activity within private credit and 
+strategic investments
+•
+AUM comprised of: $148 billion of leveraged credit, $91 billion of asset-based finance, $49 billion of corporate private credit 
+(including $39 billion of direct lending), $13 billion of strategic investments and $37 billion of liquid strategies
+•
+Realizations: Performance Income in 3Q was driven by a diverse set of strategies
+•
+Capital Invested: $8 billion in the quarter and $31 billion YTD. In 3Q, deployment was most active in asset-based finance
+•
+Performance: The leveraged credit and alternative credit composites both appreciated 4% in the LTM 
+($ in thousands)
+3Q'25
+3Q'26
+3Q'25 YTD
+3Q'26 YTD
+Management Fees
+$ 
+318,948 
+$ 
+340,091 
+$ 
+934,187 
+$ 
+1,030,122 
+Transaction and Monitoring Fees, Net
+ 
+1,738 
+ 
+663 
+ 
+10,024 
+ 
+4,793 
+Fee Related Performance Revenues
+ 
+17,804 
+ 
+6,436 
+ 
+54,995 
+ 
+30,724 
+Fee Related Revenues
+$ 
+338,490 
+$ 
+347,190 
+$ 
+999,206 
+$ 
+1,065,639 
+Realized Performance Income
+$ 
+30,591 
+$ 
+9,551 
+$ 
+71,038 
+$ 
+43,496 
+Capital Metrics:
+Assets Under Management
+$ 
+314,666,000 
+$ 
+336,577,000 
+$ 
+314,666,000 
+$ 
+336,577,000 
+Fee Paying Assets Under Management
+$ 
+279,577,000 
+$ 
+300,800,000 
+$ 
+279,577,000 
+$ 
+300,800,000 
+New Capital Raised (AUM)
+$ 
+26,855,000 
+$ 
+14,403,000 
+$ 
+55,434,000 
+$ 
+38,751,000 
+Capital Invested
+$ 
+10,761,000 
+$ 
+8,426,000 
+$ 
+28,374,000 
+$ 
+31,360,000 
+Uncalled Commitments
+$ 
+32,996,000 
+$ 
+33,149,000 
+$ 
+32,996,000 
+$ 
+33,149,000 
+Asset Management Segment − Credit and Liquid Strategies
+
+14
+•
+Transaction Fees: Totaled $290 million in the quarter and $692 million YTD
+•
+Approximately 70% of transaction fees were originated in North America in the quarter
+•
+Capital markets transaction fees were diversified by source in the quarter: infrastructure, traditional private equity and
+third-party
+•
+Approximately 80% of transaction fees were debt product focused in the quarter
+Asset Management Segment − Capital Markets
+•
+All financial results exclude Strategic Holdings
+•
+Realizations: Realized Investment Income of $150 million in the quarter and $462 million YTD
+•
+Embedded Gains: $2.4 billion of embedded unrealized gains on the balance sheet at quarter end
+Asset Management Segment − Principal Activities
+($ in thousands)
+3Q'25
+3Q'26
+3Q'25 YTD
+3Q'26 YTD
+Transaction Fees
+$ 
+275,769 
+$ 
+289,629 
+$ 
+704,681 
+$ 
+691,523 
+($ in thousands)
+3Q'25
+3Q'26
+3Q'25 YTD
+3Q'26 YTD
+Realized Investment Income
+$ 
+4,436 
+$ 
+150,171 
+$ 
+376,391 
+$ 
+461,790 
+
+Insurance
+
+16
+•
+Insurance Operating Earnings: $230 million for the quarter, including a charge of $26 million related to GA's annual actuarial 
+assumption review and other related items. 3Q'25 Insurance Operating Earnings of $305 million included a benefit of $41 million 
+related to the annual actuarial assumption review. Excluding these impacts, Insurance Operating Earnings would have been $257 
+million and $264 million, respectively 
+•
+Net Investment Income: Net Investment Income of $1.9 billion in the quarter primarily reflects growth in the investment 
+portfolio attributable to net inflows and higher average portfolio yields
+•
+Net Cost of Insurance: Net Cost of Insurance of $1.6 billion in the quarter primarily reflects business growth, higher funding 
+costs, and the routine run off of older business that was originated in a lower cost environment
+•
+Highlights:
+•
+Global Atlantic AUM totals $223 billion, of which $170 billion is Credit AUM. Ivy and other sponsored reinsurance vehicles 
+total $63 billion of the $223 billion
+•
+Inflows in the quarter were primarily driven by individual markets annuity sales, funding agreements and institutional flow 
+business
+Insurance Segment 
+($ in thousands)
+3Q'25
+3Q'26
+3Q'25 YTD
+3Q'26 YTD
+Net Investment Income
+$ 
+1,835,025 
+$ 
+1,946,621 
+$ 
+5,352,893 
+$ 
+5,801,220 
+Net Cost of Insurance
+ 
+(1,353,141) 
+ 
+(1,551,282) 
+ 
+(3,968,104) 
+ 
+(4,473,503) 
+General, Administrative and Other
+ 
+(177,231) 
+ 
+(165,066) 
+ 
+(543,432) 
+ 
+(548,894) 
+Insurance Operating Earnings
+$ 
+304,653 
+$ 
+230,273 
+$ 
+841,357 
+$ 
+778,823 
+Additional Financial Measure:
+Global Atlantic Book Value
+$ 
+10,390,207 
+$ 
+11,984,661 
+$ 
+10,390,207 
+$ 
+11,984,661 
+Note: 
+See Appendix for endnotes explaining certain prior period information that has been recast to conform to the current period presentation. This reclassification had no impact on Insurance Operating 
+Earnings.
+
+17
+$1.8
+$1.9
+$1.1
+$1.0
+LTM 3Q'25
+LTM 3Q'26
+$212
+$223
+$156
+$160
+$56
+$63
+3Q'25
+3Q'26
+Total Insurance Economics(1)
+Global Atlantic AUM and Total Insurance Economics
+Management Fees Paid by Insurance Segment (Included in FRE)
+Insurance Operating Earnings
+Global Atlantic-related Capital Markets Fees (Included in FRE)
+Ivy and Related Sidecar Fees (Included in FRE)
+Note: 
+See Appendix for endnotes for additional information about total insurance economics.
+(1) 
+Total Insurance Economics is a non-GAAP measure presented to show the broader impact of Global Atlantic across KKR. It is not a measure of the profitability of the Insurance segment, and it is not a 
+substitute for, and should not be considered in isolation from Insurance Operating Earnings or any measure calculated in accordance with GAAP. Total Insurance Economics equals Insurance Operating 
+Earnings plus certain economics that are included in the results of the Asset Management segment — specifically Management Fees Paid by the Insurance Segment, Ivy and Related Sidecar Fees, and Global 
+Atlantic-related Capital Markets Fees (each net of FRE compensation expense). A reconciliation of Total Insurance Economics to the most directly comparable GAAP measure is provided in the Appendix.
+Insurance Operating Earnings 
+in all periods do not reflect 
+mark-to-market appreciation 
+of investments in the Global 
+Atlantic portfolio
+Global Atlantic AUM
+Ivy and other sponsored reinsurance vehicles
+Global Atlantic
+($ in billions)
+($ in billions)
++6%
+
+Strategic Holdings 
+
+19
+•
+Strategic Holdings Segment Earnings: Driven by dividends from our Strategic Holdings businesses 
+•
+Highlights:
+•
+KKR's share of 2Q'26 LTM Adjusted Revenues is $4.5 billion and 2Q'26 LTM Adjusted EBITDA is $1.1 billion across a scaled and 
+diversified portfolio
+Strategic Holdings Segment 
+($ in thousands)
+3Q'25
+3Q'26
+3Q'25 YTD
+3Q'26 YTD
+Dividends, Net
+$ 
+57,663 
+$ 
+191,574 
+$ 
+118,270 
+$ 
+276,906 
+Strategic Holdings Operating Earnings
+$ 
+57,663 
+$ 
+191,574 
+$ 
+118,270 
+$ 
+276,906 
+Net Realized Investment Income
+$ 
+69,861 
+$ 
+71,239 
+$ 
+69,861 
+$ 
+101,304 
+Strategic Holdings Segment Earnings
+$ 
+127,524 
+$ 
+262,813 
+$ 
+188,131 
+$ 
+378,210 
+LTM Adjusted EBITDA by Geography (KKR's Share)
+LTM Adjusted EBITDA by Industry (KKR's Share)
+Americas 
+66%
+Europe 
+28%
+Asia Pacific 
+6%
+Business Services 
+35%
+Consumer 
+26%
+Health Care
+17%
+TMT
+16%
+Infrastructure
+3%
+Note: 
+See Appendix for endnotes for additional information relating to LTM Adjusted Revenues and LTM Adjusted EBITDA. 
+Industrials
+3%
+
+Supplemental 
+Information
+
+21
+$14
+$10
+$15
+$26
+$21
+$13
+$21
+$24
+$41
+2018
+2019
+2020
+2021
+2022
+2023
+2024
+2025
+3Q'26 
+YTD
+A Record $40+ Billion to be Returned to Clients in 2026
+Note: 
+Amounts returned or distributed to clients represents distributions of realized proceeds by carry-paying funds, as well as certain separately managed accounts and other investment vehicles, across Private 
+Equity, Real Assets and Credit, which includes the pro rata portion allocable to the general partners of such funds. The record amount to be returned to clients in 2026 is a forward-looking statement and is
+an expectation based on various estimates and assumptions; there is no guarantee that our expectation will be realized as presented. See Appendix for important information and cautionary
+factors about forward-looking statements.
+Distributions to Our Private Equity, Real Assets & Credit Fund Clients
+Record Capital Return Driving
+Growth in Monetization Revenue
+Expected 
+4Q Activity
+($ in billions)
+Fee Related Performance Revenues
+Gross Realized Investment Income
+Gross Realized Performance Income
+($ in billions)
+$2.3
+$3.4
+3Q'25 YTD
+3Q'26 YTD
++47%
+$31
+2021 to 2025 Annual 
+Average = $21 billion
+
+22
+Duration of Capital
+Growth in 15+ Year Duration & Perpetual Capital
+Assets Under Management
+($ in billions)
+$375
+$431
+$309
+$344
+$66
+$87
+3Q'25
+3Q'26
+93% of AUM
+is perpetual capital or has a duration 
+of at least 8 years at inception
+54% of AUM 
+is perpetual or has a duration of 
+at least 15 years at inception
+15+ Year Duration at Inception
+Perpetual Capital
+Other
+8-15 Year Duration at Inception
+7%
+43%
+11%
+39%
+15+ Year Duration at Inception
+Perpetual Capital
+Note: 
+Perpetual capital is capital of indefinite duration, which may be materially reduced or terminated under certain conditions. See Appendix for endnotes and other important information. 
+
+23
+Assets Under Management Rollforward
+Nine Months Ended September 30, 2026
+($ in millions)
+Private Equity
+Real Assets
+Credit and Liquid Strategies
+Total
+Beginning Balance
+$ 
+229,374 
+$ 
+192,480 
+$ 
+322,004 
+$ 
+743,858 
+New Capital Raised
+ 
+18,319 
+ 
+30,176 
+ 
+38,751 
+ 
+87,246 
+Acquisitions(1)
+ 
+15,996 
+ 
+— 
+ 
+— 
+ 
+15,996 
+Distributions and Other
+ 
+(20,471) 
+ 
+(15,475) 
+ 
+(28,383) 
+ 
+(64,329) 
+Change in Value
+ 
+12,874 
+ 
+4,538 
+ 
+4,205 
+ 
+21,617 
+Ending Balance
+$ 
+256,092 
+$ 
+211,719 
+$ 
+336,577 
+$ 
+804,388 
+($ in millions)
+Private Equity
+Real Assets
+Credit and Liquid Strategies
+Total
+Beginning Balance
+$ 
+254,736 
+$ 
+210,919 
+$ 
+330,832 
+$ 
+796,487 
+New Capital Raised
+ 
+4,064 
+ 
+6,704 
+ 
+14,403 
+ 
+25,171 
+Distributions and Other
+ 
+(5,423) 
+ 
+(8,865) 
+ 
+(8,468) 
+ 
+(22,756) 
+Change in Value
+ 
+2,715 
+ 
+2,961 
+ 
+(190) 
+ 
+5,486 
+Ending Balance
+$ 
+256,092 
+$ 
+211,719 
+$ 
+336,577 
+$ 
+804,388 
+Three Months Ended September 30, 2026
+Note: 
+See Appendix for endnotes about acquisitions, distributions, redemptions and other important information. 
+(1)  
+Represents AUM of Arctos as of the date of the closing of the Arctos acquisition.
+
+24
+Fee Paying Assets Under Management Rollforward
+($ in millions)
+Private Equity
+Real Assets
+Credit and Liquid Strategies
+Total
+Beginning Balance
+$ 
+168,137 
+$ 
+175,298 
+$ 
+294,968 
+$ 
+638,403 
+New Capital Raised
+ 
+4,328 
+ 
+6,596 
+ 
+14,400 
+ 
+25,324 
+Distributions and Other
+ 
+(2,395) 
+ 
+(6,996) 
+ 
+(8,134) 
+ 
+(17,525) 
+Change in Value
+ 
+532 
+ 
+1,587 
+ 
+(434) 
+ 
+1,685 
+Ending Balance
+$ 
+170,602 
+$ 
+176,485 
+$ 
+300,800 
+$ 
+647,887 
+($ in millions)
+Private Equity
+Real Assets
+Credit and Liquid Strategies
+Total
+Beginning Balance
+$ 
+151,239 
+$ 
+163,451 
+$ 
+289,454 
+$ 
+604,144 
+New Capital Raised
+ 
+18,326 
+ 
+23,848 
+ 
+38,183 
+ 
+80,357 
+Acquisitions(1)
+ 
+10,084 
+ 
+— 
+ 
+— 
+ 
+10,084 
+Distributions and Other
+ 
+(10,194) 
+ 
+(12,172) 
+ 
+(30,535) 
+ 
+(52,901) 
+Change in Value
+ 
+1,147 
+ 
+1,358 
+ 
+3,698 
+ 
+6,203 
+Ending Balance
+$ 
+170,602 
+$ 
+176,485 
+$ 
+300,800 
+$ 
+647,887 
+Nine Months Ended September 30, 2026
+Three Months Ended September 30, 2026
+Note: 
+See Appendix for endnotes about acquisitions, distributions, redemptions and other important information. 
+(1)  
+Represents FPAUM of Arctos as of the date of the closing of the Arctos acquisition.
+
+25
+Investment Vehicle Summary - Asset Management
+($ in millions)
+Investment Period
+Amount
+Start
+Date
+End
+Date
+Commitment
+Uncalled
+Commitments
+Invested
+Realized
+Remaining
+Cost
+Remaining
+Fair Value
+PRIVATE EQUITY BUSINESS LINE
+North America Fund XIV
+8/2025
+4/2031
+$ 
+21,893 $ 
+19,147 $ 
+2,746 $ 
+— $ 
+2,746 $ 
+3,844 
+North America Fund XIII
+8/2021
+4/2025
+ 
+18,400  
+1,216  
+17,487  
+566  
+16,986  
+25,427 
+Americas Fund XII
+5/2017
+5/2021
+ 
+13,500  
+1,168  
+12,979  
+22,518  
+7,114  
+12,996 
+North America Fund XI
+11/2012
+1/2017
+ 
+8,718  
+48  
+10,203  
+25,152  
+1,050  
+1,103 
+2006 Fund(1)
+9/2006
+9/2012
+ 
+17,642  
+—  
+17,309  
+37,423  
+—  
+— 
+Millennium Fund(1)
+12/2002
+12/2008
+ 
+6,000  
+—  
+6,000  
+14,129  
+—  
+— 
+Ascendant Fund
+6/2022
+6/2028
+ 
+4,328  
+2,192  
+2,136  
+—  
+2,136  
+2,619 
+European Fund VI
+6/2022
+6/2028
+ 
+7,514  
+1,846  
+5,726  
+315  
+4,494  
+6,687 
+European Fund V
+7/2019
+2/2022
+ 
+6,377  
+500  
+6,000  
+3,444  
+4,222  
+5,880 
+European Fund IV
+2/2015
+3/2019
+ 
+3,513  
+16  
+3,649  
+5,726  
+1,621  
+2,296 
+European Fund III(1)
+3/2008
+3/2014
+ 
+5,506  
+—  
+5,360  
+10,648  
+—  
+— 
+European Fund II(1)
+11/2005
+10/2008
+ 
+5,751  
+—  
+5,751  
+8,533  
+—  
+— 
+Asian Fund IV
+7/2020
+6/2026
+ 
+14,735  
+3,166  
+12,824  
+4,967  
+11,750  
+16,496 
+Asian Fund III
+8/2017
+7/2020
+ 
+9,000  
+1,200  
+8,343  
+12,580  
+4,190  
+7,997 
+Asian Fund II
+10/2013
+3/2017
+ 
+5,825  
+—  
+7,507  
+6,723  
+1,270  
+828 
+Asian Fund(1)
+7/2007
+4/2013
+ 
+3,983  
+—  
+3,974  
+8,728  
+—  
+— 
+Next Generation Technology Growth Fund III
+11/2022
+3/2026
+ 
+2,740  
+346  
+2,394  
+—  
+2,394  
+2,956 
+Next Generation Technology Growth Fund II
+12/2019
+5/2022
+ 
+2,088  
+26  
+2,298  
+1,846  
+1,637  
+2,502 
+Next Generation Technology Growth Fund
+3/2016
+12/2019
+ 
+659  
+5  
+672  
+1,661  
+163  
+487 
+Health Care Strategic Growth Fund II
+5/2021
+5/2027
+ 
+3,789  
+1,346  
+2,443  
+157  
+2,287  
+3,825 
+Health Care Strategic Growth Fund
+12/2016
+4/2021
+ 
+1,331  
+85  
+1,411  
+1,112  
+914  
+1,654 
+Global Impact Fund II
+6/2022
+6/2028
+ 
+2,716  
+1,184  
+1,757  
+2,409  
+1,204  
+1,473 
+Global Impact Fund
+2/2019
+3/2022
+ 
+1,242  
+185  
+1,240  
+916  
+884  
+1,243 
+Co-Investment Vehicles and Other
+Various
+Various
+ 
+55,610  
+11,911  
+44,592  
+19,981  
+33,669  
+41,377 
+Core Investors II
+8/2022
+8/2027
+ 
+11,814  
+7,963  
+3,852  
+284  
+3,852  
+4,659 
+Core Investors I
+2/2018
+8/2022
+ 
+8,500  
+23  
+10,622  
+3,681  
+8,279  
+15,875 
+Other Core Vehicles
+Various
+Various
+ 
+7,911  
+1,172  
+6,815  
+3,277  
+6,286  
+10,382 
+Arctos Keystone Fund I & Affiliated Funds
+Various
+Various
+ 
+6,506  
+5,327  
+1,411  
+83  
+1,328  
+1,514 
+Arctos Sports Partners Fund II & Affiliated Funds
+Various
+Various
+ 
+4,220  
+2,013  
+2,354  
+177  
+2,177  
+3,551 
+Arctos Sports Partners Fund I & Affiliated Funds
+Various
+Various
+ 
+2,919  
+509  
+2,768  
+557  
+2,267  
+5,657 
+Unallocated Commitments(2)
+N/A
+N/A
+ 
+2,089  
+2,089  
+—  
+—  
+—  
+— 
+Total Private Equity
+$ 
+266,819 $ 
+64,683 $ 
+212,623 $ 
+197,593 $ 
+124,920 $ 
+183,328 
+Note: 
+Past performance is no guarantee of future results. See Appendix for endnotes about investment period start and end dates. 
+(1) 
+The “Invested" and “Realized” columns do not include the amounts of any realized investments that restored the unused capital commitments of the fund investors, if any.
+(2) 
+Represents unallocated commitments from certain of our strategic investor partnerships.
+
+26
+Note: 
+Past performance is no guarantee of future results. See Appendix for endnotes about investment period start and end dates.
+(1) 
+Open ended fund.
+(2) 
+Includes an Asia-focused vehicle with different fund terms.
+(3) 
+Represents unallocated commitments from certain of our strategic investor partnerships.
+(4) 
+Third anniversary of the fund's final closing date.
+Investment Vehicle Summary - Asset Management (cont’d)
+($ in millions)
+Investment Period
+Amount
+Start
+Date
+End 
+Date
+Commitment
+Uncalled
+Commitments
+Invested
+Realized
+Remaining
+Cost
+Remaining
+Fair Value
+REAL ASSETS BUSINESS LINE
+Global Infrastructure Investors V
+7/2024
+7/2030
+$ 
+19,150 $ 
+15,460 
+$ 
+3,805 $ 
+114 $ 
+3,805 $ 
+4,282 
+Global Infrastructure Investors IV
+8/2021
+6/2024
+ 
+16,606  
+2,023 
+ 
+15,302  
+5,710  
+12,110  
+16,872 
+Global Infrastructure Investors III
+7/2018
+6/2021
+ 
+7,174  
+440 
+ 
+7,100  
+7,193  
+2,631  
+3,492 
+Global Infrastructure Investors II
+12/2014
+6/2018
+ 
+3,040  
+130 
+ 
+3,169  
+5,789  
+560  
+1,046 
+Global Infrastructure Investors
+9/2010
+10/2014
+ 
+1,040  
+— 
+ 
+1,050  
+2,228  
+—  
+— 
+Asia Pacific Infrastructure Investors III
+12/2025
+12/2031
+ 
+6,554  
+6,554 
+ 
+—  
+—  
+—  
+— 
+Asia Pacific Infrastructure Investors II
+9/2022
+9/2028
+ 
+6,348  
+2,015 
+ 
+4,735  
+1,071  
+3,868  
+5,600 
+Asia Pacific Infrastructure Investors
+1/2020
+9/2022
+ 
+3,792  
+536 
+ 
+3,618  
+2,760  
+1,972  
+2,821 
+Diversified Core Infrastructure Fund
+12/2020
+(1)
+ 
+15,559  
+1,024 
+ 
+14,538  
+2,033  
+14,388  
+15,915 
+Global Climate Transition Fund(2)
+7/2024
+7/2030
+ 
+3,562  
+3,562 
+ 
+—  
+—  
+—  
+— 
+Real Estate Partners Americas IV
+11/2024
+11/2028
+ 
+2,602  
+1,741 
+ 
+862  
+12  
+832  
+1,008 
+Real Estate Partners Americas III
+1/2021
+9/2024
+ 
+4,253  
+496 
+ 
+4,006  
+389  
+3,738  
+4,118 
+Real Estate Partners Americas II
+5/2017
+12/2020
+ 
+1,921  
+116 
+ 
+1,989  
+3,105  
+137  
+42 
+Real Estate Partners Americas
+5/2013
+5/2017
+ 
+1,229  
+15 
+ 
+1,024  
+1,446  
+—  
+— 
+Real Estate Partners Europe III
+7/2024
+7/2028
+ 
+775  
+452 
+ 
+331  
+60  
+298  
+307 
+Real Estate Partners Europe II
+3/2020
+12/2023
+ 
+2,066  
+202 
+ 
+2,069  
+656  
+1,578  
+1,332 
+Real Estate Partners Europe
+8/2015
+12/2019
+ 
+709  
+98 
+ 
+695  
+813  
+125  
+56 
+Asia Real Estate Partners II
+10/2023
+10/2027
+ 
+789  
+620 
+ 
+309  
+223  
+156  
+191 
+Asia Real Estate Partners
+7/2019
+7/2023
+ 
+1,682  
+349 
+ 
+1,386  
+723  
+875  
+703 
+Property Partners Americas
+12/2019
+(1)
+ 
+2,571  
+46 
+ 
+2,525  
+179  
+2,525  
+2,319 
+Real Estate Credit Opportunity Partners II
+8/2019
+6/2023
+ 
+950  
+— 
+ 
+976  
+671  
+707  
+716 
+Real Estate Credit Opportunity Partners
+2/2017
+4/2019
+ 
+1,130  
+122 
+ 
+1,008  
+735  
+964  
+964 
+Opportunistic Real Estate Credit Fund III
+5/2026
+(4)
+ 
+1,300  
+1,300 
+ 
+—  
+—  
+—  
+— 
+Opportunistic Real Estate Credit Fund II
+6/2023
+6/2026
+ 
+607  
+142 
+ 
+465  
+55  
+444  
+480 
+Energy Related Vehicles
+Various
+Various
+ 
+4,357  
+35 
+ 
+4,497  
+2,676  
+883  
+1,599 
+Co-Investment Vehicles & Other
+Various
+Various
+ 
+29,633  
+8,229 
+ 
+21,531  
+5,415  
+19,064  
+20,487 
+Unallocated Commitments(3)
+N/A
+N/A
+ 
+1,364  
+1,364 
+ 
+—  
+—  
+—  
+— 
+Total Real Assets
+$ 
+140,763 $ 
+47,071 
+$ 
+96,990 $ 
+44,056 $ 
+71,660 $ 
+84,350 
+
+27
+Investment Vehicle Summary - Asset Management (cont’d)
+($ in millions)
+Uncalled Commitments
+Remaining Fair Value
+Total
+Carried Interest Eligible
+$ 
+129,142 
+$ 
+285,647 
+$ 
+414,789 
+Incentive Fee Eligible
+ 
+1,030 
+ 
+77,011 
+ 
+78,041 
+Total Performance Fee Eligible
+ 
+130,172 
+ 
+362,658 
+ 
+492,830 
+Private Equity and Real Assets
+ 
+735 
+ 
+70,914 
+ 
+71,649 
+Credit and Liquid Strategies
+ 
+14,731 
+ 
+225,178 
+ 
+239,909 
+Total Assets Under Management
+$ 
+145,638 
+$ 
+658,750 
+$ 
+804,388 
+($ in millions)
+Investment Period
+Amount
+Start
+Date
+End
+Date
+Commitment
+Uncalled
+Commitments
+Invested
+Realized
+Remaining
+Cost
+Remaining
+Fair Value
+CREDIT AND LIQUID STRATEGIES BUSINESS LINE(1)
+Opportunities Fund II
+11/2021
+1/2026
+$ 
+2,324 $ 
+581 $ 
+1,743 $ 
+434 $ 
+1,501 $ 
+1,910 
+Dislocation Opportunities Fund
+8/2019
+11/2021
+ 
+2,790  
+223  
+2,567  
+2,069  
+1,130  
+1,187 
+Special Situations Fund II
+2/2015
+3/2019
+ 
+3,525  
+284  
+3,241  
+2,767  
+547  
+469 
+Special Situations Fund
+1/2013
+1/2016
+ 
+2,274  
+1  
+2,273  
+1,899  
+94  
+135 
+Mezzanine Partners
+7/2010
+3/2015
+ 
+1,023  
+33  
+990  
+1,166  
+184  
+2 
+Asset-Based Finance Partners II
+3/2024
+3/2028
+ 
+5,571  
+4,242  
+1,329  
+69  
+1,329  
+1,446 
+Asset-Based Finance Partners
+10/2020
+7/2025
+ 
+2,059  
+351  
+1,708  
+919  
+1,310  
+1,398 
+Private Credit Opportunities Partners II
+12/2015
+12/2020
+ 
+2,245  
+150  
+2,095  
+1,127  
+1,297  
+978 
+Lending Partners IV
+3/2022
+9/2026
+ 
+1,150  
+295  
+855  
+246  
+855  
+873 
+Lending Partners III
+4/2017
+11/2021
+ 
+1,498  
+540  
+958  
+1,258  
+390  
+323 
+Lending Partners II
+6/2014
+6/2017
+ 
+1,336  
+157  
+1,179  
+1,276  
+—  
+3 
+Lending Partners
+12/2011
+12/2014
+ 
+460  
+—  
+420  
+471  
+—  
+— 
+Lending Partners Europe II
+5/2019
+9/2023
+ 
+837  
+140  
+697  
+813  
+192  
+215 
+Lending Partners Europe
+3/2015
+3/2019
+ 
+848  
+184  
+662  
+632  
+53  
+44 
+Asia Credit Opportunities II
+2/2025
+12/2028
+ 
+1,795  
+1,480  
+315  
+—  
+315  
+338 
+Asia Credit Opportunities
+1/2021
+5/2025
+ 
+1,084  
+191  
+893  
+384  
+707  
+818 
+Other Alternative Credit Vehicles
+Various
+Various
+ 
+20,391  
+8,536  
+11,787  
+7,779  
+6,028  
+7,830 
+Total Credit and Liquid Strategies
+$ 
+51,210 $ 
+17,388 $ 
+33,712 $ 
+23,309 $ 
+15,932 $ 
+17,969 
+Total Eligible To Receive Carried Interest
+$ 
+458,792 $ 
+129,142 $ 
+343,325 $ 
+264,958 $ 
+212,512 $ 
+285,647 
+Note: 
+Past performance is no guarantee of future results. See Appendix for endnotes about investment period start and end dates.
+(1) 
+The “Commitment” and “Uncalled Commitments” columns include income that is eligible to be reinvested if permitted under the terms of the investment vehicle agreements.
+
+28
+Note: 
+See Appendix for GAAP reconciliations, endnotes about investments and other important information.
+(1) 
+Only includes debt issued or guaranteed by KKR & Co. Inc. Does not include Global Atlantic or other debt. 
+(2) 
+Net unrealized carried interest would be $2.4 billion assuming a 75% compensation accrual (using the mid-point of the guided range) on gross unrealized carried interest.
+(3) 
+Cash and short-term investments excludes Global Atlantic.
+Strong Financial Profile 
+($ in millions)
+3Q'26
+Cash and Short-term Investments(3)
+$ 
+5,385 
+Investments - Asset Management Segment 
+ 
+8,902 
+Cash and Investments 
+$ 
+14,287 
+Outstanding Debt (at par)(1)
+ 
+9,337 
+Net Cash and Investments 
+$ 
+4,950 
+Asset Management Investment Holdings by Asset Class (Fair Value)
+Private Equity 
+41%
+Growth 
+9%
+Real Estate 
+14%
+Leveraged Credit 
+5%
+Energy 
+4%
+Alternative 
+Credit 
+10%
+Infrastructure
+7%
+Other 
+10%
+•
+Embedded Gains (Unrealized) in Asset Management total $2.4 billion
+•
+Gross Unrealized Carried Interest totals $9.7 billion(2)
+Key Asset Management Highlights - Third Quarter 2026 
+•
+KKR & Co. Inc. is 'A' rated by both S&P and Fitch
+•
+Average maturity of debt is approximately 15 years with an after-tax weighted average fixed coupon of 3%(1)
+•
+Debt capacity includes a $3 billion undrawn revolving credit facility
+Net Cash and Investments
+
+29
+Dividends & Other Corporate Information
+Dividends
+The declaration and payment of any future dividends on common stock or preferred stock will be subject to the discretion of the Board of Directors of KKR & Co. Inc. based 
+on a number of factors, including KKR’s future financial performance and other considerations that the Board deems relevant, the terms of KKR & Co. Inc.'s certificate of 
+incorporation and applicable law. There can be no assurance that future dividends will be made as intended or at all or that any particular dividend policy for common stock 
+or preferred stock will be maintained.
+Common Stock
+A dividend of $0.195 per share of common stock of KKR & Co. Inc. has been declared for the third quarter of 2026, which will be paid on December 3, 2026 to holders of 
+record of common stock as of the close of business on November 19, 2026. 
+Mandatory Preferred Convertible Stock 
+A dividend of $0.78125 per share of Series D Mandatory Convertible Preferred Stock has been declared and set aside for payment on December 1, 2026 to holders of record 
+of Series D Mandatory Convertible Preferred Stock as of the close of business on November 15, 2026.
+
+30
+Note: 
+In September 2026, the share repurchase plan increased by $500 million pursuant to the terms of the previously approved increase to the share repurchase plan capacity announced in March 2026. As of
+November 4, 2026, there was $33 million of remaining availability. On November 6, 2026, KKR approved another increase to the share repurchase plan capacity by $500 million.
+(1) 
+KKR & Co. Inc.'s initial repurchase authorization was announced on October 27, 2015. Information is through November 4, 2026.
+(2) 
+Refers to the retirement of equity grants issued pursuant to KKR & Co. Inc.’s equity incentive plan.
+(3) 
+Includes certain securities exchangeable into shares of common stock of KKR & Co. Inc. 
+(4) 
+Excludes the potential dilutive impact of: (i) any conversion of the Series D Mandatory Convertible Preferred Stock (expected no later than March 1, 2028) and (ii) unvested shares of common stock and 
+exchangeable securities.
+(5) 
+Includes the $500 million increase to the share repurchase plan capacity approved on November 6, 2026.
+Stock Summary
+From December 31, 2025 through November 4, 2026, KKR used a total of $906 million under the share repurchase plan to 
+retire equity grants and repurchase shares representing 9.9 million shares in aggregate. During this period, retirements and 
+share repurchases were made at an average cost of $91.65 per share
+Common Stock Repurchase Activity
+(Amounts in millions, except per share amounts)
+Inception to Date(1)
+Open Market Share Repurchases
+ 
+75.9 
+Reduction of Shares for Retired Equity Grants(2)
+ 
+28.2 
+Total Repurchased Shares and Retired Equity Grants
+ 
+104.1 
+Total Capital Used
+ 
+$3,672 
+Average Price Paid Per Share
+ 
+$35.28 
+Remaining Availability under Share Repurchase Plan(5)
+ 
+$533 
+Adjusted Shares
+4Q'25
+3Q'26
+Common Stock Outstanding
+891,451,844
+896,288,263
+Exchangeable Securities(3)
+9,623,541
+25,926,685
+Adjusted Shares(4)
+901,075,385
+922,214,948
+
+Appendix
+
+32
+GAAP Condensed Consolidated Income Statement (Unaudited) 
+($ in thousands)
+3Q'25
+3Q'26
+3Q'25 YTD
+3Q'26 YTD
+Revenues
+Asset Management and Strategic Holdings
+Fees and Other
+$ 
+1,105,238 
+$ 
+1,185,866 
+$ 
+2,916,482 
+$ 
+3,553,150 
+Capital Allocation-Based Income (Loss)
+ 
+638,764 
+ 
+575,919 
+ 
+2,708,601 
+ 
+2,440,153 
+1,744,002
+1,761,785
+ 
+5,625,083 
+5,993,303
+Insurance
+Net Premiums
+ 
+1,059,610 
+ 
+651,204 
+ 
+2,113,216 
+ 
+1,910,210 
+Policy Fees
+ 
+339,735 
+ 
+339,722 
+ 
+1,013,182 
+ 
+1,005,185 
+Net Investment Income
+ 
+1,969,779 
+ 
+2,074,141 
+ 
+5,616,405 
+ 
+6,102,327 
+Net Investment-Related Gains (Losses)
+ 
+351,800 
+ 
+(323,495) 
+ 
+(845,386) 
+ 
+(597,602) 
+Other Income
+ 
+61,049 
+ 
+60,322 
+ 
+202,501 
+ 
+194,130 
+ 
+3,781,973 
+ 
+2,801,894 
+ 
+8,099,918 
+ 
+8,614,250 
+Total Revenues
+$ 
+5,525,975 
+$ 
+4,563,679 
+$ 
+13,725,001 
+$ 
+14,607,553 
+Expenses
+Asset Management and Strategic Holdings
+Compensation and Benefits
+$ 
+954,983 
+$ 
+754,198 
+$ 
+3,365,683 
+$ 
+2,995,435 
+Occupancy and Related Charges
+ 
+30,597 
+ 
+35,814 
+ 
+99,702 
+ 
+113,115 
+General, Administrative and Other
+ 
+414,891 
+ 
+315,575 
+ 
+1,039,220 
+ 
+1,147,546 
+ 
+1,400,471 
+ 
+1,105,587 
+ 
+4,504,605 
+ 
+4,256,096 
+Insurance
+Net Policy Benefits and Claims
+ 
+3,075,361 
+ 
+2,123,867 
+ 
+7,575,360 
+ 
+7,312,417 
+Amortization of Policy Acquisition Costs
+ 
+86,962 
+ 
+69,356 
+ 
+265,733 
+ 
+302,601 
+Interest Expense
+ 
+72,064 
+ 
+76,391 
+ 
+212,465 
+ 
+224,905 
+Policy and Other Operating Expense
+ 
+389,413 
+ 
+341,789 
+ 
+1,043,507 
+ 
+897,365 
+ 
+3,623,800 
+ 
+2,611,403 
+ 
+9,097,065 
+ 
+8,737,288 
+Total Expenses
+$ 
+5,024,271 
+$ 
+3,716,990 
+$ 
+13,601,670 
+$ 
+12,993,384 
+Investment Income (Loss) - Asset Management and Strategic Holdings
+Net Gains (Losses) from Investment Activities
+ 
+1,197,827 
+ 
+(229,379) 
+ 
+3,032,152 
+ 
+251,496 
+Dividend Income
+ 
+416,233 
+ 
+781,833 
+ 
+1,026,266 
+ 
+1,276,906 
+Interest Income
+ 
+806,711 
+ 
+749,092 
+ 
+2,402,451 
+ 
+2,223,476 
+Interest Expense
+ 
+(722,914) 
+ 
+(637,783) 
+ 
+(2,084,804) 
+ 
+(2,018,721) 
+Total Investment Income (Loss) 
+$ 
+1,697,857 
+$ 
+663,763 
+$ 
+4,376,065 
+$ 
+1,733,157 
+Income Tax Expense (Benefit)
+ 
+359,739 
+ 
+272,543 
+ 
+620,612 
+ 
+704,033 
+Redeemable Noncontrolling Interests
+ 
+34,058 
+ 
+4,091 
+ 
+110,727 
+ 
+57,360 
+Noncontrolling Interests
+ 
+905,407 
+ 
+72,212 
+ 
+2,543,501 
+ 
+318,616 
+Preferred Stock Dividends
+ 
+40,430 
+ 
+40,430 
+ 
+78,166 
+ 
+121,289 
+Net Income (Loss) - KKR Common Stockholders
+$ 
+859,927 
+$ 
+1,121,176 
+$ 
+1,146,390 
+$ 
+2,146,028 
+Note: 
+See Appendix for endnotes explaining certain prior period information that has been recast to conform to the current period presentation. This reclassification had no impact on Net Income - KKR Common 
+Stockholders. See End Notes for more information. 
+
+33
+Reconciliation of GAAP to Non-GAAP Shares (Unaudited)
+3Q'25
+3Q'26
+3Q'25 YTD
+3Q'26 YTD
+Weighted Average GAAP Shares of Common Stock Outstanding - Basic
+ 
+890,961,714 
+ 
+897,534,193 
+ 
+889,984,777 
+ 
+894,778,408 
+Adjustments:
+Weighted Average Exchangeable Securities 
+ 
+9,563,161 
+ 
+25,977,585 
+ 
+9,042,584 
+ 
+19,201,209 
+Weighted Average Adjusted Shares(1)
+ 
+900,524,875 
+ 
+923,511,778 
+ 
+899,027,361 
+ 
+913,979,617 
+3Q'25
+4Q'25
+1Q'26
+2Q'26
+3Q'26
+GAAP Shares of Common Stock Outstanding
+890,970,061
+891,451,844
+889,413,785
+897,776,609
+896,288,263
+Adjustments:
+Exchangeable Securities 
+9,554,374
+9,623,541
+10,663,888
+25,954,902
+25,926,685
+Adjusted Shares(1)
+900,524,435
+901,075,385
+900,077,673
+923,731,511
+922,214,948
+Unvested Shares of Common Stock and Exchangeable Securities(2)(3)
+69,164,275
+70,057,645
+68,574,289
+52,391,409
+52,216,772
+(1) 
+Excludes the potential dilutive impact of: (i) any conversion of the Series D Mandatory Convertible Preferred Stock (expected no later than March 1, 2028) and (ii) unvested shares of common stock and 
+exchangeable securities.
+(2) 
+Excludes the potential dilutive impact of any conversion of the Series D Mandatory Convertible Preferred Stock. As of September 30, 2026, this represents 21.4 million shares that is expected to convert no 
+later than March 1, 2028. 
+(3) 
+Excludes equity grants that have not met their market-price or performance-based vesting conditions.
+
+34
+Reconciliation of GAAP to Non-GAAP Measures (Unaudited)
+($ in thousands)
+3Q'25
+3Q'26
+3Q'25 YTD
+3Q'26 YTD
+3Q'25 LTM
+3Q'26 LTM
+Net Income (Loss) - KKR Common Stockholders
+$ 
+859,927 
+$ 
+1,121,176 
+$ 
+1,146,390 
+$ 
+2,146,028 
+$ 
+2,271,945 
+$ 
+3,251,505 
+Preferred Stock Dividends
+ 
+40,430 
+ 
+40,430 
+ 
+78,166 
+ 
+121,289 
+ 
+78,166 
+ 
+161,719 
+Net Income (Loss) Attributable to Noncontrolling Interests
+ 
+939,465 
+ 
+76,303 
+ 
+2,654,228 
+ 
+375,976 
+ 
+2,912,956 
+ 
+1,496,697 
+Income Tax Expense (Benefit)
+ 
+359,739 
+ 
+272,543 
+ 
+620,612 
+ 
+704,033 
+ 
+878,942 
+ 
+1,037,169 
+Income (Loss) Before Tax (GAAP)
+$ 
+2,199,561 
+$ 
+1,510,452 
+$ 
+4,499,396 
+$ 
+3,347,326 
+$ 
+6,142,009 
+$ 
+5,947,090 
+Impact of Consolidation and Other
+ 
+(928,301)  
+82,123 
+ 
+(2,825,266)  
+(238,351)  
+(2,920,333)  
+(1,433,264) 
+Preferred Stock Dividends
+ 
+(40,430)  
+(40,430)  
+(78,166)  
+(121,289)  
+(78,166)  
+(161,719) 
+Income Taxes on Adjusted Earnings
+ 
+(325,158)  
+(311,830)  
+(862,875)  
+(874,170)  
+(1,102,212)  
+(1,119,359) 
+Asset Management Adjustments:
+Unrealized (Gains) Losses
+ 
+(76,839)  
+234,747 
+ 
+560,252 
+ 
+540,488 
+ 
+271,910 
+ 
+541,128 
+Unrealized Carried Interest
+ 
+235,801 
+ 
+386,450 
+ 
+(1,001,818)  
+389,146 
+ 
+(957,421)  
+(749,783) 
+Unrealized Carried Interest Compensation
+ 
+(188,642)  
+(309,171)  
+801,297 
+ 
+(318,116)  
+751,519 
+ 
+447,415 
+Transaction-related and Non-operating Items
+ 
+47,409 
+ 
+236,431 
+ 
+68,725 
+ 
+353,124 
+ 
+37,035 
+ 
+380,688 
+Equity-based Compensation – Time Based
+ 
+63,287 
+ 
+58,270 
+ 
+205,314 
+ 
+184,689 
+ 
+277,871 
+ 
+247,442 
+Equity-based Compensation – Market Condition
+ 
+88,437 
+ 
+117,832 
+ 
+259,548 
+ 
+325,491 
+ 
+345,130 
+ 
+414,791 
+Amortization of Acquired Intangibles
+ 
+715 
+ 
+12,695 
+ 
+715 
+ 
+25,382 
+ 
+715 
+ 
+26,454 
+Strategic Holdings Adjustments:
+Unrealized (Gains) Losses
+ 
+(57,019)  
+(349,192)  
+(442,731)  
+(284,058)  
+(756,864)  
+(587,579) 
+Insurance Adjustments:
+(Gains) Losses from Investments
+ 
+166,098 
+ 
+67,124 
+ 
+1,815,122 
+ 
+1,034,128 
+ 
+2,028,517 
+ 
+1,307,693 
+Non-Operating Changes from Policy Liabilities and Derivatives
+ 
+34,377 
+ 
+(82,882)  
+261,466 
+ 
+(97,923)  
+365,466 
+ 
+(39,918) 
+Transaction-related and Non-operating Items
+ 
+21,120 
+ 
+9,501 
+ 
+23,314 
+ 
+33,872 
+ 
+24,250 
+ 
+52,908 
+Equity-based Compensation
+ 
+28,487 
+ 
+19,452 
+ 
+72,550 
+ 
+65,467 
+ 
+107,867 
+ 
+93,052 
+Amortization of Acquired Intangibles
+ 
+4,699 
+ 
+3,921 
+ 
+14,097 
+ 
+22,520 
+ 
+18,796 
+ 
+27,219 
+Adjusted Net Income
+$ 
+1,273,602 
+$ 
+1,645,493 
+$ 
+3,370,940 
+$ 
+4,387,726 
+$ 
+4,556,089 
+$ 
+5,394,258 
+Interest Expense, Net
+ 
+56,692 
+ 
+85,508 
+ 
+184,221 
+ 
+260,974 
+ 
+255,985 
+ 
+334,478 
+Preferred Stock Dividends
+ 
+40,430 
+ 
+40,430 
+ 
+91,643 
+ 
+121,289 
+ 
+91,643 
+ 
+161,719 
+Income (Loss) Attributable to Noncontrolling Interests
+ 
+5,667 
+ 
+4,018 
+ 
+12,002 
+ 
+11,541 
+ 
+15,896 
+ 
+14,541 
+Income Taxes on Adjusted Earnings
+ 
+325,158 
+ 
+311,830 
+ 
+862,875 
+ 
+874,170 
+ 
+1,102,212 
+ 
+1,119,359 
+Total Segment Earnings
+$ 
+1,701,549 
+$ 
+2,087,279 
+$ 
+4,521,681 
+$ 
+5,655,700 
+$ 
+6,021,825 
+$ 
+7,024,355 
+Net Realized Performance Income
+ 
+(232,665)  
+(150,578)  
+(429,968)  
+(559,653)  
+(735,993)  
+(621,421) 
+Net Realized Investment Income
+ 
+(73,632)  
+(198,884)  
+(389,793)  
+(493,825)  
+(483,143)  
+(516,828) 
+Total Operating Earnings
+$ 
+1,395,252 
+$ 
+1,737,817 
+$ 
+3,701,920 
+$ 
+4,602,222 
+$ 
+4,802,689 
+$ 
+5,886,106 
+Strategic Holdings Operating Earnings
+ 
+(57,663)  
+(191,574)  
+(118,270)  
+(276,906)  
+(126,081)  
+(320,732) 
+Insurance Operating Earnings
+ 
+(304,653)  
+(230,273)  
+(841,357)  
+(778,823)  
+(1,091,330)  
+(1,046,861) 
+Fee Related Earnings
+$ 
+1,032,936 
+$ 
+1,315,970 
+$ 
+2,742,293 
+$ 
+3,546,493 
+$ 
+3,585,278 
+$ 
+4,518,513 
+Note: 
+See Appendix for endnotes regarding important additional information relating to Transaction-related and Non-operating Items.
+
+35
+($ in thousands)
+3Q'25
+3Q'26
+3Q'25 YTD
+3Q'26 YTD
+Total Operating Earnings
+$ 
+1,395,252 
+$ 
+1,737,817 
+$ 
+3,701,920 
+$ 
+4,602,222 
+Total Investing Earnings
+ 
+306,297 
+ 
+349,462 
+ 
+819,761 
+ 
+1,053,478 
+Depreciation and Amortization
+ 
+19,589 
+ 
+24,455 
+ 
+47,033 
+ 
+65,357 
+Adjusted EBITDA
+$ 
+1,721,138 
+$ 
+2,111,734 
+$ 
+4,568,714 
+$ 
+5,721,057 
+Depreciation and Amortization
+ 
+(19,589)  
+(24,455)  
+(47,033)  
+(65,357) 
+Total Investing Earnings
+ 
+(306,297)  
+(349,462)  
+(819,761)  
+(1,053,478) 
+Strategic Holdings Operating Earnings
+ 
+(57,663)  
+(191,574)  
+(118,270)  
+(276,906) 
+Fee Related Earnings
+ 
+(1,032,936)  
+(1,315,970)  
+(2,742,293)  
+(3,546,493) 
+Insurance Operating Earnings
+$ 
+304,653 
+$ 
+230,273 
+$ 
+841,357 
+$ 
+778,823 
+Management Fees, Net Paid by Insurance Segment
+ 
+140,465 
+ 
+141,916 
+ 
+408,703 
+ 
+431,376 
+Ivy and Related Sidecar Fees, Net
+ 
+43,062 
+ 
+61,437 
+ 
+122,909 
+ 
+187,015 
+Global Atlantic-related Capital Markets Fees, Net
+ 
+24,445 
+ 
+46,720 
+ 
+43,824 
+ 
+80,537 
+Total Insurance Economics
+$ 
+512,625 
+$ 
+480,346 
+$ 
+1,416,793 
+$ 
+1,477,751 
+Reconciliation of GAAP to Non-GAAP Measures (Unaudited)
+($ in thousands)
+3Q'25
+3Q'26
+3Q'25 YTD
+3Q'26 YTD
+Total GAAP Revenues
+$ 
+5,525,975 
+$ 
+4,563,679 
+$ 
+13,725,001 
+$ 
+14,607,553 
+Insurance GAAP Revenues
+ 
+(3,781,973)  
+(2,801,894)  
+(8,099,918)  
+(8,614,250) 
+Impact of Consolidation and Other
+ 
+288,484 
+ 
+635,647 
+ 
+759,736 
+ 
+1,296,145 
+Capital Allocation-Based (Income) Loss (GAAP)
+ 
+(638,764)  
+(575,919)  
+(2,708,601)  
+(2,440,153) 
+Realized Carried Interest - Asset Management Segment (Performance Income)
+ 
+883,458 
+ 
+533,843 
+ 
+1,616,480 
+ 
+2,090,407 
+Realized Investment Income - Asset Management Segment
+ 
+4,436 
+ 
+150,171 
+ 
+376,391 
+ 
+461,790 
+Insurance Segment Fees
+ 
+170,260 
+ 
+172,020 
+ 
+495,398 
+ 
+522,880 
+Strategic Holdings Segment Fees
+ 
+22,188 
+ 
+23,475 
+ 
+39,465 
+ 
+50,726 
+Capstone Fees
+ 
+(27,327)  
+(35,255)  
+(72,919)  
+(91,691) 
+Expense Reimbursements
+ 
+(46,788)  
+(57,962)  
+(108,490)  
+(165,577) 
+Total Asset Management Segment Revenues
+$ 
+2,399,949 
+$ 
+2,607,805 
+$ 
+6,022,543 
+$ 
+7,717,830 
+
+36
+Reconciliation of GAAP to Non-GAAP Measures (Unaudited)
+($ in thousands)
+3Q'26
+KKR & Co. Inc. Stockholders' Equity - Common Stock - GAAP
+$ 
+27,715,202 
+  Asset Management and Strategic Holdings Net Assets and Other(1)
+ 
+(22,228,313) 
+  Accumulated Other Comprehensive (Income) Loss and Other (Insurance)(2)
+ 
+6,447,470 
+  Accumulated Unrealized (Gains) Losses on Loans carried at Fair Value (Insurance)(2)
+ 
+50,302 
+Global Atlantic Book Value 
+$ 
+11,984,661 
+($ in thousands)
+3Q'26
+Cash and Cash Equivalents - Asset Management and Strategic Holdings - GAAP
+$ 
+9,717,261 
+  Impact of Consolidation and Other(3)
+ 
+(4,673,552) 
+  Short-term Investments
+ 
+341,683 
+Cash and Short-term Investments
+$ 
+5,385,392 
+($ in thousands)
+3Q'26
+Investments - Asset Management and Strategic Holdings - GAAP
+$ 
+127,772,673 
+  Impact of Consolidation and Other(3)
+ 
+(118,528,678) 
+  Short-term Investments
+ 
+(341,683) 
+Investments - Asset Management Segment
+$ 
+8,902,312 
+($ in thousands)
+3Q'26
+Debt Obligations - Asset Management and Strategic Holdings - GAAP
+$ 
+49,306,739 
+  Impact of Consolidation and Other(3)
+ 
+(40,066,265) 
+  Unamortized Discount/Premium and Deferred Financing Costs
+ 
+96,491 
+Outstanding Debt (at par)
+$ 
+9,336,965 
+(1) 
+This adjustment represents the net assets allocated to the Asset Management and Strategic Holdings segments. 
+(2) 
+To calculate Global Atlantic book value and to make it more comparable with the corresponding metric presented by other publicly traded companies in Global Atlantic’s industry, Global Atlantic book value 
+excludes (i) accumulated unrealized (gains) losses on loans carried at fair value, (ii) accumulated other comprehensive income, and (iii) accumulated change in fair value of reinsurance balances and related 
+assets, net of income tax.
+(3) 
+The purpose of these adjustments is to present these non-GAAP measures without giving effect to the consolidation of the investment vehicles and collateralized financing entities that KKR manages. We 
+believe that providing these non-GAAP measures on a supplemental basis to our GAAP results is helpful to equity holders in assessing the overall financial condition of KKR.
+
+37
+Notes to Page 10 – Fund Investment Performance
+•
+Traditional private equity portfolio refers to the portfolio of investments held by all of 
+KKR’s private equity flagship funds. This portfolio does not include investments from 
+KKR’s growth equity or core private equity funds.
+•
+Opportunistic real estate portfolio refers to the portfolio of investments held by KKR’s 
+flagship opportunistic real estate equity funds. This portfolio does not include 
+investments from KKR's core plus real estate funds or real estate credit funds.
+•
+Infrastructure portfolio refers to the portfolio of investments held by KKR’s flagship core 
+plus infrastructure funds. This portfolio does not include investments from KKR’s core 
+infrastructure fund, KKR Diversified Core Infrastructure or the Global Climate fund.
+•
+The leveraged credit composite refers to the composite of certain investment portfolios 
+made in KKR’s collateralized loan obligations and U.S. and European leveraged credit 
+strategies including leveraged loans and high-yield bonds. A corporate credit 
+investment in our Leveraged Credit strategy is typically the debt of a corporate 
+borrower that we acquired through a syndicated offering arranged by a third party or 
+traded through a secondary market transaction.
+•
+The alternative credit composite refers to the composite of certain investment 
+portfolios made in KKR's (i) private credit strategy, which includes corporate private 
+credit that is privately originated and negotiated directly with a corporate borrower and 
+asset-based finance and (ii) Strategic Investments Group ("SIG") strategy. Funds and 
+separately managed accounts in liquidation or discontinued strategies are excluded. 
+•
+For a list of our carry paying funds, see the Investment Vehicle Summary on pages 25 to 
+27. See also “Important Information – Other Legal Disclosures” regarding past 
+performance and investment returns.
+Note to Page 11 – Asset Management Segment – Private Equity
+•
+Except as otherwise noted, amounts referencing the private equity business line, such 
+as AUM, include amounts related to core private equity, including KKR's participation 
+through the Strategic Holdings segment.
+Notes to All Pages
+•
+All figures in this presentation are as of September 30, 2026, unless otherwise 
+specifically indicated.
+•
+References to LTM means last twelve months. 
+Notes to Page 3 – Third Quarter 2026 Segment Earnings
+•
+The amount of tax benefit from equity-based compensation for 3Q'26 and 3Q'25 was 
+$55.6 million and $32.2 million, respectively, and for 3Q'26 YTD and 3Q'25 YTD was 
+$132.4 million and $92.2 million, respectively. Its inclusion in Adjusted Net Income had 
+the effect of increasing this metric for 3Q'26 and 3Q'25 both by 3%, and for 3Q'26 YTD 
+and 3Q'25 YTD both by 3%.
+•
+For 3Q'26 and 3Q'26 YTD, performance revenues from its K-Series Private Equity 
+vehicles of approximately $220 million and $380 million were reported in fee related 
+performance revenues in fee related earnings, respectively. For 3Q'25 and 3Q'25 YTD, 
+performance revenues from its K-Series Private Equity vehicles of approximately $150 
+million and $230 million were reported in net realized performance income, 
+respectively. This change in classification reflects how management currently manages 
+the business and aligns KKR's presentation with the prevailing classification disclosed by 
+other publicly listed alternative asset managers, which we believe should enhance 
+comparability for investors. KKR has not recast prior-period amounts, as the impact of 
+the reclassification is not material to previously reported results. Additionally, the 
+change in classification had no impact on total segment revenues, total segment 
+earnings, consolidated GAAP net income, or Adjusted Net Income. Investors should 
+consider this reclassification when comparing fee related performance revenues and 
+net realized performance income across periods.
+Note to Page 8 – Assets Under Management
+•
+Perpetual capital refers to a component of AUM that meets two conditions: (i) it has an 
+indefinite term and (ii) there is no predetermined requirement to return invested 
+capital to investors upon the realization of investments. This AUM includes the capital 
+of our evergreen products, which include investment vehicles registered under the 
+Investment Company Act, certain unregistered investment vehicles like our K-Series 
+offered to individual investors, and listed companies like Crescent Energy, as well as the 
+capital of our insurance companies. It excludes CLOs and hedge funds. This AUM is 
+subject to the risk of material reduction, including through withdrawals, redemptions, 
+periodic payments such as dividends, required distributions, payment obligations under 
+insurance policies and reinsurance agreements, valuation changes, and termination of 
+investment management agreements.
+Note to Page 9 – Additional Capital Detail
+•
+KKR’s portion of Uncalled Commitments to its investment funds and other vehicles 
+includes $10.8 billion across Private Equity, Real Assets and Credit and Liquid Strategies 
+business lines.
+Important Information − Endnotes
+
+38
+Notes to Page 16 – Insurance Segment
+•
+Net investment income represents income earned on invested assets, net of 
+investment-related expenses, including investment management fees paid to KKR. 
+•
+Net cost of insurance represents the net cost of funding institutional and individual 
+products – interest credited or incurred, benefits incurred, the associated insurance 
+expenses, net of any premiums, fees and other income earned.
+•
+Effective beginning in the first quarter of 2026, the information regularly provided to 
+management for the Insurance Segment was changed to reclassify certain operating 
+expenses from General, Administrative and Other to Net Cost of Insurance. Prior period 
+segment information has been recast to conform to the current period presentation. 
+This reclassification had no impact on Insurance Operating Earnings.
+Notes to Page 17 – Global Atlantic AUM and Total Insurance Economics
+•
+Total insurance economics represents the total contribution of our insurance business 
+to KKR. We believe this measure may be helpful for our shareholders to understand the 
+total contribution of our insurance business to KKR, including those economics that 
+inure to our asset management business. It is comprised of (i) Insurance Operating 
+Earnings and (ii) Asset Management Fees, Net of Compensation, related to the 
+insurance business that are earned by our Asset Management Segment.
+•
+Management Fees Paid by the Insurance Segment are fees paid by the Insurance 
+segment to the Asset Management segment for the investment management of Global 
+Atlantic’s AUM. Ivy and Related Sidecar Fees are fees paid by third parties to KKR for the 
+investment management of the assets in the Ivy and other reinsurance vehicles. Global 
+Atlantic-Related Capital Markets Fees represent capital markets transaction fees earned 
+by KKR in transactions that Global Atlantic either anchored or facilitated.
+Notes to Page 19 – Strategic Holdings Segment
+•
+The adjusted revenue and adjusted EBITDA information represents the measures 
+management currently uses to monitor the operating performance of the businesses 
+that are carried on a fair value basis with dividends recognized in Strategic Holdings 
+Operating Earnings.
+•
+The Capital Invested for the Strategic Holdings segment is included in the Private Equity 
+and Real Assets business lines within the Asset Management segment.
+•
+EBITDA is shown based on the geographic location of the businesses' headquarters.
+•
+Adjusted Revenue and EBITDA represents KKR’s look-through ownership percentage for 
+each of these companies in the aggregate as a result of the firm's investments in these 
+companies through its participation in our core private equity strategy or other fund 
+strategies multiplied by the adjusted revenue and EBITDA of each portfolio company, 
+respectively. Non-U.S. dollar businesses have been converted at the period-ending 
+foreign exchange rate.
+Important Information − Endnotes (cont’d)
+Notes to Page 22 – Duration of Capital
+•
+Please see endnote on page 8 for information about the term "perpetual capital."
+•
+"Other" in the chart primarily includes (i) hedge fund partnerships and (ii) certain 
+leveraged credit funds and separately managed accounts. 
+Notes to Page 23 – Assets Under Management Rollforward
+•
+For the three months ended September 30, 2026, Distributions and Other includes 
+$175 million of redemptions by fund investors in Private Equity, $170 million of 
+redemptions by fund investors in Real Assets, and $1,811 million of redemptions by 
+fund investors in Credit and Liquid Strategies.
+•
+For the nine months ended September 30, 2026, Distributions and Other includes $512 
+million of redemptions by fund investors in Private Equity, $484 million of redemptions 
+by fund investors in Real Assets, and $5,998 million of redemptions by fund investors in 
+Credit and Liquid Strategies.
+Notes to Page 24 – Fee Paying Assets Under Management Rollforward
+•
+For the three months ended September 30, 2026, Distributions and Other includes  
+$175 million of redemptions by fund investors in Private Equity, $170 million of 
+redemptions by fund investors in Real Assets, and $1,811 million of redemptions by 
+fund investors in Credit and Liquid Strategies.
+•
+For the nine months ended September 30, 2026, Distributions and Other includes net 
+changes in fee base of certain Private Equity funds of $2,412 million, $512 million of 
+redemptions by fund investors in Private Equity, $484 million of redemptions by fund 
+investors in Real Assets, and $5,998 million of redemptions by fund investors in Credit 
+and Liquid Strategies.
+
+39
+Notes to Pages 25 to 27 – Investment Vehicle Summary – Asset Management
+•
+The start date represents the start of the fund's investment period as defined in the 
+fund's governing documents and may or may not be the same as the date upon which 
+management fees begin to accrue. 
+•
+The end date represents the end of the fund's investment period as defined in the 
+fund's governing documents and is generally not the date upon which management 
+fees cease to accrue. For funds that initially charge management fees on the basis of 
+committed capital, the end date is generally the date on or after which the 
+management fees begin to be calculated instead on the basis of invested capital and 
+may, for certain funds, begin to be calculated using a lower rate. 
+•
+This table includes investment vehicles which are not investment funds. The terms 
+investments and investment vehicles are terms used solely for purposes of financial 
+presentation.
+Notes to Page 28 – Strong Financial Profile
+•
+The Investment amounts do not include KKR's ownership of the Global Atlantic 
+insurance companies through KKR's Insurance segment or KKR's participation in the 
+core private equity strategy or other fund strategies through KKR's Strategic Holdings 
+segment.
+•
+The term “investments” has been presented solely for purposes of demonstrating the 
+financial performance of certain assets contained on KKR’s balance sheet, including 
+majority ownership of subsidiaries that operate KKR’s asset management, insurance 
+businesses, broker-dealer and other businesses, including the general partner interests 
+of KKR’s investment funds.
+•
+Private equity includes KKR's traditional private equity funds, co-investments alongside 
+such KKR sponsored private equity funds, and other opportunistic investments. Equity 
+investments in other asset classes, such as growth equity, real estate, infrastructure, 
+energy, leveraged credit and alternative credit appear in these other asset classes.
+Important Information − Endnotes (cont’d)
+Note to Page 32 – GAAP Condensed Consolidated Income Statement (Unaudited)
+•
+Effective beginning in the first quarter of 2026, the Company changed the presentation 
+of certain operating expenses in its Consolidated Statements of Operations. Amounts 
+previously presented separately as Insurance Expenses and General, administrative and 
+Other are now presented in a single line item, Policy and Other Operating Expense. 
+Prior-period amounts have been reclassified to conform to the current-period 
+presentation. This change in presentation had no impact on previously reported total 
+expenses, income before taxes, and net income attributable to KKR.
+Note to Page 34 – Reconciliation of GAAP to Non-GAAP Measures
+•
+For 3Q'26, Transaction-related and Non-operating items includes (i) $185 million 
+related to transaction-related costs and other corporate actions, which includes a $230 
+million impairment charge taken on one of our asset management partnerships, 
+accounted for under the equity method of accounting, partially offset by $75 million 
+related to the release of a contingent reserve, (ii) $14 million of costs associated with 
+certain integration and restructuring costs across our Asset Management and Insurance 
+businesses and (iii) $47 million of acquisition-related stock consideration and other. 
+
+40
+Important Information − Non-GAAP and Other Measures
+from ANI, because (i) KKR believes that the cost of equity grants to employees does not 
+contribute to the earnings potentially available for distributions to its equity holders or 
+reinvestment into its business and (ii) excluding this expense makes KKR’s reporting 
+metric more comparable to the corresponding metric presented by other publicly 
+traded companies in KKR’s industry, which KKR believes enhances an investor’s ability to 
+compare KKR’s performance to these other companies. Income Taxes on Adjusted 
+Earnings includes the benefit of tax deductions arising from equity-based 
+compensation, which reduces Income Taxes on Adjusted Earnings during the period. If 
+tax deductions from equity-based compensation were to be excluded from Income 
+Taxes on Adjusted Earnings, KKR’s ANI would be lower and KKR’s effective tax rate 
+would appear to be higher, even though a lower amount of income taxes would have 
+actually been paid or payable during the period. KKR separately discloses the amount of 
+tax deduction from equity-based compensation for the period reported and the effect 
+of its inclusion in ANI for the period. KKR makes these adjustments when calculating ANI 
+in order to more accurately reflect the net realized earnings that are expected to be or 
+become available for distribution to KKR’s equity holders or reinvestment into KKR’s 
+business. However, ANI does not represent and is not used to calculate actual dividends 
+under KKR’s dividend policy, which is a fixed amount per period, and ANI should not be 
+viewed as a measure of KKR’s liquidity.
+•
+Total Segment Earnings is a performance measure that KKR believes is useful to 
+stockholders as it provides a supplemental measure of our operating performance 
+without taking into account items that KKR does not believe arise from or relate directly 
+to KKR's operations. Total Segment Earnings excludes: (i) equity-based compensation 
+charges, (ii) amortization of acquired intangibles, and (iii) transaction-related and non-
+operating items, if any. Transaction-related and non-operating items primarily arise 
+from corporate actions, which consist of: (i) impairments, (ii) transaction costs from 
+acquisitions, including any acquisition-related stock consideration, (iii) depreciation on 
+real estate that KKR owns and occupies, (iv) contingent liabilities, net of any recoveries, 
+(v) certain integration, restructuring, and other non-operating expenses, and (vi) other 
+gains or charges that affect period-to-period comparability and are not reflective of 
+KKR's ongoing operational performance. Inter-segment transactions are not eliminated 
+from segment results when management considers those transactions in assessing the 
+results of the respective segments. These transactions include (i) management fees 
+earned by our Asset Management segment as the investment adviser for Global Atlantic 
+insurance companies, (ii) management and performance fees earned by our Asset 
+Management segment for acquiring and managing the companies included in our 
+Strategic Holdings segment, and (iii) interest income and expense based on lending 
+arrangements where our Asset Management segment borrows from our Insurance 
+segment. All these inter-segment transactions are recorded by each segment based on 
+the applicable governing agreements. Additionally, due to the integrated nature of our 
+segment operations and as part of our strategic capital allocation decisions, 
+intersegment asset transfers have and may continue to occur. In these cases in segment 
+reporting, the assets are transferred at their fair value, and no realization is recognized 
+at the time of transfer. Earnings are recognized upon realization events and 
+transactions with third parties. Total Segment Earnings represents the total segment 
+earnings of KKR’s Asset Management, Insurance and Strategic Holdings segments.
+Non-GAAP and Segment Measures
+The key non-GAAP and other operating and performance measures that follow are used by 
+management in making operational and resource deployment decisions as well as in 
+assessing the performance of KKR's business. They include certain financial measures that 
+are calculated and presented using methodologies other than in accordance with U.S. 
+generally accepted accounting principles (“GAAP”). These non-GAAP measures, including 
+adjusted net income (“ANI”), total segment earnings, total investing earnings, total operating 
+earnings (“TOE”), fee related earnings (“FRE”), strategic holdings operating earnings, and 
+total asset management segment revenues, are presented prior to giving effect to the 
+allocation of income (loss) among KKR & Co. Inc. and holders of certain securities 
+exchangeable into shares of common stock of KKR & Co. Inc. and, as such, represent the 
+entire KKR business in total. In addition, these non-GAAP measures are presented without 
+giving effect to the consolidation of the investment vehicles and collateralized financing 
+entities (“CFEs”) that KKR manages. These measures described above have the definitions 
+given to them below.
+We believe that providing these non-GAAP measures on a supplemental basis to our GAAP 
+results is helpful to stockholders in assessing the overall performance of KKR's business. 
+These non-GAAP measures should not be considered as a substitute for financial measures 
+calculated in accordance with GAAP. “Non-operating adjustments” as used in these non-
+GAAP definitions refers to adjustments made which are not adjustments or exclusions of 
+normal, recurring cash operating expenses necessary for business operations. Reconciliations 
+of these non-GAAP measures to the most directly comparable financial measures calculated 
+and presented in accordance with GAAP, where applicable, are included under the 
+“Reconciliation of GAAP to Non-GAAP Measures" section of this Appendix. 
+We also caution readers that these non-GAAP measures may differ from the calculations 
+made by other investment managers, and as a result, may not be directly comparable to 
+similarly titled measures presented by other investment managers. 
+•
+Adjusted Net Income is a performance measure of KKR’s earnings, which is derived 
+from KKR’s reported segment results. ANI is used to assess the performance of KKR’s 
+business operations and measures the earnings potentially available for distribution to 
+its equity holders or reinvestment into its business. ANI is equal to Total Segment 
+Earnings less Interest Expense, Net and Other and Income Taxes on Adjusted Earnings. 
+Interest Expense, Net and Other includes (i) interest expense on debt obligations not 
+attributable to any particular segment and (ii) cumulative dividend expense on the 
+Series D Mandatory Convertible Preferred Stock, net of interest income earned on cash 
+and short-term investments. Income Taxes on Adjusted Earnings represents the amount 
+of income taxes that would be paid assuming that all adjusted earnings were allocated 
+to KKR & Co. Inc. and taxed at the same effective rate, which assumes that all securities 
+exchangeable into shares of common stock of KKR & Co. Inc. were exchanged. The 
+economic assumptions and methodologies that impact Income taxes on Adjusted 
+Earnings are similar to those used in calculating the current income tax provision under 
+U.S. GAAP. Equity based compensation expense is excluded
+
+41
+Non-GAAP and Segment Measures (cont’d)
+•
+Asset Management Segment Earnings is the segment profitability measure used to 
+make operating decisions and to assess the performance of the Asset Management 
+segment. This measure is presented before income taxes and is comprised of: (i) Fee 
+Related Earnings, (ii) Realized Performance Income, (iii) Realized Performance Income 
+Compensation, (iv) Realized Investment Income, and (v) Realized Investment Income 
+Compensation. Asset Management Segment Earnings excludes the impact of: (i) 
+unrealized gains (losses) on investments, (ii) unrealized carried interest, and (iii) 
+unrealized carried interest compensation. Management fees earned by KKR as the 
+adviser, manager or sponsor for its investment funds, vehicles and accounts, including 
+its Global Atlantic insurance companies and Strategic Holdings segment, are included in 
+Asset Management Segment Earnings.
+•
+Insurance Operating Earnings is the segment profitability measure used to make 
+operating decisions and to assess the performance of the Insurance segment. This 
+measure is presented before income taxes and is comprised of: (i) Net Investment 
+Income, (ii) Net Cost of Insurance, and (iii) General, Administrative, and Other Expenses. 
+Insurance Operating Earnings excludes the impact of: (i) investment gains (losses) which 
+include realized gains (losses) related to asset/liability matching investment strategies 
+and unrealized investment gains (losses) and (ii) non-operating changes in policy 
+liabilities and derivatives which includes (a) changes in the fair value of market risk 
+benefits and other policy liabilities measured at fair value and related benefit payments, 
+(b) fees attributed to guaranteed benefits, (c) derivatives used to manage the risks 
+associated with policy liabilities, and (d) losses at contract issuance on payout annuities. 
+Insurance Operating Earnings includes (i) realized gains and losses not related to asset/
+liability matching investment strategies and (ii) the investment management costs that 
+are earned by our Asset Management segment as the investment adviser of the Global 
+Atlantic insurance companies. 
+•
+Strategic Holdings Segment Earnings is the segment profitability measure used to 
+make operating decisions and to assess the performance of the Strategic Holdings 
+segment. This measure is presented before income taxes and is comprised of: 
+Dividends, Net and Net Realized Investment Income. Strategic Holdings Segment 
+Earnings excludes the impact of unrealized gains (losses) on investments. Strategic 
+Holdings Segment Earnings includes management fees and performance fee expenses 
+that are earned by the Asset Management segment.
+•
+Fee Related Earnings is a performance measure used to assess the Asset Management 
+segment’s generation of earnings from revenues that are measured and received on a 
+more recurring basis as compared to KKR’s investing earnings. KKR believes this 
+measure is useful to stockholders as it provides additional insight into the profitability of 
+our fee generating asset management and capital markets businesses. FRE equals (i) 
+Management Fees, including fees paid by the Insurance and Strategic Holdings 
+segments to the Asset Management segment and fees paid by Ivy vehicles and other
+Important Information − Non-GAAP and Other Measures (cont’d)
+reinsurance vehicles, (ii) Transaction and Monitoring Fees, Net and (iii) Fee Related 
+Performance Revenues, less (x) Fee Related Compensation, and (y) Other Operating 
+Expenses.
+•
+Fee Related Performance Revenues refers to the realized portion of performance 
+fees from certain AUM that has an indefinite term and for which there is no 
+immediate requirement to return invested capital to investors upon the realization 
+of investments. Fee related performance revenues consists of performance fees (i) 
+expected to be received from our investment funds, vehicles and accounts on a 
+recurring basis, and (ii) that are not dependent on a realization event involving 
+investments held by the investment fund, vehicle or account.
+•
+Fee Related Compensation refers to the compensation expense, excluding equity-
+based compensation, paid from (i) Management Fees, (ii) Transaction and 
+Monitoring Fees, Net, and (iii) Fee Related Performance Revenues.
+•
+Other Operating Expenses represents the sum of (i) occupancy and related charges 
+and (ii) other operating expenses.
+•
+Strategic Holdings Operating Earnings is a performance measure used to assess the 
+firm’s earnings from companies and businesses reported through its Strategic Holdings 
+segment. Strategic Holdings Operating Earnings currently consists of earnings derived 
+from dividends that the firm receives from businesses acquired through the firm’s 
+participation in our core private equity strategy. Strategic Holdings Operating Earnings 
+currently equals dividends less management fees that are earned by our Asset 
+Management segment. This measure is used by management to assess the Strategic 
+Holdings segment’s generation of earnings from revenues that are measured and 
+received on a more recurring basis than, and are not dependent on, realizations from 
+investment activities.
+•
+Total Operating Earnings is a performance measure that represents the sum of (i) FRE, 
+(ii) Insurance Operating Earnings, and (iii) Strategic Holdings Operating Earnings. KKR 
+believes this measure is useful to stockholders as it provides additional insight into the 
+profitability of the most recurring forms of earnings from each of KKR’s segments as 
+compared to investing earnings.
+•
+Total Investing Earnings is a performance measure that represents the sum of (i) Net 
+Realized Performance Income and (ii) Net Realized Investment Income. KKR believes 
+this measure is useful to stockholders as it provides additional insight into the earnings 
+of KKR’s segments from the realization of investments.
+
+42
+Non-GAAP and Segment Measures (cont’d)
+•
+Total Asset Management Segment Revenues is a performance measure that 
+represents the realized revenues of the Asset Management segment (which excludes 
+unrealized carried interest and unrealized gains (losses) on investments) and is the sum 
+of (i) Management Fees, (ii) Transaction and Monitoring Fees, Net, (iii) Fee Related 
+Performance Revenues, (iv) Realized Performance Income, and (v) Realized Investment 
+Income. Asset Management Segment Revenues excludes Realized Investment Income 
+earned based on the performance of businesses presented in the Strategic Holdings 
+segment. KKR believes that this performance measure is useful to stockholders as it 
+provides additional insight into all forms of realized revenues generated by our Asset 
+Management segment. 
+Other Terms and Capital Metrics
+•
+Adjusted shares represents shares of common stock of KKR & Co. Inc. outstanding 
+under GAAP adjusted to include certain vested securities exchangeable into shares of 
+common stock of KKR & Co. Inc. Adjusted shares excludes the potential dilutive impact 
+of: (i) any conversion of the Series D Mandatory Convertible Preferred Stock and (ii) 
+unvested shares of common stock and exchangeable securities.
+•
+Assets Under Management (“AUM”) represent the assets managed (including core 
+private equity), advised or sponsored by KKR from which KKR is entitled to receive 
+management fees or performance income (currently or upon a future event), general 
+partner capital, and assets managed, advised or sponsored by our strategic BDC 
+partnership and the hedge fund and other managers in which KKR holds an ownership 
+interest. We believe this measure is useful to stockholders as it provides additional 
+insight into the capital raising activities of KKR and its hedge fund and other managers 
+and the overall activity in their investment funds and other managed or sponsored 
+capital. KKR calculates the amount of AUM as of any date as the sum of: (i) the fair value 
+of the investments of KKR's investment funds and certain co-investment vehicles; (ii) 
+uncalled capital commitments from these funds, including uncalled capital 
+commitments from which KKR is currently not earning management fees or 
+performance income; (iii) the asset value of the Global Atlantic insurance companies; 
+(iv) the par value of outstanding CLOs; (v) KKR's pro rata portion of the AUM of hedge 
+fund and other managers in which KKR holds an ownership interest; (vi) all of the AUM 
+of KKR's strategic BDC partnership; (vii) the acquisition cost of invested assets of certain 
+non-US real estate investment trusts and (viii) the value of other assets managed or 
+sponsored by KKR. The pro rata portion of the AUM of hedge fund and other managers 
+is calculated based on KKR’s percentage ownership interest in such entities multiplied 
+by such entity’s respective AUM. KKR's definition of AUM (i) is not based on any 
+definition of AUM that may be set forth in the governing documents of the investment 
+funds, vehicles, accounts or other entities whose capital is included in this definition, (ii) 
+includes assets for which KKR does not act as an investment adviser, and (iii) is not 
+calculated pursuant to any regulatory definitions. 
+Important Information − Non-GAAP and Other Measures (cont’d)
+•
+Capital Invested is the aggregate amount of capital invested by (i) KKR’s investment 
+funds (including core private equity) and Global Atlantic insurance companies, (ii) KKR's 
+Principal Activities business line as a co-investment, if any, alongside KKR’s investment 
+funds, and (iii) KKR's Principal Activities business line in connection with a syndication 
+transaction conducted by KKR's Capital Markets business line, if any. Capital invested is 
+used as a measure of investment activity at KKR during a given period. We believe this 
+measure is useful to stockholders as it provides a measure of capital deployment across 
+KKR’s business lines. Capital invested includes investments made using investment 
+financing arrangements like credit facilities, as applicable. Capital invested excludes (i) 
+investments in certain leveraged credit strategies, (ii) capital invested by KKR’s Principal 
+Activities business line that is not a co-investment alongside KKR’s investment funds, 
+and (iii) capital invested by KKR’s Principal Activities business line that is not invested in 
+connection with a syndication transaction by KKR’s Capital Markets business line. 
+Capital syndicated by KKR's Capital Markets business line to third parties other than 
+KKR’s investment funds or Principal Activities business line is not included in capital 
+invested.
+•
+Fee Paying AUM (“FPAUM”) represents only the AUM from which KKR is entitled to 
+receive management fees. We believe this measure is useful to stockholders as it 
+provides additional insight into the capital base upon which KKR earns management 
+fees. FPAUM is the sum of all of the individual fee bases that are used to calculate 
+management fees and differs from AUM in the following respects: (i) assets and 
+commitments from which KKR is not entitled to receive a management fee are excluded 
+(e.g., assets and commitments with respect to which it is entitled to receive only 
+performance income or is otherwise not currently entitled to receive a management 
+fee) and (ii) certain assets, primarily in its private equity funds, are reflected based on 
+capital commitments and invested capital as opposed to fair value because fees are not 
+impacted by changes in the fair value of underlying investments.
+•
+Uncalled Commitments is the aggregate amount of unfunded capital commitments 
+that KKR’s investment funds and carry-paying co-investment vehicles (including core 
+private equity) have received from fund investors to contribute capital to fund future 
+investments, and the amount of uncalled commitments is not reduced by capital 
+invested using borrowings under an investment fund’s subscription facility until capital 
+is called from our fund investors. We believe this measure is useful to stockholders as it 
+provides additional insight into the amount of capital that is available to KKR’s 
+investment funds and carry paying co-investment vehicles to make future investments. 
+Uncalled commitments are not reduced for investments completed using fund-level 
+investment financing arrangements or investments we have committed to make but 
+remain unfunded at the reporting date.
+
+43
+Website
+From time to time, KKR may use its website as a channel of distribution of material company 
+information. Financial and other important information regarding KKR is routinely posted 
+and accessible on the Investor Center for KKR & Co. Inc. at https://ir.kkr.com/. Information 
+on these websites are not incorporated by reference herein and are not a part of this 
+presentation. In addition, you may automatically receive email alerts and other information 
+about KKR by enrolling your email address at the “Email Alerts” area of the Investor Center 
+on the website.
+KKR Entities
+Any discussion of specific KKR entities other than KKR & Co. Inc. is provided solely to 
+demonstrate such entities’ role within the KKR organization and their contributions to the 
+business, operations and financial results of KKR & Co. Inc. Each KKR entity is responsible for 
+its own financial, contractual and legal obligations.
+Nothing in this presentation is intended to constitute, and shall not be construed as 
+constituting, the provision of any tax, accounting, financial, investment, insurance, 
+regulatory, legal or other advice by KKR or its representatives. Without limiting the 
+foregoing, this presentation is not and shall not be construed as an "advertisement" for 
+purposes of the Investment Advisers Act of 1940, as amended, or an offer to purchase or 
+sell, or the solicitation of an offer to purchase or sell, any security, service or product of or by 
+any KKR entity, including but not limited to any investment advice, any investment fund, 
+vehicle or account, any capital markets service, or any insurance product, including but not 
+limited to (i) any investment funds, vehicles or accounts sponsored, advised or managed by 
+(or any investment advice from) Kohlberg Kravis Roberts & Co. L.P., KKR Credit Advisors (US) 
+LLC, KKR Registered Advisor LLC, KKR Credit Advisors (Ireland) Unlimited Company, KKR 
+Credit Advisors (Singapore) Pte. Ltd., KKR Credit Advisors (EMEA) LLP, KKR Alternative 
+Investment Management Unlimited Company or other subsidiary, (ii) any capital markets 
+services by KKR Capital Markets LLC (“KCM”) or any KCM affiliate outside the United States, 
+or (iii) any insurance product or reinsurance offered by Accordia Life and Annuity Company, 
+Commonwealth Annuity and Life Insurance Company, First Allmerica Financial Life Insurance 
+Company, Forethought Life Insurance Company, Global Atlantic Re Limited, Global Atlantic 
+Assurance Limited or any other Global Atlantic owned or sponsored insurance company, or 
+any investment or insurance product or reinsurance offered by any insurance-related vehicle 
+sponsored or managed by Global Atlantic.
+Each KKR entity is responsible for its own financial, contractual and legal obligations. This 
+presentation has been prepared solely for informational purposes. This presentation is not 
+intended to make, and does not make, any financial or investment recommendation or 
+otherwise promote a product or service of KCM or any of its affiliates.
+Important Information − Other Legal Disclosures
+Past Performance and Investment Returns
+Past performance is not a guarantee of future results. Information about any fund or 
+strategy and investments made by such fund or strategy, including past performance of such 
+fund, strategy or investment, is provided solely to illustrate KKR’s investment experience, 
+and processes and strategies used by KKR in the past with respect to such funds or 
+strategies. The performance information relating to KKR’s historical investments is not 
+intended to be indicative of any fund’s or strategy’s future results or the future results of 
+KKR. Certain funds or strategies are also relatively new and their limited historical results 
+may not be indicative of results they will experience over a longer period of time. There can 
+be no assurance that any KKR entity (including any KKR investment fund, vehicle or account, 
+the KKR balance sheet, the Strategic Holdings segment, or Global Atlantic insurance 
+company) will achieve results comparable to any results included in this presentation, or that 
+any investments made by a KKR entity now, in the past or in the future will be profitable, or 
+that KKR entities will find investment opportunities similar to any presented in connection 
+with this presentation. Actual realized value of currently unrealized investments will depend 
+on, among other factors, the value of the investments and market conditions at the time of 
+disposition, related transaction costs, the timing and manner of sale, and many of the risks 
+described in the forward-looking statements section of this Appendix, all of which may differ 
+from the assumptions and circumstances on which the currently unrealized valuations are 
+based. Accordingly, the actual realized values of unrealized investments may differ materially 
+from the values indicated herein.
+
+44
+Important Information − Other Legal Disclosures (cont’d)
+Expected dividend amounts and earnings in the business segment Strategic Holdings may be 
+materially less than our current expectations or not materialize at all, and the volatility of 
+employee compensation as a result of the modification of our compensation framework 
+could impact our ability to hire, retain, and motivate our employees whom we are 
+dependent on.
+These forward-looking statements are based on KKR’s beliefs, assumptions and expectations, 
+taking into account all information currently available to it. These beliefs, assumptions and 
+expectations can change as a result of many possible events or factors, not all of which are 
+known to KKR or are within its control. The use of words such as “unconstrained,” 
+“consistent,” "trends," "dominant" or comparable words or other statements is not a 
+guarantee of future performance or that any other statements to which these apply are 
+guaranteed to occur. If a change occurs, forward-looking statements made as part of this 
+presentation may vary materially from those expressed in the applicable forward-looking 
+statements.
+These forward-looking statements include target, goal, hypothetical or estimated results, 
+projections and other comparable phrases and concepts are hypothetical in nature and are 
+shown for illustrative, informational purposes only. Except as otherwise specifically stated, 
+this information is not intended to forecast or predict future events, but rather to show the 
+hypothetical estimates calculated using the specific assumptions presented herein. It does 
+not reflect any actual results, which may differ materially. Certain of the forward-looking 
+information has been made for illustrative purposes and may not materialize. No 
+representation or warranty is made as to the reasonableness of the assumptions made or 
+that all assumptions used in calculating the target, goal, hypothetical or estimated results 
+have been stated or fully considered. Changes in the assumptions may have a material 
+impact on the target, goal, hypothetical or estimated results presented. Target, goal, 
+hypothetical or estimated results or projections may not materialize.
+These statements are subject to numerous risks, uncertainties and assumptions, including 
+those listed here in the above and below paragraphs and described under the section 
+entitled “Risk Factors” in KKR & Co. Inc.’s Annual Report on Form 10-K for the year ended 
+December 31, 2025, filed with the SEC on February 27, 2026, as such factors may be updated 
+from time to time in our periodic filings with the SEC, which are accessible on the SEC’s 
+website at www.sec.gov. These factors should not be construed as being exhaustive and 
+should be read in conjunction with the other cautionary statements that are included in this 
+presentation and in KKR & Co. Inc.’s filings with the SEC.
+All forward-looking statements speak only as of the date of this presentation. KKR does not 
+undertake any obligation to update any forward-looking statements to reflect circumstances 
+or events that occur after the date on which such statements were made except as required 
+by law.
+Forward Looking Statements
+This presentation contains certain forward-looking statements pertaining to KKR, including 
+investment funds, vehicles and accounts managed by KKR, Global Atlantic, and Arctos. You 
+can identify these forward-looking statements by the use of words such as “opportunity,” 
+“outlook,” “believe,” “think,” “expect,” “feel,” “potential,” “continue,” “may,” “should,” 
+“seek,” “approximately,” “predict,” “intend,” “will,” “plan,” “estimate,” “anticipate,” 
+“visibility,” “positioned,” “path to,” “conviction”, the negative version of these words, other 
+comparable words or other statements that do not relate strictly to historical or factual 
+matters. Forward-looking statements relate to expectations, estimates, beliefs, projections, 
+future plans and strategies, anticipated events or trends and similar expressions concerning 
+matters that are not historical facts, including but, not limited to, any statements with 
+respect to: statements regarding KKR’s business, financial condition, liquidity and results of 
+operations, including Capital Invested, uncalled commitments, cash and short-term 
+investments, and levels of indebtedness; the potential for future business growth; 
+outstanding shares of common stock of KKR & Co. Inc. and its capital structure; non-GAAP 
+and segment measures and performance metrics, including AUM, FPAUM, ANI, TOE, Book 
+Value, Total Segment Earnings, FRE, Insurance Operating Earnings, Strategic Holdings 
+Operating Earnings, and Total Investing Earnings; the declaration and payment of dividends 
+on capital stock of KKR & Co. Inc.; the timing, manner and volume of repurchase of shares of 
+common stock of KKR & Co. Inc.; our statements regarding the potential of, and future 
+financial results from, KKR’s Strategic Holdings segment (including expectations about 
+dividend payments and earnings from companies and businesses in the Strategic Holdings 
+segment in the future, the future growth of such companies and businesses, and the 
+potential for compounding earnings over a long period of time from such segment); KKR’s 
+ability to grow its AUM, to deploy capital, to realize unrealized investment appreciation, and 
+the time period over which such events may occur; KKR’s ability to manage the investments 
+in and operations of acquired companies and businesses; the effects of any transactional 
+activity on KKR’s operating results, including pending sales of investments; expansion and 
+growth opportunities and other synergies resulting from acquisitions of companies (including 
+the acquisition and integration of Arctos Partners and businesses in our Strategic Holdings 
+segment), internal reorganizations or strategic partnerships with third parties; the timing and 
+expected impact to our business of any new investment fund, vehicle or product launches; 
+the timing and completion of certain transactions contemplated by the Reorganization 
+Agreement entered into on October 8, 2021 by KKR & Co. Inc. pursuant to which the parties 
+agreed to undertake a series of integrated transactions to effect a number of transformative 
+structural and governance changes in the future; the implementation or execution of, or 
+results from, any strategic initiatives (including efforts to distribute financial products to 
+private wealth investors, the modification of our compensation framework announced on 
+November 29, 2023, which decreased the targeted percentage of compensation from fee 
+related revenues and increased the targeted percentage from realized carried interest and 
+certain incentive fees, and our insurance business’s strategic initiatives to invest more into 
+non-yielding or lower-yielding asset classes like private equity and real assets, expand 
+outside the United States, and raise more third-party co-investment insurance capital).
+
+45
+•
+risks related to our insurance activities, including risks involving: operating in highly 
+competitive markets; identifying and managing significant growth opportunities for our 
+insurance business; our ability to source successful reinsurance transactions; volatility in 
+market and economic conditions; disruptions to our third-party distribution network for 
+our insurance products; differences in assumptions and estimates used for our 
+insurance business from our actual results; possible downgrades to financial strength or 
+credit ratings of our insurance subsidiaries; ceding business to reinsurers as well as 
+business ceded to us; changes in tax laws applicable to our insurance subsidiaries; 
+comprehensive regulations (and potential changes in, and additions to, such 
+regulations) applicable to our insurance business; capital regulations applicable to our 
+insurance subsidiaries, regulatory and reputational considerations under the Bermuda 
+insurance, and reinsurance regulatory, framework; and a failure to comply with 
+statutory accounting rules;
+•
+risks related to the acquisition of Arctos, including risks that the acquisition may not 
+achieve its intended results; and
+•
+risks related to our organizational structure, including risks involving: the Series I 
+preferred stockholder’s significant voting power, and potential conflicts of interest with 
+the Series I preferred stockholder, until the Sunset Date; exemptions as a “controlled 
+company” from New York Stock Exchange corporate governance requirements; 
+provisions in our charter limiting the duties and liability of the Series I preferred 
+stockholder; the exclusive forum provision included in our charter; limitations on our 
+ability to pay periodic dividends; potential application of restrictions under the 
+Investment Company Act of 1940; actions taken to implement the reorganization 
+transactions that must occur by the Sunset Date; and anti-takeover provisions in our 
+organizational documents.
+Forward Looking Statements (cont'd)
+Without limiting the statements made in the prior paragraphs, the following risks, among 
+others, could cause actual results to vary from the forward-looking statements:
+•
+risks related to our business, including risks involving: difficult market and economic 
+conditions; geopolitical events, natural disasters and other similar events not within our 
+control; the loss of, or misconduct by, our key personnel; our reliance on third parties in 
+the operation of our business; disruptions in our technology infrastructure or the 
+occurrence of other operational errors; effective management of our balance sheet; 
+management of, and access to, adequate sources of liquidity; our capital markets 
+activities; financial and enterprise risks; legal claims, litigations, investigations and 
+negative publicity; expansion into new businesses, strategic opportunities, and 
+investment strategies; operating in a highly competitive industry; variability in earnings 
+and cash flow; contingent obligations to return carried interest; raising third-party capital 
+for our investment vehicles, insurance business and transactions; raising capital from 
+institutional investors; the sale of financial products to individual investors; possible 
+reductions or other changes to perpetual capital; actions of our portfolio companies; 
+changes in tax laws; impact of artificial intelligence; cybersecurity failures and data 
+security breaches; and sustainability matters;
+•
+risks related to regulatory matters, including risks involving: compliance with complex, 
+extensive and evolving laws; adverse regulatory actions; our regulatory registrations or 
+licenses; changes in the regulatory frameworks applicable to our business; availability of 
+regulatory exemptions or exclusions; distributing financial products to individual 
+investors; regulations impacting the insurance industry and insurance companies owned 
+by alternative asset managers; laws and regulations applicable to our extensive global 
+investment activities; compliance with investment-related and competition laws; 
+compliance with financial crime laws; compliance with ERISA exemptions; sustainability-
+related laws and disclosure requirements; and privacy, data protection, cybersecurity, and 
+artificial intelligence laws;
+•
+risks related to our investment activities, including risks involving: historical returns not 
+being indicative of future results; conditions and events not in our control that may 
+significantly impact valuations of our investments; investments in illiquid assets and 
+uncertainty in valuations of illiquid investments; investments that involve unique business, 
+regulatory, legal, tax or other complexities; use of leverage in investment activities; 
+limitations in the due diligence process; investments in real assets, including real estate, 
+infrastructure and energy assets; investments in companies and assets outside of the 
+United States; conflicts of interest arising from our investment activities; and our third-
+party investors failing to fund their capital calls;
+Important Information − Other Legal Disclosures (cont’d)
