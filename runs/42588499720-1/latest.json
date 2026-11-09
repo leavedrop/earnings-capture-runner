@@ -1,0 +1,67 @@
+{
+  "run_id": "42588499720-1",
+  "node": {
+    "loc": "US",
+    "colo": "MSP"
+  },
+  "started_utc": "2026-11-09T08:48:31.626688+00:00",
+  "until_utc": "2026-11-09T13:48:31.626688+00:00",
+  "state": "running",
+  "mode": "live",
+  "source_sha256": {
+    "watch.py": {
+      "sha256": "abb41e10fb11b428e3448c894c5be5fac170d0934dfe9ef96a9ea6876258f696",
+      "production_sha256": "74c1579ac38690f4f7b582d84441c883b332d373a7573c74fcb09549a6fb8f2e",
+      "normalization": "UTF-8 LF; code unchanged",
+      "source": "watch.py"
+    },
+    "sources.py": {
+      "sha256": "3371273c27a67930fface7010d1302cfae2bf3f1e6a1590c40d429fa8b4a24f7",
+      "production_sha256": "3d933cfd817d753dd356af66c562e3906715d98e45cc54668862f9dfcf27887e",
+      "normalization": "UTF-8 LF; code unchanged",
+      "source": "sources.py"
+    },
+    "pdf_tables.py": {
+      "sha256": "1a3554832dba52e8f4acd4b397516abc37d20e8d34f0b100eb866b1f20d4f1a3",
+      "production_sha256": "606e88c00cd870bb6a1154d8de539ae1e773dc9563528fdc3fc0051eaaa6ca14",
+      "normalization": "UTF-8 LF; code unchanged",
+      "source": "pdf_tables.py"
+    },
+    "network.py": {
+      "sha256": "b9a1846180a3974bfa20c45224ac2dfbfe3e9088daac0a3a5f2a4f72d0b80f70",
+      "production_sha256": "b9a1846180a3974bfa20c45224ac2dfbfe3e9088daac0a3a5f2a4f72d0b80f70",
+      "normalization": "UTF-8 LF; code unchanged",
+      "source": "network.py"
+    },
+    "sec_stream.py": {
+      "sha256": "d773e9104d91af2f832ea94f4ca2658d10fb8e9e00e6b99c52a6f570451e93c9",
+      "production_sha256": "d773e9104d91af2f832ea94f4ca2658d10fb8e9e00e6b99c52a6f570451e93c9",
+      "normalization": "UTF-8 LF; code unchanged",
+      "source": "sec_stream.py"
+    },
+    "progress.py": {
+      "sha256": "200d7183f7207a01743346851ef8378c37c59cc73392d2d7a255e3c36c008ee7",
+      "production_sha256": "200d7183f7207a01743346851ef8378c37c59cc73392d2d7a255e3c36c008ee7",
+      "normalization": "UTF-8 LF; code unchanged",
+      "source": "progress.py"
+    },
+    "watchlist.json": {
+      "sha256": "bd93050618e5d29361784459e7308facb81bf82131f54632e6d49475c7237c22",
+      "source": "public event/source whitelist; 34 companies"
+    }
+  },
+  "startup_gap_semantics": "Monitoring starts only after the collector's first actual source request",
+  "schema_version": 1,
+  "updated_utc": "2026-11-09T08:48:31.627+00:00",
+  "collector_heartbeat_utc": null,
+  "captures": [],
+  "capture_count": 0,
+  "source_patrols": [],
+  "request_failures": {
+    "requests": 0,
+    "failed_requests": 0
+  },
+  "failure_groups": [],
+  "publication_scope": "Public documents and safe fields; no raw database, headers or private identity",
+  "timing_scope": "Discovery to full parse; CI startup and evidence publication are outside this duration"
+}
