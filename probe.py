@@ -7,16 +7,21 @@ from collections import deque
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 import hashlib
+import gzip
 import json
 import os
 from pathlib import Path
 import re
+import sqlite3
+import subprocess
+import sys
+import tempfile
 import time
 from urllib.parse import urlsplit
 
 import httpx
 from pdf_tables import prewarm_pdf_pool
-from sources import validate
+from sources import discover, validate
 
 BASE = Path(__file__).resolve().parent
 HEADERS = {"User-Agent": "EarningsWatch/1.0 automated-public-filings-research",
@@ -79,8 +84,38 @@ async def identify_node(client):
 def select_targets(targets, scope):
     if scope == "all":
         return targets
+    if scope == "remaining-paths":
+        references = json.loads((BASE / "remaining_references.json").read_text(encoding="utf-8"))
+        selected = []
+        for row in targets:
+            symbol = row["event"]["symbol"]
+            if row["channel"] != "newswire" or symbol not in ("BAM", "MSGK"):
+                continue
+            target = {**row, "reference": references[symbol]}
+            if symbol == "BAM":
+                target.update(canonical_url=row["url"], url=references[symbol]["print_url"],
+                              target_id=row["target_id"] + "_print",
+                              canonical_previous_status=403,
+                              canonical_previous_run="42573904389")
+            else:
+                target["pipeline"] = "production_watch_list_seed"
+            selected.append(target)
+        return selected
     return [row for row in targets if row["channel"] == "sec" or
             scope == "sec-businesswire" and urlsplit(row["url"]).hostname == "www.businesswire.com"]
+
+
+def content_hashes(parsed):
+    return {"text_sha256": digest(parsed["text"].encode()),
+            "table_sha256": [digest(json.dumps(table, ensure_ascii=False, separators=(",", ":")).encode())
+                             for table in parsed["tables"]]}
+
+
+def reference_match(parsed, reference):
+    actual = content_hashes(parsed)
+    return {**actual, "reference_text_matches": actual["text_sha256"] == reference["text_sha256"],
+            "reference_tables_match": actual["table_sha256"] == reference["table_sha256"],
+            "reference_raw_sha256": reference["raw_sha256"], "reference_url": reference["url"]}
 
 
 async def collect_one(client, target, output, node, recent, blocked):
@@ -93,6 +128,7 @@ async def collect_one(client, target, output, node, recent, blocked):
            "http_response_complete": False, "archived": False, "artifacts": [],
            "timing_scope": "known URL invocation through rate queue, real network download, hash and full parse; excludes subsequent artifact writes",
            "new_release_evidence": False}
+    row.update({key: target[key] for key in ("canonical_url", "canonical_previous_status", "canonical_previous_run") if key in target})
     body, parsed = bytearray(), None
     try:
         row["queue_ms"] = 0
@@ -144,12 +180,16 @@ async def collect_one(client, target, output, node, recent, blocked):
                 began = time.perf_counter_ns()
                 result = validate(raw, row["final_url"], row["content_type"], target["event"])
                 tables_sha = digest(json.dumps(result["tables"], ensure_ascii=False, separators=(",", ":")).encode())
+                comparison = reference_match(result, target["reference"]) if "reference" in target else {}
                 ended = time.perf_counter_ns()
-                return result, tables_sha, began, ended, utc()
+                return result, tables_sha, comparison, began, ended, utc()
 
-            parsed, tables_sha, parse_start, parse_end, parsed_utc = await asyncio.to_thread(parse)
+            parsed, tables_sha, comparison, parse_start, parse_end, parsed_utc = await asyncio.to_thread(parse)
             total = (parse_end - started) / 1e6
             complete = parsed.get("accepted") is True and parsed.get("tables_complete") is True
+            if comparison:
+                complete = complete and comparison["reference_text_matches"] and comparison["reference_tables_match"]
+                row.update(comparison)
             row.update(parsed_utc=parsed_utc, parse_ms=(parse_end - parse_start) / 1e6,
                        validation_queue_ms=(parse_start - parse_queued) / 1e6,
                        discovery_to_parsed_ms=total, complete=complete,
@@ -189,6 +229,99 @@ async def collect_one(client, target, output, node, recent, blocked):
     return row
 
 
+async def collect_watch_case(target, output, node):
+    """One production probe; the listing request is real, the supplied URL is a replay."""
+    row = {"target_id": target["target_id"], "symbol": target["event"]["symbol"],
+           "channel": target["channel"], "url": target["url"], "mode": "replay", "node": node,
+           "started_utc": utc(), "parsed_utc": None, "status": None, "attempts": 1,
+           "discovery_to_parsed_ms": None, "budget_passed": False, "complete": False,
+           "archived": False, "artifacts": [], "new_release_evidence": False,
+           "pipeline": "production_watch_list_seed",
+           "timing_scope": "Known old URL invocation after one real listing request; production queue/download/full parse. Listing request and CLI startup reported separately. Reference hash comparison is a post-capture audit.",
+           "discovery_timestamp_semantics": "replay_invocation_not_live_discovery"}
+    started = time.perf_counter_ns()
+    try:
+        with tempfile.TemporaryDirectory(prefix="earnings-production-probe-") as directory:
+            runtime = Path(directory)
+            command = [sys.executable, str(BASE / "live/watch.py"), "probe", "--manifest", str(BASE / "live/watchlist.json"),
+                       "--output", str(runtime), "--symbols", target["event"]["symbol"], "--channel", target["channel"],
+                       "--candidate-url", target["url"], "--samples", "1",
+                       "--node", "github-actions-" + str(node.get("loc")) + "-" + str(node.get("colo"))]
+            child_env = {key: value for key, value in os.environ.items()
+                         if key not in ("GITHUB_TOKEN", "GH_TOKEN", "SEC_USER_AGENT", "HTTPS_PROXY", "HTTP_PROXY", "ALL_PROXY", "https_proxy", "http_proxy", "all_proxy")}
+            result = await asyncio.to_thread(subprocess.run, command, cwd=BASE / "live", env=child_env,
+                                             capture_output=True, timeout=180)
+            row["collector_exit_code"] = result.returncode
+            connection = sqlite3.connect((runtime / "observations.sqlite3").as_uri() + "?mode=ro", uri=True)
+            try:
+                requests = [json.loads(payload) for (payload,) in connection.execute("select payload from log where kind='request' order by id")]
+                captures = [json.loads(payload) for (payload,) in connection.execute("select payload from log where kind='capture' order by id")]
+            finally:
+                connection.close()
+            public_requests = []
+            request_keys = ("id", "run_id", "symbol", "channel", "purpose", "url", "final_url", "status", "http_version",
+                            "request_start_utc", "request_end_utc", "body_complete_utc", "first_body_byte_utc",
+                            "queued_mono_ns", "request_start_mono_ns", "request_end_mono_ns", "body_complete_mono_ns",
+                            "queue_ms", "queue_reasons", "request_total_ms", "response_headers_received_ms", "body_download_ms",
+                            "first_body_callback_ms", "connection_reused", "new_tcp_connections", "sha256", "body_bytes",
+                            "cooldown_seconds", "cooldown_scope")
+            for index, request in enumerate(requests):
+                safe = {key: request[key] for key in request_keys if key in request}
+                if request.get("error"):
+                    safe["error"] = safe_error_message(request["error"])
+                raw = gzip.open(runtime / request["raw_path"], "rb").read() if request.get("raw_path") else b""
+                if raw:
+                    name = "raw/" + target["target_id"] + "_" + str(index) + "_" + request["purpose"] + ".html"
+                    (output / name).write_bytes(raw)
+                    safe["artifact"] = name
+                    row["artifacts"].append(name)
+                if request["purpose"] == "discovery":
+                    row["seed"] = safe
+                    row["seed_listing_contains_candidate"] = any(item["url"].rstrip("/") == target["url"].rstrip("/")
+                         for item in discover(raw, request.get("final_url", request["url"]), "text/html", target["event"])) if raw and request.get("status") == 200 else False
+                else:
+                    row.update(status=request.get("status"), queue_ms=request.get("queue_ms"),
+                               headers_ms=request.get("response_headers_received_ms"), request_total_ms=request.get("request_total_ms"),
+                               http_version=request.get("http_version"), connection_reused=request.get("connection_reused"))
+                public_requests.append(safe)
+            request_log = "requests_" + target["target_id"] + ".ndjson"
+            (output / request_log).write_text("".join(json.dumps(record, ensure_ascii=False) + "\n" for record in public_requests), encoding="utf-8")
+            row["artifacts"].append(request_log)
+            if captures:
+                capture = captures[0]
+                stem = Path(capture["original_document_path"]).with_suffix("")
+                saved = json.loads((runtime / stem.with_suffix(".json")).read_text(encoding="utf-8"))
+                parsed = {"text": (runtime / stem.with_suffix(".txt")).read_text(encoding="utf-8"), "tables": saved["tables"]}
+                comparison = reference_match(parsed, target["reference"])
+                verdict = capture["validation"]
+                parsed.update({key: verdict[key] for key in ("accepted", "tables_complete", "checks", "reason", "title") if key in verdict})
+                complete = verdict.get("accepted") is True and verdict.get("tables_complete") is True and comparison["reference_text_matches"] and comparison["reference_tables_match"]
+                elapsed = capture.get("discovery_to_parsed_ms")
+                row.update(**comparison, complete=complete, discovery_to_parsed_ms=elapsed,
+                           budget_passed=complete and elapsed is not None and elapsed <= 300,
+                           started_utc=capture["discovered_utc"], parsed_utc=capture["validated_utc"],
+                           parse_ms=capture.get("parse_ms"), validation_queue_ms=capture.get("validation_queue_ms"),
+                           table_count=len(parsed["tables"]), text_characters=len(parsed["text"]), sha256=capture["sha256"],
+                           bytes=capture["body_bytes"], tables_sha256=digest(json.dumps(parsed["tables"], ensure_ascii=False, separators=(",", ":")).encode()),
+                           candidate_attempt=capture.get("candidate_attempt"), retry=capture.get("retry"),
+                           discovery_to_archive_ms=None, archive_timing_note="Production archive completion has no recorded continuous timestamp; CLI end is only an upper bound")
+                if requests:
+                    row["seed_request_to_parsed_ms"] = (capture["validated_mono_ns"] - requests[0]["queued_mono_ns"]) / 1e6
+                name = "parsed/" + target["target_id"] + ".json"
+                (output / name).write_text(json.dumps(parsed, ensure_ascii=False), encoding="utf-8")
+                row["artifacts"].append(name)
+                row["archived"] = True
+            else:
+                row["error_type"] = "HTTP_" + str(row["status"]) if row["status"] is not None else "production_capture_missing"
+    except Exception as exc:
+        row.update(error_type=type(exc).__name__)
+    row.update(ended_utc=utc(), cli_start_to_archived_upper_ms=(time.perf_counter_ns()-started)/1e6)
+    with (output / "results.ndjson").open("a", encoding="utf-8") as stream:
+        stream.write(json.dumps(row, ensure_ascii=False) + "\n")
+    print(json.dumps({key: row.get(key) for key in ("target_id", "symbol", "status", "discovery_to_parsed_ms", "complete", "budget_passed", "error_type")}), flush=True)
+    return row
+
+
 async def run(args):
     targets = select_targets(json.loads(args.targets.read_text(encoding="utf-8")), args.scope)
     if not targets or len({row["url"] for row in targets}) != len(targets):
@@ -217,6 +350,9 @@ async def run(args):
         (args.output / "run.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
         results = []
         for target in targets:
+            if target.get("pipeline") == "production_watch_list_seed":
+                results.append(await collect_watch_case(target, args.output, node))
+                continue
             host = urlsplit(target["url"]).hostname
             selected = businesswire_client if host == "businesswire.com" or host.endswith(".businesswire.com") else client
             results.append(await collect_one(selected, target, args.output, node, recent, blocked))
@@ -232,7 +368,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire"), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths"), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 

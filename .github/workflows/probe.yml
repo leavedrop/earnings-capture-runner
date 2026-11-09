@@ -10,6 +10,7 @@ on:
           - all
           - sec
           - sec-businesswire
+          - remaining-paths
         default: all
 
 permissions:

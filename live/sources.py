@@ -36,6 +36,14 @@ def _clean(value):
     return " ".join((value or "").split())
 
 
+def _pdf_title(text):
+    # GlobeNewswire puts a release timestamp ahead of the title. Keep it in
+    # the full text, but never treat its year as the title's reporting year.
+    lines = text.splitlines()[:8]
+    return _clean(" ".join(line for line in lines if not re.fullmatch(
+        r"[A-Za-z]+\s+\d{1,2},\s+20\d{2}\s+\d{2}:\d{2}\s+ET", line.strip())))[:800]
+
+
 def _normal(value):
     return re.sub(r"[^a-z0-9]", "", value.lower())
 
@@ -556,14 +564,14 @@ def validate(body: bytes, url: str, content_type: str, event: dict) -> dict:
                 tables = native_pdf["tables"]
                 pdf_pages_total = native_pdf["pdf_pages_total"]
                 pdf_pages_processed = native_pdf["pdf_pages_processed"]
-                title = _clean(" ".join(text.splitlines()[:8]))[:800]
+                title = _pdf_title(text)
             else:
                 with _PDF_LOCK, fitz.open(stream=body, filetype="pdf") as document:
                     pdf_pages_total = len(document)
                     for page in document:
                         pages.append(page.get_text())
                     text = "\n".join(pages)
-                    title = _clean(" ".join(text.splitlines()[:8]))[:800]
+                    title = _pdf_title(text)
                     for page in document:
                         first_table_on_page = len(tables)
                         for table in page.find_tables().tables:
@@ -628,6 +636,13 @@ def validate(body: bytes, url: str, content_type: str, event: dict) -> dict:
     }
     if native_pdf is not None:
         checks["tables_complete"] = native_pdf["tables_complete"]
+    publisher_pdf_needs_review = (pdf and native_pdf is None and event.get("symbol") == "BAM"
+        and parsed_url.hostname in ("globenewswire.com", "www.globenewswire.com", "pnr-files.pro1.gus.wdc.dianum.io"))
+    if publisher_pdf_needs_review:
+        # This publisher's untagged PDF has no native cell rectangles. The
+        # text-alignment fallback clips prose and splits financial amounts.
+        # Preserve its full text and candidate tables without certifying them.
+        checks["tables_complete"] = False
     accepted = all(checks.values())
     result = {"accepted": accepted,
             "reason": "validated_release" if accepted else "needs_review: " + ",".join(k for k, v in checks.items() if not v),
@@ -638,6 +653,9 @@ def validate(body: bytes, url: str, content_type: str, event: dict) -> dict:
         result.update({key:native_pdf[key] for key in ("table_details", "page_diagnostics", "pdf_structure_checks", "tables_extraction_scope", "tables_complete", "quality_reason")})
         result["pdf_parse_ms"] = native_pdf["parse_ms"]
         result["pdf_parse_phases_ms"] = native_pdf["phases_ms"]
+    elif publisher_pdf_needs_review:
+        result.update(tables_complete=False, tables_extraction_scope="unverified_text_alignment",
+                      quality_reason="publisher_pdf_table_cells_not_verified")
     if cover is not None:
         result["document_facts"] = cover["facts"]
     if pdf:

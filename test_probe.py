@@ -2,6 +2,7 @@ import asyncio
 import argparse
 from collections import deque
 import hashlib
+import gzip
 import json
 import os
 from pathlib import Path
@@ -11,10 +12,63 @@ import sqlite3
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
-from probe import BASE, collect_one, pace, run, select_targets
+from probe import BASE, collect_one, collect_watch_case, content_hashes, pace, reference_match, run, select_targets
 
 
 class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
+    async def test_remaining_two_use_print_and_one_production_seed_probe(self):
+        targets = select_targets(json.loads((BASE / "targets.json").read_text(encoding="utf-8")), "remaining-paths")
+        self.assertEqual([(x["event"]["symbol"], x["channel"]) for x in targets], [("BAM", "newswire"), ("MSGK", "newswire")])
+        self.assertEqual(targets[0]["url"], targets[0]["canonical_url"] + "?print=1")
+        self.assertEqual(targets[0]["canonical_previous_status"], 403)
+        parsed = {"text": "Full public report", "tables": [[["Revenue", "200"]]]}
+        raw = b"<article>Full public report<table><tr><td>Revenue</td><td>200</td></tr></table></article>"
+        sha = hashlib.sha256(raw).hexdigest()
+        target = {**targets[1], "reference": {"url": targets[1]["url"], "raw_sha256": sha, **content_hashes(parsed)}}
+        self.assertFalse(reference_match({**parsed, "tables": []}, target["reference"])["reference_tables_match"])
+
+        def collector(command, **kwargs):
+            self.assertEqual(command[command.index("--samples") + 1], "1")
+            self.assertEqual(command[command.index("--candidate-url") + 1], target["url"])
+            self.assertNotIn("SEC_USER_AGENT", kwargs["env"])
+            runtime = Path(command[command.index("--output") + 1])
+            (runtime / "reports").mkdir(); (runtime / "raw").mkdir()
+            stem = "reports/MSGK_newswire_" + sha[:12]
+            (runtime / (stem + ".html")).write_bytes(raw)
+            (runtime / (stem + ".txt")).write_text(parsed["text"], encoding="utf-8")
+            (runtime / (stem + ".json")).write_text(json.dumps({"tables": parsed["tables"], "metadata": {"private": "SECRET_TEST_TOKEN"}}), encoding="utf-8")
+            requests = []
+            for purpose, body, url in [("discovery", b"<html>News listing</html>", "https://www.businesswire.com/newsroom"), ("candidate", raw, target["url"])]:
+                path = "raw/" + purpose + ".gz"
+                with gzip.open(runtime / path, "wb") as stream: stream.write(body)
+                requests.append({"purpose": purpose, "url": url, "status": 200, "raw_path": path,
+                                 "queued_mono_ns": 0, "request_total_ms": 50, "queue_ms": 30,
+                                 "response_headers_received_ms": 40, "connection_reused": purpose == "candidate",
+                                 "response_headers": {"set-cookie": "SECRET_TEST_TOKEN"}})
+            capture = {"original_document_path": stem + ".html", "validation": {"accepted": True, "tables_complete": True},
+                       "discovery_to_parsed_ms": 60, "discovered_utc": "2026-11-09T00:00:00.140Z",
+                       "validated_utc": "2026-11-09T00:00:00.200Z", "validated_mono_ns": 200000000,
+                       "parse_ms": 10, "sha256": sha, "body_bytes": len(raw), "candidate_attempt": 1, "retry": False}
+            with sqlite3.connect(runtime / "observations.sqlite3") as connection:
+                connection.execute("create table log(id integer primary key,kind text,payload text)")
+                for request in requests: connection.execute("insert into log(kind,payload) values('request',?)", (json.dumps(request),))
+                connection.execute("insert into log(kind,payload) values('capture',?)", (json.dumps(capture),))
+            connection.close()
+            return MagicMock(returncode=0)
+
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory); (output / "raw").mkdir(); (output / "parsed").mkdir()
+            with patch("probe.subprocess.run", side_effect=collector):
+                row = await collect_watch_case(target, output, {"loc": "US", "colo": "TEST"})
+            self.assertTrue(row["complete"])
+            self.assertTrue(row["budget_passed"])
+            self.assertEqual(row["discovery_to_parsed_ms"], 60)
+            self.assertEqual(row["seed_request_to_parsed_ms"], 200)
+            self.assertTrue(row["connection_reused"])
+            self.assertFalse(row["seed_listing_contains_candidate"])
+            self.assertEqual(row["mode"], "replay")
+            self.assertNotIn("SECRET_TEST_TOKEN", (output / ("requests_" + target["target_id"] + ".ndjson")).read_text())
+
     async def test_sec_hosts_share_eight_request_budget(self):
         clock = [.25]
         recent = {"sec.gov": deque([0.] * 7)}

@@ -1,0 +1,32 @@
+{
+  "BAM": {
+    "url": "https://www.globenewswire.com/news-release/2026/11/06/3397448/0/en/brookfield-asset-management-announces-strong-third-quarter-results.html",
+    "print_url": "https://www.globenewswire.com/news-release/2026/11/06/3397448/0/en/brookfield-asset-management-announces-strong-third-quarter-results.html?print=1",
+    "raw_sha256": "06d02b902af2c890889a1941dc098a46aab636d55b0f695738ee9f6ad1681bcb",
+    "text_sha256": "152f3d11f7c6d2f1fd241f31ffffd5781c52412e07a0ba267c01b55a57844706",
+    "table_sha256": [
+      "5fe314abeb8793a7e5b828ab106f0de008769adfe01cbf9424fd9b89eb140d7d",
+      "98c0a93a57669d31548846333acb5963587d24bdd0c8f611c49645ada56103e9",
+      "856e492953fc994a7c57a7eb10c0d6acc3044b67adcbd5813821f11013c84ba3",
+      "34e2f706396fa9f31d6dbdf101c8787c3ad2a312b1acb84cadb4844e408a7e9f",
+      "5a788243b40480b9d81c19f6f982986887808531215d2ccf84ca7d5d2f896eea",
+      "0443efa1cbe1423615f9cbbc3ab34c2fb297ec01af859747d2454d1d48b0fc1f",
+      "9063930dcfc250ef0559493c9867d75742305af67b6a6f15fd48ef1e1ae9263a",
+      "685b7e50ceeecc284039c511c6fdb596c6cf6c0b309247707a4952daa4dd4d5a"
+    ]
+  },
+  "MSGK": {
+    "url": "https://www.businesswire.com/news/home/20261106470261/en/MSG-Knickerbockers-Corp.-Reports-Fiscal-2027-First-Quarter-Results",
+    "reference_run": "42575926400",
+    "raw_sha256": "0e18d2ec04fa8d580be3e33f1bed02f15fba5acb55842a13f34d6d6c99ac8bf4",
+    "text_sha256": "8821587679aaa704e5c10e175ef7fe4b2ef08858eae605307759a3a5c7998e7c",
+    "table_sha256": [
+      "ab73ff0f13b1a85a179cf3e8c59df962bab66f4b8e669479599c73bed03a9a3a",
+      "11c6b9ddfa684b78a039906e12295e81fd40bed41ea185613dd3629daf1c27b6",
+      "fe0c4b30e7c3f8fd21a7ede450214933d7e3d8e1ba503bf07fc4c5bcab0d1024",
+      "826890803e42f888633a7bf3637862f1a70136ff867c4df7f6f3a0490cda0e15",
+      "ea8df5a4c9323f824b26911c90c9722eb7464aca206abc3d628d4bf26f8e2413",
+      "ea38cea48a79f15b1a3db8ecee475160e00c78a5707f2f18ae22c032214f7f8c"
+    ]
+  }
+}
