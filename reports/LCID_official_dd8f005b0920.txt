@@ -1,0 +1,1956 @@
+1
+L U C I D  G R O U P ,  I N C .
+Third Quarter
+2026 Earnings Release
+N O V E M B E R  9 ,  2 0 2 6
+
+2
+LUCID GROUP, INC.
+THIRD QUARTER 2026 EARNINGS RELEASE
+Forward Looking Statements
+This presentation includes "forward-looking statements" within the meaning of the "safe harbor" provisions of the United States Private Securities Litigation Reform Act of 1995. Forward-looking statements may be identified by the use of words such as "estimate," "plan," "project," "forecast," "intend," "will," "shall," 
+"expect," "anticipate," "believe," "seek," "target," "continue," "could," "may," "might," "possible," "potential," "predict," "scheduled," "aiming," "targeting," “objective,” “focus,” “strategic” or other similar expressions that predict or indicate future events or trends or that are not statements of historical matters. 
+These forward-looking statements include, but are not limited to, statements regarding results of operations, financial outlook and condition, guidance, liquidity, capital expenditures, strategic priorities, cash flow improvement plan and cash consumption, prospects, growth, production volumes, strategies, 
+management, and the markets in which Lucid operates, including expectations of financial and operational metrics, projections of market opportunity, market share and product sales, expectations and timing related to commercial product launches and future programs, initiatives and products, including the 
+Midsize program, plans and expectations on vehicle production and delivery timing and volumes, expectations regarding market opportunities and demand for Lucid's products, software, strategic partnership, technology features and capabilities, including with respect to battery and powertrain systems, plans and 
+expectations regarding Lucid's liquidity runway, future capital raises and funding strategy, plans and expectations regarding future manufacturing capabilities and facilities, logistics and supply chain, studio and service center openings, sales channels and strategies, future market launches and international 
+expansion, Lucid's ability to grow its brand awareness, the potential success of Lucid's distribution strategy and future vehicle programs, potential automotive and strategic partnerships and their anticipated benefits, plans and expectations regarding Lucid's ADAS/AV roadmap and robotaxi program, expectations 
+on the technology licensing landscape, expectations on the regulatory and political environment, and expectation regarding the potential of Lucid's technology. These statements are based on various assumptions, whether or not identified in this presentation, and on the current expectations of Lucid's 
+management. These forward-looking statements are not intended to serve as, and must not be relied on by any investor as, a guarantee, an assurance, or a definitive statement of fact or probability. Actual events and circumstances are difficult or impossible to predict and may differ from these forward-looking 
+statements. Many actual events and circumstances are beyond the control of Lucid. These forward-looking statements are subject to a number of risks and uncertainties, including changes in domestic and foreign business, economic, market, financial, political, regulatory and legal conditions, including uncertainties 
+and changes of policies, imposition or proposed imposition of tariffs, export controls, threat of a trade war, the risk of a global economic recession or other downturn, bank closures and liquidity concerns at financial institutions, and global or regional conflicts or other geopolitical events, including the ongoing 
+military operations in the Gulf region and the broader Middle East, the escalating hostilities affecting Saudi Arabia, and the potential further escalation or broadening of such conflicts; the outcome of Lucid’s broader business review, which remains underway; risks related to changes in overall demand for Lucid's 
+products and services and cancellation of orders for Lucid's vehicles; risks related to prices and availability of commodities and components, including rare earth materials, semiconductors and their related products, Lucid's supply chain, logistics, inventory management and quality control, and Lucid's ability to 
+complete the tooling of its manufacturing facilities over time and scale production of Lucid's vehicles; risks related to the uncertainty of Lucid's projected financial and operational information; risks related to the timing of expected business milestones and commercial product launches; risks related to the 
+construction and expansion of Lucid's manufacturing facilities and the increase of Lucid's production capacity; Lucid's ability to manage expenses and control costs; risks related to future market adoption of Lucid's offerings; the quality, reliability, and performance of Lucid’s vehicles and services; the effects of 
+competition and the pace and depth of electric vehicle adoption generally on Lucid's business; changes in regulatory requirements, policies, and governmental incentives; changes in fuel and energy prices; Lucid's ability to rapidly innovate; Lucid's ability to enter into or maintain partnerships with original equipment 
+manufacturers, vendors and technology providers, including its ability to realize the anticipated benefits of its partnerships; Lucid’s ability to effectively recruit, integrate, motivate, and retain key employees; risks related to potential vehicle recalls; Lucid's ability to establish and expand its brand, and capture 
+additional market share, and the risks associated with negative press or reputational harm; Lucid’s ability to offer attractive leasing and financing options for its vehicles; the risk that Lucid’s cash flow improvement plan does not achieve the anticipated effect; risks related to Lucid's outstanding redeemable 
+convertible preferred stock and convertible senior notes; availability, reduction or elimination of, and Lucid's ability to obtain and effectively utilize, zero emission vehicle credits, tax incentives, and other governmental and regulatory programs and incentives; Lucid's ability to conduct equity, equity-linked or debt 
+financings in the future; Lucid's ability to pay interest and principal on its indebtedness; future changes to vehicle specifications which may impact performance, features, pricing and other expectations; changes to future or existing vehicle programs; the outcome of any potential litigation, government and 
+regulatory proceedings, investigations and inquiries; and those factors discussed under the cautionary language and the Risk Factors in Lucid's Annual Report on Form 10-K for the year ended December 31, 2025, subsequent Quarterly Reports on Form 10-Q, Current Reports on Form 8-K, and other documents 
+Lucid has filed or will file with the Securities and Exchange Commission. If any of these risks or uncertainties materialize or Lucid's assumptions prove incorrect, actual results could differ materially from the results implied by these forward-looking statements. There may be additional risks that Lucid currently does not 
+know or that Lucid currently believes are immaterial that could also cause actual results to differ from those contained in the forward-looking statements. In addition, forward-looking statements reflect Lucid's expectations, plans or forecasts of future events and views as of the date of this presentation. Lucid 
+anticipates that subsequent events and developments will cause Lucid's assessments to change. However, while Lucid may elect to update these forward-looking statements at some point in the future, Lucid specifically disclaims any obligation to do so. These forward-looking statements should not be relied upon 
+as representing Lucid's assessments as of any date subsequent to the date of this presentation. Accordingly, undue reliance should not be placed upon the forward-looking statements.
+Trademarks
+This presentation contains trademarks, service marks, trade names and copyrights of Lucid Group, Inc. and its subsidiaries and other companies, which are the property of their respective owners.
+Non-GAAP Financial Measures and Key Business Metrics
+Condensed consolidated financial information has been presented in accordance with US GAAP (“GAAP”) as well as on a non-GAAP basis to supplement our condensed consolidated financial results. Lucid’s non-GAAP financial measures include Adjusted EBITDA, adjusted net loss attributable to common 
+stockholders (diluted), adjusted net loss per share attributable to common stockholders (diluted), and free cash flow, which are discussed below.
+Adjusted EBITDA is defined as net loss attributable to common stockholders (basic) before (1) interest expense, (2) interest income, (3) provision for (benefit from) income taxes, (4) depreciation and amortization, (5) stock-based compensation, (6) workforce reduction charges, (7) change in fair value of common 
+stock warrant liability, (8) change in fair value of equity securities, (9) change in fair value of derivative liabilities and subscription agreements associated with redeemable convertible preferred stock, (10) accretion of redeemable convertible preferred stock, and (11) gain on extinguishment of debt. Lucid believes 
+that Adjusted EBITDA provides useful information to Lucid’s management and investors about Lucid’s financial performance. 
+Adjusted net loss attributable to common stockholders (diluted) is defined as net loss attributable to common stockholders (diluted) exclu ding (1) stock-based compensation, (2) workforce reduction charges, (3) change in fair value of common stock warrant liability, (4) change in fair value of equity securities, (5) 
+change in fair value of derivative liabilities and subscription agreements associated with redeemable convertible preferred stock, and (6) accretion of redeemable convertible preferred stock. 
+Lucid defines and calculates adjusted net loss per share attributable to common stockholders (diluted) as adjusted net loss attributable to common stockholders (diluted) divided by weighted-average shares outstanding attributable to common stockholders (diluted).
+Lucid believes that adjusted net loss attributable to common stockholders (diluted) and adjusted net loss per share attributable to common stockholders (diluted) financial measures provide investors with useful information to evaluate the performance of its business exclu ding items not reflecting ongoing 
+operating activities. 
+Free cash flow is defined as net cash used in operating activities less capital expenditures. Lucid believes that free cash flow provides useful information to Lucid’s management and investors about the amount of cash generated by the business after necessary capital expenditures. 
+These non-GAAP financial measures facilitate management’s internal comparisons to Lucid’s historical performance. Management believes that it is useful to supplement its GAAP financial statements with this non-GAAP information because management uses such information internally for its operating, budgeting, 
+and financial planning purposes. Management also believes that presentation of the non-GAAP financial measures provides useful information to Lucid’s investors regarding measures of our financial condition and results of operations that Lucid uses to run the business and therefore allows investors to better 
+understand Lucid’s performance. However, these non-GAAP financial and key performance measures have limitations as analytical tools and you should not consider them in isolation or as substitutes for analysis of our results as reported under GAAP. 
+Non-GAAP information is not prepared under a comprehensive set of accounting rules and therefore, should only be read in conjunction with financial information reported under GAAP when understanding Lucid’s operating performance. In addition, other companies, including companies in Lucid’s industry, may 
+calculate non-GAAP financial measures and key performance measures differently or may use other measures to evaluate their performance, all of which could reduce the usefulness of Lucid’s non-GAAP financial measures and key performance measures as tools for comparison. A reconciliation between GAAP and 
+non-GAAP financial information is presented at the end of the presentation.
+
+3
+LUCID GROUP, INC.
+THIRD QUARTER 2026 EARNINGS RELEASE
+Third Quarter Highlights 
+Delivering on our commitments, reducing free cash flow consumption by 30% 
+TRANSFORMATION ON TRACK 
+•
+Reduced cash consumption – Free Cash Flow 
+consumption 30% lower versus prior quarter 
+•
+Must-Win Projects – on track with Operating Reset, 
+Robotaxi, new Advanced Manufacturing Plant in Saudi 
+Arabia (AMP-2) and Midsize 
+•
+Focus on 3Cs – Cash & Cost, Customer & Quality, 
+Culture & Team
+•
+Increased liquidity – $1.75bn through expanded 
+credit facility with PIF subsequent to quarter end
+INVESTING FOR LONG-TERM SUCCESS 
+•
+Customer experience – new studios, service centers and 
+technicians 
+•
+Brand relaunch – harnessing the power of emotion
+•
+New leadership team driving execution 
+TECHNOLOGY ADVANCING 
+•
+Robotaxi prototypes delivered – 100+ testing on the road 
+in two cities
+•
+Bolt – announced strategic partnership to deploy 
+autonomous mobility in Europe
+•
+Software – launched UX3.0 for Air 
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+We Are Delivering On Our Priorities
+Operating Reset
+Autonomy & Robotaxi
+AMP-2 Factory
+Midsize Platform Launch
+4
+LUCID GROUP, INC.
+$1.4bn cash flow 
+improvement in FY26
+Robotaxi Launch with 
+Uber and Nuro
+Early 2027 
+Ready for Inauguration
+H2 2027 
+Production Ramp
+30% reduction in free cash flow consumption while delivering on our 4 Must-Win Projects
+Cash & Cost
+Reduce cash consumption
+Culture & Team
+Improve execution speed 
+and accountability
+Customer & Quality
+Improve 
+ownership experience
+L U C I D ’ s  F O U R  M U S T - W I N S
+T H R E E  S T R A T E G I C  P R I O R I T I E S :  3 C s
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Cash & Cost
+5
+LUCID GROUP, INC.
+CA SH &  CO ST
+CUST OMER  &  QUA LITY
+CULTU RE &  T EA M
+ON TRACK WITH $1.4BN PLAN 
+•
+$0.8bn improvement realized — clear line of 
+sight to achieve $1.4bn in 2026
+•
+Inventory reduction accelerating
+•
+Capex discipline — systematic review of capital 
+spending while protecting long-term investments 
+•
+Operating Expenses — Q1 to Q3 headcount 
+reduction of ~28%
+•
+Improved process mapping with Car Flow — 
+aligns production, sales, and supports inventory 
+reduction
+September 2026
+April 2026
+LUCID AMP-1 EAST LOT
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Customer & Quality
+6
+CA SH &  CO ST
+CUST OMER  &  QUA LITY
+CULTU RE &  T EA M
+Investing in the full experience of buying and owning a Lucid – front line is bottom line 
+LUCID GROUP, INC.
+INVESTING IN
+(1)
+Service appointment wait time reduction since Q2 2026
+(2)
+Warranty claim reduction for both Air and Gravity for the 12-month period through September 2026, in a customers first month of ownership
+(3)
+Excludes M48A warranty provision
+Customer Experience 
+Quality 
+Innovation 
+~20% reduction in service 
+appointment wait times (1)
+~70% reduction in warranty claims(2) 
+and 16% reduction in warranty costs(3)
+Launched UX 3.0 for Air to streamline 
+software development across models
+Redefining movement as a more emotional experience 
+THE BRAND
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Lucid Wins Car and Driver's 2026 Top-Rated Car Company
+7
+LUCID GROUP, INC.
+CA SH &  CO ST
+CUST OMER  &  QUA LITY
+CULTU RE &  T EA M
+“Lucid is a new electric automaker that only 
+started selling cars a few years ago, but it's 
+off to a strong start. Both the Lucid Air 
+electric luxury sedan and Lucid Gravity 
+electric luxury SUV are previous winners of 
+our 10Best award, so it's no surprise they 
+rate highly in our book.”
+Other Car and Driver awards:
+•
+Lucid Air: 3 consecutive 10Best 
+honors (2024, 2025, 2026)
+•
+Lucid Gravity: 10Best (2026)
+Source: Car and Driver
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Culture & Team
+8
+LUCID GROUP, INC.
+Simplified organizational structure driving greater accountability 
+CA SH &  CO ST
+CUST OMER  &  QUA LITY
+CULTU RE &  T EA M
+SAFETY FIRST 
+•
+60% reduction in total recordable incidents at AMP-1 year over year
+NEW LEADERSHIP DRIVING TRANSFORMATION AT EVERY LEVEL
+•
+Strengthening leadership - internal and experienced external hires
+•
+Chief Technology Officer, Chief Financial Officer, Chief Customer 
+Officer and Chief Transformation Officer joined early Q3
+•
+Rebuilding domain expertise – Commercial, Finance and Marketing
+STRENGTHENING ALIGNMENT & ACCOUNTABILITY 
+•
+Continuing to simplify – delayering and clarifying reporting lines, 
+accountability and ownership 
+•
+Incentives now directly linked to 4 Must-Wins 
+•
+Engagement and motivation – return to office, dojo training, increased 
+global townhall cadence 
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Operating Reset – on track for $1.4bn cash flow improvement in 2026
+LUCID GROUP, INC.
+9
+OPE RAT ING RESET
+A UTON OMY  &  RO BOT AXI
+A MP-2
+MID SIZE
+Inventory
+OpEx
+CapEx
+$0.8bn 
+achieved
+On Track 
+$1.4bn 
+Year End Target
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Robotaxi – Uber / Nuro Partnership
+10
+LUCID GROUP, INC.
+JUL 2 02 5
+Agreement signed
+$300M Uber investment 
+≥20,000 vehicles
+SEP  20 25
+First alpha prototype
+Delivered to Uber/Nuro
+JAN 20 2 6
+Safety & validation
+Public road testing begins
+M AR 20 26
+75 alpha prototypes
+Delivered for data collection, 
+development and testing
+AP R 20 26
+Partnership expansion
+Additional $200M Uber 
+investment; increase 
+commitment to 35,000 vehicles
+AUG 20 26
+Product validation builds
+Robotaxi expands to 100+ vehicles 
+for data collection, on-road testing, 
+and platform validation
+28 production validation builds 
+Q4  20 26
+Driverless testing & 
+commercial production
+Fully driverless testing begins
+Production starts for commercial launch  
+Q1  20 27
+Commercial launch2 
+Permit & test rides
+CA DMV permit received 
+for driverless testing · 
+Uber/Nuro employee test 
+rides begin
+JUN 20 26
+Expansion announcement
+Houston, TX service to be 
+launched in 2027
+AP R 20 26
+L 4 ROBOTAX I 20 4 0 
+TAM 1
+$600B
+Vehicle mfg. only
+Delivering on robotaxi production milestones
+Launch in the Bay Area – fully 
+driverless from day one
+(1)
+Morgan Stanley Research – Global Autos & Shared Mobility
+(2)
+Pending California regulatory approval
+OPE RAT ING RESET
+A UTON OMY  &  RO BOT AXI
+A MP-2
+MID SIZE
+OC T 2 02 6
+Pre-production builds
+Began manufacturing of 75 pre-
+production vehicles
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Autonomous Mobility at Scale 
+11
+LUCID GROUP, INC.
+Building autonomous mobility partnerships in the U.S. and Europe
+BOLT – MOU SIGNED 
+UBER / NURO – TESTING & VALIDATION UNDERWAY
+•
+Lucid’s software-defined vehicle architecture, Uber’s global 
+reach and Nuro’s L4 autonomy
+•
+At least 35,000 fully autonomous vehicles starting in the US, 
+including Lucid Gravity and Midsize
+•
+Partnership with leading European shared mobility platform
+•
+At least 25,000 fully autonomous vehicles from upcoming 
+Lucid Midsize platform across multiple European cities 
+OPE RAT ING RESET
+A UTON OMY  &  RO BOT AXI
+A MP-2
+MID SIZE
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+AMP-2 – On Track for Early 2027 Production
+12
+LUCID GROUP, INC.
+Construction continues to move forward, core systems moving towards readiness 
+STAMPING
+Completed 
+and in 
+commissioning
+OCTOBER 4, 2026
+JUNE 28, 2026
+BODY
+Accelerating 
+PAINT
+In finalization 
+phase
+SITE INFRASTRUCTURE
+Permanent power feed connected, road infrastructure 
+progressing
+OPE RAT ING RESET
+A UTON OMY  &  RO BOT AXI
+A MP-2
+MID SIZE
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Midsize On Track
+13
+LUCID GROUP, INC.
+•
+Testing cycle progressing with positive results
+•
+Final stage of prototyping underway - including 
+homologation and crash testing 
+•
+Industrialization on track with tooling trials 
+scheduled to commence at AMP-2 as planned 
+•
+Expanding network in Europe in preparation for 
+launch 
+•
+Reveal and start of production dates to be 
+announced in Q1 2027
+LU C ID  CO SMOS  – PILO T PRODU C TIO N AT CO OLIDGE
+On track to start production in H2 2027 
+OPE RAT ING RESET
+A UTON OMY  &  RO BOT AXI
+A MP-2
+MID SIZE
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+We Are Delivering On Our Priorities
+Operating Reset
+Autonomy & Robotaxi
+AMP-2 Factory
+Midsize Platform Launch
+14
+LUCID GROUP, INC.
+$1.4bn cash flow 
+improvement in FY26
+Robotaxi Launch with 
+Uber and Nuro
+Early 2027 
+Ready for Inauguration
+H2 2027 
+Production Ramp
+30% reduction in free cash flow consumption while delivering on our 4 Must-Win Projects
+Cash & Cost
+Reduce cash consumption
+Culture & Team
+Improve execution speed 
+and accountability
+Customer & Quality
+Improve 
+ownership experience
+L U C I D ’ s  F O U R  M U S T - W I N S
+T H R E E  S T R A T E G I C  P R I O R I T I E S :  3 C s
+
+15
+LUCID GROUP, INC.
+THIRD QUARTER 2026 EARNINGS RELEASE
+Financial Update
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Deliveries Outperforming the US BEV Market;
+Deliberately Reducing Production to Release Cash
+16
+LUCID GROUP, INC.
+Deliberate reduction in production:
+•
+Production aligned with near-term demand 
+•
+Second shift at AMP-1 eliminated in June 
+Resilient Q3 deliveries in a challenging market:
+•
+US BEV market in Q3 was weaker than expected 
+in August
+•
+Q3 deliveries outperformed the market, -4% 
+sequentially versus US BEV -13%
+•
+Lucid Gravity continued to regain momentum – 
+very strong growth in deliveries versus Q2
+PRODUCTION
+2,954
+3,806
+DELIVERIES
+Q1’25
+Q1’26
+Q2’25
+Q2’26
+Q3’25
+Q3’26
+3,109
+3,309
+4,078
+3,093
+3,953
+3,806
+Q1’25
+Q1’26
+Q2’25
+Q2’26
+Q3’25
+Q3’26
+2,212
+3,863
+3,891
+5,500
+4,774
+2,954
+-24% YoY
+-38% QoQ
+-7% YoY
+-4% QoQ
+Source: S&P Mobility: Light Vehicle Sales Forecast, November 3, 2026
+US BEV
+QoQ
+-6%
+44%
+-13%
+YoY
+-32%
+-5%
+-41%
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Resilient Revenue, Up 4% Year-Over-Year in a US BEV Market
+1 Down 41%
+17
+LUCID GROUP, INC.
+$235
+$282
+$259
+$405
+$337
+$350
+Resilient revenue performance:
+•
+Revenue +4% year-over-year
+•
+Increase in Gravity revenue
+•
+Reset of used vehicles business resulted in growth
+•
+Partially offset by lower regulatory credits and deliveries
+•
+Revenue -14% quarter-over-quarter 
+•
+Approximately half the decrease was a result of reduced 
+regulatory credit opportunities
+•
+Additional headwinds from lower deliveries and trim mix 
+(1) S&P Mobility: Light Vehicle Sales Forecast, November 3, 2026
++4% YoY
+-14% QoQ
+REVENUE $M
+Q1’25
+Q1’26
+Q2’25
+Q2’26
+Q3’25
+Q3’26
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Q3’26 Gross Profit Improved $169M versus Q2’26 
+18
+LUCID GROUP, INC.
+Gross profit improved 40% sequentially:
+•
+Operating reset based on shift reduction, manufacturing & 
+logistics efficiency and improved working capital management 
+•
+Resulting in significant impairment improvement of $205m
+•
+Favorable impacts offset by:
+•
+Lower volume, under-absorption of overhead costs, and 
+trim mix
+•
+Reduced regulatory and duty credits
+Gross profit improved 23% year-over-year
+GROSS PROFIT $M
+23% improvement 
+YoY
+40% improvement 
+QoQ
+-$229
+-$272
+-$334
+-$312
+-$427
+-$258
+Q1’25
+Q1’26
+Q2’25
+Q2’26
+Q3’25
+Q3’26
+% of
+revenue
+-97%
+-110%
+-105%
+-105%
+-99%
+-74%
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Q3’26 Adjusted EBITDA Improved $175m versus Q2’26
+19
+LUCID GROUP, INC.
+Operating reset delivering cost reductions to the bottom line, 
+reallocating resources to key priorities 
+•
+Gross profit improvement of $169m
+•
+Structural cost reductions in back office and administrative 
+functions, marketing and engineering 
+•
+Partially offset by:
+•
+Reallocation of resources to Must-Win project delivery
+•
+Investment in customer experience and brand
+•
+Incremental costs related to transformation and operating 
+reset in Q3’26
+-$563
+-$632
+-$718
+-$781
+-$901
+-$726
+1% lower YoY
+19% improvement 
+QoQ
+ADJUSTED EBITDA $M
+Q1’25
+Q1’26
+Q2’25
+Q2’26
+Q3’25
+Q3’26
+-240%
+-276%
+-244%
+-222%
+-213%
+-207%
+% of 
+revenue
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Q3’26 Adjusted EPS Improved 17% versus Q2’26
+20
+LUCID GROUP, INC.
+Sequential Adjusted EPS improvement
+•
+17% improvement compared to prior quarter
+•
+Improved EBITDA partially offset by increased interest expense
+-$2.04
+-$2.35
+-$2.65
+-$2.82
+-$2.78
+-$2.30
+13% improvement 
+YoY
+17% improvement 
+QoQ
+Adjusted Diluted Net Loss Per Share $
+Q1’25
+Q1’26
+Q2’25
+Q2’26
+Q3’25
+Q3’26
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+$156m Inventory Reduction across the Working Capital Cycle 
+21
+LUCID GROUP, INC.
+RAW MATERIALS
+-$4m 
+WIP
+-$64m
+FINISHED GOODS
+-$88m
+RAW MATERIAL 
+DISCIPLINE
+WIP CONVERSION 
+PROGRESS
+FINISHED 
+GOODS BUILD
+From Q2’26
+From Q2’26
+From Q2’26
+•
+Late Q2 reductions in raw 
+material commitments delivered 
+initial inventory improvement in 
+Q3 with more expected to come 
+in Q4
+•
+Significant improvement in 
+manufacturing throughput 
+combined with the deliberate 
+reduction in production resulted 
+in a 24% decrease in work-in-
+progress
+•
+Deliveries converting finished 
+goods to cash
+$156m net inventory reduction1
+(1) Net inventory includes impairment; gross inventory reduction of $204m excluding impairment 
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Proactive Inventory Management Reduced Impairment by $205m 
+22
+LUCID GROUP, INC.
+Significant impairment reduction 
+•
+Inventory impairment decreased to $94m due to:
+•
+Lower inventory levels
+•
+Reductions in future purchase commitments 
+$m
+$176
+$16
+Q3’25
+$304
+-$17
+Q4’25
+$224
+$14
+Q1’26
+$373
+-$73
+Q2’26
+$81
+$13
+Q3’26
+$192
+$287
+$238
+$300
+$94
+Inventory Impairment Provision
+Increase / Reduction In Losses on Firm Commitments and Supplier Claims
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+30% Reduction in Cash Consumption From First Operating Reset Actions
+23
+LUCID GROUP, INC.
+Investing in strategic projects to achieve 4 Must-Wins 
+•
+Strategic projects represent ~40% of total cash outflow 
+year to date
+•
+Includes AMP-2, Midsize, Robotaxi, and Restructuring
+•
+Set to reduce with Midsize launch and AMP-2 
+completion
+FREE CASH FLOW $M
+-$590
+-$1,013
+-$955
+-$1,439
+-$1,476
+-$1,040
+$436m improvement versus Q2 reflects: 
+•
+Unlocking cash trapped in working capital
+•
+Active CapEx management
+•
+Initial operating cost improvements
+•
+Partially offset by investment in sales, service and Must-
+Wins
+~40% OF FREE CASH OUTFLOW INVESTED IN 
+MUST-WINS
+9% lower YoY
+30% improvement 
+QoQ
+Q1’25
+Q1’26
+Q2’25
+Q2’26
+Q3’25
+Q3’26
+OTHER
+-$2.5BN
+STRATEGIC 
+PROJECTS
+-$1.5BN
+2026 YTD 
+FREE CASH 
+FLOW
+-$4.0BN
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Decisive Actions Reducing Cash Consumption and Costs
+24
+LUCID GROUP, INC.
+On track to deliver $1.4bn in improved cash flow by year end
+Inventory
+OpEx
+CapEx
+~$700m
+~$200m
+~$500m
+Q2
+Q3
+To be Realized
+Targets
+~$300m / 43% realized
+~$130m / 65% realized
+~$370m / 74% realized
+CASH FLOW IMPROVEMENT PLAN VS TARGET
+IMPROVEMENT 
+REALIZED
+~$800m
+With clear line of 
+sight to achieve 
+$1.4bn in 2026
+$1.4bn
+
+•
+Pro forma liquidity $3.75bn including DDTL facility 
+increase:
+•
+Increased DDTL facility with PIF by $1.75bn, 
+reflecting continued financial support from our 
+largest investor 
+•
+Liquidity expected to provide flexibility to support 
+operations and key investments into Q4’27
+•
+Quarter-end liquidity of $2.0bn from cash, investments, 
+and committed credit 
+•
+Maintaining financing flexibility and evaluating strategic 
+funding options as the transformation continues to 
+deliver results
+TOTAL LIQUIDITY
+Q2’26
+Q3‘26
+Cash, Cash Equivalents and Investments(1)
+$0.8bn
+$0.9bn
+ABL Facility (subject to borrowing base availability)
+$0.3bn
+$0.3bn
+DDTL Facility
+$2.0bn
+$0.8bn
+GIB Facility
+$2m
+$2m
+Total Liquidity at quarter end
+$3.0bn
+$2.0bn
+DDTL Facility increase – November 5, 2026
+$1.75bn
+Pro Forma Q3’26 Liquidity
+$3.75bn
+(1)
+Includes Investments in equity securities of a related party (Aston Martin): $14m in Q2’26 and $13m in Q3’26.
+(2)
+Pro Forma Q3’26 liquidity gives pro forma effect to the $1.75 billion increase in the capacity of the DDTL 
+Facility on November 5, 2026, as though it occurred on September 30, 2026, and has not been prepared in 
+accordance with Article 11 of Regulation S-X.
+THIRD QUARTER 2026 EARNINGS RELEASE
+LUCID GROUP, INC.
+25
+Investor Support Extends Runway Through Midsize Launch
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Outlook 
+26
+LUCID GROUP, INC.
+Focused on demonstrating progress through results into Q4 and beyond:
+•
+Operating reset is delivering early progress with more to come 
+•
+Continue to deliver on 4 Must-Win projects
+•
+Q4 focus on working capital and operating costs
+•
+Q4 production below deliveries
+As committed at Q2, expect year end results to include updates on:
+•
+Guidance for 2027 
+•
+Midterm plan and targets
+Outlook
+Guidance and update on mid-term plan to be provided with year-end 
+results 
+
+LUCID GROUP, INC.
+27
+Q&A
+THIRD QUARTER 2026 EARNINGS RELEASE
+
+28
+LUCID GROUP, INC.
+Closing Remarks 
+THIRD QUARTER 2026 EARNINGS RELEASE
+
+Financials
+29
+LUCID GROUP, INC.
+THIRD QUARTER 2026 EARNINGS RELEASE
+Q3 2026 FINANCIALS
+
+BALANCE SHEET
+As of September 30, 2026, Lucid had total liquidity of approximately $2.0 
+billion from cash, investments, ABL, GIB, and delayed draw term loan credit 
+facilities. Adjusted for the expansion of the DDTL facility with PIF subsequent 
+to quarter end, pro forma liquidity was approximately $3.75 billion.
+THIRD QUARTER 2026 EARNINGS RELEASE
+Financial Highlights
+30
+(in millions, unless otherwise stated; unaudited)
+9/30/2026
+12/31/2025
+Cash, Cash Equivalents and Investments
+$
+948.5
+$
+2,141.2
+Other Assets
+6,862.3
+6,245.8
+Total Assets
+7,810.8
+8,387.0
+Liabilities
+6,749.6
+5,386.2
+Redeemable Convertible Preferred Stock
+3,156.2
+2,283.5
+Stockholders’ Equity (Deficit)
+(2,095.0)
+717.3
+Total Liabilities, Redeemable Convertible Preferred Stock, and Stockholders’ 
+Equity (Deficit)
+$
+7,810.8
+$
+8,387.0
+STATEMENT OF OPERATIONS
+In the third quarter, Lucid recorded revenue of $350.3 million.
+Lucid recognized non-cash gain of $20.7 million, including a gain of $115.2 million 
+from change in fair value derivative liabilities and subscription agreements 
+associated with redeemable convertible preferred stock, partially offset by 
+inventory and firm purchase commitments write-downs of $94.5 million
+OPEX / CAPEX
+Lucid continues to invest in future product programs, the development of 
+AMP-1, expansion of AMP-2, and retail, delivery, and service capabilities.
+Three Months Ended September 30,
+2026
+2025
+Revenue
+$
+350.3
+$
+336.6
+Cost of Revenue
+(608.6)
+(670.2)
+R&D Operating Expenditures
+(311.8)
+(325.3)
+SG&A Operating Expenditures
+(286.2)
+(283.1)
+Others
+25.4
+(36.4)
+Net Loss
+$
+(830.9)
+$
+(978.4)
+Cash Used In Operating Activities
+$
+(752.6)
+$
+(756.7)
+Capital Expenditures
+(287.1)
+(198.8)
+Free Cash Flow
+$
+(1,039.7)
+$
+(955.5)
+LUCID GROUP, INC. 
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Condensed Consolidated Balance Sheets
+31
+(In thousands)
+September 30, 2026)
+December 31, 2025
+ASSETS
+Current assets:
+Cash and cash equivalents
+$
+930,742
+$
+997,827
+Short-term investments
+4,787
+631,093
+Accounts receivable, net
+199,346
+177,162
+Inventory
+1,222,492
+1,109,529
+Prepaid expenses
+60,131
+59,606
+Other current assets
+342,300
+324,434
+Total current assets
+2,759,798
+3,299,651
+Property, plant and equipment, net
+4,374,861
+3,978,132
+Right-of-use assets
+243,925
+241,974
+Long-term investments
+12,973
+512,241
+Other noncurrent assets
+419,234
+354,983
+TOTAL ASSETS
+$
+7,810,791
+$
+8,386,981
+LIABILITIES, REDEEMABLE CONVERTIBLE 
+PREFERRED STOCK, AND STOCKHOLDERS’ EQUITY 
+(DEFICIT)
+September 30, 2026) 
+December 31, 2025)
+Current liabilities:
+Accounts payable
+$
+241,099
+$
+487,521
+Finance lease liabilities, current portion
+5,054
+84,222
+Current portion of debt
+707,545
+671,746
+Other current liabilities
+1,232,717
+1,392,641
+Total current liabilities
+2,186,415
+2,636,130
+Finance lease liabilities, net of current portion
+101,518
+104,559
+Debt, net of current portion
+3,741,353
+2,046,576
+Other long-term liabilities
+671,858
+582,739
+Derivative liabilities associated with redeemable convertible 
+preferred stock 
+48,479
+16,200
+Total liabilities
+6,749,623
+5,386,204
+Series A redeemable convertible preferred stock 
+1,534,739
+1,339,641
+Series B redeemable convertible preferred stock 
+1,078,032
+943,849
+Series C redeemable convertible preferred stock 
+543,397
+—)
+Total redeemable convertible preferred stock 
+3,156,168
+2,283,490
+Stockholders’ equity (deficit)
+(2,095,000)
+717,287
+TOTAL LIABILITIES, REDEEMABLE CONVERTIBLE 
+PREFERRED STOCK, AND STOCKHOLDERS’ EQUITY 
+(DEFICIT)
+$
+7,810,791
+$
+8,386,981
+LUCID GROUP, INC.
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Condensed Consolidated Statements of Operations & Comprehensive Loss (Unaudited)
+32
+LUCID GROUP, INC.
+Three Months Ended September 30,
+Nine Months Ended September 30,
+(in thousands, except share and per share data)
+2026
+2025
+2026
+2025
+Revenue
+$
+350,319 
+$
+336,580 
+$
+1,038,131 
+$
+831,060 
+Cost of revenue
+608,624 
+670,197 
+2,034,866 
+1,665,540
+Gross profit (loss)
+(258,305)
+(333,617)
+(996,735)
+(834,480)
+Operating expenses
+ Research and development
+311,821
+325,305
+968,827
+850,390
+ Selling, general and administrative
+286,191
+283,097 
+890,799
+752,129 
+ Workforce reduction charges
+1,270
+— 
+72,879
+— 
+Total operating expenses
+599,282
+608,402 
+1,932,505 
+1,602,519
+Loss from operations
+(857,587)
+(942,019)
+(2,929,240)
+(2,436,999)
+Other income (expense), net
+ Change in fair value of common stock warrant liability
+—
+444
+— 
+18,627
+ Change in fair value of equity securities of a related party
+(1,226)
+916
+(10,898)
+(8,589)
+ Change in fair value of derivative liabilities and subscription agreements associated with redeemable convertible preferred stock
+115,176
+(36,375)
+225,341
+356,800 
+Gain on extinguishment of debt
+—
+—
+—
+116,360 
+ Interest income
+11,420
+34,643 
+34,158
+131,170 
+ Interest expense
+(69,871)
+(25,571)
+(158,761)
+(61,203)
+ Other expense, net
+(29,063)
+(10,829)
+(53,719)
+(4,292) 
+Total other income (expense), net
+26,436
+(36,772)
+36,121
+548,873 
+Loss before provision for (benefit from) income taxes
+(831,151)
+(978,791)
+(2,893,119)
+(1,888,126)
+Provision for (benefit from) income taxes
+(292)
+(363)
+935
+(4,095)
+Net loss
+(830,859)
+(978,428)
+(2,894,054)
+(1,884,031)
+Accretion of redeemable convertible preferred stock
+(249,911)
+(56,121)
+(580,298)
+(620,869)
+Net loss attributable to common stockholders, basic
+$
+(1,080,770)
+$
+(1,034,549)
+$
+(3,474,352)
+$
+(2,504,900)
+Interest expense on 2026 Notes
+— 
+— 
+— 
+4,283
+Gain on extinguishment of debt
+— 
+— 
+— 
+(116,360)
+Net loss attributable to common stockholders, diluted
+$
+(1,080,770)
+$
+(1,034,549)
+$
+(3,474,352)
+$
+(2,616,977)
+Weighted average shares outstanding attributable to common stockholders, basic
+394,598,004
+312,166,297
+368,570,326
+307,177,163
+Weighted average shares outstanding attributable to common stockholders, diluted
+394,598,004
+312,166,297
+368,570,326
+307,859,815
+Net loss per share attributable to common stockholders, basic
+$
+(2.74)
+$
+(3.31)
+$
+(9.43)
+$
+(8.15)
+Net loss per share attributable to common stockholders, diluted
+$
+(2.74)
+$
+(3.31)
+$
+(9.43)
+$
+(8.50)
+Other comprehensive income (loss)
+Net unrealized gains (losses) on investments, net of tax
+$
+121
+$
+684
+$
+(1,416)
+$
+4,529
+Reclassification adjustment for realized gains on investments included in net loss
+—
+— 
+(5,702)
+—
+Foreign currency translation adjustments
+820 
+(2,187) 
+(3,018)
+10,683 
+Total other comprehensive income (loss)
+941 
+(1,503) 
+(10,136)
+15,212 
+Comprehensive loss
+(829,918)
+(979,931)
+(2,904,190)
+(1,868,819)
+Accretion of redeemable convertible preferred stock
+(249,911)
+(56,121)
+(580,298)
+(620,869)
+Comprehensive loss attributable to common stockholders
+$
+(1,079,829)
+$
+(1,036,052)
+$
+(3,484,488)
+$
+(2,489,688)
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Condensed Consolidated Statement of Cash Flows (Unaudited)
+33
+LUCID GROUP, INC.
+Three Months Ended September 30,
+Nine Months Ended September 30,
+(In thousands)
+2026
+2025
+2026
+2025
+Net cash used in operating activities
+$
+(752,643)
+$
+(756,650)
+$
+(3,160,533)
+$
+(2,015,504)
+Net cash provided by (used in) investing activities
+(263,130)
+255,118
+329,717
+1,563,142
+Net cash provided by financing activities
+1,197,775
+376,052
+2,778,871
+517,728
+Net increase (decrease) in cash, cash equivalents, and restricted cash
+182,002
+(125,480)
+(51,945)
+65,366
+Beginning cash, cash equivalents, and restricted cash
+806,966
+1,797,898
+1,040,913
+1,607,052
+Ending cash, cash equivalents, and restricted cash
+$
+988,968
+$
+1,672,418
+$
+988,968
+$
+1,672,418
+
+34
+LUCID GROUP, INC.
+THIRD QUARTER 2026 EARNINGS RELEASE
+Appendix
+GAAP TO NON-GAAP RECONCILIATIONS
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Reconciliation of GAAP to Non-GAAP Financial Measures (Unaudited)
+35
+LUCID GROUP, INC.
+Three Months Ended September 30,
+Nine Months Ended September 30,
+(In thousands)
+2026
+2025
+2026
+2025
+ADJUSTED EBITDA
+Net loss attributable to common stockholders, basic (GAAP)
+$
+(1,080,770)
+$
+(1,034,549)
+$
+(3,474,352)
+$
+(2,504,900)
+Interest expense
+69,871
+25,571
+158,761
+61,203
+Interest income
+(11,420)
+(34,643)
+(34,158)
+(131,170)
+Provision for (benefit from) income taxes
+(292)
+(363)
+935 
+(4,095)
+Depreciation and amortization
+122,529
+120,090
+361,163
+329,137
+Stock-based compensation
+36,578
+115,055
+140,915
+198,889
+Workforce reduction charges
+1,270 
+— 
+72,879
+—
+Change in fair value of common stock warrant liability
+— 
+(444)
+—
+(18,627)
+Change in fair value of equity securities of a related party
+1,226 
+(916)
+10,898
+8,589
+Change in fair value of derivative liabilities and subscription agreements associated with redeemable convertible preferred s tock 
+(115,176)
+36,375
+(225,341)
+(356,800)
+Accretion of redeemable convertible preferred stock 
+249,911
+56,121
+580,298
+620,869
+Gain on extinguishment of debt
+— 
+—
+— 
+(116,360)
+Adjusted EBITDA (non-GAAP)
+$
+(726,273)
+$
+(717,703)
+$
+(2,408,002)
+$
+(1,913,265)
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Reconciliation of GAAP to Non-GAAP Financial Measures (Unaudited)
+36
+LUCID GROUP, INC.
+Three Months Ended June 30,
+Six Months Ended June 30,
+(In thousands)
+2026
+2025
+2026
+2025
+ADJUSTED EBITDA
+Net loss attributable to common stockholders, basic (GAAP)
+$
+(1,259,276)
+$
+(739,255)
+$
+(2,393,582)
+$
+(1,470,351)
+Interest expense
+   47,817) 
+23,749)
+88,890)
+35,632)
+Interest income
+(9,634)
+(44,318)
+(22,738)
+(96,527)
+Provision for (benefit from) income taxes
+1,050)
+(2,369)
+1,227)
+(3,732)
+Depreciation and amortization
+  122,222)
+111,088)
+238,634)
+209,047)
+Stock-based compensation
+  41,948)
+56,319)
+104,337)
+83,834)
+Workforce reduction charges
+  33,675)
+—) 
+71,609)
+—)
+Change in fair value of common stock warrant liability
+—) 
+(5,322)
+—)
+(18,183)
+Change in fair value of equity securities of a related party
+(549)
+(3,948)
+9,672)
+9,505)
+Change in fair value of derivative liabilities and subscription agreements associated with redeemable convertible preferred s tock 
+(102,790)
+(111,475)
+(110,165)
+(393,175)
+Accretion of redeemable convertible preferred stock 
+  224,425)
+199,823)
+330,387)
+564,748)
+Gain on extinguishment of debt
+—)
+(116,360)
+—)
+(116,360)
+Adjusted EBITDA (non-GAAP)
+$
+(901,112)
+$
+(632,068)
+$
+(1,681,729)
+$
+(1,195,562)
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Reconciliation of GAAP to Non-GAAP Financial Measures (Unaudited)
+37
+LUCID GROUP, INC.
+Three Months Ended March 31,
+(In thousands)
+2026
+2025
+ADJUSTED EBITDA
+Net loss attributable to common stockholders, basic and diluted (GAAP)
+$
+(1,134,306)
+$
+(731,096)
+Interest expense
+41,073)
+11,883)
+Interest income
+(13,104)
+(52,209)
+Provision for (benefit from) income taxes
+177)
+(1,363)
+Depreciation and amortization
+116,412)
+97,959)
+Stock-based compensation
+62,389)
+27,515)
+Workforce reduction charges
+37,934)
+—)
+Change in fair value of common stock warrant liability
+—)
+(12,861)
+Change in fair value of equity securities of a related party
+10,221)
+13,453)
+Change in fair value of derivative liability associated with redeemable convertible preferred stock 
+(7,375)
+(281,700)
+Accretion of redeemable convertible preferred stock 
+105,962)
+364,925)
+Adjusted EBITDA (non-GAAP)
+$
+(780,617)
+$
+(563,494)
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Reconciliation of GAAP to Non-GAAP Financial Measures (Unaudited) – Continued
+38
+LUCID GROUP, INC.
+Three Months Ended September 30,
+Nine Months Ended September 30,
+(In thousands, except share and per share data)
+2026
+2025
+2026
+2025
+ADJUSTED NET LOSS ATTRIBUTABLE TO COMMON STOCKHOLDERS
+Net loss attributable to common stockholders, diluted (GAAP)
+$
+(1,080,770)
+$
+(1,034,549)
+$
+$(3,474,352)
+$
+(2,616,977)
+Stock-based compensation
+36,578
+115,055
+140,915
+198,889
+Workforce reduction charges
+1,270 
+—
+72,879
+—
+Change in fair value of common stock warrant liability
+— 
+(444)
+—
+(18,627)
+Change in fair value of equity securities of a related party
+1,226 
+(916)
+10,898
+8,589
+Change in fair value of derivative liabilities and subscription agreements associated with 
+redeemable convertible preferred stock 
+(115,176)
+36,375
+(225,341)
+(356,800)
+Accretion of redeemable convertible preferred stock 
+249,911
+56,121
+580,298
+620,869
+Adjusted net loss attributable to common stockholders, diluted (non-GAAP)
+$
+(906,961)
+$
+(828,358)
+$
+(2,894,703)
+$
+(2,164,057)
+ADJUSTED NET LOSS PER SHARE ATTRIBUTABLE TO COMMON STOCKHOLDERS
+Net loss per share attributable to common stockholders, diluted (GAAP)
+$
+(2.74)
+$
+(3.31)
+$
+(9.43)
+$
+(8.50)
+Stock-based compensation
+0.09
+0.37
+0.38
+0.65
+Workforce reduction charges
+—
+—
+0.20
+—
+Change in fair value of common stock warrant liability
+—
+—
+—
+(0.06)
+Change in fair value of equity securities of a related party
+— 
+—
+0.03
+0.03
+Change in fair value of derivative liabilities and subscription agreements associated with 
+redeemable convertible preferred stock 
+(0.29)
+0.11
+(0.61)
+(1.17)
+Accretion of redeemable convertible preferred stock 
+0.64
+0.18
+1.58
+2.02
+Adjusted net loss per share attributable to common stockholders, diluted (non-GAAP)
+$
+(2.30)
+$
+(2.65)
+$
+(7.85)
+$
+(7.03)
+Weighted-average shares outstanding attributable to common stockholders, diluted
+394,598,004
+312,166,297
+368,570,326
+307,859,815
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Reconciliation of GAAP to Non-GAAP Financial Measures (Unaudited) – Continued
+39
+LUCID GROUP, INC.
+Three Months Ended June 30,
+Six Months Ended June 30,
+(In thousands, except share and per share data)
+2026
+2025
+2026
+2025
+ADJUSTED NET LOSS ATTRIBUTABLE TO COMMON STOCKHOLDERS
+Net loss attributable to common stockholders, diluted (GAAP)
+$
+(1,259,276)
+$
+(855,306)
+$
+(2,393,582)
+$
+(1,582,428)
+Stock-based compensation
+41,948
+56,319
+104,337
+83,834
+Workforce reduction charges
+33,675
+—
+71,609
+—
+Change in fair value of common stock warrant liability
+—
+(5,322)
+—
+(18,183)
+Change in fair value of equity securities of a related party
+(549)
+(3,948)
+9,672
+9,505
+Change in fair value of derivative liabilities and subscription agreements associated with 
+redeemable convertible preferred stock 
+(102,790) 
+(111,475)
+(110,165)
+(393,175)
+Accretion of redeemable convertible preferred stock 
+224,425
+199,823
+330,387
+564,748
+Adjusted net loss attributable to common stockholders, diluted (non-GAAP)
+$
+(1,062,567)
+$
+(719,909)
+$
+(1,987,742)
+$
+(1,335,699)
+ADJUSTED NET LOSS PER SHARE ATTRIBUTABLE TO COMMON STOCKHOLDERS (1)
+Net loss per share attributable to common stockholders, diluted (GAAP)
+$
+(3.30)
+$
+(2.80)
+$
+(6.74)
+$
+(5.18)
+Stock-based compensation
+0.11
+0.19
+0.30
+0.28
+Workforce reduction charges
+0.09
+—
+0.20
+—
+Change in fair value of common stock warrant liability
+—
+(0.02)
+—
+(0.06)
+Change in fair value of equity securities of a related party
+— 
+(0.01)
+0.03
+0.03
+Change in fair value of derivative liabilities and subscription agreements associated with 
+redeemable convertible preferred stock 
+(0.27)
+(0.36)
+(0.31)
+(1.29)
+Accretion of redeemable convertible preferred stock 
+0.59
+0.65
+0.93
+1.85
+Adjusted net loss per share attributable to common stockholders, diluted (non-GAAP)
+$
+(2.78)
+$
+(2.35)
+$
+(5.59)
+$
+(4.37)
+Weighted-average shares outstanding attributable to common stockholders, diluted
+382,098,609
+305,788,272
+355,340,787
+305,670,808
+(1 ) The weighted-average shares outstanding attributable to common stockholders, net loss per share attributable to common stockholders and adjusted net loss per share attributable to common stockholders has been adjusted for the prior periods presented to reflect 
+the one-for-ten (1:10) reverse stock split effected on August 29, 2025.
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Reconciliation of GAAP to Non-GAAP Financial Measures (Unaudited) – Continued
+40
+LUCID GROUP, INC.
+Three Months Ended March 31,
+(In thousands, except share and per share data)
+2026
+2025
+ADJUSTED NET LOSS ATTRIBUTABLE TO COMMON STOCKHOLDERS
+Net loss attributable to common stockholders, basic and diluted (GAAP)
+$
+(1,134,306)
+$
+(731,096)
+Stock-based compensation
+62,389)
+27,515)
+Workforce reduction charges
+37,934)
+—
+Change in fair value of common stock warrant liability
+—
+(12,861)
+Change in fair value of equity securities of a related party
+10,221)
+13,453)
+Change in fair value of derivative liabilities associated with redeemable convertible preferred stock
+(7,375)
+(281,700)
+Accretion of redeemable convertible preferred stock 
+105,962)
+364,925)
+Adjusted net loss attributable to common stockholders, basic and diluted (non-GAAP)
+$
+(925,175)
+$
+(619,764)
+ADJUSTED NET LOSS PER SHARE ATTRIBUTABLE TO COMMON STOCKHOLDERS (1)
+Net loss per share attributable to common stockholders, basic and diluted (GAAP)
+$
+(3.46)
+$
+(2.41)
+Stock-based compensation
+0.19)
+0.10)
+Workforce reduction charges
+0.12)
+—
+Change in fair value of common stock warrant liability
+—
+(0.04)
+Change in fair value of equity securities of a related party
+0.03)
+0.04)
+Change in fair value of derivative liabilities associated with redeemable convertible preferred stock 
+(0.02)
+(0.93)
+Accretion of redeemable convertible preferred stock 
+0.32)
+1.20)
+Adjusted net loss per share attributable to common stockholders, basic and diluted (non-GAAP)
+$
+(2.82)
+$
+(2.04)
+Weighted-average shares outstanding attributable to common stockholders, basic and diluted
+328,285,861)
+303,631,731)
+(1) The weighted-average shares outstanding attributable to common stockholders, net loss per share attributable to common stockhold ers and adjusted net loss per share attributable to common stockholders has been adjusted for 
+the prior periods presented to reflect the one-for-ten (1:10) reverse stock split effected on August 29, 2025.
+
+THIRD QUARTER 2026 EARNINGS RELEASE
+Reconciliation of GAAP to Non-GAAP Financial Measures (Unaudited) – Continued
+41
+LUCID GROUP, INC.
+Three Months Ended September 30,
+Nine Months Ended September 30,
+(In thousands)
+2026
+2025
+2026
+2025
+FREE CASH FLOW
+Net cash used in operating activities (GAAP)
+$
+(752,643)
+$
+(756,650)
+$
+(3,160,533)
+$
+(2,015,504)
+Capital expenditures
+(287,071)
+(198,818)
+(794,065)
+(542,722)
+Free cash flow (non-GAAP)
+$
+(1,039,714)
+$
+(955,468)
+$
+(3,954,598)
+$
+(2,558,226)
+Three Months Ended March 31,
+(In thousands)
+2026
+2025
+FREE CASH FLOW
+Net cash used in operating activities (GAAP)
+$
+(1,185,659)
+$
+(428,613)
+Capital expenditures
+(253,167)
+(161,241)
+Free cash flow (non-GAAP)
+$
+(1,438,826)
+$
+(589,854)
+Three Months Ended June 30,
+Six Months Ended June 30,
+(In thousands)
+2026
+2025
+2026
+2025
+FREE CASH FLOW
+Net cash used in operating activities (GAAP)
+$
+(1,222,231)
+$
+(830,241)
+$
+(2,407,890)
+$
+(1,258,854)
+Capital expenditures
+(253,827)
+(182,663)
+(506,994)
+(343,904)
+Free cash flow (non-GAAP)
+$
+(1,476,058)
+$
+(1,012,904)
+$
+(2,914,884)
+$
+(1,602,758)
+
