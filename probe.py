@@ -680,19 +680,20 @@ async def collect_watch_case(target, output, node):
     return row
 
 
-async def collect_bw_browser_access(output):
+async def collect_bw_browser_access(output, *, http1=False):
     """One anonymous browser/UI observation, isolated from all financial results."""
     from importlib.metadata import version
 
     output.mkdir(parents=True, exist_ok=False)
     (output / "raw").mkdir()
     started = time.perf_counter_ns()
-    summary = {"scope": "bw-browser-access", "mode": "diagnostic_only", "diagnostic_only": True,
+    summary = {"scope": "bw-browser-http1-access" if http1 else "bw-browser-access", "mode": "diagnostic_only", "diagnostic_only": True,
                "sla_applicable": False, "new_release_evidence": False, "started_utc": utc(),
                "started_mono_ns": started, "url": "https://www.businesswire.com/newsroom",
                "company_query": "D-Wave Quantum", "symbol": "QBTS", "navigation_attempts": 0,
                "navigation_status": None, "network_events": 0, "evidence_errors": [],
-               "search": {"attempted": False}, "artifacts": [], "cooldown_seconds_on_denial": 120}
+               "search": {"attempted": False}, "artifacts": [], "cooldown_seconds_on_denial": 120,
+               "browser_http2_disabled": http1}
     phase, request_ids = "entry", {}
     denied = asyncio.Event()
     public_query_keys = {"q", "query", "keywords", "keyword", "search", "term", "page", "pagesize",
@@ -780,7 +781,8 @@ async def collect_bw_browser_access(output):
             summary["node"] = await identify_node(client)
         (output / "run.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
         async with async_playwright() as playwright:
-            browser = await playwright.chromium.launch(executable_path=executable, headless=True)
+            browser = await playwright.chromium.launch(executable_path=executable, headless=True,
+                                                       args=["--disable-http2"] if http1 else [])
             try:
                 summary["browser_version"] = browser.version
                 context = await browser.new_context()
@@ -849,8 +851,8 @@ async def collect_bw_browser_access(output):
 
 
 async def run(args):
-    if args.scope == "bw-browser-access":
-        return await collect_bw_browser_access(args.output)
+    if args.scope in ("bw-browser-access", "bw-browser-http1-access"):
+        return await collect_bw_browser_access(args.output, http1=args.scope == "bw-browser-http1-access")
     targets = select_targets(json.loads(args.targets.read_text(encoding="utf-8")), args.scope)
     repeated_target_pair = args.scope.startswith("msgk-cache-control") or args.scope in ("lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports")
     if not targets or not repeated_target_pair and len({row["url"] for row in targets}) != len(targets):
@@ -1016,7 +1018,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "backlog-production", "kkr-complete", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports", "skyd-materials", "skyd-range", "skyd-http1-material", "skyd-complete", "bw-browser-access"), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "backlog-production", "kkr-complete", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports", "skyd-materials", "skyd-range", "skyd-http1-material", "skyd-complete", "bw-browser-access", "bw-browser-http1-access"), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 

@@ -30,6 +30,7 @@ on:
           - skyd-http1-material
           - skyd-complete
           - bw-browser-access
+          - bw-browser-http1-access
         default: all
 
 permissions:
@@ -49,7 +50,7 @@ jobs:
       - name: Install verified parser dependencies
         run: python -m pip install -r requirements.txt
       - name: Install browser diagnostic dependency only for the browser scope
-        if: ${{ inputs.scope == 'bw-browser-access' }}
+        if: ${{ inputs.scope == 'bw-browser-access' || inputs.scope == 'bw-browser-http1-access' }}
         run: python -m pip install playwright==1.61.0
       - name: Check continuous timing and failure evidence offline
         run: python -m unittest -q test_probe.py

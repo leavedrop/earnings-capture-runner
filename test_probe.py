@@ -51,7 +51,7 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
         package, module = ModuleType("playwright"), ModuleType("playwright.async_api")
         module.async_playwright = lambda: manager
         with tempfile.TemporaryDirectory() as directory:
-            args = argparse.Namespace(scope="bw-browser-access", output=Path(directory) / "outputs",
+            args = argparse.Namespace(scope="bw-browser-http1-access", output=Path(directory) / "outputs",
                                       targets=Path(directory) / "must-not-read-targets.json")
             with patch.dict("sys.modules", {"playwright": package, "playwright.async_api": module}), \
                     patch("importlib.metadata.version", return_value="1.61.0"), \
@@ -63,10 +63,12 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
             for unused in (warm, validate, collect, production):
                 unused.assert_not_called()
             page.goto.assert_awaited_once()
+            self.assertEqual(playwright.chromium.launch.call_args.kwargs['args'], ['--disable-http2'])
             page.get_by_role.assert_not_called()
             browser.close.assert_awaited_once()
             summary = json.loads((args.output / "summary.json").read_text())
             self.assertEqual(summary["outcome"], "http_denial_stop_no_retry")
+            self.assertTrue(summary['browser_http2_disabled'])
             self.assertEqual(summary["navigation_attempts"], 1)
             self.assertEqual(summary["first_denial"]["status"], 403)
             self.assertFalse(summary["search"]["attempted"])
