@@ -13,13 +13,14 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import sqlite3
 import subprocess
 import sys
 import tempfile
 import time
 import unicodedata
-from urllib.parse import urlsplit
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import httpx
 from pdf_tables import prewarm_pdf_pool
@@ -679,7 +680,177 @@ async def collect_watch_case(target, output, node):
     return row
 
 
+async def collect_bw_browser_access(output):
+    """One anonymous browser/UI observation, isolated from all financial results."""
+    from importlib.metadata import version
+
+    output.mkdir(parents=True, exist_ok=False)
+    (output / "raw").mkdir()
+    started = time.perf_counter_ns()
+    summary = {"scope": "bw-browser-access", "mode": "diagnostic_only", "diagnostic_only": True,
+               "sla_applicable": False, "new_release_evidence": False, "started_utc": utc(),
+               "started_mono_ns": started, "url": "https://www.businesswire.com/newsroom",
+               "company_query": "D-Wave Quantum", "symbol": "QBTS", "navigation_attempts": 0,
+               "navigation_status": None, "network_events": 0, "evidence_errors": [],
+               "search": {"attempted": False}, "artifacts": [], "cooldown_seconds_on_denial": 120}
+    phase, request_ids = "entry", {}
+    denied = asyncio.Event()
+    public_query_keys = {"q", "query", "keywords", "keyword", "search", "term", "page", "pagesize",
+                         "pageSize", "size", "sort", "sortBy", "language", "locale"}
+
+    def public_url(url):
+        parsed = urlsplit(url)
+        return urlunsplit((parsed.scheme, parsed.hostname or "", parsed.path,
+                           urlencode([(key, value) for key, value in parse_qsl(parsed.query)
+                                      if key in public_query_keys]), ""))
+
+    def append(kind, **fields):
+        now = time.perf_counter_ns()
+        row = {"kind": kind, "phase": phase, "at_utc": utc(), "mono_ns": now,
+               "elapsed_ms": (now - started) / 1e6, **fields}
+        # Flush each event before any DOM/screenshot work can fail or navigate.
+        with (output / "browser_network.ndjson").open("a", encoding="utf-8") as stream:
+            stream.write(json.dumps(row, ensure_ascii=False) + "\n")
+            stream.flush()
+        summary["network_events"] += 1
+
+    def request_id(request):
+        return request_ids.setdefault(request, len(request_ids) + 1)
+
+    def on_request(request):
+        fields = {"request_id": request_id(request), "url": public_url(request.url),
+                  "method": request.method, "resource_type": request.resource_type,
+                  "is_navigation": request.is_navigation_request()}
+        if request.resource_type in ("xhr", "fetch") and request.post_data:
+            try:
+                payload = json.loads(request.post_data)
+                if isinstance(payload, dict):
+                    fields["public_search_fields"] = {key: value for key, value in payload.items()
+                        if key in public_query_keys and isinstance(value, (str, int, float, bool, type(None)))}
+            except (ValueError, TypeError):
+                pass
+        append("request", **fields)
+
+    def on_response(response):
+        append("response", request_id=request_id(response.request), url=public_url(response.url),
+               status=response.status, resource_type=response.request.resource_type)
+        if response.status in (403, 429):
+            summary.setdefault("first_denial", {"url": public_url(response.url), "status": response.status,
+                                                "at_utc": utc(), "mono_ns": time.perf_counter_ns()})
+            denied.set()
+
+    def on_failure(request):
+        append("request_failed", request_id=request_id(request), url=public_url(request.url),
+               resource_type=request.resource_type, error=safe_error_message(request.failure or "unknown"))
+
+    async def snapshot(page, label):
+        result = {"phase": label, "at_utc": utc()}
+        for kind, operation in (("html", lambda: page.content()), ("title", lambda: page.title()),
+                                ("png", lambda: page.screenshot(full_page=True, timeout=10000))):
+            try:
+                value = await operation()
+                if kind == "title":
+                    result["title"] = value
+                    continue
+                path = "raw/browser_" + label + "." + kind
+                body = value.encode("utf-8") if isinstance(value, str) else value
+                (output / path).write_bytes(body)
+                summary["artifacts"].append({"path": path, "bytes": len(body), "sha256": digest(body)})
+                result[kind] = path
+            except Exception as exc:
+                summary["evidence_errors"].append({"phase": label, "artifact": kind,
+                    "error_type": type(exc).__name__, "error": safe_error_message(exc), "at_utc": utc()})
+        summary.setdefault("page_snapshots", []).append(result)
+
+    async def observe_page_network():
+        try:
+            await asyncio.wait_for(denied.wait(), timeout=5)
+        except asyncio.TimeoutError:
+            pass
+
+    try:
+        from playwright.async_api import async_playwright
+
+        executable = shutil.which("google-chrome") or shutil.which("google-chrome-stable")
+        if not executable:
+            raise RuntimeError("Runner-installed Google Chrome executable not found")
+        summary["playwright_version"] = version("playwright")
+        summary["browser_executable"] = Path(executable).name
+        async with httpx.AsyncClient(trust_env=False, follow_redirects=False, timeout=10) as client:
+            summary["node"] = await identify_node(client)
+        (output / "run.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+        async with async_playwright() as playwright:
+            browser = await playwright.chromium.launch(executable_path=executable, headless=True)
+            try:
+                summary["browser_version"] = browser.version
+                context = await browser.new_context()
+                async def route_request(route):
+                    if denied.is_set():
+                        append("request_blocked_after_denial", url=public_url(route.request.url),
+                               resource_type=route.request.resource_type)
+                        await route.abort("blockedbyclient")
+                    else:
+                        await route.continue_()
+                await context.route("**/*", route_request)
+                summary["browser_cache_policy"] = "fresh context; Playwright route instrumentation disables browser HTTP cache"
+                page = await context.new_page()
+                page.on("request", on_request)
+                page.on("response", on_response)
+                page.on("requestfailed", on_failure)
+                summary["navigation_attempts"] = 1
+                try:
+                    response = await page.goto(summary["url"], wait_until="domcontentloaded", timeout=45000)
+                    summary["navigation_status"] = response.status if response else None
+                except Exception as exc:
+                    summary["navigation_error"] = {"error_type": type(exc).__name__, "error": safe_error_message(exc)}
+                if summary["navigation_status"] == 200 and not denied.is_set():
+                    await observe_page_network()
+                await snapshot(page, "entry")
+                if denied.is_set():
+                    summary["outcome"] = "http_denial_stop_no_retry"
+                elif summary["navigation_status"] != 200:
+                    summary["outcome"] = "navigation_not_readable_no_search"
+                else:
+                    body_text = await page.locator("body").inner_text(timeout=5000)
+                    if re.search(r"captcha|verify (?:that )?you are human|checking your browser|page unavailable|access denied", body_text, re.I):
+                        summary["outcome"] = "challenge_or_denial_page_no_interaction"
+                    else:
+                        # The current public BW help documents this exact UI action.
+                        button = page.get_by_role("button", name="Add Keyword", exact=True)
+                        if await button.count() == 1 and await button.is_visible():
+                            region = button.locator("xpath=ancestor::*[.//input][1]")
+                            inputs = region.locator("input:visible:not([type=hidden]):not([type=password]):not([type=checkbox]):not([type=radio])")
+                            summary["search"]["visible_inputs"] = await inputs.evaluate_all(
+                                "xs => xs.map(x => ({type:x.type,placeholder:x.placeholder,label:x.getAttribute('aria-label')}))")
+                            if await inputs.count() == 1 and await inputs.first.is_editable() and not denied.is_set():
+                                phase = "company_search"
+                                summary["search"].update(attempted=True, at_utc=utc(), mono_ns=time.perf_counter_ns(),
+                                                         action="Fill visible keyword field then click Add Keyword once")
+                                await inputs.first.fill(summary["company_query"])
+                                if not denied.is_set():
+                                    await button.click(timeout=10000)
+                                    await observe_page_network()
+                                await snapshot(page, "company_search")
+                                summary["outcome"] = "http_denial_stop_no_retry" if denied.is_set() else "public_ui_search_observed"
+                            else:
+                                summary["outcome"] = "keyword_input_not_unambiguous_no_search"
+                        else:
+                            summary["outcome"] = "documented_keyword_control_not_available_no_search"
+            finally:
+                await browser.close()
+    except Exception as exc:
+        summary["diagnostic_error"] = {"error_type": type(exc).__name__, "error": safe_error_message(exc)}
+        summary.setdefault("outcome", "diagnostic_error")
+    finally:
+        ended = time.perf_counter_ns()
+        summary.update(finished_utc=utc(), ended_mono_ns=ended, diagnostic_elapsed_ms=(ended - started) / 1e6)
+        (output / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    return 1 if "diagnostic_error" in summary else 0
+
+
 async def run(args):
+    if args.scope == "bw-browser-access":
+        return await collect_bw_browser_access(args.output)
     targets = select_targets(json.loads(args.targets.read_text(encoding="utf-8")), args.scope)
     repeated_target_pair = args.scope.startswith("msgk-cache-control") or args.scope in ("lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports")
     if not targets or not repeated_target_pair and len({row["url"] for row in targets}) != len(targets):
@@ -845,7 +1016,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "backlog-production", "kkr-complete", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports", "skyd-materials", "skyd-range", "skyd-http1-material", "skyd-complete"), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "backlog-production", "kkr-complete", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports", "skyd-materials", "skyd-range", "skyd-http1-material", "skyd-complete", "bw-browser-access"), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 

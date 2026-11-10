@@ -19,6 +19,76 @@ from probe import BASE, collect_one, collect_watch_case, content_hashes, pace, r
 
 
 class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
+    async def test_bw_browser_diagnostic_keeps_denial_events_when_dom_evidence_fails(self):
+        from types import ModuleType, SimpleNamespace
+
+        callbacks = {}
+        page = MagicMock()
+        page.on.side_effect = lambda name, callback: callbacks.__setitem__(name, callback)
+        request = MagicMock()
+        request.url = "https://www.businesswire.com/newsroom?keywords=D-Wave%20Quantum&token=SECRET_TEST_TOKEN"
+        request.method, request.resource_type, request.post_data = "GET", "document", None
+        request.is_navigation_request.return_value = True
+        request.headers = {"Authorization": "SECRET_TEST_TOKEN", "Cookie": "SECRET_TEST_TOKEN"}
+        response = SimpleNamespace(status=403, request=request, url=request.url)
+        async def navigate(url, **kwargs):
+            self.assertEqual(url, "https://www.businesswire.com/newsroom")
+            callbacks["request"](request)
+            callbacks["response"](response)
+            self.assertEqual(len((args.output / "browser_network.ndjson").read_text().splitlines()), 2)
+            return response
+        page.goto = AsyncMock(side_effect=navigate)
+        page.content = AsyncMock(side_effect=RuntimeError("Page is navigating and changing the content"))
+        page.title = AsyncMock(return_value="Page Unavailable")
+        page.screenshot = AsyncMock(side_effect=RuntimeError("Screenshot failed"))
+        context = MagicMock(new_page=AsyncMock(return_value=page), route=AsyncMock())
+        browser = MagicMock(version="Chrome-fixture", new_context=AsyncMock(return_value=context), close=AsyncMock())
+        playwright = MagicMock()
+        playwright.chromium.launch = AsyncMock(return_value=browser)
+        manager = MagicMock()
+        manager.__aenter__ = AsyncMock(return_value=playwright)
+        manager.__aexit__ = AsyncMock(return_value=False)
+        package, module = ModuleType("playwright"), ModuleType("playwright.async_api")
+        module.async_playwright = lambda: manager
+        with tempfile.TemporaryDirectory() as directory:
+            args = argparse.Namespace(scope="bw-browser-access", output=Path(directory) / "outputs",
+                                      targets=Path(directory) / "must-not-read-targets.json")
+            with patch.dict("sys.modules", {"playwright": package, "playwright.async_api": module}), \
+                    patch("importlib.metadata.version", return_value="1.61.0"), \
+                    patch("probe.shutil.which", return_value="/usr/bin/google-chrome"), \
+                    patch("probe.identify_node", new_callable=AsyncMock, return_value={"loc": "US", "colo": "TEST", "is_us": True}), \
+                    patch("probe.prewarm_pdf_pool") as warm, patch("probe.validate") as validate, \
+                    patch("probe.collect_one") as collect, patch("probe.collect_watch_case") as production:
+                self.assertEqual(await run(args), 0)
+            for unused in (warm, validate, collect, production):
+                unused.assert_not_called()
+            page.goto.assert_awaited_once()
+            page.get_by_role.assert_not_called()
+            browser.close.assert_awaited_once()
+            summary = json.loads((args.output / "summary.json").read_text())
+            self.assertEqual(summary["outcome"], "http_denial_stop_no_retry")
+            self.assertEqual(summary["navigation_attempts"], 1)
+            self.assertEqual(summary["first_denial"]["status"], 403)
+            self.assertFalse(summary["search"]["attempted"])
+            self.assertEqual({item["artifact"] for item in summary["evidence_errors"]}, {"html", "png"})
+            self.assertEqual(summary["page_snapshots"][0]["title"], "Page Unavailable")
+            self.assertTrue(summary["diagnostic_only"])
+            self.assertFalse(summary["sla_applicable"] or summary["new_release_evidence"])
+            self.assertNotIn("budget_passed", summary)
+            self.assertNotIn("discovery_to_parsed_ms", summary)
+            self.assertFalse((args.output / "results.ndjson").exists())
+            self.assertFalse((args.output / "materials.ndjson").exists())
+            events = [json.loads(line) for line in (args.output / "browser_network.ndjson").read_text().splitlines()]
+            self.assertEqual([row["kind"] for row in events], ["request", "response"])
+            self.assertEqual(events[0]["request_id"], events[1]["request_id"])
+            self.assertEqual(events[1]["status"], 403)
+            self.assertTrue(all(row["at_utc"] and row["mono_ns"] >= summary["started_mono_ns"] for row in events))
+            self.assertNotIn("SECRET_TEST_TOKEN", "".join(path.read_text() for path in args.output.glob("*.*")))
+            following = MagicMock(request=request, abort=AsyncMock(), continue_=AsyncMock())
+            await context.route.call_args.args[1](following)
+            following.abort.assert_awaited_once_with("blockedbyclient")
+            following.continue_.assert_not_awaited()
+
     async def test_skyd_complete_production_export_keeps_both_original_formats_and_structure(self):
         targets = select_targets(json.loads((BASE / "targets.json").read_text(encoding="utf-8")), "skyd-complete")
         self.assertEqual(len(targets), 2)
