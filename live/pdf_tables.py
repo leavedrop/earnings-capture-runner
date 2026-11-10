@@ -87,6 +87,67 @@ def _close_pdf_pool():
 
 atexit.register(_close_pdf_pool)
 
+
+def _generic_page_count(body):
+    with fitz.open(stream=body, filetype="pdf") as document:
+        return len(document)
+
+
+def _extract_generic_page_batch(body, page_indices):
+    # find_tables mutates PyMuPDF module globals and holds the Python GIL for
+    # substantial work. Each process executes one batch at a time; never run
+    # these page tasks in the collector's HTML / network process.
+    from sources import _financial_table
+    result = []
+    with fitz.open(stream=body, filetype="pdf") as document:
+        for index in page_indices:
+            started = time.perf_counter_ns()
+            page = document[index]
+            text, tables = page.get_text(), []
+            for table in page.find_tables().tables:
+                rows = table.extract()
+                if any(str(cell or "").strip() for row in rows for cell in row):
+                    tables.append(rows)
+            if not any(_financial_table(rows) for rows in tables):
+                for table in page.find_tables(strategy="text").tables:
+                    rows = table.extract()
+                    if any(str(cell or "").strip() for row in rows for cell in row):
+                        tables.append(rows)
+            result.append({"page": index + 1, "text": text, "tables": tables,
+                           "parse_ms": (time.perf_counter_ns() - started) / 1e6})
+    return result
+
+
+def extract_generic_pdf_tables(body: bytes) -> dict:
+    """Preserve the generic full-page algorithm while isolating its CPU work.
+
+    No document is read during pool warmup. Unwarmed process startup, transfer,
+    parsing, and result collection remain inside this call's elapsed time.
+    This does not certify generic cell quality beyond the existing validator.
+    """
+    started = time.perf_counter_ns()
+    warmup = prewarm_pdf_pool()
+    # Even the page-count read runs out of process. Callers must not hold the
+    # parent _PDF_LOCK while waiting here: native PDF work has a separate GIL.
+    count = _POOL.submit(_generic_page_count, body).result()
+    # Bound generic work to two workers, leaving CPU / memory bandwidth for live
+    # HTML and native PDF work. Interleave pages to distribute financial appendices.
+    batches = min(count, 2, max(1, _POOL_WORKERS - 1))
+    futures = [_POOL.submit(_extract_generic_page_batch, body, list(range(i, count, batches)))
+               for i in range(batches)]
+    pages = sorted((page for future in futures for page in future.result()), key=lambda page: page["page"])
+    return {"pages": [page["text"] for page in pages],
+            "text": "\n".join(page["text"] for page in pages),
+            "tables": [table for page in pages for table in page["tables"]],
+            "pdf_pages_total": count, "pdf_pages_processed": len(pages),
+            "pdf_pages_text_extracted": len(pages),
+            "page_diagnostics": [{"page": page["page"], "tables": len(page["tables"]),
+                                  "parse_ms": page["parse_ms"]} for page in pages],
+            "parse_ms": (time.perf_counter_ns() - started) / 1e6,
+            "pool_startup_ms": warmup["elapsed_ms"], "pool_created": warmup["created"],
+            "worker_batches": batches}
+
+
 def clusters(values, tolerance):
     groups = []
     for value in sorted(values):

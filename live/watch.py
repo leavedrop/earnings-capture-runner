@@ -219,6 +219,8 @@ class Collector:
         self.completed = {(x["symbol"], x["channel"]) for x in self.store.records("capture") if x.get("mode", "run") == "run"}
         self.captured_documents = {(r["symbol"], r["channel"], r.get("target_document_url", r.get("final_url", r["url"])))
                                    for r in self.store.records("capture") if r.get("mode", "run") == "run"}
+        self.captured_documents.update((r["symbol"], r["channel"], r["url"])
+                                       for r in self.store.records("inherited_document"))
         self.inspected_documents = {(r["symbol"], r["channel"], r.get("final_url", r["url"]))
                                     for r in self.store.records("attachment") if r.get("mode", "run") == "run"}
         self.cache = {}
@@ -336,7 +338,10 @@ class Collector:
                 transfer = browser_response(self.browser_session, method, url, headers, request_json=request_json)
                 record["transport"] = "curl_cffi_chrome"
             else:
-                transfer = session.stream(method, url, headers=headers, extensions={"trace": trace},
+                archive_session = (self.sec_stream_session if self.sec_stream_session is not None
+                                   and urlsplit(url).hostname == "www.sec.gov"
+                                   and urlsplit(url).path.startswith("/Archives/") else session)
+                transfer = archive_session.stream(method, url, headers=headers, extensions={"trace": trace},
                                           **({"json": request_json} if request_json is not None else {}),
                                           **({"follow_redirects": False} if kkr_api else {}))
             async with transfer as response:
@@ -460,8 +465,7 @@ class Collector:
         discovered_ns, last_negative, discovered_mono_ns, last_negative_mono_ns = self.first_discovered.setdefault(
             document_key, (discovered_ns, last_negative, discovered_mono_ns, last_negative_mono_ns))
         if self.args.command == "run" and (document_key in self.captured_documents
-                or item.get("inspection_only") and document_key in self.inspected_documents
-                or (channel != "sec" and (event["symbol"], channel) in self.completed)):
+                or item.get("inspection_only") and document_key in self.inspected_documents):
             return
         if key in self.active_candidates or time.monotonic() < self.candidate_retry.get(key, 0):
             return
@@ -685,18 +689,16 @@ class Collector:
         last_negative_mono = None
         last_sha = None
         last_listing_basis = None
+        preflight_done = False
         while not self.stop.is_set():
             now = self.clock.stamp()[1]/1e9
             start, end = epoch(event["window_start"]), epoch(event["window_end"])
-            if not once and now < start:
+            if not once and now < start and preflight_done:
                 self.status[status_key] = {"state": "scheduled", "url": url, "window_start": event["window_start"]}
                 await asyncio.sleep(min(30, start-now))
                 continue
             if not once and now > end + 86400:
                 self.status.setdefault(status_key, {}).update({"state": "captured" if key in self.completed else "window_expired_without_capture", "url": url})
-                return
-            if key in self.completed and channel != "sec" and not once:
-                self.status.setdefault(status_key, {}).update({"state": "captured", "url": url})
                 return
             # Forecasts only select density; broad release windows remain monitored.
             target = epoch(event.get("forecast_at") or event["scheduled_at"])
@@ -704,6 +706,7 @@ class Collector:
             hot_discovery = hot and channel in ("official", "newswire")
             interval = (1/3 if hot_discovery else 1) if hot else (2 if now <= end else 120)
             rec, body = None, b""
+            preflight_done = True
             cycle_started_mono = time.perf_counter_ns()
             try:
                 rec, body = await self.fetch(session, url, event, channel, "discovery",
@@ -721,6 +724,10 @@ class Collector:
                     seen_at = rec["body_complete_ns"]
                     # Revisit unresolved candidates on unchanged lists; a title can precede its body.
                     found = await asyncio.to_thread(discover, body, rec.get("final_url", url), ctype, event)
+                    if channel == "sec":
+                        # A submissions entry already supplies the quarterly body.
+                        # Its index must not consume the body's reserved request slot.
+                        found.sort(key=lambda item: 0 if item.get("form") in ("10-Q", "10-K") and item.get("role") != "filing_index" else 1)
                     previous_negative = last_negative
                     previous_negative_mono = last_negative_mono
                     for item in (found if channel == "sec" else found[:20]):
@@ -754,6 +761,8 @@ class Collector:
                         last_negative_mono = rec["body_complete_mono_ns"]
                     elif basis is None:
                         self.status[status_key].update(state="source_error", error="unreadable_listing")
+                    if not once and now < start:
+                        self.status[status_key].update(state="scheduled", window_start=event["window_start"])
             except Exception as exc:
                 self.store.add("worker_error", {"symbol": event["symbol"], "channel": channel, "error": repr(exc)})
                 logging.exception("Source loop failed %s", status_key)
@@ -921,21 +930,25 @@ class Collector:
 
     async def keep_sec_connection_warm(self, events):
         # The metadata API is a different origin and cannot warm www.sec.gov.
-        prior = next((r for r in reversed(self.store.records("capture"))
-                      if r["channel"] == "sec" and "/Archives/edgar/data/" in r["url"]), None)
-        if prior is None:
-            return
-        directory = prior["url"].rsplit("/", 1)[0]
-        accession = directory.rsplit("/", 1)[1]
-        if len(accession) != 18 or not accession.isdigit():
-            return
-        number = accession[:10]+"-"+accession[10:12]+"-"+accession[12:]
-        url = directory+"/"+number+"-index.html"
-        event = next((e for e in events if e["symbol"] == prior["symbol"]), events[0])
         while not self.stop.is_set():
             now = self.clock.stamp()[1]/1e9
-            if any(epoch(e["window_start"]) <= now <= epoch(e["window_end"]) for e in events):
-                await self.fetch(self.sec_stream_session, url, event, "sec", "warmup")
+            if self.sec_stream_session is not None and any(epoch(e["window_start"]) <= now <= epoch(e["window_end"]) for e in events):
+                # Recheck after startup: a fresh Store may acquire its first
+                # verified report while this task is already running.
+                records = self.store.records("capture") + self.store.records("inherited_document")
+                for prior in reversed(records):
+                    validation = prior.get("validation") or prior
+                    original = prior.get("target_document_url") or prior.get("final_url") or prior.get("url", "")
+                    parsed = urlsplit(original)
+                    if (prior.get("channel") != "sec" or validation.get("accepted") is not True
+                            or validation.get("tables_complete") is not True or parsed.scheme != "https"
+                            or parsed.netloc != "www.sec.gov"
+                            or not re.fullmatch(r"/Archives/edgar/data/\d+/\d{18}/[^/]+", parsed.path)):
+                        continue
+                    directory = "https://www.sec.gov" + parsed.path.rsplit("/", 1)[0] + "/"
+                    event = next((e for e in events if e["symbol"] == prior["symbol"]), {"symbol": prior["symbol"]})
+                    await self.fetch(self.sec_stream_session, directory, event, "sec", "warmup", conditional=False, method="HEAD")
+                    break
             await asyncio.sleep(20)
 
     async def run(self):
@@ -956,11 +969,10 @@ class Collector:
         events = json.loads(Path(self.args.manifest).read_text(encoding="utf-8"))
         if self.args.symbols:
             events = [e for e in events if e["symbol"] in self.args.symbols.split(",")]
-        if any(event["symbol"] == "BRK.B" for event in events):
-            from pdf_tables import prewarm_pdf_pool
-            warmup = await asyncio.to_thread(prewarm_pdf_pool)
-            self.store.add("pdf_parser_ready", {"run_id": self.run_id, **warmup,
-                                               "target_document_preparsed": False})
+        from pdf_tables import prewarm_pdf_pool
+        warmup = await asyncio.to_thread(prewarm_pdf_pool)
+        self.store.add("pdf_parser_ready", {"run_id": self.run_id, **warmup,
+                                           "target_document_preparsed": False})
         async with httpx.AsyncClient(proxy=self.proxy, trust_env=False, follow_redirects=True,
                                      max_redirects=5, timeout=httpx.Timeout(12, connect=5),
                                      limits=httpx.Limits(max_connections=32, max_keepalive_connections=24, keepalive_expiry=60)) as session, \

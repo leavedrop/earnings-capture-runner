@@ -17,17 +17,29 @@
       {
         "channel": "official",
         "url": "https://humana.gcs-web.com/rss/news-releases.xml",
-        "kind": "rss"
+        "kind": "rss",
+        "original_url": "https://policy.humana.com/news-and-resources/news-press/2026/humana-inc--to-release-third-quarter-2026-results-on-november-6-",
+        "note": "Official RSS linked by company RSS-feeds page; live XML verified. Discovery feed is not full financial report.",
+        "verification": "http_ok_official_rss",
+        "last_status_code": 200
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0000049071.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=HUM&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.businesswire.com/newsroom?keywords=Humana",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.businesswire.com/portal/site/home/search/?searchType=all&searchTerm=Humana",
+        "note": "Replaced old announcement article with the same distributor's search listing.",
+        "verification": "blocked",
+        "last_status_code": 403
       }
     ]
   },
@@ -49,17 +61,29 @@
       {
         "channel": "official",
         "url": "https://bam.brookfield.com/events-news/press-releases",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://bam.brookfield.com/generation/pdf/document-file.pdf?path=%2Fpress-releases%2Fbrookfield-asset-management-host-third-quarter-2026-results-conference-call&token=w-NlAV6cBB56otMkqZG57A",
+        "note": "Replaced fixed earnings announcement with a discovery listing; live verification recorded separately.",
+        "verification": "http_ok_discovery_links_present",
+        "last_status_code": 200
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001937926.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=BAM&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.globenewswire.com/search/keyword/Brookfield%20Asset%20Management",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.globenewswire.com/search/keyword/Brookfield%20Asset%20Management",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "http_ok_listing_not_proven",
+        "last_status_code": 200
       }
     ]
   },
@@ -81,17 +105,29 @@
       {
         "channel": "official",
         "url": "https://enbridge.mediaroom.com/index.php?s=2429",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://enbridge.mediaroom.com/2026-10-05-Enbridge-Inc-to-Host-Webcast-to-Discuss-2026-Third-Quarter-Results-on-November-6",
+        "note": "Replaced fixed earnings announcement with a discovery listing; live verification recorded separately.",
+        "verification": "http_ok_discovery_links_present",
+        "last_status_code": 200
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0000895728.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=ENB&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.prnewswire.com/search/news/?keyword=Enbridge",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.prnewswire.com/search/news/?keyword=Enbridge",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "http_ok_listing_not_proven",
+        "last_status_code": 200
       }
     ]
   },
@@ -113,17 +149,29 @@
       {
         "channel": "official",
         "url": "https://oklo.com/newsroom",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://investor.oklo.com/financials/quarterly-results/default.aspx",
+        "note": "Company newsroom verified via proxy; original investor subdomain returned403.",
+        "verification": "http_ok_discovery_links_present",
+        "last_status_code": 200
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001849056.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=1849056&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3AOklo",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3AOklo",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "blocked",
+        "last_status_code": 403
       }
     ]
   },
@@ -147,17 +195,29 @@
         "channel": "official",
         "url": "https://investor.msgknicks.com/rss/pressrelease.aspx",
         "kind": "rss",
-        "original_url": "https://www.msgknicks.com/company-news/"
+        "original_url": "https://www.msgknicks.com/company-news/",
+        "note": "Official Press Release RSS Feed linked by issuer RSS directory; observed 10 items and exact target report URL on 2026-11-09T09:15:41Z.",
+        "verification": "verified_public_rss_direct_report_discovery",
+        "last_status_code": 200,
+        "evidence_url": "https://investor.msgknicks.com/information-request/rss-feeds/default.aspx"
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001636519.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=1636519&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3AMSG+Knickerbockers",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3AMSG+Knickerbockers",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "blocked",
+        "last_status_code": 403
       }
     ]
   },
@@ -180,17 +240,29 @@
       {
         "channel": "official",
         "url": "https://www.msgrangers.com/company-news/",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.msgrangers.com/company-news/",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "http_ok_listing_not_proven",
+        "last_status_code": 200
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0002132873.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=2132873&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3AMSG+Rangers",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3AMSG+Rangers",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "blocked",
+        "last_status_code": 403
       }
     ]
   },
@@ -213,17 +285,29 @@
       {
         "channel": "official",
         "url": "https://www.berkshirehathaway.com/reports.html",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.berkshirehathaway.com/reports.html",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "http_ok_listing_not_proven",
+        "last_status_code": 200
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001067983.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=1067983&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.businesswire.com/newsroom?keywords=Berkshire%20Hathaway",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.businesswire.com/newsroom?keywords=Berkshire%20Hathaway",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "blocked",
+        "last_status_code": 403
       }
     ]
   },
@@ -247,17 +331,41 @@
       {
         "channel": "official",
         "url": "https://investors.sohu.com/rss/news-releases.xml",
-        "kind": "rss"
+        "kind": "rss",
+        "original_url": "https://investors.sohu.com/press-releases",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "http_ok_official_rss",
+        "last_status_code": 200,
+        "replaced_discovery_url": "https://investors.sohu.com/press-releases",
+        "verification_evidence": {
+          "symbol": "SOHU",
+          "channel": "official",
+          "url": "https://investors.sohu.com/rss/news-releases.xml",
+          "kind": "rss",
+          "status": "http_ok_official_rss",
+          "status_code": 200,
+          "bytes": 7666,
+          "items": 10,
+          "evidence_url": "https://investors.sohu.com/rss-news-feeds"
+        }
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001734107.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=0001734107&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.prnewswire.com/search/news/?keyword=Sohu.com",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.prnewswire.com/news-releases/sohucom-to-report-third-quarter-2026-financial-results-on-november-9-2026-302924508.html",
+        "note": "Replaced fixed preannouncement with distributor discovery search.",
+        "verification": "http_ok_listing_not_proven",
+        "last_status_code": 200
       }
     ]
   },
@@ -282,6 +390,9 @@
         "url": "https://www.barrick.com/Services/PressReleaseService.svc/GetPressReleaseList",
         "kind": "q4_json",
         "original_url": "https://www.barrick.com/English/news/default.aspx",
+        "note": "Public Q4 component on the original company news page; anonymous POST with page parameters, no token. Listing seen after publication; this verification is not a first-release capture.",
+        "verification": "verified_public_q4_list",
+        "last_status_code": 200,
         "method": "POST",
         "request_json": {
           "serviceDto": {
@@ -305,12 +416,20 @@
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0000756894.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=B&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.globenewswire.com/search/keyword/Barrick%20Mining",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.globenewswire.com/search/keyword/Barrick%20Mining",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "http_ok_listing_not_proven",
+        "last_status_code": 200
       }
     ]
   },
@@ -332,17 +451,47 @@
       {
         "channel": "official",
         "url": "https://www.corporate.ferguson.com/rss/pressrelease.aspx",
-        "kind": "rss"
+        "kind": "rss",
+        "original_url": "https://www.corporate.ferguson.com/pressroom/news-releases/default.aspx",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "verified_rss_items_and_issuer",
+        "last_status_code": 403,
+        "replaced_discovery_url": "https://www.fergusonpressroom.com/",
+        "verification_evidence": {
+          "symbol": "FERG",
+          "channel": "official",
+          "url": "https://www.corporate.ferguson.com/rss/pressrelease.aspx",
+          "kind": "rss",
+          "checked_at": "2026-11-06T11:14:36.288614+00:00",
+          "http_status": 200,
+          "content_type": "text/xml; charset=utf-8",
+          "bytes": 3923,
+          "items": 10,
+          "issuer_channel_title": "Ferguson Press Releases",
+          "route": "direct",
+          "user_agent": "EarningsResearch/1.0",
+          "discovery_status": "verified_rss_items_and_issuer",
+          "full_text_status": "not_verified_previous_html_entry_403",
+          "finding": "Official publisher RSS supplies item URLs; it is not the full financial report and does not prove those URLs can be fetched without403."
+        }
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0002011641.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=FERG&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.businesswire.com/newsroom?keywords=Ferguson%20Enterprises",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.businesswire.com/portal/site/home/search/?searchType=all&searchTerm=Ferguson%20Enterprises",
+        "note": "Replaced old announcement article with the same distributor's search listing.",
+        "verification": "blocked",
+        "last_status_code": 403
       }
     ]
   },
@@ -369,17 +518,29 @@
         "url": "https://tools.cms-eqs.com/fcf5b4/content/events/eventbox?dateOrder=DESC&timeOrder=DESC&localId.languageCode=en&page=1&limit=20&timeline=upcoming",
         "kind": "json",
         "original_url": "https://ir.kkr.com/",
-        "public_client_config_url": "https://ir.kkr.com/_app/immutable/chunks/DAY4boZ0.js"
+        "note": "Official events page public client API; runtime public configuration and 20-second JWT, no stored credential. Event box document paths point directly to the earnings PDF; event dates are not publication timestamps.",
+        "verification": "public_browser_eventbox_and_runtime_public_client_verified",
+        "last_status_code": 200,
+        "public_client_config_url": "https://ir.kkr.com/_app/immutable/chunks/DAY4boZ0.js",
+        "replaced_discovery_url": "https://ir.kkr.com/"
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001404912.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=0001404912&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.businesswire.com/newsroom?keywords=KKR",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.businesswire.com/news/home/20260929150919/en/",
+        "note": "Replaced old announcement article with the same distributor's search listing.",
+        "verification": "blocked",
+        "last_status_code": 403
       }
     ]
   },
@@ -401,17 +562,29 @@
       {
         "channel": "official",
         "url": "https://investors.cecoenviro.com/news-events/news-releases",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://investors.cecoenviro.com/news-events/news-releases",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "blocked",
+        "last_status_code": 403
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0000003197.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=0000003197&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.globenewswire.com/search/keyword/CECO%20Environmental",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.globenewswire.com/search/keyword/CECO%20Environmental",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "http_ok_listing_not_proven",
+        "last_status_code": 200
       }
     ]
   },
@@ -433,17 +606,29 @@
       {
         "channel": "official",
         "url": "https://ir.tgtherapeutics.com/press-releases",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://ir.tgtherapeutics.com/press-releases",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "http_ok_listing_not_proven",
+        "last_status_code": 200
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001001316.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=0001001316&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3ATG%20Therapeutics",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3ATG%20Therapeutics",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "blocked",
+        "last_status_code": 403
       }
     ]
   },
@@ -466,17 +651,29 @@
       {
         "channel": "official",
         "url": "https://ir.skydance.com/events-news/press-releases",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://ir.skydance.com/news-releases/news-release-details/skydance-report-third-quarter-2026-financial-results-november-9",
+        "note": "Replaced fixed earnings announcement with a discovery listing; live verification recorded separately.",
+        "verification": "http_ok_discovery_links_present",
+        "last_status_code": 200
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0002041610.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=SKYD&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.prnewswire.com/search/news/?keyword=Skydance",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.prnewswire.com/search/news/?keyword=Skydance",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "http_ok_listing_not_proven",
+        "last_status_code": 200
       }
     ]
   },
@@ -498,17 +695,40 @@
       {
         "channel": "official",
         "url": "https://www.thetradedesk.com/press-room",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://investors.thetradedesk.com/financials/quarterly-results/default.aspx",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "http_ok_discovery_links_present",
+        "last_status_code": 403,
+        "replaced_discovery_url": "https://investors.thetradedesk.com/financials/quarterly-results/default.aspx",
+        "verification_evidence": {
+          "symbol": "TTD",
+          "channel": "official",
+          "url": "https://www.thetradedesk.com/press-room",
+          "kind": "html",
+          "status": "http_ok_discovery_links_present",
+          "status_code": 200,
+          "route": "direct",
+          "finding": "Official company newsroom includes current preannouncement and article links; blocked investor subdomain is separate."
+        }
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001671933.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=0001671933&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3AThe%20Trade%20Desk",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3AThe%20Trade%20Desk",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "blocked",
+        "last_status_code": 403
       }
     ]
   },
@@ -530,17 +750,29 @@
       {
         "channel": "official",
         "url": "https://investor.xenon-pharma.com/news-events/press-releases",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://investor.xenon-pharma.com/news-releases",
+        "note": "Replaced fixed earnings announcement with a discovery listing; live verification recorded separately.",
+        "verification": "http_ok_discovery_links_present",
+        "last_status_code": 200
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001582313.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=0001582313&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.globenewswire.com/search/keyword/Xenon%20Pharmaceuticals",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.globenewswire.com/search/keyword/Xenon%20Pharmaceuticals",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "network_error",
+        "last_status_code": null
       }
     ]
   },
@@ -562,17 +794,47 @@
       {
         "channel": "official",
         "url": "https://investors.archer.com/rss/pressrelease.aspx",
-        "kind": "rss"
+        "kind": "rss",
+        "original_url": "https://investors.archer.com/news/default.aspx",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "verified_rss_items_and_issuer",
+        "last_status_code": 403,
+        "replaced_discovery_url": "https://investors.archer.com/news/default.aspx",
+        "verification_evidence": {
+          "symbol": "ACHR",
+          "channel": "official",
+          "url": "https://investors.archer.com/rss/pressrelease.aspx",
+          "kind": "rss",
+          "checked_at": "2026-11-06T11:14:36.288614+00:00",
+          "http_status": 200,
+          "content_type": "text/xml; charset=utf-8",
+          "bytes": 4744,
+          "items": 10,
+          "issuer_channel_title": "Archer Aviation Press Releases",
+          "route": "direct",
+          "user_agent": "EarningsResearch/1.0",
+          "discovery_status": "verified_rss_items_and_issuer",
+          "full_text_status": "not_verified_previous_html_entry_403",
+          "finding": "Official publisher RSS supplies item URLs; it is not the full financial report and does not prove those URLs can be fetched without403."
+        }
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001824502.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=0001824502&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3AArcher%20Aviation",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3AArcher%20Aviation",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "blocked",
+        "last_status_code": 403
       }
     ]
   },
@@ -596,17 +858,47 @@
       {
         "channel": "official",
         "url": "https://investors.hims.com/rss/pressrelease.aspx",
-        "kind": "rss"
+        "kind": "rss",
+        "original_url": "https://investors.hims.com/financials/quarterly-results/default.aspx",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "verified_rss_items_and_issuer",
+        "last_status_code": 403,
+        "replaced_discovery_url": "https://investors.hims.com/financials/quarterly-results/default.aspx",
+        "verification_evidence": {
+          "symbol": "HIMS",
+          "channel": "official",
+          "url": "https://investors.hims.com/rss/pressrelease.aspx",
+          "kind": "rss",
+          "checked_at": "2026-11-06T11:14:36.288614+00:00",
+          "http_status": 200,
+          "content_type": "text/xml; charset=utf-8",
+          "bytes": 4216,
+          "items": 10,
+          "issuer_channel_title": "Hims Inc. Press Releases",
+          "route": "direct",
+          "user_agent": "EarningsResearch/1.0",
+          "discovery_status": "verified_rss_items_and_issuer",
+          "full_text_status": "not_verified_previous_html_entry_403",
+          "finding": "Official publisher RSS supplies item URLs; it is not the full financial report and does not prove those URLs can be fetched without403."
+        }
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001773751.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=0001773751&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.businesswire.com/newsroom?keywords=Hims%20%26%20Hers",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.businesswire.com/news/home/20261012103582/en/",
+        "note": "Replaced old announcement article with the same distributor's search listing.",
+        "verification": "blocked",
+        "last_status_code": 403
       }
     ]
   },
@@ -627,18 +919,30 @@
     "sources": [
       {
         "channel": "official",
-        "url": "https://ir.lucidmotors.com/financials/quarterly-results",
-        "kind": "html"
+        "url": "https://ir.lucidmotors.com/events/event-details/lucid-q3-2026-earnings-call",
+        "kind": "html",
+        "original_url": "https://ir.lucidmotors.com/financials/quarterly-results",
+        "note": "Official Q3 2026 event document listing; monitor for actual report HTML/PDF links. Event scheduling itself is not financial report discovery.",
+        "verification": "archived_pre_release_and_post_release_document_links_verified",
+        "last_status_code": 200
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001811210.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=1811210&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.prnewswire.com/news/lucid-group/",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.prnewswire.com/news/lucid-group/",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "http_ok_listing_not_proven",
+        "last_status_code": 200
       }
     ]
   },
@@ -660,17 +964,29 @@
       {
         "channel": "official",
         "url": "https://investors.rocketlabcorp.com/news",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://investors.rocketlabcorp.com/news-releases",
+        "note": "Replaced fixed earnings announcement with a discovery listing; live verification recorded separately.",
+        "verification": "http_ok_discovery_links_present",
+        "last_status_code": 200
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001819994.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=0001819994&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.globenewswire.com/search/keyword/Rocket%20Lab",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.globenewswire.com/search/keyword/Rocket%20Lab",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "http_ok_listing_not_proven",
+        "last_status_code": 200
       }
     ]
   },
@@ -692,17 +1008,29 @@
       {
         "channel": "official",
         "url": "https://www.take2games.com/ir/press-releases",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.take2games.com/ir/press-releases",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "http_ok_listing_not_proven",
+        "last_status_code": 200
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0000946581.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=0000946581&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3ATake-Two%20Interactive",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3ATake-Two%20Interactive",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "blocked",
+        "last_status_code": 403
       }
     ]
   },
@@ -724,17 +1052,29 @@
       {
         "channel": "official",
         "url": "https://www.oxy.com/investors/quarterly-earnings/",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.oxy.com/investors/quarterly-earnings/",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "http_ok_listing_not_proven",
+        "last_status_code": 200
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0000797468.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=0000797468&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.globenewswire.com/search/keyword/Occidental",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.globenewswire.com/news-release/2026/10/01/3373398/0/en/occidental-to-announce-third-quarter-results-monday-november-9-2026-hold-conference-call-tuesday-november-10-2026.html",
+        "note": "Replaced fixed preannouncement with distributor discovery search.",
+        "verification": "http_ok_listing_not_proven",
+        "last_status_code": 200
       }
     ]
   },
@@ -756,17 +1096,47 @@
       {
         "channel": "official",
         "url": "https://investors.on-running.com/rss/pressrelease.aspx",
-        "kind": "rss"
+        "kind": "rss",
+        "original_url": "https://investors.on-running.com/financials/",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "verified_rss_items_and_issuer",
+        "last_status_code": 403,
+        "replaced_discovery_url": "https://investors.on-running.com/financials/",
+        "verification_evidence": {
+          "symbol": "ONON",
+          "channel": "official",
+          "url": "https://investors.on-running.com/rss/pressrelease.aspx",
+          "kind": "rss",
+          "checked_at": "2026-11-06T11:14:36.288614+00:00",
+          "http_status": 200,
+          "content_type": "text/xml; charset=utf-8",
+          "bytes": 4041,
+          "items": 10,
+          "issuer_channel_title": "On Press Releases",
+          "route": "direct",
+          "user_agent": "EarningsResearch/1.0",
+          "discovery_status": "verified_rss_items_and_issuer",
+          "full_text_status": "not_verified_previous_html_entry_403",
+          "finding": "Official publisher RSS supplies item URLs; it is not the full financial report and does not prove those URLs can be fetched without403."
+        }
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001858985.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=0001858985&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3AOn%20Holding",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3AOn%20Holding",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "blocked",
+        "last_status_code": 403
       }
     ]
   },
@@ -788,17 +1158,30 @@
       {
         "channel": "official",
         "url": "https://www.sea.com/api/financial/resource",
-        "kind": "sea_financial_json"
+        "kind": "sea_financial_json",
+        "original_url": "https://www.sea.com/investor/quarterlyresults",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "verified_public_api_current_q3_not_yet_present",
+        "last_status_code": 200,
+        "replaced_discovery_url": "https://www.sea.com/investor/quarterlyresults"
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001703399.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=0001703399&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3ASea",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3ASea",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "blocked",
+        "last_status_code": 403
       }
     ]
   },
@@ -820,17 +1203,47 @@
       {
         "channel": "official",
         "url": "https://ir.dwavequantum.com/rss/pressrelease.aspx",
-        "kind": "rss"
+        "kind": "rss",
+        "original_url": "https://ir.dwavequantum.com/financials/quarterly-results/default.aspx",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "verified_rss_items_and_issuer",
+        "last_status_code": 403,
+        "replaced_discovery_url": "https://www.dwavequantum.com/company/newsroom/",
+        "verification_evidence": {
+          "symbol": "QBTS",
+          "channel": "official",
+          "url": "https://ir.dwavequantum.com/rss/pressrelease.aspx",
+          "kind": "rss",
+          "checked_at": "2026-11-06T11:14:36.288614+00:00",
+          "http_status": 200,
+          "content_type": "text/xml; charset=utf-8",
+          "bytes": 4388,
+          "items": 10,
+          "issuer_channel_title": "D-Wave Press Releases",
+          "route": "direct",
+          "user_agent": "EarningsResearch/1.0",
+          "discovery_status": "verified_rss_items_and_issuer",
+          "full_text_status": "not_verified_previous_html_entry_403",
+          "finding": "Official publisher RSS supplies item URLs; it is not the full financial report and does not prove those URLs can be fetched without403."
+        }
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001907982.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=0001907982&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3AD-Wave%20Quantum",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.businesswire.com/newsroom?keywords=ENTIRE_RELEASE%3Atrue%3AD-Wave%20Quantum",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "blocked",
+        "last_status_code": 403
       }
     ]
   },
@@ -851,18 +1264,30 @@
     "sources": [
       {
         "channel": "official",
-        "url": "https://www.transdigm.com/investor-relations/news-releases/",
-        "kind": "html"
+        "url": "https://transdigmgroupinc.gcs-web.com/news-releases/",
+        "kind": "html",
+        "original_url": "https://www.transdigm.com/investor-relations/news-releases/",
+        "note": "Issuer-linked public IR news list; target-period absence and prior quarterly full report verified.",
+        "verification": "public_discovery_structure_verified",
+        "last_status_code": 200
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001260221.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=TDG&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.prnewswire.com/search/news/?keyword=TransDigm%20Group",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.prnewswire.com/search/news/?keyword=TransDigm%20Group",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "http_ok_listing_not_proven",
+        "last_status_code": 200
       }
     ]
   },
@@ -883,18 +1308,30 @@
     "sources": [
       {
         "channel": "official",
-        "url": "https://meridian-holdings.com/quarterly-results/",
-        "kind": "html"
+        "url": "https://meridian-holdings.com/feed/",
+        "kind": "rss",
+        "original_url": "https://meridian-holdings.com/quarterly-results/",
+        "note": "RSS explicitly linked by the issuer; current-quarter absence and historical financial release verified.",
+        "verification": "public_discovery_structure_verified",
+        "last_status_code": 200
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001437925.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=0001437925&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.newmediawire.com/",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.newmediawire.com/search?q=Meridian%20Holdings",
+        "note": "Original search path returns 404; use publisher latest-release listing and filter issuer identity.",
+        "verification": "http_ok_listing_not_proven",
+        "last_status_code": 200
       }
     ]
   },
@@ -916,17 +1353,29 @@
       {
         "channel": "official",
         "url": "https://nationalcinemedia.gcs-web.com/news/press-releases",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://nationalcinemedia.gcs-web.com/news/press-releases",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "http_ok_listing_not_proven",
+        "last_status_code": 200
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001377630.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=0001377630&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.businesswire.com/newsroom?keywords=National%20CineMedia",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.businesswire.com/news/home/20261030969470/en/",
+        "note": "Replaced old announcement article with the same distributor's search listing.",
+        "verification": "blocked",
+        "last_status_code": 403
       }
     ]
   },
@@ -948,17 +1397,41 @@
       {
         "channel": "official",
         "url": "https://investors.rigetti.com/rss/news-releases.xml",
-        "kind": "rss"
+        "kind": "rss",
+        "original_url": "https://investors.rigetti.com/news-events/news-releases",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "http_ok_official_rss",
+        "last_status_code": 200,
+        "replaced_discovery_url": "https://investors.rigetti.com/news-events/news-releases",
+        "verification_evidence": {
+          "symbol": "RGTI",
+          "channel": "official",
+          "url": "https://investors.rigetti.com/rss/news-releases.xml",
+          "kind": "rss",
+          "status": "http_ok_official_rss",
+          "status_code": 200,
+          "bytes": 8052,
+          "items": 10,
+          "evidence_url": "https://investors.rigetti.com/ir-resources/rss-feeds"
+        }
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001838359.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=0001838359&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.globenewswire.com/search/keyword/Rigetti%20Computing",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.globenewswire.com/search/keyword/Rigetti%20Computing",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "http_ok_listing_not_proven",
+        "last_status_code": 200
       }
     ]
   },
@@ -983,17 +1456,29 @@
       {
         "channel": "official",
         "url": "https://www.cgi.com/en/newsroom",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.cgi.com/en/event/fourth-quarter-results",
+        "note": "Replaced fixed earnings announcement with a discovery listing; live verification recorded separately.",
+        "verification": "http_ok_discovery_links_present",
+        "last_status_code": 200
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001061574.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=GIB&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.prnewswire.com/search/news/?keyword=CGI",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.prnewswire.com/search/news/?keyword=CGI",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "http_ok_listing_not_proven",
+        "last_status_code": 200
       }
     ]
   },
@@ -1014,18 +1499,30 @@
     "sources": [
       {
         "channel": "official",
-        "url": "https://www.franco-nevada.com/investors/news-releases/",
-        "kind": "html"
+        "url": "https://www.franco-nevada.com/investors/news/",
+        "kind": "html",
+        "original_url": "https://www.franco-nevada.com/investors/news-releases/",
+        "note": "Correct issuer news path. Latest ordinary HTTP/browser attempts are still denied; do not treat this source as recovered.",
+        "verification": "http_403",
+        "last_status_code": 403
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001456346.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=FNV&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
-        "url": "https://www.prnewswire.com/search/news/?keyword=Franco-Nevada",
-        "kind": "html"
+        "url": "https://www.newswire.ca/news/franco__nevada-corporation/",
+        "kind": "html",
+        "original_url": "https://www.prnewswire.com/search/news/?keyword=Franco-Nevada",
+        "note": "Issuer distribution on Cision Canada Newswire; this is a partner newswire source, not an issuer-site replacement.",
+        "verification": "public_discovery_structure_verified",
+        "last_status_code": 200
       }
     ]
   },
@@ -1047,17 +1544,29 @@
       {
         "channel": "official",
         "url": "https://bn.brookfield.com/events-news/press-releases",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://bn.brookfield.com/events-news/press-releases",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "http_ok_listing_not_proven",
+        "last_status_code": 200
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001001085.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=BN&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.globenewswire.com/search/organization/Brookfield%2520Corporation",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.globenewswire.com/search/organization/Brookfield%2520Corporation",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "network_error",
+        "last_status_code": null
       }
     ]
   },
@@ -1079,17 +1588,29 @@
       {
         "channel": "official",
         "url": "https://nebius.com/newsroom",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://nebius.com/newsroom",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "http_ok_listing_not_proven",
+        "last_status_code": 200
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001513845.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=NBIS&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.businesswire.com/newsroom?searchTerm=Nebius",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.businesswire.com/newsroom?searchTerm=Nebius",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "blocked",
+        "last_status_code": 403
       }
     ]
   },
@@ -1112,18 +1633,30 @@
     "sources": [
       {
         "channel": "official",
-        "url": "https://newsroom.cisco.com/c/r/newsroom/en/us/index.html",
-        "kind": "html"
+        "url": "https://newsroom.cisco.com/c/services/i/servlets/newsroom/rssfeed.json?feed=press-releases",
+        "kind": "rss",
+        "original_url": "https://newsroom.cisco.com/c/r/newsroom/en/us/news.html",
+        "note": "Official press-release RSS linked from issuer RSS feeds page; preserve feed query.",
+        "verification": "public_discovery_structure_verified",
+        "last_status_code": 200
       },
       {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0000858877.json",
-        "kind": "sec_json"
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=CSCO&owner=exclude",
+        "note": "SEC submissions metadata discovery; follow filing index and earnings exhibits for full text.",
+        "verification": "not_probed_pending_identified_user_agent",
+        "last_status_code": null
       },
       {
         "channel": "newswire",
         "url": "https://www.prnewswire.com/news/cisco-systems%2C-inc./",
-        "kind": "html"
+        "kind": "html",
+        "original_url": "https://www.prnewswire.com/news/cisco-systems%2C-inc./",
+        "note": "Imported discovery entry; live access and update behavior require verification.",
+        "verification": "http_ok_listing_not_proven",
+        "last_status_code": 200
       }
     ]
   }

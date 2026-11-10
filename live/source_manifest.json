@@ -1,19 +1,19 @@
 {
   "watch.py": {
-    "sha256": "d382bdafe5eaa7978610fcdee104208bf951e80f42ac5c065e553e6be56766d8",
-    "production_sha256": "c5f50f6e9c7d21446ce4bfd56d5deb4d1c47b76dbfe951d9b25ab6f3d61d1e84",
+    "sha256": "d425c8ba20faf6188a737944555357dce5a7973c28de70459adff689701c96ff",
+    "production_sha256": "c160a6f44e4b886def0551540aa13b6959f7722c14513f6411a7222e21c17e34",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "watch.py"
   },
   "sources.py": {
-    "sha256": "0bb134a61e330577fed63ac0fdc9425d4beca18a73ef14ed05420d51c38983be",
-    "production_sha256": "5e71f7d4959588ad194ce03f23ff5d49137d78270a0da4c4a5654535e027cddd",
+    "sha256": "7bb69ee581ff6737b0c3477b02343c4a2ba3a25f5203cfd20dc14c14ca369246",
+    "production_sha256": "3e948541741182380a529323ba0f5632883e15d6b3c9859709d62f907cdb1567",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "sources.py"
   },
   "pdf_tables.py": {
-    "sha256": "95d773d8b3982db6d7ab0c8d4c8ba8751fe6b16852a9fab7d6fe5e4af5474480",
-    "production_sha256": "f55b822700f6f70287f44afaf66dcd64b8b31c3eae9d7c332b420afe69eaf8c2",
+    "sha256": "6b1e8415300550367b14de5e296ae4d0ed73ec11db789a7d5098a8c19f5c131d",
+    "production_sha256": "82ad83cf1994dee293bfd602c4d2e15eb6ad3d81bfbfdcf7a2d7573062a93801",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "pdf_tables.py"
   },
@@ -30,13 +30,13 @@
     "source": "sec_stream.py"
   },
   "progress.py": {
-    "sha256": "d7d1f046b832e03004f0ae9a2928e50a8ec8faa8fc5ce861cdf8a8d0a862c4fa",
-    "production_sha256": "d7d1f046b832e03004f0ae9a2928e50a8ec8faa8fc5ce861cdf8a8d0a862c4fa",
+    "sha256": "6ad91d61eb43b28c9b7ca91886bd5f18dadc4c03962849beb41180d1bdd22283",
+    "production_sha256": "6ad91d61eb43b28c9b7ca91886bd5f18dadc4c03962849beb41180d1bdd22283",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "progress.py"
   },
   "watchlist.json": {
-    "sha256": "4b0927e84a28ea1fe8d93f9a23011180545cb15557d0398f79b6ebf5c63c9f64",
+    "sha256": "8769930964751faa91d4d08fa07bda60d78ee6bbca4ab87ba8fe1bb92888a076",
     "source": "public event/source whitelist; 34 companies"
   },
   "browser_transport.py": {

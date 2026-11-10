@@ -227,7 +227,10 @@ def archived_table_check(original, report_path, original_mtime, report_mtime, ms
     report = read_json(Path(report_path))
     saved = report.get("tables", [])
     def signature(table):
-        return tuple(tuple(re.sub(r"\s+", " ", str(cell or "")).strip() for cell in row) for row in table)
+        # libxml versions differ on HTML numeric references &#128;/&#149;.
+        # The archived US parser uses their HTML5 meanings (euro/bullet).
+        return tuple(tuple(re.sub(r"\s+", " ", str(cell or "").translate({0x80: 0x20AC, 0x95: 0x2022})).strip()
+                           for cell in row) for row in table)
     absent = Counter(signature(table) for table in expected) - Counter(signature(table) for table in saved)
     complete = not absent
     note = (f"核对原始HTML发现有{len(expected)}张表，旧产物保存{len(saved)}张，其中{sum(absent.values())}张未完整保留；该次不算全文和表格完整达标。"
@@ -318,6 +321,9 @@ def capture_row(record, root, output_root, run_started, replay=False):
         "timing_basis": timing_basis,
         "timing_note": timing_note,
         "request_total_ms": milliseconds(record.get("request_total_ms")),
+        "queue_ms": milliseconds(record.get("queue_ms")),
+        "parse_ms": milliseconds(record.get("parse_ms")),
+        "validation_queue_ms": milliseconds(record.get("validation_queue_ms")),
         "body_to_validation_ms": milliseconds(record.get("body_to_validation_ms")),
         "timing_start": timing_start,
         "latency_budget_passed": (duration <= BUDGET_MS and accepted

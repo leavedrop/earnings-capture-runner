@@ -20,7 +20,8 @@ from lxml import etree
 _ANNOUNCEMENT = re.compile(
     r"\b(?:to\s+(?:report|release|announce|host)|will\s+(?:report|release|announce|host)|"
     r"sets?\s+(?:date|earnings)|schedules?\s+(?:earnings|conference)|"
-    r"(?:earnings|results)\s+conference\s+call|webcast\s+to\s+discuss)\b", re.I)
+    r"announces?\s+(?:the\s+)?date\b|"
+    r"(?:earnings|results)\s+(?:conference\s+)?call|webcast\s+to\s+discuss)\b", re.I)
 _FINANCIAL = re.compile(r"\b(?:results|earnings|financial\s+(?:statements|report)|"
                         r"quarterly\s+report|shareholder\s+letter|form\s+10-[qk])\b", re.I)
 _METRICS = re.compile(r"\b(?:revenues?|net\s+(?:income|loss)|earnings\s+per\s+share|"
@@ -355,7 +356,44 @@ def listing_structure(body: bytes, url: str, content_type: str, event: dict) -> 
                 if title is not None and title.text and link is not None and (link.text or link.get("href")):
                     return "Parsed public feed with titled entry links"
             return None
-        for link in _document(body).iter("a"):
+        document = _document(body)
+        if (event.get("symbol") == "LCID" and parsed.hostname == "ir.lucidmotors.com"
+                and parsed.path.startswith("/events/event-details/")):
+            title_node = next(document.iter("title"), None)
+            title = _text(title_node) if title_node is not None else ""
+            if (parsed.path == f"/events/event-details/lucid-q{event['quarter']}-{event['fiscal_year']}-earnings-call"
+                    and _target(title, event) and _identity(title, event)
+                    and any("node--nir-event--full" in node.get("class", "").split()
+                            for node in document.iter("article"))):
+                return "Verified issuer quarter event document directory; report links may be absent"
+            return None
+        if (event.get("symbol") == "BN" and parsed.hostname == "bn.brookfield.com"
+                and parsed.path.rstrip("/") == "/events-news/press-releases"):
+            for row in document.xpath(".//div[contains(concat(' ', normalize-space(@class), ' '), ' press-data-wrapper ')]"):
+                if (row.xpath(".//div[contains(concat(' ', normalize-space(@class), ' '), ' press-data-title ')]")
+                        and row.xpath(".//div[contains(concat(' ', normalize-space(@class), ' '), ' press-data-date ')]")
+                        and any(link.get("href", "").startswith("/press-releases/") for link in row.iter("a"))):
+                    return "Official Brookfield dated press-release rows and document links"
+        if (event.get("symbol") == "NBIS" and parsed.hostname == "nebius.com"
+                and parsed.path.rstrip("/") == "/newsroom"):
+            for card in document.xpath(".//a[contains(concat(' ', normalize-space(@class), ' '), ' pc-basic-card ')]"):
+                if (card.get("href", "").startswith("/newsroom/")
+                        and any(_clean(_text(node)) for node in card.iter("h2"))):
+                    return "Official Nebius server-rendered titled newsroom cards"
+        if (event.get("symbol") == "GIB" and parsed.hostname == "www.cgi.com"
+                and parsed.path.rstrip("/") == "/en/newsroom"):
+            for card in document.xpath(".//article[contains(concat(' ', normalize-space(@class), ' '), ' teaser-related ')]"):
+                if ("Press release" in _text(card)
+                        and any(_clean(_text(node)) for node in card.iter("h3"))
+                        and any(link.get("href", "").startswith("/en/cgi-") for link in card.iter("a"))):
+                    return "Official CGI server-rendered press-release cards"
+        if (event.get("symbol") == "FNV" and parsed.hostname == "www.newswire.ca"
+                and parsed.path.rstrip("/") == "/news/franco__nevada-corporation"):
+            for link in document.iter("a"):
+                if (re.fullmatch(r"/news-releases/[^/]+-\d+\.html", urlparse(link.get("href", "")).path)
+                        and _identity(_text(link), event)):
+                    return "Cision issuer page with titled Franco-Nevada release links"
+        for link in document.iter("a"):
             if _clean(_text(link)) and re.search(
                     r"/(?:news-release-details|news-details|press-release-details)/|/news/home/\d+/|"
                     r"/(?:20\d{2})/.*(?:results|earnings|reports)", link.get("href", ""), re.I):
@@ -370,7 +408,7 @@ def discover(body: bytes, url: str, content_type: str, event: dict) -> list[dict
     found = []
     hostname = (urlparse(url).hostname or "").lower()
     newswire = any(hostname == domain or hostname.endswith("." + domain) for domain in
-                   ("businesswire.com", "globenewswire.com", "prnewswire.com", "newmediawire.com"))
+                   ("businesswire.com", "globenewswire.com", "prnewswire.com", "newmediawire.com", "newswire.ca"))
     if "json" in content_type or body.lstrip().startswith(b"{"):
         try:
             payload = json.loads(body)
@@ -495,7 +533,7 @@ def discover(body: bytes, url: str, content_type: str, event: dict) -> list[dict
                     if urlparse(target).hostname == hostname and urlparse(target).path == expected:
                         found.append(_candidate(target, f"Berkshire Hathaway Q{event['quarter']} {event['fiscal_year']} Quarterly Report"))
             return found
-    if hostname == "bam.brookfield.com" and event.get("symbol") == "BAM":
+    if (hostname, event.get("symbol")) in (("bam.brookfield.com", "BAM"), ("bn.brookfield.com", "BN")):
         rows = tree.xpath(".//div[contains(concat(' ', normalize-space(@class), ' '), ' press-data-wrapper ')]")
         if rows:
             for row in rows:
@@ -504,8 +542,12 @@ def discover(body: bytes, url: str, content_type: str, event: dict) -> list[dict
                 if not titles or not dates:
                     continue
                 title = _clean(_text(titles[0]))
-                if not (_identity(title, event) and _FINANCIAL.search(title) and
-                        (_target(title, event) or _quarter_without_year(title, event))) or _ANNOUNCEMENT.search(title):
+                if not (_identity(title, event) and _FINANCIAL.search(title)) or _ANNOUNCEMENT.search(title):
+                    continue
+                # BN's actual earnings headlines omit the quarter; the row's
+                # release date bounds discovery and full-body validation checks
+                # the report period. Its call notices must never become PDFs.
+                if event["symbol"] == "BAM" and not (_target(title, event) or _quarter_without_year(title, event)):
                     continue
                 try:
                     published_day = datetime.strptime(_clean(_text(dates[0])), "%b %d, %Y").date()
@@ -564,9 +606,20 @@ def discover(body: bytes, url: str, content_type: str, event: dict) -> list[dict
         if anchor.get("href") is None:
             continue
         target = _url(url, anchor.get("href"))
-        if not target:
+        if not target or target == _url(url, ""):
             continue
         title = _clean(_text(anchor) or anchor.get("title", ""))
+        if re.fullmatch(r"read\s+more", title, re.I):
+            # NIR cards can omit href on the real headline and shorten away
+            # "to" in the Read More slug. Classify the card's actual headline.
+            for level, parent in enumerate(anchor.iterancestors()):
+                if level == 3 or parent.tag in ("body", "html"):
+                    break
+                headline = next((node for node in parent.iter()
+                                 if "nir-widget--news--headline" in node.get("class", "").split()), None)
+                if headline is not None:
+                    title = _clean(_text(next(headline.iter("a"), headline)))
+                    break
         if newswire and not _identity(title, event):
             # Distributor search pages contain many other companies' same-quarter releases.
             continue
@@ -667,7 +720,6 @@ def validate(body: bytes, url: str, content_type: str, event: dict) -> dict:
         pages = []
         title = text = ""
         try:
-            import fitz
             parsed_url = urlparse(url)
             if event.get("symbol") == "BRK.B" and parsed_url.hostname in ("berkshirehathaway.com", "www.berkshirehathaway.com") and parsed_url.path.startswith("/qtrly/"):
                 from pdf_tables import extract_pdf_tables
@@ -684,24 +736,14 @@ def validate(body: bytes, url: str, content_type: str, event: dict) -> dict:
                 with _PDF_LOCK:
                     native_pdf = extract_kkr_pdf_tables(body)
             else:
-                with _PDF_LOCK, fitz.open(stream=body, filetype="pdf") as document:
-                    pdf_pages_total = len(document)
-                    for page in document:
-                        pages.append(page.get_text())
-                    text = "\n".join(pages)
-                    title = _pdf_title(text)
-                    for page in document:
-                        first_table_on_page = len(tables)
-                        for table in page.find_tables().tables:
-                            rows = table.extract()
-                            if any(str(cell or "").strip() for row in rows for cell in row):
-                                tables.append(rows)
-                        if not any(_financial_table(rows) for rows in tables[first_table_on_page:]):
-                            for table in page.find_tables(strategy="text").tables:
-                                rows = table.extract()
-                                if any(str(cell or "").strip() for row in rows for cell in row):
-                                    tables.append(rows)
-                        pdf_pages_processed += 1
+                from pdf_tables import extract_generic_pdf_tables
+                generic = extract_generic_pdf_tables(body)
+                pages = generic["pages"]
+                text = generic["text"]
+                tables = generic["tables"]
+                pdf_pages_total = generic["pdf_pages_total"]
+                pdf_pages_processed = generic["pdf_pages_processed"]
+                title = _pdf_title(text)
             if native_pdf is not None:
                 text = native_pdf["text"]
                 tables = native_pdf["tables"]

@@ -249,6 +249,44 @@ def retirement_requested(repository, token, run_id):
     return command.get("run_id") == run_id and command.get("action") == "retire_after_healthy_successor"
 
 
+def inherit_completed_documents(repository, token, runtime, hashes):
+    """Import the bridge's verified URL inventory; this creates no captures."""
+    with httpx.Client(trust_env=False, follow_redirects=False, timeout=10) as client:
+        response = client.get(f"https://api.github.com/repos/{repository}/contents/controls/completed-documents.json",
+                              params={"ref": "handoff-control"},
+                              headers={"Authorization": "Bearer " + token, "Cache-Control": "no-cache"})
+    if response.status_code == 404:
+        return 0
+    response.raise_for_status()
+    inventory = json.loads(base64.b64decode(response.json()["content"]))
+    if (inventory.get("schema_version") != 1
+            or inventory.get("source_manifest_sha256") != hashlib.sha256((BASE / "source_manifest.json").read_bytes()).hexdigest()
+            or inventory.get("watchlist_sha256") != hashes["watchlist.json"]["sha256"]):
+        raise ValueError("inheritance_manifest_mismatch")
+    events = {event["symbol"]: event for event in json.loads((BASE / "watchlist.json").read_text(encoding="utf-8"))}
+    from watch import Store
+    store = Store(runtime)
+    count = 0
+    try:
+        for document in inventory.get("documents", []):
+            event = events.get(document.get("symbol"))
+            if (event is None or document.get("accepted") is not True or document.get("tables_complete") is not True
+                    or document.get("channel") not in {source["channel"] for source in event["sources"]}
+                    or any(document.get(key) != event[key] for key in ("fiscal_year", "quarter", "period_end"))
+                    or not re.fullmatch(r"[a-f0-9]{64}", str(document.get("sha256", "")))
+                    or not re.fullmatch(r"[0-9]+-[0-9]+:[0-9]+", str(document.get("source_evidence_id", "")))
+                    or not isinstance(document.get("url"), str) or not document["url"].startswith(("https://", "http://"))
+                    or progress.public_url(document.get("url")) != document.get("url")):
+                continue
+            store.add("inherited_document", {key: document[key] for key in (
+                "symbol", "channel", "url", "sha256", "source_evidence_id", "accepted", "tables_complete",
+                "fiscal_year", "quarter", "period_end")})
+            count += 1
+    finally:
+        store.db.close()
+    return count
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--duration-minutes", type=int, default=300)
@@ -306,6 +344,11 @@ def main():
             publish(checkout, env, run_id)
             write_public(args.output / "latest.json", data)
             return 1
+        try:
+            metadata["inherited_document_count"] = inherit_completed_documents(repository, token, runtime, hashes)
+        except (httpx.HTTPError, OSError, ValueError, KeyError) as exc:
+            metadata["inheritance_error_type"] = type(exc).__name__
+            print("Document inheritance unavailable: " + type(exc).__name__, flush=True)
         child_env = dict(os.environ)
         for key in ("GITHUB_TOKEN", "GH_TOKEN", "HTTPS_PROXY", "HTTP_PROXY", "ALL_PROXY", "https_proxy", "http_proxy", "all_proxy"):
             child_env.pop(key, None)
