@@ -84,6 +84,13 @@ async def identify_node(client):
 
 
 def select_targets(targets, scope):
+    if scope == "sec-quarterly":
+        references = json.loads((BASE / "remaining_references.json").read_text(encoding="utf-8"))
+        events = {event["symbol"]: event for event in json.loads((BASE / "live/watchlist.json").read_text(encoding="utf-8"))}
+        return [{"target_id": symbol + "_sec_quarterly", "channel": "sec",
+                 "url": references[symbol + "_SEC_QUARTERLY"]["url"], "reference": references[symbol + "_SEC_QUARTERLY"],
+                 "event": events[symbol], "cache_profile": "ordinary", "pipeline": "production_watch_list_seed"}
+                for symbol in ("TTWO", "XENE", "LCID", "HIMS", "RKLB", "OXY")]
     if scope == "repaired-paths":
         references = json.loads((BASE / "remaining_references.json").read_text(encoding="utf-8"))
         events = {event["symbol"]: event for event in json.loads((BASE / "live/watchlist.json").read_text(encoding="utf-8"))}
@@ -559,7 +566,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths"), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "sec-quarterly"), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 

@@ -19,6 +19,7 @@ on:
           - msgk-browser-transport
           - msgk-production-issuer
           - repaired-paths
+          - sec-quarterly
         default: all
 
 permissions:
