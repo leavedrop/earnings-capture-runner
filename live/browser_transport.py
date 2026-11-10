@@ -7,7 +7,7 @@ from curl_cffi.requests import AsyncSession
 
 
 def browser_session(proxy=None):
-    return AsyncSession(max_clients=1, trust_env=False, proxy=proxy, timeout=(5, 12), retry=0,
+    return AsyncSession(max_clients=4, trust_env=False, proxy=proxy, timeout=(5, 12), retry=0,
                         impersonate="chrome", allow_redirects=False, discard_cookies=True, cache=None,
                         curl_infos=[CurlInfo.NAMELOOKUP_TIME, CurlInfo.CONNECT_TIME, CurlInfo.APPCONNECT_TIME,
                                     CurlInfo.PRETRANSFER_TIME, CurlInfo.STARTTRANSFER_TIME, CurlInfo.TOTAL_TIME,

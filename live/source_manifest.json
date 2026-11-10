@@ -1,7 +1,7 @@
 {
   "watch.py": {
-    "sha256": "41c3e329b9e5902311944cf6d4ed1348952dc4db1804c58a3653170d8c4ed8a1",
-    "production_sha256": "9430ad2ff9451814ba8cc3dfe42d240a52337d86e26063e683f0738dab1dfc9c",
+    "sha256": "5972ff74a6b5642d546996d2c09c520b80441909c19e4828841eca3284be3886",
+    "production_sha256": "8aa006c66a54e02aae253661773fdc765420d7578ef05b418f5807c1154345b0",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "watch.py"
   },
@@ -36,8 +36,8 @@
     "source": "sec_stream.py"
   },
   "browser_transport.py": {
-    "sha256": "f870eaa5209d8150190635eb7da843ce301c30743153f0ce4bf8205f8a901b22",
-    "production_sha256": "f870eaa5209d8150190635eb7da843ce301c30743153f0ce4bf8205f8a901b22",
+    "sha256": "24441a0806ce95638bf3b79a2a9621d32a98f03fd8d8bb66ec2d096bc43dfd1b",
+    "production_sha256": "24441a0806ce95638bf3b79a2a9621d32a98f03fd8d8bb66ec2d096bc43dfd1b",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "browser_transport.py"
   },

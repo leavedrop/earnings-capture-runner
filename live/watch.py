@@ -351,7 +351,8 @@ class Collector:
         body = b""
         exhibit = None
         extractor = None
-        browser = urlsplit(url).hostname in ("investor.msgknicks.com", "www.barrick.com")
+        browser = urlsplit(url).hostname in ("investor.msgknicks.com", "www.barrick.com",
+                                              "investors.archer.com", "investors.hims.com")
         kkr_api = (event.get("symbol") == "KKR" and urlsplit(url).scheme == "https"
                    and urlsplit(url).hostname == "tools.cms-eqs.com"
                    and urlsplit(url).path == "/fcf5b4/content/events/eventbox")

@@ -13,8 +13,8 @@
   },
   "browser_transport.py": {
     "source": "earnings_watch/browser_transport.py",
-    "sha256": "f870eaa5209d8150190635eb7da843ce301c30743153f0ce4bf8205f8a901b22",
-    "source_sha256": "f870eaa5209d8150190635eb7da843ce301c30743153f0ce4bf8205f8a901b22",
+    "sha256": "24441a0806ce95638bf3b79a2a9621d32a98f03fd8d8bb66ec2d096bc43dfd1b",
+    "source_sha256": "24441a0806ce95638bf3b79a2a9621d32a98f03fd8d8bb66ec2d096bc43dfd1b",
     "normalization": "UTF-8 LF; code unchanged"
   }
 }
