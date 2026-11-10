@@ -1051,7 +1051,7 @@ class Collector:
                     raise ValueError("Candidate latency replay requires exactly one --symbols value")
                 event = events[0]
                 channel = self.args.channel
-                seed = next(s["url"] for s in event["sources"] if s["channel"] == channel)
+                seed = next(s for s in event["sources"] if s["channel"] == channel)
                 warmup_url = getattr(self.args, "sec_warmup_url", None)
                 if warmup_url:
                     if channel != "sec" or not warmup_url.startswith("https://www.sec.gov/Archives/") or warmup_url == self.args.candidate_url:
@@ -1061,7 +1061,8 @@ class Collector:
                     # This is before the first listing observation. Let the
                     # startup request expire from the shared rolling budget.
                     await asyncio.sleep(1)
-                seed_record, seed_body = await self.fetch(session, seed, event, channel, "discovery")
+                seed_record, seed_body = await self.fetch(session, seed["url"], event, channel, "discovery",
+                    **({"method": seed["method"], "request_json": seed["request_json"]} if seed.get("method") == "POST" else {}))
                 await self.persist_request(seed_record, seed_body)
                 for sample in range(self.args.samples):
                     self.first_discovered.clear()

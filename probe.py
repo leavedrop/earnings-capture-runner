@@ -84,6 +84,16 @@ async def identify_node(client):
 
 
 def select_targets(targets, scope):
+    if scope == "skyd-materials":
+        event = next(event for event in json.loads((BASE / "live/watchlist.json").read_text(encoding="utf-8"))
+                     if event["symbol"] == "SKYD")
+        return [{"target_id": "SKYD_" + role + "_material", "channel": "official", "event": event,
+                 "url": "https://ir.skydance.com/static-files/" + document,
+                 "listing_url": "https://ir.skydance.com/financials/quarterly-results",
+                 "purpose": "material_download", "material_format": kind,
+                 "transport": "curl_cffi_chrome", "cache_profile": "ordinary"}
+                for role, document, kind in (("shareholder_letter", "af510edc-00d2-44ca-8e8c-b73466e99694", "pdf"),
+                                             ("trending_schedules", "ce71d9f0-8c13-4a67-9259-576b602305da", "xlsx"))]
     if scope == "lcid-chrome-protocols":
         return [{**target, "target_id": "LCID_pdf_" + profile, "protocol_profile": profile,
                  "transport": "curl_cffi_chrome", "cache_profile": "ordinary"}
@@ -221,6 +231,10 @@ async def collect_one(client, target, output, node, recent, blocked):
     if target.get("document_variant"):
         row["actual_source_url"] = target["url"]
     row.update({key: target[key] for key in ("cache_profile", "purpose", "protocol_profile") if key in target})
+    material = target.get("purpose") == "material_download"
+    if material:
+        row.update(mode="download_only", accepted=False, tables_complete=False, material_download_complete=False,
+                   timing_scope="Public material download through HTTP EOF and raw archive only; no financial parsing, capture or 300ms SLA")
     row["request_method"] = target.get("method", "GET")
     body, parsed = bytearray(), None
     browser = target.get("transport") == "curl_cffi_chrome"
@@ -299,7 +313,13 @@ async def collect_one(client, target, output, node, recent, blocked):
                    discovery_to_body_ms=(body_at - started) / 1e6)
         raw = bytes(body)
         row.update(bytes=len(raw), sha256=digest(raw))
-        if row["status"] == 200 and target.get("purpose") != "connection_warmup":
+        if material:
+            kind = ("pdf" if raw.startswith(b"%PDF") else "xlsx" if raw.startswith(b"PK\x03\x04")
+                    and (target["material_format"] == "xlsx" or "spreadsheetml" in row["content_type"]) else None)
+            row["material_format"] = kind
+            if row["status"] == 200 and kind != target["material_format"]:
+                row["error_type"] = "UnexpectedMaterialType"
+        if row["status"] == 200 and target.get("purpose") not in ("connection_warmup", "material_download"):
             parse_queued = time.perf_counter_ns()
 
             def parse():
@@ -341,7 +361,7 @@ async def collect_one(client, target, output, node, recent, blocked):
         row["invocation_to_end_ms"] = (time.perf_counter_ns() - started) / 1e6
         try:
             if body:
-                suffix = ".pdf" if body.startswith(b"%PDF") else ".html"
+                suffix = ".xlsx" if material and row.get("material_format") == "xlsx" else ".pdf" if body.startswith(b"%PDF") else ".html"
                 name = target["target_id"] + suffix
                 (output / "raw" / name).write_bytes(body)
                 row["artifacts"].append("raw/" + name)
@@ -356,7 +376,11 @@ async def collect_one(client, target, output, node, recent, blocked):
         except OSError as exc:
             row["archive_error_type"] = type(exc).__name__
         row["invocation_to_archived_ms"] = (time.perf_counter_ns() - started) / 1e6
-        log_name = "warmup.ndjson" if target.get("purpose") == "connection_warmup" else "results.ndjson"
+        if material:
+            row["material_download_complete"] = bool(row["status"] == 200 and row["http_response_complete"]
+                and row["archived"] and row.get("material_format") == target["material_format"]
+                and not row.get("error_type") and not row.get("archive_error_type"))
+        log_name = "materials.ndjson" if material else "warmup.ndjson" if target.get("purpose") == "connection_warmup" else "results.ndjson"
         with (output / log_name).open("a", encoding="utf-8") as stream:
             stream.write(json.dumps(row, ensure_ascii=False) + "\n")
         print(json.dumps({key: row.get(key) for key in ("target_id", "symbol", "status", "discovery_to_parsed_ms", "complete", "budget_passed", "error_type")}), flush=True)
@@ -524,7 +548,7 @@ async def run(args):
     args.output.mkdir(parents=True, exist_ok=False)
     for name in ("raw", "parsed"):
         (args.output / name).mkdir()
-    warmup = await asyncio.to_thread(prewarm_pdf_pool)
+    warmup = {"skipped": "download_only"} if args.scope == "skyd-materials" else await asyncio.to_thread(prewarm_pdf_pool)
     recent, blocked = {}, {}
     async with AsyncExitStack() as stack, httpx.AsyncClient(http2=True, trust_env=False, follow_redirects=True, max_redirects=5,
                                 timeout=httpx.Timeout(12, connect=5),
@@ -548,8 +572,25 @@ async def run(args):
                     "requests_per_second": {"parent_direct_sec": 2 if args.scope == "b-sec-transports" else 8,
                                              "production_child_sec": 2, "other_hosts_shared": 4},
                     "transport_policy": {"businesswire.com": "HTTP/1.1 persistent client after observed HTTP/2 StreamReset error_code=2", "msgk-issuer-cold": "HTTP/1.1 cold client matching the production official collector", "default": "HTTP/2 enabled"}}
+        if args.scope == "skyd-materials":
+            metadata.update(scope="skyd_material_download_only_not_financial_capture_or_sla", sla_applicable=False,
+                            success_criterion="Two US HTTP200 responses through EOF with expected file magic and SHA256 raw archives; financial completeness remains false",
+                            requests_per_second={"parent_direct_sec": 0, "production_child_sec": 0, "other_hosts_shared": 4})
         (args.output / "run.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
         results = []
+        if args.scope == "skyd-materials":
+            listing = await collect_one(browser_client,
+                {**targets[0], "url": targets[0]["listing_url"], "target_id": "SKYD_verified_quarterly_listing",
+                 "purpose": "connection_warmup"}, args.output, node, recent, blocked)
+            path = listing.get("raw_document_artifact")
+            raw = (args.output / path).read_bytes() if path else b""
+            linked = {item["url"] for item in discover(raw, targets[0]["listing_url"], listing.get("content_type", "text/html"), targets[0]["event"])}
+            listing["listing_contains_all_targets"] = all(target["url"] in linked for target in targets)
+            metadata["listing_verification"] = listing
+            if not (listing.get("status") == 200 and listing.get("http_response_complete") and listing["listing_contains_all_targets"]):
+                metadata["comparison_stopped"] = "quarterly_listing_not_verified_no_material_requests"
+                metadata["skipped_targets_after_warmup"] = [target["target_id"] for target in targets]
+                targets = []
         if args.scope == "b-sec-transports":
             # browser_response filters request-level UA. This dedicated session
             # is now SEC-only; node identification above used the public UA.
@@ -636,7 +677,11 @@ async def run(args):
                     complete=sum(row["complete"] for row in results),
                     passed=sum(row["budget_passed"] for row in results),
                     failures=sum(bool(row.get("error_type")) for row in results))
+    if args.scope == "skyd-materials":
+        metadata["material_downloaded"] = sum(row.get("material_download_complete") is True for row in results)
     (args.output / "summary.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+    if args.scope == "skyd-materials":
+        return 0 if metadata["material_downloaded"] == 2 and node.get("loc") == "US" and node.get("is_us") is True else 1
     return 0 if results and all(row["complete"] and row["archived"] for row in results) and not metadata.get("comparison_stopped") and not metadata.get("skipped_targets_after_warmup") else 1
 
 
@@ -644,7 +689,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports"), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports", "skyd-materials"), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 

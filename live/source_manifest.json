@@ -1,13 +1,13 @@
 {
   "watch.py": {
-    "sha256": "1aed5585d12169c7baf02e78b98f3a252cf9013db77586b91b24c542a72a8135",
-    "production_sha256": "40c253114abd4418f3ee8bc98936223e22baab41cd4688cb9ff9421fd7162871",
+    "sha256": "5a23d18c296cf6e0efdf3a34bf39581c790491f909959ce6386c1e2fa29560d2",
+    "production_sha256": "f2299a745518834b74557d2b49ed96365457b31d40376b18de74faa2ff690948",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "watch.py"
   },
   "sources.py": {
-    "sha256": "7d75a06d6b5200691f35783d74747dd3e5d1730d16a34c1e74895b8c69b07e7c",
-    "production_sha256": "e8d5ddc85d481771270927f1a27b66189e4d69ea2ad75b436dac1a8825a6f4dd",
+    "sha256": "0623a16372eade278a79b7df438d9c0f213958696b144a1bc6bc74079fc02fc8",
+    "production_sha256": "851967d83b89ad8e585d7f2a21d468b098af9403bac464fb412d871f873c2b10",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "sources.py"
   },
@@ -42,8 +42,8 @@
     "source": "browser_transport.py"
   },
   "watchlist.json": {
-    "sha256": "9414ae875213eb1b052a3338f07395ae3e6ee9e248204081403e61e8632f9da7",
-    "production_sha256": "26fbf9f0e07e26b16e1bdfbec81cecb9421c0beed5416d0efcb063b5220d47b7",
+    "sha256": "74467a0faa00f6e71179d6250022e224aa7699ed893b7d8ef19ddfe0fa11ce41",
+    "production_sha256": "b66c813ee6c52bc224204a6b0f8cd2af1845ab0f7c5063025949c01c2973084f",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "watchlist.json"
   }

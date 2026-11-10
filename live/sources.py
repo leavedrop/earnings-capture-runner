@@ -40,7 +40,6 @@ class _TextNodes(threading.local):
 
 
 _TEXT_NODES = _TextNodes()
-_NUMERIC_REFERENCE = re.compile(br"&#(?:([0-9]+)|[xX]([0-9A-Fa-f]+));")
 
 
 def _clean(value):
@@ -283,13 +282,6 @@ def uses_native_html_parser(url, event):
             and parsed.path == "/Archives/edgar/data/756894/000119312526453391/d141003dex992.htm")
 
 
-def _preserve_c1_reference(match):
-    # HTML5 maps numeric C1 references to Windows-1252 punctuation. Retain the
-    # original lxml codepoints instead; the archived HTTP body stays untouched.
-    value = int(match[1], 10) if match[1] else int(match[2], 16)
-    return chr(value).encode("utf-8") if 128 <= value <= 159 else match[0]
-
-
 def _lexbor_text_fragments(node):
     # skip_empty only handles ASCII whitespace. Filter after Unicode strip so
     # NBSP-only fragments do not introduce extra separators into the full text.
@@ -297,7 +289,9 @@ def _lexbor_text_fragments(node):
 
 
 def _extract_barrick_native_html(body):
-    document = LexborHTMLParser(_NUMERIC_REFERENCE.sub(_preserve_c1_reference, body), encoding=True)
+    # The exact native route only accepts ASCII bytes. Decode numeric entities
+    # as HTML5 visible characters, matching the frozen complete US reference.
+    document = LexborHTMLParser(body, encoding=False)
     metadata = document.css('meta,script[type="application/ld+json"],time[datetime]')
     timestamp = (_native_timestamp(_document("".join(node.html for node in metadata).encode("utf-8")))
                  if metadata else _stamp(None))
@@ -427,6 +421,16 @@ def listing_structure(body: bytes, url: str, content_type: str, event: dict) -> 
                 entries = payload.get("GetPressReleaseListResult") if isinstance(payload, dict) else None
                 if isinstance(entries, list) and all(isinstance(row, dict) and row.get("Headline") and row.get("LinkToDetailPage") for row in entries):
                     return "Official Q4 press release entries with titles and document links"
+            if (event.get("symbol") == "OXY" and parsed.hostname == "www.oxy.com"
+                    and parsed.path == "/quarterly-earnings-api/filter"):
+                entries = payload.get("results") if isinstance(payload, dict) else None
+                if isinstance(entries, list) and entries and all(
+                        isinstance(row, dict) and isinstance(row.get("date"), dict) and row.get("period")
+                        and isinstance(row.get("description"), dict) and row["description"].get("title")
+                        and isinstance(row.get("actions"), list)
+                        and all(isinstance(action, dict) and action.get("label") and action.get("link")
+                                for action in row["actions"]) for row in entries):
+                    return "Official Occidental quarterly earnings entries with dated document actions"
             if parsed.hostname == "data.sec.gov" and parsed.path.startswith("/submissions/") and isinstance(payload, dict):
                 filings = payload.get("filings")
                 recent = filings.get("recent") if isinstance(filings, dict) else None
@@ -448,6 +452,13 @@ def listing_structure(body: bytes, url: str, content_type: str, event: dict) -> 
                     return "Parsed public feed with titled entry links"
             return None
         document = _document(body)
+        if (event.get("symbol") == "SKYD" and parsed.hostname == "ir.skydance.com"
+                and parsed.path.rstrip("/") == "/financials/quarterly-results"):
+            for link in document.xpath(".//div[contains(concat(' ', normalize-space(@class), ' '), ' qr-doc-list ')]//a[@href]"):
+                target = urlparse(urljoin(url, link.get("href")))
+                if (target.hostname == parsed.hostname and target.path.startswith("/static-files/")
+                        and re.search(r"\bQ[1-4]\s+20\d{2}\b", _text(link))):
+                    return "Official Skydance quarterly document directory with labeled report files"
         if (event.get("symbol") == "LCID" and parsed.hostname == "ir.lucidmotors.com"
                 and parsed.path.startswith("/events/event-details/")):
             title_node = next(document.iter("title"), None)
@@ -536,6 +547,27 @@ def discover(body: bytes, url: str, content_type: str, event: dict) -> list[dict
             return found
         if not isinstance(payload, dict):
             return []
+        if (event.get("symbol") == "OXY" and hostname == "www.oxy.com"
+                and urlparse(url).path == "/quarterly-earnings-api/filter"):
+            for row in payload.get("results", []):
+                title = row.get("description", {}).get("title", "")
+                period_title = re.sub(r"\b([1-4])(?:st|nd|rd|th)\s+Quarter\b", r"Q\1", title, flags=re.I)
+                if (row.get("period") != f"Q{event['quarter']}" or not _target(period_title, event)
+                        or not _FINANCIAL.search(title) or _ANNOUNCEMENT.search(title)):
+                    continue
+                for action in row.get("actions", []):
+                    if action.get("type") != "file":
+                        continue
+                    target = _url(url, action.get("link", ""))
+                    if (not target or urlparse(target).hostname != hostname
+                            or not urlparse(target).path.startswith("/siteassets/documents/investors/quarterly-earnings/")):
+                        continue
+                    label = _clean(action.get("label", ""))
+                    found.append(_candidate(target, f"Occidental {title} - {label}", identity_verified=True,
+                                            document_role=re.sub(r"[^a-z0-9]+", "_", label.lower()).strip("_"),
+                                            source_document_label=label,
+                                            discovery_route="official_quarterly_documents"))
+            return found
         if (event.get("symbol") == "KKR" and hostname == "tools.cms-eqs.com"
                 and urlparse(url).path == "/fcf5b4/content/events/eventbox"):
             if payload.get("@type") != "hydra:Collection":

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       scope:
-        description: Public report subset
+        description: Public report subset or material-only download evidence
         type: choice
         options:
           - all
@@ -23,6 +23,7 @@ on:
           - lcid-http-protocols
           - lcid-chrome-protocols
           - b-sec-transports
+          - skyd-materials
         default: all
 
 permissions:
@@ -43,7 +44,7 @@ jobs:
         run: python -m pip install -r requirements.txt
       - name: Check continuous timing and failure evidence offline
         run: python -m unittest -q test_probe.py
-      - name: Download and parse the selected public reports once
+      - name: Run selected report replay or material-only download once
         env:
           SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
           PROBE_SCOPE: ${{ inputs.scope }}

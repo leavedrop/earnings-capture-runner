@@ -896,11 +896,11 @@
     "sources": [
       {
         "channel": "official",
-        "url": "https://ir.skydance.com/events-news/press-releases",
+        "url": "https://ir.skydance.com/financials/quarterly-results",
         "kind": "html",
         "original_url": "https://ir.skydance.com/news-releases/news-release-details/skydance-report-third-quarter-2026-financial-results-november-9",
-        "note": "Replaced fixed earnings announcement with a discovery listing; live verification recorded separately.",
-        "verification": "http_ok_discovery_links_present",
+        "note": "Official quarterly document directory linked from the issuer's distributed results announcement; contains the shareholder letter and trending schedules. Verified after publication, not first-release evidence.",
+        "verification": "verified_official_quarterly_document_list",
         "last_status_code": 200
       },
       {
@@ -1457,12 +1457,18 @@
     "sources": [
       {
         "channel": "official",
-        "url": "https://www.oxy.com/investors/quarterly-earnings/",
-        "kind": "html",
+        "url": "https://www.oxy.com/quarterly-earnings-api/filter",
+        "kind": "json",
         "original_url": "https://www.oxy.com/investors/quarterly-earnings/",
-        "note": "Imported discovery entry; live access and update behavior require verification.",
-        "verification": "http_ok_listing_not_proven",
-        "last_status_code": 200
+        "note": "Public API and POST parameters from the original page's G4 quarterly earnings component. Discover the target earnings row's release, slides and reconciliation files; row date is a call date, not publication time. Verified after publication.",
+        "verification": "verified_official_quarterly_document_api",
+        "last_status_code": 200,
+        "method": "POST",
+        "request_json": {
+          "year": "",
+          "sourceId": "0a09c42e-ca1f-4b81-84ae-be2322c807ad",
+          "recursive": true
+        }
       },
       {
         "channel": "sec",
