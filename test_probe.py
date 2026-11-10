@@ -19,6 +19,92 @@ from probe import BASE, collect_one, collect_watch_case, content_hashes, pace, r
 
 
 class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
+    async def test_skyd_range_streams_exact_cover_and_aborts_ignored_range_before_full_transfer(self):
+        targets = select_targets(json.loads((BASE / "targets.json").read_text(encoding="utf-8")), "skyd-range")
+        self.assertEqual(len(targets), 1)
+        self.assertEqual(targets[0]["reference_bytes"], 11841890)
+        full = b"PK\x03\x04" + bytes(range(256)) * 8192
+        state = {}
+
+        class Handler(BaseHTTPRequestHandler):
+            protocol_version = "HTTP/1.1"
+
+            def do_GET(self):
+                case = state["case"]
+                case["requests"].append((self.path, self.headers.get("Range")))
+                if self.path == "/quarterly":
+                    data = b"<div><a href='/workbook'>Q3 2026 Trending Schedules</a></div>"
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/html")
+                    self.send_header("Content-Length", str(len(data)))
+                    self.end_headers(); self.wfile.write(data)
+                    return
+                start, end = map(int, self.headers["Range"].removeprefix("bytes=").split("-"))
+                data = full if case["ignored"] else full[start:end + 1]
+                self.send_response(200 if case["ignored"] else 206)
+                self.send_header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                self.send_header("Content-Length", str(len(data)))
+                if not case["ignored"]:
+                    self.send_header("Content-Range", f"bytes {start}-{end}/{len(full)}")
+                self.end_headers()
+                sent = 0
+                try:
+                    for offset in range(0, len(data), 16384):
+                        chunk = data[offset:offset + 16384]
+                        self.wfile.write(chunk); self.wfile.flush()
+                        sent += len(chunk)
+                        time.sleep(.002)
+                except (BrokenPipeError, ConnectionResetError):
+                    pass
+                finally:
+                    case["sent"].append(sent)
+                    if len(case["sent"]) == 3:
+                        case["finished"].set()
+
+            def log_message(self, *args):
+                pass
+
+        server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True); thread.start()
+        target = {**targets[0], "url": f"http://127.0.0.1:{server.server_port}/workbook",
+                  "listing_url": f"http://127.0.0.1:{server.server_port}/quarterly",
+                  "reference_bytes": len(full), "reference_sha256": hashlib.sha256(full).hexdigest()}
+        try:
+            for ignored in (False, True):
+                case = {"ignored": ignored, "requests": [], "sent": [], "finished": threading.Event()}
+                state["case"] = case
+                with tempfile.TemporaryDirectory() as directory:
+                    args = argparse.Namespace(targets=BASE / "targets.json", output=Path(directory) / "outputs", scope="skyd-range")
+                    with patch("probe.select_targets", return_value=[target]), \
+                            patch("probe.identify_node", new_callable=AsyncMock, return_value={"loc": "US", "colo": "TEST", "is_us": True, "status": 200}), \
+                            patch("probe.validate") as parse, patch("probe.prewarm_pdf_pool") as warm:
+                        self.assertEqual(await run(args), 1 if ignored else 0)
+                    parse.assert_not_called(); warm.assert_not_called()
+                    self.assertTrue(await asyncio.to_thread(case["finished"].wait, 2))
+                    expected = [f"bytes={i * len(full) // 3}-{(i + 1) * len(full) // 3 - 1}" for i in range(3)]
+                    self.assertEqual(case["requests"][0], ("/quarterly", None))
+                    self.assertEqual(sorted(value for path, value in case["requests"][1:]), sorted(expected))
+                    self.assertEqual(len(case["requests"]), 4)
+                    row = json.loads((args.output / "materials.ndjson").read_text())
+                    parts = [json.loads(line) for line in (args.output / "range_parts.ndjson").read_text().splitlines()]
+                    self.assertEqual(len(parts), 3)
+                    self.assertFalse(row["complete"] or row["budget_passed"] or row["tables_complete"])
+                    self.assertIsNone(row["discovery_to_parsed_ms"])
+                    self.assertFalse((args.output / "results.ndjson").exists())
+                    if ignored:
+                        self.assertTrue(all(part["status"] == 200 and part["stopped_on_headers"] and not part["http_response_complete"] for part in parts))
+                        self.assertTrue(all(sent < len(full) for sent in case["sent"]))
+                        self.assertFalse(row["material_download_complete"])
+                    else:
+                        self.assertTrue(all(part["status"] == 206 and part["http_response_complete"] for part in parts))
+                        self.assertEqual(sum(part["bytes"] for part in parts), len(full))
+                        self.assertTrue(row["material_download_complete"])
+                        self.assertEqual(row["sha256"], target["reference_sha256"])
+                        self.assertEqual((args.output / row["raw_document_artifact"]).read_bytes(), full)
+                        self.assertGreaterEqual(row["invocation_to_hashed_download_ms"], max(part["request_total_ms"] for part in parts))
+        finally:
+            server.shutdown(); server.server_close(); thread.join()
+
     async def test_skyd_materials_archive_two_files_without_financial_acceptance_and_keep_failed_eof(self):
         from contextlib import asynccontextmanager
         from io import BytesIO

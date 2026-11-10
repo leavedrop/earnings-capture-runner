@@ -84,6 +84,10 @@ async def identify_node(client):
 
 
 def select_targets(targets, scope):
+    if scope == "skyd-range":
+        return [{**select_targets(targets, "skyd-materials")[1],
+                 "target_id": "SKYD_trending_schedules_range_material", "reference_bytes": 11841890,
+                 "reference_sha256": "824cd6a60c98b4a1f6668452f3c24b29b46ec58fa3987d7374b6b2195d497bf4"}]
     if scope == "skyd-materials":
         event = next(event for event in json.loads((BASE / "live/watchlist.json").read_text(encoding="utf-8"))
                      if event["symbol"] == "SKYD")
@@ -387,6 +391,104 @@ async def collect_one(client, target, output, node, recent, blocked):
     return row
 
 
+async def collect_material_ranges(client, target, output, node, recent, blocked):
+    """One exact three-part old-file download; financial acceptance stays false."""
+    started = time.perf_counter_ns()
+    size = target["reference_bytes"]
+    row = {"target_id": target["target_id"], "symbol": target["event"]["symbol"], "channel": target["channel"],
+           "url": target["url"], "node": node, "purpose": "material_download", "mode": "download_only",
+           "started_utc": utc(), "parsed_utc": None, "discovery_to_parsed_ms": None,
+           "complete": False, "accepted": False, "tables_complete": False, "budget_passed": False,
+           "new_release_evidence": False, "material_download_complete": False, "archived": False,
+           "http_response_complete": False, "artifacts": [], "reference_bytes": size,
+           "reference_sha256": target["reference_sha256"], "attempts": 1,
+           "timing_scope": "Three parallel ranges from group invocation before rate queues through all HTTP EOFs, ordered assembly and complete SHA256; excludes listing and subsequent archives. Old-material download only, not full parsing or 300ms SLA."}
+
+    async def part(index):
+        first, last = index * size // 3, (index + 1) * size // 3 - 1
+        queued = time.perf_counter_ns()
+        record = {"part": index, "purpose": "material_download", "url": target["url"],
+                  "requested_range": f"bytes={first}-{last}", "expected_bytes": last - first + 1,
+                  "expected_total_bytes": size, "started_utc": utc(), "attempts": 1,
+                  "status": None, "http_response_complete": False, "stopped_on_headers": False}
+        body = bytearray()
+        request_started = None
+        try:
+            await pace(target["url"], recent, blocked)
+            request_started = time.perf_counter_ns()
+            record.update(queue_ms=(request_started - queued) / 1e6, request_start_utc=utc())
+            async with client.stream("GET", target["url"], headers={"Range": record["requested_range"], "Accept-Encoding": "identity"}) as response:
+                record.update(status=response.status_code, final_url=str(response.url),
+                              content_range=response.headers.get("content-range"),
+                              content_length=response.headers.get("content-length"),
+                              content_type=response.headers.get("content-type"),
+                              content_encoding=response.headers.get("content-encoding"),
+                              stream_response_ready_ms=(time.perf_counter_ns() - request_started) / 1e6)
+                expected_range = f"bytes {first}-{last}/{size}"
+                if (response.status_code != 206 or (record["content_range"] or "").strip().lower() != expected_range
+                        or (record["content_length"] is not None and record["content_length"] != str(last - first + 1))
+                        or (record["content_encoding"] or "identity").lower() != "identity"):
+                    # Pinned curl_cffi 0.16.0 ac lose only waits. Its stream qput
+                    # aborts the next write when quit_now is set; do not drain a 200 body.
+                    response.quit_now.set()
+                    record["stopped_on_headers"] = True
+                    raise ValueError("Range response must be 206 with exact unencoded Content-Range and length")
+                async for chunk in response.aiter_content():
+                    body.extend(chunk)
+                    if len(body) > last - first + 1:
+                        response.quit_now.set()
+                        raise ValueError("Range response exceeded the requested bytes")
+                if len(body) != last - first + 1:
+                    raise ValueError("Range HTTP EOF arrived without all requested bytes")
+                record.update(http_response_complete=True, body_complete_utc=utc())
+        except Exception as exc:
+            record.update(error_type=type(exc).__name__, error_message=safe_error_message(exc))
+        ended = time.perf_counter_ns()
+        record.update(ended_utc=utc(), bytes=len(body), sha256=digest(body),
+                      request_total_ms=(ended - request_started) / 1e6 if request_started is not None else None,
+                      invocation_to_end_ms=(ended - queued) / 1e6,
+                      header_timing_semantics="Stream response returns after the first libcurl body callback; not pure header arrival")
+        return record, bytes(body)
+
+    pieces = await asyncio.gather(*(part(index) for index in range(3)))
+    row["parts"] = [record for record, _ in pieces]
+    raw = b""
+    if all(record["http_response_complete"] for record, _ in pieces):
+        raw = b"".join(body for _, body in pieces)
+        row.update(http_response_complete=True, bytes=len(raw), sha256=digest(raw), material_format="xlsx")
+        row["reference_sha256_matches"] = len(raw) == size and row["sha256"] == target["reference_sha256"]
+        row.update(download_hash_completed_utc=utc(), invocation_to_hashed_download_ms=(time.perf_counter_ns() - started) / 1e6)
+        if not row["reference_sha256_matches"]:
+            row["error_type"] = "ReferenceSha256Mismatch"
+    else:
+        row["error_type"] = "RangeDownloadIncomplete"
+    row.update(ended_utc=utc(), invocation_to_end_ms=(time.perf_counter_ns() - started) / 1e6)
+    try:
+        if raw:
+            name = "raw/" + target["target_id"] + ".xlsx"
+            (output / name).write_bytes(raw)
+            row.update(raw_document_artifact=name, archived=True)
+            row["artifacts"].append(name)
+        if row.get("error_type"):
+            for record, body in pieces:
+                if body:
+                    name = f"raw/{target['target_id']}_part{record['part']}.bin"
+                    (output / name).write_bytes(body)
+                    record["raw_document_artifact"] = name
+                    row["artifacts"].append(name)
+    except OSError as exc:
+        row["archive_error_type"] = type(exc).__name__
+    row["material_download_complete"] = bool(row["archived"] and row.get("reference_sha256_matches") and not row.get("archive_error_type"))
+    row["invocation_to_archived_ms"] = (time.perf_counter_ns() - started) / 1e6
+    with (output / "range_parts.ndjson").open("a", encoding="utf-8") as stream:
+        for record, _ in pieces:
+            stream.write(json.dumps(record, ensure_ascii=False) + "\n")
+    with (output / "materials.ndjson").open("a", encoding="utf-8") as stream:
+        stream.write(json.dumps(row, ensure_ascii=False) + "\n")
+    print(json.dumps({key: row.get(key) for key in ("target_id", "material_download_complete", "invocation_to_hashed_download_ms", "error_type")}), flush=True)
+    return row
+
+
 async def collect_watch_case(target, output, node):
     """One production probe; the listing request is real, the supplied URL is a replay."""
     row = {"target_id": target["target_id"], "symbol": target["event"]["symbol"],
@@ -548,7 +650,8 @@ async def run(args):
     args.output.mkdir(parents=True, exist_ok=False)
     for name in ("raw", "parsed"):
         (args.output / name).mkdir()
-    warmup = {"skipped": "download_only"} if args.scope == "skyd-materials" else await asyncio.to_thread(prewarm_pdf_pool)
+    material_scope = args.scope in ("skyd-materials", "skyd-range")
+    warmup = {"skipped": "download_only"} if material_scope else await asyncio.to_thread(prewarm_pdf_pool)
     recent, blocked = {}, {}
     async with AsyncExitStack() as stack, httpx.AsyncClient(http2=True, trust_env=False, follow_redirects=True, max_redirects=5,
                                 timeout=httpx.Timeout(12, connect=5),
@@ -572,13 +675,13 @@ async def run(args):
                     "requests_per_second": {"parent_direct_sec": 2 if args.scope == "b-sec-transports" else 8,
                                              "production_child_sec": 2, "other_hosts_shared": 4},
                     "transport_policy": {"businesswire.com": "HTTP/1.1 persistent client after observed HTTP/2 StreamReset error_code=2", "msgk-issuer-cold": "HTTP/1.1 cold client matching the production official collector", "default": "HTTP/2 enabled"}}
-        if args.scope == "skyd-materials":
-            metadata.update(scope="skyd_material_download_only_not_financial_capture_or_sla", sla_applicable=False,
-                            success_criterion="Two US HTTP200 responses through EOF with expected file magic and SHA256 raw archives; financial completeness remains false",
+        if material_scope:
+            metadata.update(scope=args.scope.replace("-", "_") + "_download_only_not_financial_capture_or_sla", sla_applicable=False,
+                            success_criterion=("Three US HTTP206 ranges exactly covering the known XLSX through EOF and assembled original SHA256 archive; financial completeness remains false" if args.scope == "skyd-range" else "Two US HTTP200 responses through EOF with expected file magic and SHA256 raw archives; financial completeness remains false"),
                             requests_per_second={"parent_direct_sec": 0, "production_child_sec": 0, "other_hosts_shared": 4})
         (args.output / "run.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
         results = []
-        if args.scope == "skyd-materials":
+        if material_scope:
             listing = await collect_one(browser_client,
                 {**targets[0], "url": targets[0]["listing_url"], "target_id": "SKYD_verified_quarterly_listing",
                  "purpose": "connection_warmup"}, args.output, node, recent, blocked)
@@ -590,6 +693,9 @@ async def run(args):
             if not (listing.get("status") == 200 and listing.get("http_response_complete") and listing["listing_contains_all_targets"]):
                 metadata["comparison_stopped"] = "quarterly_listing_not_verified_no_material_requests"
                 metadata["skipped_targets_after_warmup"] = [target["target_id"] for target in targets]
+                targets = []
+            if args.scope == "skyd-range" and targets:
+                results.append(await collect_material_ranges(browser_client, targets[0], args.output, node, recent, blocked))
                 targets = []
         if args.scope == "b-sec-transports":
             # browser_response filters request-level UA. This dedicated session
@@ -677,11 +783,11 @@ async def run(args):
                     complete=sum(row["complete"] for row in results),
                     passed=sum(row["budget_passed"] for row in results),
                     failures=sum(bool(row.get("error_type")) for row in results))
-    if args.scope == "skyd-materials":
+    if material_scope:
         metadata["material_downloaded"] = sum(row.get("material_download_complete") is True for row in results)
     (args.output / "summary.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-    if args.scope == "skyd-materials":
-        return 0 if metadata["material_downloaded"] == 2 and node.get("loc") == "US" and node.get("is_us") is True else 1
+    if material_scope:
+        return 0 if metadata["material_downloaded"] == (1 if args.scope == "skyd-range" else 2) and node.get("loc") == "US" and node.get("is_us") is True else 1
     return 0 if results and all(row["complete"] and row["archived"] for row in results) and not metadata.get("comparison_stopped") and not metadata.get("skipped_targets_after_warmup") else 1
 
 
@@ -689,7 +795,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports", "skyd-materials"), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports", "skyd-materials", "skyd-range"), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 

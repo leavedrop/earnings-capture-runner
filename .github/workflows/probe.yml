@@ -24,6 +24,7 @@ on:
           - lcid-chrome-protocols
           - b-sec-transports
           - skyd-materials
+          - skyd-range
         default: all
 
 permissions:
