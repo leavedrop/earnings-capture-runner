@@ -746,7 +746,7 @@ class Collector:
             now = self.clock.stamp()[1]/1e9
             start, end = epoch(event["window_start"]), epoch(event["window_end"])
             if not once and now < start and preflight_done:
-                self.status[status_key] = {"state": "scheduled", "url": url, "window_start": event["window_start"]}
+                self.status[status_key].update(state="scheduled", url=url, window_start=event["window_start"])
                 await asyncio.sleep(min(30, start-now))
                 continue
             if not once and now > end + 86400:

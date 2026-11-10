@@ -1,7 +1,7 @@
 {
   "watch.py": {
-    "sha256": "c74ff93b01ebf1827a13f569ebc77e5dd32b387b48ff5269ca63adebf73edb3b",
-    "production_sha256": "163906f7b19e52b561ca3482bd8cefe174773a87746c3707f33c9d7b000b22d3",
+    "sha256": "43c89a5f3eba71ce775e4e21bdaf3549352d15d704d7004bc6f5b87eb816849c",
+    "production_sha256": "a967fdf76b641d3bc7cf218425a4905fe22a2d3eb141512325c4d4fd8e978f53",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "watch.py"
   },
@@ -18,8 +18,8 @@
     "source": "pdf_tables.py"
   },
   "progress.py": {
-    "sha256": "6ff2c7d34e1b7277b3c669f952f820abf61998ff693e5ce454bdca52caa6c303",
-    "production_sha256": "6ff2c7d34e1b7277b3c669f952f820abf61998ff693e5ce454bdca52caa6c303",
+    "sha256": "cfdbe99f7d1d7ec5819a71a1cf0abb6c14a8a3de36a9a48907e03a61587f2399",
+    "production_sha256": "cfdbe99f7d1d7ec5819a71a1cf0abb6c14a8a3de36a9a48907e03a61587f2399",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "progress.py"
   },

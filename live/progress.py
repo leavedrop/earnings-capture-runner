@@ -808,7 +808,22 @@ def read_us_live(root, now=None):
                  "failure_type": row.get("failure_type"), "count": row.get("count", 0),
                  "last_seen_beijing": beijing(row.get("lastseen"))}
                 for run in runs for row in run.get("failure_groups", [])]
-    return captures, info, current.get("source_patrols", []), {"failed_records": info["failed_requests"], "groups": failures}
+    handoffs = {(row.get("symbol"), row.get("channel"), public_url(row.get("url"))): row
+                for row in current.get("handoff_sources", []) if public_url(row.get("url"))}
+    patrols = []
+    for original in current.get("source_patrols", []):
+        row = dict(original)
+        observed = handoffs.get((row.get("symbol"), row.get("channel"), public_url(row.get("url"))))
+        if observed and observed.get("request_end_utc") and not any(row.get(key) for key in (
+                "last_patrol_at_beijing", "request_start_utc", "request_end_utc")):
+            row.update(request_start_utc=observed.get("request_start_utc"), request_end_utc=observed["request_end_utc"],
+                       request_start_at_beijing=beijing(observed.get("request_start_utc")),
+                       request_end_at_beijing=beijing(observed["request_end_utc"]),
+                       last_patrol_at_beijing=beijing(observed["request_end_utc"]))
+            if row.get("status") is None:
+                row["status"] = observed.get("status")
+        patrols.append(row)
+    return captures, info, patrols, {"failed_records": info["failed_requests"], "groups": failures}
 
 
 def build_progress(runtime, replay_runtimes=None, now=None):
