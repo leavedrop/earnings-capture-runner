@@ -384,10 +384,8 @@ class Collector:
                 if (not browser and not sec_exhibit and purpose == "candidate" and event.get("symbol") == "B"
                         and channel == "sec" and response.status_code == 200
                         and "html" in response.headers.get("content-type", "").lower()):
-                    from sources import uses_native_html_parser
-                    if not uses_native_html_parser(str(response.url), event):
-                        from lxml import etree
-                        html_parser = etree.HTMLParser()
+                    from lxml import etree
+                    html_parser = etree.HTMLParser()
                 if browser:
                     chunks.extend(response.content)
                 else:

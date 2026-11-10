@@ -229,7 +229,7 @@ def _cell_text(node):
     if not len(node):
         text = node.text
         return " ".join(text.split()) if text else ""
-    return " ".join(" ".join(_TEXT_NODES.evaluate(node)).split())
+    return " ".join(" ".join(node.itertext()).split())
 
 
 def _cell_spans(cell):
