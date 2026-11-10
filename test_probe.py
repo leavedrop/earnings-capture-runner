@@ -19,6 +19,42 @@ from probe import BASE, collect_one, collect_watch_case, content_hashes, pace, r
 
 
 class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
+    async def test_lcid_chrome_pair_reuses_each_session_and_stops_on_listing_rejection(self):
+        from curl_cffi.const import CurlHttpVersion, CurlOpt
+        targets = select_targets(json.loads((BASE / "targets.json").read_text(encoding="utf-8")), "lcid-chrome-protocols")
+        self.assertTrue(all(row["transport"] == "curl_cffi_chrome" and row["require_raw_reference_match"] for row in targets))
+        self.assertEqual(targets[0]["reference"]["pdf_pages_total"], 42)
+        for refused in (False, True):
+            calls = []
+            async def sample(client, target, output, node, recent, blocked):
+                version = client.curl_options[CurlOpt.HTTP_VERSION]
+                listing = target.get("purpose") == "connection_warmup"
+                calls.append((client, target, recent, blocked))
+                status = 403 if refused and listing and version == CurlHttpVersion.V2TLS else 200
+                row = {"status": status, "http_response_complete": True, "complete": status == 200,
+                       "archived": True, "budget_passed": False,
+                       "http_version": "HTTP/1.1" if version == CurlHttpVersion.V1_1 else "HTTP/2"}
+                if listing:
+                    path = "raw/" + target["target_id"] + ".html"
+                    (output / path).write_text('<a href="' + targets[0]["url"] + '">Lucid Group Q3 2026 Earnings Presentation</a>')
+                    row.update(raw_document_artifact=path, final_url=target["url"], content_type="text/html")
+                return row
+            with tempfile.TemporaryDirectory() as directory:
+                args = argparse.Namespace(targets=BASE / "targets.json", output=Path(directory) / "output", scope="lcid-chrome-protocols")
+                with patch("probe.prewarm_pdf_pool", return_value={}), \
+                        patch("probe.identify_node", new_callable=AsyncMock, return_value={"loc": "US", "colo": "TEST"}), \
+                        patch("probe.collect_one", new_callable=AsyncMock, side_effect=sample):
+                    self.assertEqual(await run(args), 1 if refused else 0)
+                metadata = json.loads((args.output / "summary.json").read_text())
+                self.assertEqual(metadata["actual_target_protocols_match_profiles"], not refused)
+            self.assertEqual(len(calls), 2 if refused else 4)
+            self.assertIsNot(calls[0][0], calls[1][0])
+            self.assertTrue(all(call[2] is calls[0][2] and call[3] is calls[0][3] for call in calls))
+            if not refused:
+                self.assertIs(calls[0][0], calls[2][0]); self.assertIs(calls[1][0], calls[3][0])
+                self.assertEqual([call[1]["url"] for call in calls[2:]], [targets[0]["url"]] * 2)
+                self.assertTrue(all(call[1]["cache_profile"] == "ordinary" for call in calls[2:]))
+
     async def test_browser_transport_uses_native_first_byte_and_preserves_403_body(self):
         from browser_transport import browser_session
         text = "Example Corporation revenues net income earnings per share assets cash flows operating income. " * 20

@@ -84,6 +84,10 @@ async def identify_node(client):
 
 
 def select_targets(targets, scope):
+    if scope == "lcid-chrome-protocols":
+        return [{**target, "target_id": "LCID_pdf_" + profile, "protocol_profile": profile,
+                 "transport": "curl_cffi_chrome", "cache_profile": "ordinary"}
+                for target, profile in zip(select_targets(targets, "lcid-http-protocols"), ("chrome_h1", "chrome_h2"))]
     if scope == "b-sec-transports":
         target = next(row for row in select_targets(targets, "repaired-paths") if row["event"]["symbol"] == "B")
         target = {key: value for key, value in target.items() if key != "pipeline"}
@@ -510,7 +514,7 @@ async def collect_watch_case(target, output, node):
 
 async def run(args):
     targets = select_targets(json.loads(args.targets.read_text(encoding="utf-8")), args.scope)
-    repeated_target_pair = args.scope.startswith("msgk-cache-control") or args.scope in ("lcid-http-protocols", "b-sec-transports")
+    repeated_target_pair = args.scope.startswith("msgk-cache-control") or args.scope in ("lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports")
     if not targets or not repeated_target_pair and len({row["url"] for row in targets}) != len(targets):
         raise ValueError("Expected a nonempty set of distinct public report URLs")
     source_manifest = json.loads((BASE / "parser_sources.json").read_text(encoding="utf-8"))
@@ -568,8 +572,15 @@ async def run(args):
                 metadata["comparison_stopped"] = "sec_head_warmup_not_successful_no_target_requests"
                 metadata["skipped_targets_after_warmup"] = [target["target_id"] for target in targets]
             targets = []
-        if args.scope == "lcid-http-protocols":
-            pairs = ((businesswire_client, targets[0]), (client, targets[1]))
+        if args.scope in ("lcid-http-protocols", "lcid-chrome-protocols"):
+            if args.scope == "lcid-chrome-protocols":
+                from curl_cffi.const import CurlHttpVersion, CurlOpt
+                chrome_h2 = await stack.enter_async_context(browser_session())
+                browser_client.curl_options[CurlOpt.HTTP_VERSION] = CurlHttpVersion.V1_1
+                chrome_h2.curl_options[CurlOpt.HTTP_VERSION] = CurlHttpVersion.V2TLS
+                pairs = ((browser_client, targets[0]), (chrome_h2, targets[1]))
+            else:
+                pairs = ((businesswire_client, targets[0]), (client, targets[1]))
             warmups = await asyncio.gather(*(collect_one(connection,
                 {**target, "url": target["warmup_url"], "target_id": target["target_id"] + "_listing",
                  "method": "GET", "purpose": "connection_warmup", "cache_profile": "no_cache"},
@@ -581,7 +592,7 @@ async def run(args):
                     found["url"].rstrip("/") == target["url"].rstrip("/") for found in
                     discover(raw, warm.get("final_url", target["warmup_url"]), warm.get("content_type", "text/html"), target["event"])))
             metadata.update(connection_warmups=warmups,
-                comparison_scope="Same-node H1-only/H2-enabled clients each read the verified listing before one complete PDF GET. Target GETs start together; actual negotiated protocols are recorded. Shared parser-pool contention remains in full elapsed time. One pair is not a causal estimate or new-release SLA.",
+                comparison_scope=("Chrome TLS; H2 may fall back, so only actual response protocols establish the pair. " if args.scope == "lcid-chrome-protocols" else "") + "Same-node H1-only/H2-enabled clients each read the verified listing before one complete PDF GET. Target GETs start together; actual negotiated protocols are recorded. Shared parser-pool contention remains in full elapsed time. One pair is not a causal estimate or new-release SLA.",
                 protocol_profiles=[target["protocol_profile"] for target in targets])
             if all(warm.get("status") == 200 and warm.get("http_response_complete") and warm.get("listing_contains_target") for warm in warmups):
                 results.extend(await asyncio.gather(*(collect_one(connection, target, args.output, node, recent, blocked)
@@ -589,6 +600,8 @@ async def run(args):
             else:
                 metadata["comparison_stopped"] = "listing_warmup_not_verified_no_target_requests"
                 metadata["skipped_targets_after_warmup"] = [target["target_id"] for target in targets]
+            if args.scope == "lcid-chrome-protocols":
+                metadata["actual_target_protocols_match_profiles"] = [row.get("http_version") for row in results] == ["HTTP/1.1", "HTTP/2"]
             targets = []
         if args.scope.startswith("msgk-cache-control"):
             warmup_target = {**targets[0], "url": "https://www.businesswire.com/", "target_id": "MSGK_businesswire_homepage_warmup",
@@ -631,7 +644,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "sec-quarterly", "lcid-http-protocols", "b-sec-transports"), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports"), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 
