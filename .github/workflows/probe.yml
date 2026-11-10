@@ -20,6 +20,7 @@ on:
           - msgk-production-issuer
           - repaired-paths
           - sec-quarterly
+          - lcid-http-protocols
         default: all
 
 permissions:

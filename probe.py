@@ -84,6 +84,13 @@ async def identify_node(client):
 
 
 def select_targets(targets, scope):
+    if scope == "lcid-http-protocols":
+        target = next(row for row in select_targets(targets, "repaired-paths") if row["event"]["symbol"] == "LCID")
+        target = {key: value for key, value in target.items() if key != "pipeline"}
+        listing = next(source["url"] for source in target["event"]["sources"] if source["channel"] == "official")
+        return [{**target, "target_id": "LCID_pdf_" + profile, "protocol_profile": profile,
+                 "http1": profile == "h1_only", "warmup_url": listing, "require_raw_reference_match": True}
+                for profile in ("h1_only", "h2_enabled")]
     if scope == "sec-quarterly":
         references = json.loads((BASE / "remaining_references.json").read_text(encoding="utf-8"))
         events = {event["symbol"]: event for event in json.loads((BASE / "live/watchlist.json").read_text(encoding="utf-8"))}
@@ -202,7 +209,7 @@ async def collect_one(client, target, output, node, recent, blocked):
     row.update({key: target[key] for key in ("canonical_url", "canonical_channel", "canonical_previous_status", "canonical_previous_run", "document_variant", "route_note") if key in target})
     if target.get("document_variant"):
         row["actual_source_url"] = target["url"]
-    row.update({key: target[key] for key in ("cache_profile", "purpose") if key in target})
+    row.update({key: target[key] for key in ("cache_profile", "purpose", "protocol_profile") if key in target})
     row["request_method"] = target.get("method", "GET")
     body, parsed = bytearray(), None
     browser = target.get("transport") == "curl_cffi_chrome"
@@ -254,8 +261,10 @@ async def collect_one(client, target, output, node, recent, blocked):
                 row.update(browser_timing(response))
             if target.get("document_variant"):
                 row["actual_source_url"] = str(response.url)
-            row["response_cache_headers"] = {key: response.headers[key] for key in
-                ("cache-control", "age", "x-cache", "x-cache-hits", "cf-cache-status", "date", "etag", "last-modified", "connection") if key in response.headers}
+            cache_header_names = ("cache-control", "age", "x-cache", "x-cache-hits", "cf-cache-status", "date", "etag", "last-modified", "connection")
+            if target.get("protocol_profile"):
+                cache_header_names += ("server", "via", "content-encoding", "content-length", "x-served-by")
+            row["response_cache_headers"] = {key: response.headers[key] for key in cache_header_names if key in response.headers}
             if response.status_code in (403, 429):
                 retry_after = response.headers.get("retry-after", "")
                 seconds = 120
@@ -295,6 +304,9 @@ async def collect_one(client, target, output, node, recent, blocked):
             complete = parsed.get("accepted") is True and parsed.get("tables_complete") is True
             if comparison:
                 complete = complete and comparison["reference_text_matches"] and comparison["reference_tables_match"] and comparison.get("reference_pages_match", True)
+                if target.get("require_raw_reference_match"):
+                    comparison["reference_raw_matches"] = row["sha256"] == comparison["reference_raw_sha256"]
+                    complete = complete and comparison["reference_raw_matches"]
                 row.update(comparison)
             row.update(parsed_utc=parsed_utc, parse_ms=(parse_end - parse_start) / 1e6,
                        validation_queue_ms=(parse_start - parse_queued) / 1e6,
@@ -397,7 +409,7 @@ async def collect_watch_case(target, output, node):
             finally:
                 connection.close()
             public_requests = []
-            request_keys = ("id", "run_id", "symbol", "channel", "purpose", "url", "final_url", "status", "http_version",
+            request_keys = ("id", "run_id", "symbol", "channel", "purpose", "method", "url", "final_url", "status", "http_version",
                             "request_start_utc", "request_end_utc", "body_complete_utc", "first_body_byte_utc",
                             "queued_mono_ns", "request_start_mono_ns", "request_end_mono_ns", "body_complete_mono_ns",
                             "queue_ms", "queue_reasons", "request_total_ms", "response_headers_received_ms", "body_download_ms",
@@ -491,7 +503,8 @@ async def collect_watch_case(target, output, node):
 
 async def run(args):
     targets = select_targets(json.loads(args.targets.read_text(encoding="utf-8")), args.scope)
-    if not targets or not args.scope.startswith("msgk-cache-control") and len({row["url"] for row in targets}) != len(targets):
+    repeated_target_pair = args.scope.startswith("msgk-cache-control") or args.scope == "lcid-http-protocols"
+    if not targets or not repeated_target_pair and len({row["url"] for row in targets}) != len(targets):
         raise ValueError("Expected a nonempty set of distinct public report URLs")
     source_manifest = json.loads((BASE / "parser_sources.json").read_text(encoding="utf-8"))
     for name, entry in source_manifest.items():
@@ -521,10 +534,32 @@ async def run(args):
         metadata = {"scope": "old_public_document_real_download_replay_not_new_release", "node": node,
                     "started_utc": utc(), "parser_sources": source_manifest,
                     "pdf_pool": warmup, "target_document_preparsed": False, "targets": len(targets),
-                    "requests_per_second": {"sec.gov_shared": 8, "other_hosts": 4},
+                    "requests_per_second": {"parent_direct_sec": 8, "production_child_sec": 2, "other_hosts_shared": 4},
                     "transport_policy": {"businesswire.com": "HTTP/1.1 persistent client after observed HTTP/2 StreamReset error_code=2", "msgk-issuer-cold": "HTTP/1.1 cold client matching the production official collector", "default": "HTTP/2 enabled"}}
         (args.output / "run.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
         results = []
+        if args.scope == "lcid-http-protocols":
+            pairs = ((businesswire_client, targets[0]), (client, targets[1]))
+            warmups = await asyncio.gather(*(collect_one(connection,
+                {**target, "url": target["warmup_url"], "target_id": target["target_id"] + "_listing",
+                 "method": "GET", "purpose": "connection_warmup", "cache_profile": "no_cache"},
+                args.output, node, recent, blocked) for connection, target in pairs))
+            for warm, (_, target) in zip(warmups, pairs):
+                raw_path = warm.get("raw_document_artifact")
+                raw = (args.output / raw_path).read_bytes() if raw_path else b""
+                warm["listing_contains_target"] = (warm.get("status") == 200 and any(
+                    found["url"].rstrip("/") == target["url"].rstrip("/") for found in
+                    discover(raw, warm.get("final_url", target["warmup_url"]), warm.get("content_type", "text/html"), target["event"])))
+            metadata.update(connection_warmups=warmups,
+                comparison_scope="Same-node H1-only/H2-enabled clients each read the verified listing before one complete PDF GET. Target GETs start together; actual negotiated protocols are recorded. Shared parser-pool contention remains in full elapsed time. One pair is not a causal estimate or new-release SLA.",
+                protocol_profiles=[target["protocol_profile"] for target in targets])
+            if all(warm.get("status") == 200 and warm.get("http_response_complete") and warm.get("listing_contains_target") for warm in warmups):
+                results.extend(await asyncio.gather(*(collect_one(connection, target, args.output, node, recent, blocked)
+                                                     for connection, target in pairs)))
+            else:
+                metadata["comparison_stopped"] = "listing_warmup_not_verified_no_target_requests"
+                metadata["skipped_targets_after_warmup"] = [target["target_id"] for target in targets]
+            targets = []
         if args.scope.startswith("msgk-cache-control"):
             warmup_target = {**targets[0], "url": "https://www.businesswire.com/", "target_id": "MSGK_businesswire_homepage_warmup",
                              "cache_profile": "ordinary", "purpose": "connection_warmup"}
@@ -566,7 +601,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "sec-quarterly"), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "sec-quarterly", "lcid-http-protocols"), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 

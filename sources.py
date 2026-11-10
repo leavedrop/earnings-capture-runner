@@ -211,14 +211,15 @@ def check_table_spans(tables, spans):
 def _text(node, separator=" ", strip=True):
     values = _TEXT_NODES(node) if len(node) else ((node.text,) if node.text else ())
     if strip:
-        return separator.join(part for value in values if (part := value.strip()))
+        return separator.join(filter(None, map(str.strip, values)))
     return separator.join(values)
 
 
 def _cell_text(node):
     # Cell output collapses whitespace once, including text-node boundaries.
     if not len(node):
-        return " ".join((node.text or "").split())
+        text = node.text
+        return " ".join(text.split()) if text else ""
     return " ".join(" ".join(_TEXT_NODES(node)).split())
 
 
@@ -409,6 +410,22 @@ def listing_structure(body: bytes, url: str, content_type: str, event: dict) -> 
                 if (re.fullmatch(r"/news-releases/[^/]+-\d+\.html", urlparse(link.get("href", "")).path)
                         and _identity(_text(link), event)):
                     return "Cision issuer page with titled Franco-Nevada release links"
+        if (parsed.hostname == "www.prnewswire.com"
+                and (event.get("symbol") in ("TDG", "GIB") and parsed.path.rstrip("/") == "/search/news"
+                     or event.get("symbol") == "CSCO" and unquote(parsed.path).rstrip("/") == "/news/cisco-systems,-inc.")):
+            for link in document.xpath(".//div[contains(concat(' ', normalize-space(@class), ' '), ' newsCards ')]//a[@href]"):
+                target = urlparse(urljoin(url, link.get("href")))
+                if (target.hostname == parsed.hostname
+                        and re.fullmatch(r"/news-releases/[^/]+-\d+\.html", target.path)
+                        and _identity(_text(link), event)):
+                    return "PR Newswire server-rendered news cards with issuer-matched release links"
+        if (event.get("symbol") == "MRDN" and parsed.hostname == "www.newmediawire.com"
+                and parsed.path.rstrip("/") == ""):
+            for link in document.xpath(".//ul[contains(concat(' ', normalize-space(@class), ' '), ' news-list ')]//a[@href]"):
+                target = urlparse(urljoin(url, link.get("href")))
+                if (target.hostname == parsed.hostname and re.fullmatch(r"/news/[^/]+-\d+", target.path)
+                        and _clean(_text(link))):
+                    return "NewMediaWire publisher-wide recent release list; not an issuer-specific listing"
         for link in document.iter("a"):
             if _clean(_text(link)) and re.search(
                     r"/(?:news-release-details|news-details|press-release-details)/|/news/home/\d+/|"
@@ -801,7 +818,7 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
         for table in root.iter("table"):
             rows, spans = [], []
             for row in table.iter("tr"):
-                cells = [cell for cell in row if cell.tag in ("td", "th")]
+                cells = list(row.iterchildren("td", "th"))
                 values = [_cell_text(cell) for cell in cells]
                 if not any(values):
                     continue
