@@ -293,19 +293,48 @@ def _extract_barrick_native_html(body, *, document=None):
     # as HTML5 visible characters, matching the frozen complete US reference.
     if document is None:
         document = LexborHTMLParser(body, encoding=False)
-    metadata = document.css('meta,script[type="application/ld+json"],time[datetime]')
+        selected = None
+    else:
+        # KKR already has its DEI-checked tree. Collect page elements in one
+        # native traversal instead of repeatedly scanning this 16 MB filing.
+        selected = document.css('article,main,script,style,h1,meta,title,nav,header,footer,time[datetime]')
+        by_tag = {}
+        for node in selected:
+            by_tag.setdefault(node.tag, []).append(node)
+    metadata = (document.css('meta,script[type="application/ld+json"],time[datetime]') if selected is None else
+                [node for node in selected if node.tag == "meta"
+                 or node.tag == "script" and node.attrs.sget("type") == "application/ld+json"
+                 or node.tag == "time" and node.attrs.sget("datetime") is not None])
     timestamp = (_native_timestamp(_document("".join(node.html for node in metadata).encode("utf-8")))
                  if metadata else _stamp(None))
-    root = document.css_first("article") or document.css_first("main") or document.root
-    for node in root.css("script,style"):
-        node.decompose()
-    h1 = root.css_first("h1")
-    og = document.css_first('meta[property="og:title"]')
-    title_node = document.css_first("title")
+    if selected is None:
+        root = document.css_first("article") or document.css_first("main") or document.root
+        for node in root.css("script,style"):
+            node.decompose()
+        h1 = root.css_first("h1")
+        og = document.css_first('meta[property="og:title"]')
+        title_node = document.css_first("title")
+    else:
+        root = next(iter(by_tag.get("article", [])), None) or next(iter(by_tag.get("main", [])), None) or document.root
+        scoped = []
+        for node in selected:
+            ancestor = node
+            while ancestor is not None:
+                if ancestor.mem_id == root.mem_id:
+                    scoped.append(node)
+                    break
+                ancestor = ancestor.parent
+        cleanup = [node for node in scoped if node.tag in ("script", "style")]
+        h1 = next((node for node in scoped if node.tag == "h1"), None)
+        og = next((node for node in by_tag.get("meta", []) if node.attrs.sget("property") == "og:title"), None)
+        title_node = next(iter(by_tag.get("title", [])), None)
+        chrome = [node for node in scoped if node.tag in ("nav", "header", "footer")]
+        for node in cleanup:
+            node.decompose()
     title = _clean(_lexbor_text_fragments(h1) if h1 is not None else
                    og.attrs.sget("content") if og is not None else
                    _lexbor_text_fragments(title_node) if title_node is not None else "")
-    for node in root.css("nav,header,footer"):
+    for node in root.css("nav,header,footer") if selected is None else chrome:
         node.decompose()
     text = _lexbor_text_fragments(root)
     tables, table_spans = [], []

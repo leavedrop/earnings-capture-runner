@@ -84,6 +84,8 @@ async def identify_node(client):
 
 
 def select_targets(targets, scope):
+    if scope == "kkr-complete":
+        return [target for target in select_targets(targets, "backlog-production") if target["event"]["symbol"] == "KKR"]
     if scope == "skyd-complete":
         references = json.loads((BASE / "remaining_references.json").read_text(encoding="utf-8"))
         event = next(event for event in json.loads((BASE / "live/watchlist.json").read_text(encoding="utf-8"))
@@ -843,7 +845,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "backlog-production", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports", "skyd-materials", "skyd-range", "skyd-http1-material", "skyd-complete"), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "backlog-production", "kkr-complete", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports", "skyd-materials", "skyd-range", "skyd-http1-material", "skyd-complete"), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 

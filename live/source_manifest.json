@@ -6,8 +6,8 @@
     "source": "watch.py"
   },
   "sources.py": {
-    "sha256": "3384bc684ee11bfe70c5dcb76bbb803ab0bbb01ca13959290bb6734685139f37",
-    "production_sha256": "c3049a199ba0306aa3b4e202faa9822e1eb7e92bada1aeb50e5524b1fbfb1995",
+    "sha256": "db457c3adffbeeadbdb90ed9b98f483c2c6f0d8f9ef548073975fa3ac7c8df21",
+    "production_sha256": "048eb45f137e8fc9e210771d02cd09d50ff07e6b46423527b1ca392650973a2c",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "sources.py"
   },
