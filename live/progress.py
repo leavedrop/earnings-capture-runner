@@ -193,11 +193,19 @@ def capture_timing(record):
     return None, "missing", "原日志缺少完整计时起止点，无法还原这次总耗时。"
 
 
+_ARCHIVE_CONTENT_RESULTS = {}
+
+
 @lru_cache(maxsize=128)
 def archived_table_check(original, report_path, original_mtime, report_mtime, msgk_issuer=False):
     """Check the saved product against its own HTML, not an old acceptance flag."""
     from sources import _clean, _document, _drop_content, _text
-    tree = _document(Path(original).read_bytes())
+    body = Path(original).read_bytes()
+    report_body = Path(report_path).read_bytes()
+    content_key = (hashlib.sha256(body).digest(), hashlib.sha256(report_body).digest(), msgk_issuer)
+    if content_key in _ARCHIVE_CONTENT_RESULTS:
+        return _ARCHIVE_CONTENT_RESULTS[content_key]
+    tree = _document(body)
     root = None
     if msgk_issuer:
         root = next((node for node in tree.iter("div") if
@@ -224,7 +232,10 @@ def archived_table_check(original, report_path, original_mtime, report_mtime, ms
         if rows:
             expected.append(rows)
             expected_spans.append(spans)
-    report = read_json(Path(report_path))
+    try:
+        report = json.loads(report_body)
+    except (ValueError, UnicodeError):
+        report = {}
     saved = report.get("tables", [])
     def signature(table):
         # libxml versions differ on HTML numeric references &#128;/&#149;.
@@ -239,7 +250,47 @@ def archived_table_check(original, report_path, original_mtime, report_mtime, ms
         if report.get("table_spans") != expected_spans:
             complete = False
             note = "原文和单元格文字已保留，但原文的合并行列跨度未完整保存；季度表头与数值列结构不完整，原耗时保留，不计完整解析达标。"
+    if len(_ARCHIVE_CONTENT_RESULTS) >= 128:
+        _ARCHIVE_CONTENT_RESULTS.pop(next(iter(_ARCHIVE_CONTENT_RESULTS)), None)
+    _ARCHIVE_CONTENT_RESULTS[content_key] = (complete, note)
     return complete, note
+
+
+_LCID_PDF_QUALITY_NOTE = "LCID PDF 原生单元格、合并跨度或全页证据未通过；保留原始耗时，不计为完整财报或300ms通过。"
+
+
+@lru_cache(maxsize=128)
+def archived_lcid_pdf_check(original, report_path, original_mtime, report_mtime):
+    """Validate saved native evidence for the independently checked 42-page PDF."""
+    if not Path(report_path).is_file():
+        return False, _LCID_PDF_QUALITY_NOTE
+    try:
+        report = read_json(Path(report_path))
+        tables, spans = report["tables"], report["table_spans"]
+        details, pages = report["table_details"], report["page_diagnostics"]
+        if (len(tables) != 17 or len(spans) != 17 or len(details) != 17
+                or sorted(page["page"] for page in pages) != list(range(1, 43))
+                or any(page["text_extracted"] is not True for page in pages)
+                or sum(page["tables"] for page in pages) != 17
+                or sum(table["native_cells"] for table in details) != 2494):
+            return False, _LCID_PDF_QUALITY_NOTE
+        for table, span, detail in zip(tables, spans, details):
+            if (type(detail["source_xref"]) is not int or detail["source_xref"] <= 0
+                    or detail["native_cells"] <= 0 or detail["layout_errors"] != []
+                    or any(detail[key] is not True for key in
+                           ("word_tokens_preserved", "numeric_tokens_preserved", "column_associations_verified"))):
+                return False, _LCID_PDF_QUALITY_NOTE
+            rows = [[] for _ in range(detail["native_rows"])]
+            for cell in sorted(detail["cells"], key=lambda cell: (cell["row"], cell["column"])):
+                rows[cell["row"]].append(cell)
+            if (table != [[cell["text"] for cell in row] for row in rows]
+                    or span != [[[cell["rowspan"], cell["colspan"]] for cell in row] for row in rows]):
+                return False, _LCID_PDF_QUALITY_NOTE
+        if hashlib.sha256(Path(original).read_bytes()).hexdigest() != "dd8f005b0920e39a0d75a5aeac4d89a9d2a3a3adf04dfdeaeeb260f4b4900740":
+            return False, _LCID_PDF_QUALITY_NOTE
+    except (KeyError, TypeError, ValueError, IndexError):
+        return False, _LCID_PDF_QUALITY_NOTE
+    return True, ""
 
 
 def capture_row(record, root, output_root, run_started, replay=False):
@@ -278,6 +329,14 @@ def capture_row(record, root, output_root, run_started, replay=False):
                     symbol == "MSGK" and urlsplit(url or "").hostname == "investor.msgknicks.com")
                 if not complete:
                     tables_complete = False
+        saved_pdf = artifact_path(root, original or stem + ".pdf", root)
+        if symbol == "LCID" and saved_pdf and saved_pdf.lower().endswith(".pdf"):
+            original_pdf = root / saved_pdf
+            parsed_file = root / (report_path or stem + ".json")
+            complete, quality_note = archived_lcid_pdf_check(str(original_pdf), str(parsed_file),
+                original_pdf.stat().st_mtime_ns, parsed_file.stat().st_mtime_ns if parsed_file.is_file() else 0)
+            if not complete:
+                tables_complete = False
     semantics = record.get("discovery_timestamp_semantics")
     if category == "replay":
         timing_start = "重放调用开始"
@@ -351,9 +410,11 @@ def read_database(root, output_root, replay=False):
             record = json.loads(payload)
             captures.append(capture_row(record, root, output_root, starts.get(record.get("run_id")), replay))
         groups = connection.execute("""
-            SELECT symbol,channel,json_extract(payload,'$.status'),COUNT(*),MAX(at_ns)
-            FROM log WHERE kind='request'
-            GROUP BY symbol,channel,json_extract(payload,'$.status')
+            WITH requests AS MATERIALIZED (
+                SELECT symbol,channel,json_extract(payload,'$.status') AS status,at_ns
+                FROM log WHERE kind='request')
+            SELECT symbol,channel,status,COUNT(*),MAX(at_ns)
+            FROM requests GROUP BY symbol,channel,status
         """).fetchall()
     request_total = sum(row[3] for row in groups)
     failed = [row for row in groups if row[2] is None or row[2] >= 400]
@@ -487,10 +548,14 @@ def read_us_runner(root):
             if table_complete and raw_verified:
                 if raw.startswith(b"%PDF"):
                     pages = parsed.get("pdf_pages_total")
+                    structure_keys = ("all_pages_extracted", "native_layout", "all_table_words_assigned", "numeric_tokens_preserved")
+                    if record.get("symbol") == "LCID" and parsed.get("tables_extraction_scope") == "lcid_native_tagged_cells_and_geometry":
+                        structure_keys = ("all_pages_extracted", "native_layout", "all_native_cells_preserved",
+                                          "table_words_preserved", "numeric_tokens_preserved", "column_associations_verified")
                     table_complete = (type(pages) is int and pages > 0
                         and parsed.get("pdf_pages_processed") == pages and parsed.get("pdf_pages_text_extracted") == pages
                         and all(parsed.get("pdf_structure_checks", {}).get(key) is True for key in
-                            ("all_pages_extracted", "native_layout", "all_table_words_assigned", "numeric_tokens_preserved")))
+                            structure_keys))
                 else:
                     raw_file, parsed_file = path.parent / raw_path, path.parent / parsed_path
                     table_complete = archived_table_check(str(raw_file), str(parsed_file),
@@ -695,6 +760,17 @@ def read_us_live(root, now=None):
             row.update(accepted=False, tables_complete=False, latency_budget_passed=False,
                        document_kind="announcement_listing",
                        quality_note="公告目录不是完整财报；原始记录和耗时保留，不计全文采集或300ms通过。")
+        elif row.get("symbol") == "LCID" and any(str(item.get("path", "")).endswith(".pdf") for item in row.get("artifacts", [])):
+            original = next((artifact_path(root, item.get("path"), root) for item in row.get("artifacts", [])
+                             if str(item.get("path", "")).endswith(".pdf")), None)
+            complete, note = False, _LCID_PDF_QUALITY_NOTE
+            if original:
+                original_path = root / original
+                report_path = original_path.with_suffix(".json")
+                complete, note = archived_lcid_pdf_check(str(original_path), str(report_path),
+                    original_path.stat().st_mtime_ns, report_path.stat().st_mtime_ns if report_path.is_file() else 0)
+            if not complete:
+                row.update(tables_complete=False, latency_budget_passed=False, quality_note=note)
         else:
             original = next((artifact_path(root, item.get("path"), root) for item in row.get("artifacts", [])
                              if str(item.get("path", "")).endswith(".html")), None)

@@ -157,6 +157,8 @@ class RateLimit:
         self.blocked = {}
         self.blocked_paths = {}
         self.recent = {}
+        self.waiters = {}
+        self.changed = {}
 
     @staticmethod
     def key(url):
@@ -176,28 +178,54 @@ class RateLimit:
         # Listing probes retain their pacing. Newly discovered documents can use
         # reserved capacity immediately, within a single rolling host budget.
         limit = self.sec_rps if key == "sec.gov" else 4
-        while True:
-            async with self.locks.setdefault(key, asyncio.Lock()):
-                now = time.monotonic()
-                recent = self.recent.setdefault(key, deque())
-                while recent and recent[0] <= now-1:
-                    recent.popleft()
-                constraints = {"host_cooldown": self.blocked.get(key, 0),
-                               "path_cooldown": self.blocked_paths.get(path_key, 0)}
-                if purpose == "discovery":
-                    constraints["listing_pacing"] = self.next.get(key, 0)
-                if len(recent) >= limit:
-                    constraints["shared_rolling_budget"] = recent[0]+1
-                target = max(constraints.values())
-                remaining = target-now
-                if remaining <= 0:
-                    recent.append(now)
+        pending = self.waiters.setdefault(key, deque())
+        waiter = (object(), path_key, purpose)
+        pending.append(waiter)
+        try:
+            while True:
+                async with self.locks.setdefault(key, asyncio.Lock()):
+                    now = time.monotonic()
+                    recent = self.recent.setdefault(key, deque())
+                    while recent and recent[0] <= now-1:
+                        recent.popleft()
+                    constraints = {"host_cooldown": self.blocked.get(key, 0),
+                                   "path_cooldown": self.blocked_paths.get(path_key, 0)}
                     if purpose == "discovery":
-                        self.next[key] = now + pacing
-                    return {"queue_reasons": sorted(reasons)}
-                reasons.update(name for name, until in constraints.items() if until > now)
-            # Do not hold the host lock while a low-priority listing sleeps.
-            await asyncio.sleep(remaining)
+                        constraints["listing_pacing"] = self.next.get(key, 0)
+                    if len(recent) >= limit:
+                        constraints["shared_rolling_budget"] = recent[0]+1
+                    remaining = max(constraints.values())-now
+                    if remaining <= 0:
+                        # Keep arrival order across sleeps. A denied path must
+                        # not hold up another ready path, and ready documents
+                        # retain priority over discovery within the same budget.
+                        ready = [item for item in pending
+                                 if self.blocked_paths.get(item[1], 0) <= now
+                                 and (item[2] != "discovery" or self.next.get(key, 0) <= now)]
+                        first = next((item for item in ready if item[2] != "discovery"), ready[0])
+                        if first is waiter:
+                            recent.append(now)
+                            if purpose == "discovery":
+                                self.next[key] = now + pacing
+                            return {"queue_reasons": sorted(reasons)}
+                        reasons.add("fair_queue")
+                        changed = self.changed.setdefault(key, asyncio.Event())
+                    else:
+                        reasons.update(name for name, until in constraints.items() if until > now)
+                # Eligibility deadlines only move later. Sleep until this
+                # request can run, or await a queue change if another is first.
+                if remaining > 0:
+                    await asyncio.sleep(remaining)
+                else:
+                    await changed.wait()
+        finally:
+            pending.remove(waiter)
+            self._notify(key)
+
+    def _notify(self, key):
+        changed = self.changed.pop(key, None)
+        if changed is not None:
+            changed.set()
 
     def cooldown(self, url, seconds, *, path_only=False):
         key = self.key(url)
@@ -205,6 +233,7 @@ class RateLimit:
         if path_only:
             key = (key, urlsplit(url).path or "/")
         blocks[key] = max(blocks.get(key, 0), time.monotonic() + seconds)
+        self._notify(self.key(url))
 
 
 class Collector:

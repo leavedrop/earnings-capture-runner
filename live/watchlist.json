@@ -5,14 +5,21 @@
     "aliases": [
       "Humana"
     ],
-    "cik": "0000049071",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-06T19:00:00+08:00",
-    "forecast_at": "2026-11-06T19:00+08:00",
+    "schedule_kind": "exact",
     "window_start": "2026-11-06T18:30:00+08:00",
     "window_end": "2026-11-06T21:00:00+08:00",
+    "scheduled_at_semantics": "sheet_exact",
+    "schedule_text": "11月06日 19:00 币安预测时间 19:00 美东 11/06 06:00",
+    "forecast_at": "2026-11-06T19:00+08:00",
+    "forecast_is_official": false,
+    "cik": "0000049071",
+    "cik_evidence": "supplied_historical_sec_archive",
     "sources": [
       {
         "channel": "official",
@@ -41,7 +48,17 @@
         "verification": "blocked",
         "last_status_code": 403
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://policy.humana.com/news-and-resources/news-press/2026/humana-inc--to-release-third-quarter-2026-results-on-november-6-",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "HUM",
+      "status": "verified_primary_source",
+      "checked_at": "2026-11-06T11:03:07.345980+00:00",
+      "source_url": "https://policy.humana.com/news-and-resources/news-press/2026/humana-inc--to-release-third-quarter-2026-results-on-november-6-",
+      "finding": "Official preannouncement: 2026-11-06 06:00 ET (Beijing 19:00); Q3 2026."
+    }
   },
   {
     "symbol": "BAM",
@@ -49,14 +66,21 @@
     "aliases": [
       "Brookfield Asset Management"
     ],
-    "cik": "0001937926",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-06T20:00:00+08:00",
-    "forecast_at": "2026-11-06T19:45+08:00",
+    "schedule_kind": "before",
     "window_start": "2026-11-06T13:00:00+08:00",
     "window_end": "2026-11-06T21:00:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月06日 20:00前 币安预测时间 19:45 美东 11/06 07:00前",
+    "forecast_at": "2026-11-06T19:45+08:00",
+    "forecast_is_official": false,
+    "cik": "0001937926",
+    "cik_evidence": "supplied_historical_sec_archive",
     "sources": [
       {
         "channel": "official",
@@ -85,7 +109,17 @@
         "verification": "http_ok_listing_not_proven",
         "last_status_code": 200
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://bam.brookfield.com/generation/pdf/document-file.pdf?path=%2Fpress-releases%2Fbrookfield-asset-management-host-third-quarter-2026-results-conference-call&token=w-NlAV6cBB56otMkqZG57A",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "BAM",
+      "status": "verified_primary_source",
+      "checked_at": "2026-11-06T11:03:07.345980+00:00",
+      "source_url": "https://bam.brookfield.com/generation/pdf/document-file.pdf?path=%2Fpress-releases%2Fbrookfield-asset-management-host-third-quarter-2026-results-conference-call&token=w-NlAV6cBB56otMkqZG57A",
+      "finding": "Official PDF: results 2026-11-06 morning prior to 07:00 ET (Beijing before 20:00); Q3 2026."
+    }
   },
   {
     "symbol": "ENB",
@@ -93,14 +127,21 @@
     "aliases": [
       "Enbridge"
     ],
-    "cik": "0000895728",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-06T22:30:00+08:00",
-    "forecast_at": "2026-11-06T20:00+08:00",
+    "schedule_kind": "before",
     "window_start": "2026-11-06T13:00:00+08:00",
     "window_end": "2026-11-06T23:30:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月06日 22:30前 币安预测时间 20:00 美东 11/06 盘前",
+    "forecast_at": "2026-11-06T20:00+08:00",
+    "forecast_is_official": false,
+    "cik": "0000895728",
+    "cik_evidence": "supplied_historical_sec_archive",
     "sources": [
       {
         "channel": "official",
@@ -129,7 +170,17 @@
         "verification": "http_ok_listing_not_proven",
         "last_status_code": 200
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://enbridge.mediaroom.com/2026-10-05-Enbridge-Inc-to-Host-Webcast-to-Discuss-2026-Third-Quarter-Results-on-November-6",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "ENB",
+      "status": "verified_primary_source",
+      "checked_at": "2026-11-06T11:03:07.345980+00:00",
+      "source_url": "https://enbridge.mediaroom.com/2026-10-05-Enbridge-Inc-to-Host-Webcast-to-Discuss-2026-Third-Quarter-Results-on-November-6",
+      "finding": "Official preannouncement: before markets open 2026-11-06; Q3 2026. Call at 09:00 ET."
+    }
   },
   {
     "symbol": "OKLO",
@@ -137,14 +188,21 @@
     "aliases": [
       "Oklo"
     ],
-    "cik": "0001849056",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30",
     "scheduled_at": "2026-11-06T21:30:00+08:00",
-    "forecast_at": "2026-11-06T20:00+08:00",
+    "schedule_kind": "before",
     "window_start": "2026-11-06T13:00:00+08:00",
     "window_end": "2026-11-06T22:30:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月06日 21:30前 币安预测时间 20:00 美东 11/06 08:30前",
+    "forecast_at": "2026-11-06T20:00+08:00",
+    "forecast_is_official": false,
+    "cik": "0001849056",
+    "cik_evidence": "supplied_sec_link",
     "sources": [
       {
         "channel": "official",
@@ -173,7 +231,17 @@
         "verification": "blocked",
         "last_status_code": 403
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://oklo.com/newsroom/oklo-announces-date-for-third-quarter-2026-financial-results-and-business-update-call",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "OKLO",
+      "status": "verified_primary_source",
+      "checked_at": "2026-11-06T11:03:07.345980+00:00",
+      "source_url": "https://oklo.com/newsroom/oklo-announces-date-for-third-quarter-2026-financial-results-and-business-update-call",
+      "finding": "Official newsroom: Q3 ended 2026-09-30, before market opens 2026-11-06, followed by 08:30 ET call. 08:30 is call time, not an exact release time."
+    }
   },
   {
     "symbol": "MSGK",
@@ -182,14 +250,21 @@
       "MSG Knickerbockers",
       "Madison Square Garden Sports"
     ],
-    "cik": "0001636519",
     "fiscal_year": 2027,
     "quarter": 1,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2027财年第一季度（Q1） 涵盖： 2026-07-01 — 2026-09-30",
     "scheduled_at": "2026-11-06T22:30:00+08:00",
-    "forecast_at": null,
+    "schedule_kind": "before",
     "window_start": "2026-11-06T13:00:00+08:00",
     "window_end": "2026-11-06T23:30:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月06日 22:30前 币安预测时间 暂未查到 美东 11/06 盘前",
+    "forecast_at": null,
+    "forecast_is_official": false,
+    "cik": "0001636519",
+    "cik_evidence": "supplied_sec_link",
     "sources": [
       {
         "channel": "official",
@@ -219,7 +294,17 @@
         "verification": "blocked",
         "last_status_code": 403
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://www.msgknicks.com/msg-knickerbockers-corp-to-release-fiscal-2027-first-quarter-results/",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "MSGK",
+      "status": "verified_primary_source",
+      "checked_at": "2026-11-06T11:03:07.345980+00:00",
+      "source_url": "https://www.msgknicks.com/msg-knickerbockers-corp-to-release-fiscal-2027-first-quarter-results/",
+      "finding": "Official company announcement: before market opens 2026-11-06; FY2027 Q1 ended 2026-09-30."
+    }
   },
   {
     "symbol": "MSGR",
@@ -228,14 +313,21 @@
       "MSG Rangers",
       "MSG Rangers Corp."
     ],
-    "cik": "0002132873",
     "fiscal_year": 2027,
     "quarter": 1,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2027财年第一季度（Q1） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-06T22:30:00+08:00",
-    "forecast_at": null,
+    "schedule_kind": "before",
     "window_start": "2026-11-06T13:00:00+08:00",
     "window_end": "2026-11-06T23:30:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月06日 22:30前 币安预测时间 暂未查到 美东 11/06 盘前",
+    "forecast_at": null,
+    "forecast_is_official": false,
+    "cik": "0002132873",
+    "cik_evidence": "supplied_sec_link",
     "sources": [
       {
         "channel": "official",
@@ -264,7 +356,17 @@
         "verification": "blocked",
         "last_status_code": 403
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://www.msgrangers.com/msg-rangers-corp-to-release-fiscal-2027-first-quarter-results/",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "MSGR",
+      "status": "verified_primary_source",
+      "checked_at": "2026-11-06T11:03:07.345980+00:00",
+      "source_url": "https://www.msgrangers.com/msg-rangers-corp-to-release-fiscal-2027-first-quarter-results/",
+      "finding": "Official company announcement: before market opens 2026-11-06; FY2027 Q1 ended 2026-09-30; first standalone quarterly report after October 26 spin-off."
+    }
   },
   {
     "symbol": "BRK.B",
@@ -273,14 +375,21 @@
       "Berkshire Hathaway",
       "Berkshire Hathaway Inc."
     ],
-    "cik": "0001067983",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-07T21:00:00+08:00",
-    "forecast_at": "2026-11-07T21:00+08:00",
+    "schedule_kind": "approx",
     "window_start": "2026-11-07T20:30:00+08:00",
     "window_end": "2026-11-07T23:00:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月07日 约21:00 币安预测时间 21:00 美中11/07约07:00；美东约08:00",
+    "forecast_at": "2026-11-07T21:00+08:00",
+    "forecast_is_official": false,
+    "cik": "0001067983",
+    "cik_evidence": "supplied_sec_link",
     "sources": [
       {
         "channel": "official",
@@ -309,7 +418,17 @@
         "verification": "blocked",
         "last_status_code": 403
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://www.berkshirehathaway.com/news/nov0426.pdf",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "BRK.B",
+      "status": "verified_primary_source",
+      "checked_at": "2026-11-06T11:03:07.345980+00:00",
+      "source_url": "https://www.berkshirehathaway.com/news/nov0426.pdf",
+      "finding": "Official nov0426.pdf: Q3 release and 10-Q approximately 07:00 Central 2026-11-07 (Beijing 21:00)."
+    }
   },
   {
     "symbol": "SOHU",
@@ -319,14 +438,21 @@
       "Sohu.com",
       "Sohu.com Limited"
     ],
-    "cik": "0001734107",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） · 未审计业绩 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-09T20:30:00+08:00",
-    "forecast_at": "2026-11-09T14:00+08:00",
+    "schedule_kind": "before",
     "window_start": "2026-11-09T13:00:00+08:00",
     "window_end": "2026-11-09T21:30:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月09日 20:30前 币安预测时间 14:00 美东 11/09 07:30前",
+    "forecast_at": "2026-11-09T14:00+08:00",
+    "forecast_is_official": false,
+    "cik": "0001734107",
+    "cik_evidence": "supplied_sec_link",
     "sources": [
       {
         "channel": "official",
@@ -367,7 +493,20 @@
         "verification": "http_ok_listing_not_proven",
         "last_status_code": 200
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://sohucominc.gcs-web.com/news-releases/news-release-details/sohucom-report-third-quarter-2026-financial-results-november-9",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "SOHU",
+      "status": "verified_primary_source",
+      "source_url": "https://sohucominc.gcs-web.com/news-releases/news-release-details/sohucom-report-third-quarter-2026-financial-results-november-9",
+      "finding": "Q3 2026 unaudited results November 9 before US market hours; 07:30 ET call follows announcement. No exact release time.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": false,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "B",
@@ -376,14 +515,21 @@
       "Barrick Mining",
       "Barrick"
     ],
-    "cik": "0000756894",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-09T19:00:00+08:00",
-    "forecast_at": "2026-11-09T19:00+08:00",
+    "schedule_kind": "exact",
     "window_start": "2026-11-09T18:30:00+08:00",
     "window_end": "2026-11-09T21:00:00+08:00",
+    "scheduled_at_semantics": "sheet_exact",
+    "schedule_text": "11月09日 19:00 币安预测时间 19:00 美东 11/09 06:00",
+    "forecast_at": "2026-11-09T19:00+08:00",
+    "forecast_is_official": false,
+    "cik": "0000756894",
+    "cik_evidence": "supplied_historical_sec_archive",
     "sources": [
       {
         "channel": "official",
@@ -431,7 +577,20 @@
         "verification": "http_ok_listing_not_proven",
         "last_status_code": 200
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://www.barrick.com/English/investors/presentations/event-details/2026/q3/default.aspx",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "B",
+      "status": "verified_primary_source",
+      "source_url": "https://www.barrick.com/English/investors/presentations/event-details/2026/q3/default.aspx",
+      "finding": "Q3 2026 results November 9 at 06:00 ET; conference webcast at 11:00 ET.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": false,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "FERG",
@@ -439,14 +598,21 @@
     "aliases": [
       "Ferguson Enterprises"
     ],
-    "cik": "0002011641",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-09T19:45:00+08:00",
-    "forecast_at": "2026-11-09T19:45+08:00",
+    "schedule_kind": "exact",
     "window_start": "2026-11-09T19:15:00+08:00",
     "window_end": "2026-11-09T21:45:00+08:00",
+    "scheduled_at_semantics": "sheet_exact",
+    "schedule_text": "11月09日 19:45 币安预测时间 19:45 美东 11/09 06:45",
+    "forecast_at": "2026-11-09T19:45+08:00",
+    "forecast_is_official": false,
+    "cik": "0002011641",
+    "cik_evidence": "supplied_historical_sec_archive",
     "sources": [
       {
         "channel": "official",
@@ -493,7 +659,20 @@
         "verification": "blocked",
         "last_status_code": 403
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://www.corporate.ferguson.com/pressroom/news-releases/news-details/2026/Ferguson-to-Issue-Third-Quarter-Results-And-Host-Conference-Call-on-November-9-2026/default.aspx",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "FERG",
+      "status": "verified_primary_source",
+      "source_url": "https://www.corporate.ferguson.com/pressroom/news-releases/news-details/2026/Ferguson-to-Issue-Third-Quarter-Results-And-Host-Conference-Call-on-November-9-2026/default.aspx",
+      "finding": "Third-quarter results November 9 available on corporate website at 06:45 ET; call at 08:30 ET.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": false,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "KKR",
@@ -504,14 +683,21 @@
       "KKR & Co. Inc.",
       "Kohlberg Kravis Roberts"
     ],
-    "cik": "0001404912",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-09T22:30:00+08:00",
-    "forecast_at": "2026-11-09T19:50+08:00",
+    "schedule_kind": "before",
     "window_start": "2026-11-09T13:00:00+08:00",
     "window_end": "2026-11-09T23:30:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月09日 22:30前 币安预测时间 19:50 美东 11/09 盘前",
+    "forecast_at": "2026-11-09T19:50+08:00",
+    "forecast_is_official": false,
+    "cik": "0001404912",
+    "cik_evidence": "supplied_sec_link",
     "sources": [
       {
         "channel": "official",
@@ -542,7 +728,20 @@
         "verification": "blocked",
         "last_status_code": 403
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://media.kkr.com/news-details?news_id=3e7031dc-db90-4337-a977-0bda0b633629",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "KKR",
+      "status": "verified_primary_source",
+      "source_url": "https://media.kkr.com/news-details?news_id=3e7031dc-db90-4337-a977-0bda0b633629",
+      "finding": "Q3 2026 financial results November 9 before New York Stock Exchange opens; call at 10:00 ET.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": false,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "CECO",
@@ -550,14 +749,21 @@
     "aliases": [
       "CECO Environmental"
     ],
-    "cik": "0000003197",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-09T22:30:00+08:00",
-    "forecast_at": "2026-11-09T20:00+08:00",
+    "schedule_kind": "before",
     "window_start": "2026-11-09T13:00:00+08:00",
     "window_end": "2026-11-09T23:30:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月09日 22:30前 币安预测时间 20:00 美东 11/09 盘前",
+    "forecast_at": "2026-11-09T20:00+08:00",
+    "forecast_is_official": false,
+    "cik": "0000003197",
+    "cik_evidence": "supplied_sec_link",
     "sources": [
       {
         "channel": "official",
@@ -586,7 +792,20 @@
         "verification": "http_ok_listing_not_proven",
         "last_status_code": 200
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://investors.cecoenviro.com/news-releases/news-release-details/ceco-environmental-release-third-quarter-2026-earnings-and-host",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "CECO",
+      "status": "verified_primary_source",
+      "source_url": "https://investors.cecoenviro.com/news-releases/news-release-details/ceco-environmental-release-third-quarter-2026-earnings-and-host",
+      "finding": "Q3 2026 results November 9 premarket; earnings call starts 08:30 ET.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": false,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "TGTX",
@@ -594,14 +813,21 @@
     "aliases": [
       "TG Therapeutics"
     ],
-    "cik": "0001001316",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3）及业务展望 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-09T21:30:00+08:00",
-    "forecast_at": "2026-11-09T20:00+08:00",
+    "schedule_kind": "before",
     "window_start": "2026-11-09T13:00:00+08:00",
     "window_end": "2026-11-09T22:30:00+08:00",
+    "scheduled_at_semantics": "earnings_call_boundary_inferred_not_promised_release_time",
+    "schedule_text": "11月09日 21:30前 币安预测时间 20:00 美东 11/09 08:30前",
+    "forecast_at": "2026-11-09T20:00+08:00",
+    "forecast_is_official": false,
+    "cik": "0001001316",
+    "cik_evidence": "supplied_sec_link",
     "sources": [
       {
         "channel": "official",
@@ -630,7 +856,20 @@
         "verification": "blocked",
         "last_status_code": 403
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://ir.tgtherapeutics.com/news-releases/news-release-details/tg-therapeutics-host-conference-call-third-quarter-2026",
+    "status": "call_verified_release_time_inferred",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "TGTX",
+      "status": "call_verified_release_time_inferred",
+      "source_url": "https://ir.tgtherapeutics.com/news-releases/news-release-details/tg-therapeutics-host-conference-call-third-quarter-2026",
+      "finding": "Conference call November 9 at 08:30 ET discusses Q3 2026 results and business outlook. Source does not explicitly commit to a separate press-release publication time; sheet before-call boundary is inferred.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": false,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "SKYD",
@@ -639,14 +878,21 @@
       "Skydance",
       "Paramount Skydance"
     ],
-    "cik": "0002041610",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-10T06:00:00+08:00",
-    "forecast_at": "2026-11-10T05:00+08:00",
+    "schedule_kind": "before",
     "window_start": "2026-11-09T13:00:00+08:00",
     "window_end": "2026-11-10T07:00:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月10日 06:00前 币安预测时间 05:00 美东 11/09 17:00前",
+    "forecast_at": "2026-11-10T05:00+08:00",
+    "forecast_is_official": false,
+    "cik": "0002041610",
+    "cik_evidence": "supplied_historical_sec_archive",
     "sources": [
       {
         "channel": "official",
@@ -675,7 +921,20 @@
         "verification": "http_ok_listing_not_proven",
         "last_status_code": 200
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://ir.skydance.com/news-releases/news-release-details/skydance-report-third-quarter-2026-financial-results-november-9",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "SKYD",
+      "status": "verified_primary_source",
+      "source_url": "https://ir.skydance.com/news-releases/news-release-details/skydance-report-third-quarter-2026-financial-results-november-9",
+      "finding": "Q3 2026 results November 9; earnings materials precede 17:00 ET conference call. Source does not specify lower time bound.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": false,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "TTD",
@@ -683,14 +942,21 @@
     "aliases": [
       "The Trade Desk"
     ],
-    "cik": "0001671933",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30",
     "scheduled_at": "2026-11-10T05:00:00+08:00",
-    "forecast_at": "2026-11-10T05:01+08:00",
+    "schedule_kind": "after",
     "window_start": "2026-11-10T04:45:00+08:00",
     "window_end": "2026-11-10T12:59:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月10日 05:00后 币安预测时间 05:01 美东 11/09 盘后",
+    "forecast_at": "2026-11-10T05:01+08:00",
+    "forecast_is_official": false,
+    "cik": "0001671933",
+    "cik_evidence": "supplied_sec_link",
     "sources": [
       {
         "channel": "official",
@@ -730,7 +996,20 @@
         "verification": "blocked",
         "last_status_code": 403
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://www.thetradedesk.com/press-room/the-trade-desk-announces-date-of-third-quarter-2026-financial-results-and-conference-call",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "TTD",
+      "status": "verified_primary_source",
+      "source_url": "https://www.thetradedesk.com/press-room/the-trade-desk-announces-date-of-third-quarter-2026-financial-results-and-conference-call",
+      "finding": "Q3 ended September 30, 2026 results after market closes November 9; 17:00 ET call.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": true,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "XENE",
@@ -738,14 +1017,21 @@
     "aliases": [
       "Xenon Pharmaceuticals"
     ],
-    "cik": "0001582313",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3）及业务更新 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-10T05:00:00+08:00",
-    "forecast_at": "2026-11-10T05:01+08:00",
+    "schedule_kind": "after",
     "window_start": "2026-11-10T04:45:00+08:00",
     "window_end": "2026-11-10T12:59:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月10日 05:00后 币安预测时间 05:01 美东 11/09 盘后",
+    "forecast_at": "2026-11-10T05:01+08:00",
+    "forecast_is_official": false,
+    "cik": "0001582313",
+    "cik_evidence": "supplied_sec_link",
     "sources": [
       {
         "channel": "official",
@@ -774,7 +1060,20 @@
         "verification": "network_error",
         "last_status_code": null
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://www.globenewswire.com/news-release/2026/11/02/3393707/0/en/xenon-to-report-q3-2026-financial-results-on-november-9-2026.html",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "XENE",
+      "status": "verified_primary_source",
+      "source_url": "https://www.globenewswire.com/news-release/2026/11/02/3393707/0/en/xenon-to-report-q3-2026-financial-results-on-november-9-2026.html",
+      "finding": "Q3 2026 results and business update after US financial markets close November 9; 16:30 EST presentation.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": false,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "ACHR",
@@ -782,14 +1081,21 @@
     "aliases": [
       "Archer Aviation"
     ],
-    "cik": "0001824502",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-10T05:00:00+08:00",
-    "forecast_at": "2026-11-10T05:05+08:00",
+    "schedule_kind": "after",
     "window_start": "2026-11-10T04:45:00+08:00",
     "window_end": "2026-11-10T12:59:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月10日 05:00后 币安预测时间 05:05 美东 11/09 盘后",
+    "forecast_at": "2026-11-10T05:05+08:00",
+    "forecast_is_official": false,
+    "cik": "0001824502",
+    "cik_evidence": "supplied_sec_link",
     "sources": [
       {
         "channel": "official",
@@ -836,7 +1142,20 @@
         "verification": "blocked",
         "last_status_code": 403
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://investors.archer.com/news/news-details/2026/Archer-To-Report-Third-Quarter-2026-Operating-Update-and-Financial-Results-on-November-9th-2026/default.aspx",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "ACHR",
+      "status": "verified_primary_source",
+      "source_url": "https://investors.archer.com/news/news-details/2026/Archer-To-Report-Third-Quarter-2026-Operating-Update-and-Financial-Results-on-November-9th-2026/default.aspx",
+      "finding": "Q3 2026 operating update and financial results after market close November 9; 14:00 Pacific webcast.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": false,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "HIMS",
@@ -846,14 +1165,21 @@
       "Hims and Hers",
       "Hims & Hers Health"
     ],
-    "cik": "0001773751",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-10T05:00:00+08:00",
-    "forecast_at": "2026-11-10T05:05+08:00",
+    "schedule_kind": "after",
     "window_start": "2026-11-10T04:45:00+08:00",
     "window_end": "2026-11-10T12:59:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月10日 05:00后 币安预测时间 05:05 美东 11/09 盘后",
+    "forecast_at": "2026-11-10T05:05+08:00",
+    "forecast_is_official": false,
+    "cik": "0001773751",
+    "cik_evidence": "supplied_sec_link",
     "sources": [
       {
         "channel": "official",
@@ -900,7 +1226,20 @@
         "verification": "blocked",
         "last_status_code": 403
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://investors.hims.com/news/news-details/2026/Hims--Hers-to-Announce-Third-Quarter-2026-Financial-Results-on-November-9-2026/default.aspx",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "HIMS",
+      "status": "verified_primary_source",
+      "source_url": "https://investors.hims.com/news/news-details/2026/Hims--Hers-to-Announce-Third-Quarter-2026-Financial-Results-on-November-9-2026/default.aspx",
+      "finding": "Q3 2026 financial results after market closes November 9; 17:00 ET call.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": false,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "LCID",
@@ -908,14 +1247,21 @@
     "aliases": [
       "Lucid"
     ],
-    "cik": "0001811210",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30",
     "scheduled_at": "2026-11-10T06:30:00+08:00",
-    "forecast_at": "2026-11-10T05:05+08:00",
+    "schedule_kind": "before",
     "window_start": "2026-11-09T13:00:00+08:00",
     "window_end": "2026-11-10T07:30:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月10日 06:30前 币安预测时间 05:05 美东11/09当日、17:30电话会前；未给下界",
+    "forecast_at": "2026-11-10T05:05+08:00",
+    "forecast_is_official": false,
+    "cik": "0001811210",
+    "cik_evidence": "supplied_sec_link",
     "sources": [
       {
         "channel": "official",
@@ -944,7 +1290,20 @@
         "verification": "http_ok_listing_not_proven",
         "last_status_code": 200
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://ir.lucidmotors.com/news-releases/news-release-details/lucid-announces-q3-production-and-deliveries-sets-date-third",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "LCID",
+      "status": "verified_primary_source",
+      "source_url": "https://ir.lucidmotors.com/news-releases/news-release-details/lucid-announces-q3-production-and-deliveries-sets-date-third",
+      "finding": "Q3 2026 financial results release prior to November 9 17:30 ET call; source gives no publication lower time bound. Production and deliveries are a separate preannouncement.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": false,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "RKLB",
@@ -952,14 +1311,21 @@
     "aliases": [
       "Rocket Lab"
     ],
-    "cik": "0001819994",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-10T05:00:00+08:00",
-    "forecast_at": "2026-11-10T05:05+08:00",
+    "schedule_kind": "after",
     "window_start": "2026-11-10T04:45:00+08:00",
     "window_end": "2026-11-10T12:59:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月10日 05:00后 币安预测时间 05:05 美东 11/09 盘后",
+    "forecast_at": "2026-11-10T05:05+08:00",
+    "forecast_is_official": false,
+    "cik": "0001819994",
+    "cik_evidence": "supplied_sec_link",
     "sources": [
       {
         "channel": "official",
@@ -988,7 +1354,20 @@
         "verification": "http_ok_listing_not_proven",
         "last_status_code": 200
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://investors.rocketlabcorp.com/node/13431/pdf",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "RKLB",
+      "status": "verified_primary_source",
+      "source_url": "https://investors.rocketlabcorp.com/news-releases/news-release-details/rocket-lab-announces-date-third-quarter-2026-financial-results",
+      "finding": "Q3 2026 financial results following US market close November 9; corresponding call 17:00 ET. Verified from primary-site search extraction when direct article retrieval was blocked.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": false,
+      "verification_access": "primary_search_extraction"
+    }
   },
   {
     "symbol": "TTWO",
@@ -996,14 +1375,21 @@
     "aliases": [
       "Take-Two Interactive"
     ],
-    "cik": "0000946581",
     "fiscal_year": 2027,
     "quarter": 2,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2027财年第二季度（Q2） 涵盖： 2026-07-01 — 2026-09-30",
     "scheduled_at": "2026-11-10T05:00:00+08:00",
-    "forecast_at": "2026-11-10T05:05+08:00",
+    "schedule_kind": "after",
     "window_start": "2026-11-10T04:45:00+08:00",
     "window_end": "2026-11-10T12:59:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月10日 05:00后 币安预测时间 05:05 美东 11/09 盘后",
+    "forecast_at": "2026-11-10T05:05+08:00",
+    "forecast_is_official": false,
+    "cik": "0000946581",
+    "cik_evidence": "supplied_sec_link",
     "sources": [
       {
         "channel": "official",
@@ -1032,7 +1418,20 @@
         "verification": "blocked",
         "last_status_code": 403
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://www.take2games.com/ir/news/take-two-interactive-software-inc-report-second-quarter-fiscal-8",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "TTWO",
+      "status": "verified_primary_source",
+      "source_url": "https://www.take2games.com/ir/news/take-two-interactive-software-inc-report-second-quarter-fiscal-8",
+      "finding": "Fiscal 2027 Q2 ended September 30, 2026 financial results after market close November 9; call16:30 ET.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": true,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "OXY",
@@ -1040,14 +1439,21 @@
     "aliases": [
       "Occidental"
     ],
-    "cik": "0000797468",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-10T05:00:00+08:00",
-    "forecast_at": "2026-11-10T05:15+08:00",
+    "schedule_kind": "after",
     "window_start": "2026-11-10T04:45:00+08:00",
     "window_end": "2026-11-10T12:59:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月10日 05:00后 币安预测时间 05:15 美东 11/09 盘后",
+    "forecast_at": "2026-11-10T05:15+08:00",
+    "forecast_is_official": false,
+    "cik": "0000797468",
+    "cik_evidence": "supplied_sec_link",
     "sources": [
       {
         "channel": "official",
@@ -1076,7 +1482,20 @@
         "verification": "http_ok_listing_not_proven",
         "last_status_code": 200
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://www.globenewswire.com/news-release/2026/10/01/3373398/0/en/occidental-to-announce-third-quarter-results-monday-november-9-2026-hold-conference-call-tuesday-november-10-2026.html",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "OXY",
+      "status": "verified_primary_source",
+      "source_url": "https://www.globenewswire.com/news-release/2026/10/01/3373398/0/en/occidental-to-announce-third-quarter-results-monday-november-9-2026-hold-conference-call-tuesday-november-10-2026.html",
+      "finding": "Q3 2026 financial results after market close November 9; conference call is November 10, not release day.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": false,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "ONON",
@@ -1084,14 +1503,21 @@
     "aliases": [
       "On Holding"
     ],
-    "cik": "0001858985",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-10T22:30:00+08:00",
-    "forecast_at": "2026-11-10T18:00+08:00",
+    "schedule_kind": "before",
     "window_start": "2026-11-10T13:00:00+08:00",
     "window_end": "2026-11-10T23:30:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月10日 22:30前 币安预测时间 18:00 美东 11/10 盘前",
+    "forecast_at": "2026-11-10T18:00+08:00",
+    "forecast_is_official": false,
+    "cik": "0001858985",
+    "cik_evidence": "supplied_sec_link",
     "sources": [
       {
         "channel": "official",
@@ -1138,7 +1564,20 @@
         "verification": "blocked",
         "last_status_code": 403
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://investors.on-running.com/news/news-details/2026/On-to-Release-Third-Quarter-2026-Results-on-Tuesday-November-10-2026/default.aspx",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "ONON",
+      "status": "verified_primary_source",
+      "source_url": "https://investors.on-running.com/news/news-details/2026/On-to-Release-Third-Quarter-2026-Results-on-Tuesday-November-10-2026/default.aspx",
+      "finding": "Q3 2026 financial results November 10 before US financial markets open; 08:00 ET call.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": false,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "SE",
@@ -1146,14 +1585,21 @@
     "aliases": [
       "Sea Limited"
     ],
-    "cik": "0001703399",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-10T22:30:00+08:00",
-    "forecast_at": "2026-11-10T19:30+08:00",
+    "schedule_kind": "before",
     "window_start": "2026-11-10T13:00:00+08:00",
     "window_end": "2026-11-10T23:30:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月10日 22:30前 币安预测时间 19:30 美东 11/10 盘前",
+    "forecast_at": "2026-11-10T19:30+08:00",
+    "forecast_is_official": false,
+    "cik": "0001703399",
+    "cik_evidence": "supplied_sec_link",
     "sources": [
       {
         "channel": "official",
@@ -1183,7 +1629,20 @@
         "verification": "blocked",
         "last_status_code": 403
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://www.nasdaq.com/press-release/sea-limited-report-third-quarter-2026-results-2026-10-27",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "SE",
+      "status": "verified_primary_source",
+      "source_url": "https://www.sea.com/investor/home",
+      "finding": "Sea Limited investor-relations page states Q3 2026 results before US market opens November 10.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": false,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "QBTS",
@@ -1191,14 +1650,21 @@
     "aliases": [
       "D-Wave Quantum"
     ],
-    "cik": "0001907982",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30",
     "scheduled_at": "2026-11-10T22:30:00+08:00",
-    "forecast_at": "2026-11-10T20:00+08:00",
+    "schedule_kind": "before",
     "window_start": "2026-11-10T13:00:00+08:00",
     "window_end": "2026-11-10T23:30:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月10日 22:30前 币安预测时间 20:00 美东 11/10 盘前",
+    "forecast_at": "2026-11-10T20:00+08:00",
+    "forecast_is_official": false,
+    "cik": "0001907982",
+    "cik_evidence": "supplied_sec_link",
     "sources": [
       {
         "channel": "official",
@@ -1245,7 +1711,20 @@
         "verification": "blocked",
         "last_status_code": 403
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://www.dwavequantum.com/company/newsroom/press-release/d-wave-quantum-to-report-third-quarter-2026-financial-results/",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "QBTS",
+      "status": "verified_primary_source",
+      "source_url": "https://www.dwavequantum.com/company/newsroom/press-release/d-wave-quantum-to-report-third-quarter-2026-financial-results/",
+      "finding": "Q3 2026 ended September 30 results November 10 before market open; 08:00 ET webcast.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": true,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "TDG",
@@ -1253,14 +1732,21 @@
     "aliases": [
       "TransDigm Group"
     ],
-    "cik": "0001260221",
     "fiscal_year": 2026,
     "quarter": 4,
+    "period_start": "2026-06-28",
     "period_end": "2026-09-30",
+    "report_description": "2026财年第四季度（Q4） 涵盖： 2026-06-28 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-10T22:30:00+08:00",
-    "forecast_at": "2026-11-10T20:15+08:00",
+    "schedule_kind": "before",
     "window_start": "2026-11-10T13:00:00+08:00",
     "window_end": "2026-11-10T23:30:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月10日 22:30前 币安预测时间 20:15 美东 11/10 盘前",
+    "forecast_at": "2026-11-10T20:15+08:00",
+    "forecast_is_official": false,
+    "cik": "0001260221",
+    "cik_evidence": "supplied_historical_sec_archive",
     "sources": [
       {
         "channel": "official",
@@ -1289,7 +1775,20 @@
         "verification": "http_ok_listing_not_proven",
         "last_status_code": 200
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://www.prnewswire.co.uk/news-releases/transdigm-fourth-quarter-earnings-report-and-conference-call-set-for-tuesday-november-10-2026-302925802.html",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "TDG",
+      "status": "verified_primary_source",
+      "source_url": "https://www.prnewswire.co.uk/news-releases/transdigm-fourth-quarter-earnings-report-and-conference-call-set-for-tuesday-november-10-2026-302925802.html",
+      "finding": "Fiscal 2026 fourth-quarter earnings November 10 before market opens; 10:00 Eastern call.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": false,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "MRDN",
@@ -1297,14 +1796,21 @@
     "aliases": [
       "Meridian Holdings"
     ],
-    "cik": "0001437925",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-10T22:30:00+08:00",
-    "forecast_at": "2026-11-17T19:00+08:00",
+    "schedule_kind": "before",
     "window_start": "2026-11-10T13:00:00+08:00",
     "window_end": "2026-11-10T23:30:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月10日 22:30前 币安预测时间 11/17 19:00 （日期不同） 美东 11/10 盘前",
+    "forecast_at": "2026-11-17T19:00+08:00",
+    "forecast_is_official": false,
+    "cik": "0001437925",
+    "cik_evidence": "supplied_sec_link",
     "sources": [
       {
         "channel": "official",
@@ -1333,7 +1839,20 @@
         "verification": "http_ok_listing_not_proven",
         "last_status_code": 200
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://www.nasdaq.com/press-release/meridian-holdings-report-third-quarter-2026-financial-results-november-10-2026-10-30",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "MRDN",
+      "status": "verified_primary_source",
+      "source_url": "https://www.newmediawire.com/news/meridian-holdings-to-report-third-quarter-2026-financial-results-on-november-10-7090976",
+      "finding": "Issuer release on NewMediaWire confirms Q3 2026 results November 10 before market opens; 08:00 ET call. Binance November17 forecast is not the issuer date.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": false,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "NCMI",
@@ -1341,14 +1860,21 @@
     "aliases": [
       "National CineMedia"
     ],
-    "cik": "0001377630",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-03",
     "period_end": "2026-10-01",
+    "report_description": "2026财年第三季度（Q3） 涵盖： 2026-07-03 — 2026-10-01 按公司财历换算",
     "scheduled_at": "2026-11-11T05:00:00+08:00",
-    "forecast_at": "2026-11-11T05:05+08:00",
+    "schedule_kind": "after",
     "window_start": "2026-11-11T04:45:00+08:00",
     "window_end": "2026-11-11T12:59:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月11日 05:00后 币安预测时间 05:05 美东 11/10 盘后",
+    "forecast_at": "2026-11-11T05:05+08:00",
+    "forecast_is_official": false,
+    "cik": "0001377630",
+    "cik_evidence": "supplied_sec_link",
     "sources": [
       {
         "channel": "official",
@@ -1377,7 +1903,20 @@
         "verification": "blocked",
         "last_status_code": 403
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://nationalcinemedia.gcs-web.com/news-releases/news-release-details/national-cinemedia-inc-release-third-quarter-2026-results",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "NCMI",
+      "status": "verified_primary_source",
+      "source_url": "https://nationalcinemedia.gcs-web.com/news-releases/news-release-details/national-cinemedia-inc-release-third-quarter-2026-results",
+      "finding": "Third-quarter 2026 earnings results after market closes November 10; 17:00 ET call.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": false,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "RGTI",
@@ -1385,14 +1924,21 @@
     "aliases": [
       "Rigetti Computing"
     ],
-    "cik": "0001838359",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-11T05:00:00+08:00",
-    "forecast_at": "2026-11-11T05:05+08:00",
+    "schedule_kind": "after",
     "window_start": "2026-11-11T04:45:00+08:00",
     "window_end": "2026-11-11T12:59:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月11日 05:00后 币安预测时间 05:05 美东 11/10 盘后",
+    "forecast_at": "2026-11-11T05:05+08:00",
+    "forecast_is_official": false,
+    "cik": "0001838359",
+    "cik_evidence": "supplied_sec_link",
     "sources": [
       {
         "channel": "official",
@@ -1433,7 +1979,20 @@
         "verification": "http_ok_listing_not_proven",
         "last_status_code": 200
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://investors.rigetti.com/news-releases/news-release-details/rigetti-computing-report-third-quarter-2026-financial-results",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "RGTI",
+      "status": "verified_primary_source",
+      "source_url": "https://investors.rigetti.com/news-releases/news-release-details/rigetti-computing-report-third-quarter-2026-financial-results",
+      "finding": "Third-quarter 2026 results November 10 after market close;17:00 ET call.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": false,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "GIB",
@@ -1444,14 +2003,21 @@
       "CGI Group",
       "CGI"
     ],
-    "cik": "0001061574",
     "fiscal_year": 2026,
     "quarter": 4,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026财年第四季度（Q4）及全年 涵盖： 2026-07-01 — 2026-09-30 全年： 2025-10-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-11T22:30:00+08:00",
-    "forecast_at": "2026-11-11T19:30+08:00",
+    "schedule_kind": "before",
     "window_start": "2026-11-11T13:00:00+08:00",
     "window_end": "2026-11-11T23:30:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月11日 22:30前 币安预测时间 19:30 美东 11/11 盘前",
+    "forecast_at": "2026-11-11T19:30+08:00",
+    "forecast_is_official": false,
+    "cik": "0001061574",
+    "cik_evidence": "supplied_historical_sec_archive",
     "sources": [
       {
         "channel": "official",
@@ -1480,7 +2046,20 @@
         "verification": "http_ok_listing_not_proven",
         "last_status_code": 200
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://www.cgi.com/en/event/fourth-quarter-results",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "GIB",
+      "status": "verified_primary_source",
+      "source_url": "https://www.cgi.com/en/event/fourth-quarter-results",
+      "finding": "Fourth-quarter and fiscal2026 results ended September30 to be released November11 before markets open;09:00 EST call.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": true,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "FNV",
@@ -1488,14 +2067,21 @@
     "aliases": [
       "Franco-Nevada"
     ],
-    "cik": "0001456346",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-12T05:00:00+08:00",
-    "forecast_at": "2026-11-12T06:30+08:00",
+    "schedule_kind": "after",
     "window_start": "2026-11-12T04:45:00+08:00",
     "window_end": "2026-11-12T12:59:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月12日 05:00后 币安预测时间 06:30 美东 11/11 盘后",
+    "forecast_at": "2026-11-12T06:30+08:00",
+    "forecast_is_official": false,
+    "cik": "0001456346",
+    "cik_evidence": "supplied_historical_sec_archive",
     "sources": [
       {
         "channel": "official",
@@ -1517,14 +2103,27 @@
       },
       {
         "channel": "newswire",
-        "url": "https://www.newswire.ca/news/franco__nevada-corporation/",
+        "url": "https://www.prnewswire.com/news/franco__nevada-corporation/",
         "kind": "html",
         "original_url": "https://www.prnewswire.com/search/news/?keyword=Franco-Nevada",
-        "note": "Issuer distribution on Cision Canada Newswire; this is a partner newswire source, not an issuer-site replacement.",
-        "verification": "public_discovery_structure_verified",
+        "note": "Issuer-specific PRNewswire list and full Q2 release verified HTTP 200. Q3 absent at preflight; Canada partner body and issuer website returned HTTP 403. Full historical report: 13 tables, 220 rows, 2828 cells; this is source verification, not new-release timing.",
+        "verification": "http_ok_issuer_list_and_full_report",
         "last_status_code": 200
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://www.sec.gov/Archives/edgar/data/1456346/000110465926115442/fnv-ex99d1.htm",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "FNV",
+      "status": "verified_primary_source",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1456346/000110465926115442/fnv-ex99d1.htm",
+      "finding": "Issuer SEC Exhibit99.1 states Q3 2026 results November11 after market close; call November12 08:00 ET.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": false,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "BN",
@@ -1532,14 +2131,21 @@
     "aliases": [
       "Brookfield Corporation"
     ],
-    "cik": "0001001085",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-12T20:00:00+08:00",
-    "forecast_at": "2026-11-12T19:45+08:00",
+    "schedule_kind": "approx",
     "window_start": "2026-11-12T19:30:00+08:00",
     "window_end": "2026-11-12T22:00:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月12日 约20:00 币安预测时间 19:45 美东 11/12 约07:00",
+    "forecast_at": "2026-11-12T19:45+08:00",
+    "forecast_is_official": false,
+    "cik": "0001001085",
+    "cik_evidence": "supplied_historical_sec_archive",
     "sources": [
       {
         "channel": "official",
@@ -1568,7 +2174,20 @@
         "verification": "network_error",
         "last_status_code": null
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://bn.brookfield.com/events/bn-q3-2026-conference-call-webcast",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "BN",
+      "status": "verified_primary_source",
+      "source_url": "https://bn.brookfield.com/events/bn-q3-2026-conference-call-webcast",
+      "finding": "Third-quarter 2026 results November12 morning approximately07:00 ET; call10:00 ET.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": false,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "NBIS",
@@ -1576,14 +2195,21 @@
     "aliases": [
       "Nebius Group"
     ],
-    "cik": "0001513845",
     "fiscal_year": 2026,
     "quarter": 3,
+    "period_start": "2026-07-01",
     "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
     "scheduled_at": "2026-11-12T22:30:00+08:00",
-    "forecast_at": "2026-11-12T20:42+08:00",
+    "schedule_kind": "before",
     "window_start": "2026-11-12T13:00:00+08:00",
     "window_end": "2026-11-12T23:30:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月12日 22:30前 币安预测时间 20:42 美东 11/12 盘前",
+    "forecast_at": "2026-11-12T20:42+08:00",
+    "forecast_is_official": false,
+    "cik": "0001513845",
+    "cik_evidence": "supplied_historical_sec_archive",
     "sources": [
       {
         "channel": "official",
@@ -1612,7 +2238,20 @@
         "verification": "blocked",
         "last_status_code": 403
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://nebius.com/newsroom/nebius-group-announces-date-of-third-quarter-2026-results-and-conference-call",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "NBIS",
+      "status": "verified_primary_source",
+      "source_url": "https://nebius.com/newsroom/nebius-group-announces-date-of-third-quarter-2026-results-and-conference-call",
+      "finding": "Third-quarter 2026 results November12 before market open;08:00 ET call.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": false,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   },
   {
     "symbol": "CSCO",
@@ -1622,14 +2261,21 @@
       "Cisco Systems",
       "Cisco Systems Inc."
     ],
-    "cik": "0000858877",
     "fiscal_year": 2027,
     "quarter": 1,
+    "period_start": "2026-07-26",
     "period_end": "2026-10-24",
+    "report_description": "2027财年第一季度（Q1） 涵盖： 2026-07-26 — 2026-10-24 按公司财历换算",
     "scheduled_at": "2026-11-13T05:00:00+08:00",
-    "forecast_at": "2026-11-13T05:05+08:00",
+    "schedule_kind": "after",
     "window_start": "2026-11-13T04:45:00+08:00",
     "window_end": "2026-11-13T12:59:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "11月13日 05:00后 币安预测时间 05:05 美东 11/12 盘后",
+    "forecast_at": "2026-11-13T05:05+08:00",
+    "forecast_is_official": false,
+    "cik": "0000858877",
+    "cik_evidence": "supplied_historical_sec_archive",
     "sources": [
       {
         "channel": "official",
@@ -1658,6 +2304,19 @@
         "verification": "http_ok_listing_not_proven",
         "last_status_code": 200
       }
-    ]
+    ],
+    "schedule_evidence_url": "https://newsroom.cisco.com/c/r/newsroom/en/us/a/y2026/m11/cisco-schedules-conference-call-for-q1-fiscal-year-2027-financial-results.html",
+    "status": "verified_primary_source",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "schedule_verification": {
+      "symbol": "CSCO",
+      "status": "verified_primary_source",
+      "source_url": "https://newsroom.cisco.com/c/r/newsroom/en/us/a/y2026/m11/cisco-schedules-conference-call-for-q1-fiscal-year-2027-financial-results.html",
+      "finding": "Fiscal2027 Q1 ending October24,2026; PRNewswire release after market closes November12, then16:30 ET call.",
+      "checked_at": "2026-11-06T11:09:47.280886+00:00",
+      "report_period_confirmed": true,
+      "period_end_confirmed": true,
+      "verification_access": "primary_page_or_issuer_distribution"
+    }
   }
 ]

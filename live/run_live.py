@@ -76,7 +76,7 @@ def handoff_sources(runtime, status, connection, metadata):
                         <= datetime.fromisoformat(event["window_end"]))
             rec, initial = latest.get(key, {}), first.get(key, {})
             valid, basis = False, None
-            if required and rec.get("status") in (200, 304) and rec.get("request_end_utc"):
+            if rec.get("status") in (200, 304) and rec.get("request_end_utc"):
                 digest = rec.get("sha256") or rec.get("reused_sha256")
                 if digest:
                     try:

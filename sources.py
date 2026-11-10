@@ -215,6 +215,22 @@ def _text(node, separator=" ", strip=True):
     return separator.join(values)
 
 
+def _cell_text(node):
+    # Cell output collapses whitespace once, including text-node boundaries.
+    if not len(node):
+        return " ".join((node.text or "").split())
+    return " ".join(" ".join(_TEXT_NODES(node)).split())
+
+
+def _cell_spans(cell):
+    rowspan, colspan = cell.get("rowspan", "1"), cell.get("colspan", "1")
+    if rowspan == "1" and colspan == "1":
+        return [1, 1]
+    rowspan, colspan = rowspan.strip(), colspan.strip()
+    return [int(rowspan) if rowspan.isdecimal() else 1,
+            int(colspan) if colspan.isdecimal() and int(colspan) > 0 else 1]
+
+
 def _drop_content(root, *tags):
     for node in list(root.iter(*tags)):
         # Preserve the separation between text nodes that BeautifulSoup kept on
@@ -387,7 +403,7 @@ def listing_structure(body: bytes, url: str, content_type: str, event: dict) -> 
                         and any(_clean(_text(node)) for node in card.iter("h3"))
                         and any(link.get("href", "").startswith("/en/cgi-") for link in card.iter("a"))):
                     return "Official CGI server-rendered press-release cards"
-        if (event.get("symbol") == "FNV" and parsed.hostname == "www.newswire.ca"
+        if (event.get("symbol") == "FNV" and parsed.hostname in ("www.newswire.ca", "www.prnewswire.com")
                 and parsed.path.rstrip("/") == "/news/franco__nevada-corporation"):
             for link in document.iter("a"):
                 if (re.fullmatch(r"/news-releases/[^/]+-\d+\.html", urlparse(link.get("href", "")).path)
@@ -735,6 +751,9 @@ def validate(body: bytes, url: str, content_type: str, event: dict) -> dict:
                 from pdf_tables import extract_kkr_pdf_tables
                 with _PDF_LOCK:
                     native_pdf = extract_kkr_pdf_tables(body)
+            elif event.get("symbol") == "LCID" and parsed_url.hostname == "ir.lucidmotors.com" and parsed_url.path.startswith("/static-files/"):
+                from pdf_tables import extract_lcid_pdf_tables
+                native_pdf = extract_lcid_pdf_tables(body, event)
             else:
                 from pdf_tables import extract_generic_pdf_tables
                 generic = extract_generic_pdf_tables(body)
@@ -781,13 +800,11 @@ def validate(body: bytes, url: str, content_type: str, event: dict) -> dict:
             rows, spans = [], []
             for row in table.iter("tr"):
                 cells = [cell for cell in row if cell.tag in ("td", "th")]
-                values = [_clean(_text(cell)) for cell in cells]
+                values = [_cell_text(cell) for cell in cells]
                 if not any(values):
                     continue
                 rows.append(values)
-                spans.append([[int(value) if value.isdecimal() and (name == "rowspan" or int(value) > 0) else 1
-                               for name in ("rowspan", "colspan")
-                               for value in [cell.get(name, "1").strip()]] for cell in cells])
+                spans.append([_cell_spans(cell) for cell in cells])
             if rows:
                 tables.append(rows)
                 table_spans.append(spans)
@@ -833,6 +850,8 @@ def validate(body: bytes, url: str, content_type: str, event: dict) -> dict:
         result["table_spans"] = table_spans
     if native_pdf is not None:
         result.update({key:native_pdf[key] for key in ("table_details", "page_diagnostics", "pdf_structure_checks", "tables_extraction_scope", "tables_complete", "quality_reason")})
+        if "table_spans" in native_pdf:
+            result["table_spans"] = native_pdf["table_spans"]
         result["pdf_parse_ms"] = native_pdf["parse_ms"]
         result["pdf_parse_phases_ms"] = native_pdf.get("phases_ms")
     elif publisher_pdf_needs_review:

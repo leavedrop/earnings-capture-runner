@@ -84,6 +84,15 @@ async def identify_node(client):
 
 
 def select_targets(targets, scope):
+    if scope == "repaired-paths":
+        references = json.loads((BASE / "remaining_references.json").read_text(encoding="utf-8"))
+        events = {event["symbol"]: event for event in json.loads((BASE / "live/watchlist.json").read_text(encoding="utf-8"))}
+        return [{"target_id": symbol + "_repaired_full_report", "channel": "sec" if symbol == "B" else "newswire" if symbol == "FNV" else "official",
+                 "url": references[symbol + "_REPAIR"]["url"], "reference": references[symbol + "_REPAIR"],
+                 "event": {**events[symbol], **references[symbol + "_REPAIR"].get("event_override", {})},
+                 "cache_profile": "ordinary",
+                 **({"pipeline": "production_watch_list_seed"} if symbol in ("LCID", "FNV", "B") else
+                    {"transport": "curl_cffi_chrome"})} for symbol in ("LCID", "FNV", "ACHR", "HIMS", "B")]
     if scope == "all":
         return targets
     if scope == "msgk-production-issuer":
@@ -361,8 +370,15 @@ async def collect_watch_case(target, output, node):
                 command[command.index("--manifest") + 1] = str(manifest)
             else:
                 command.extend(["--candidate-url", target["url"]])
+                if target["reference"].get("event_override"):
+                    manifest = runtime / "public_probe_manifest.json"
+                    manifest.write_text(json.dumps([target["event"]], ensure_ascii=False), encoding="utf-8")
+                    command[command.index("--manifest") + 1] = str(manifest)
             child_env = {key: value for key, value in os.environ.items()
                          if key not in ("GITHUB_TOKEN", "GH_TOKEN", "SEC_USER_AGENT", "HTTPS_PROXY", "HTTP_PROXY", "ALL_PROXY", "https_proxy", "http_proxy", "all_proxy")}
+            if target["channel"] == "sec":
+                child_env["SEC_USER_AGENT"] = os.environ.get("SEC_USER_AGENT", "")
+                command.extend(["--sec-rps", "2"])
             result = await asyncio.to_thread(subprocess.run, command, cwd=BASE / "live", env=child_env,
                                              capture_output=True, timeout=180)
             row["collector_exit_code"] = result.returncode
@@ -386,7 +402,8 @@ async def collect_watch_case(target, output, node):
                     safe["error"] = safe_error_message(request["error"])
                 raw = gzip.open(runtime / request["raw_path"], "rb").read() if request.get("raw_path") else b""
                 if raw:
-                    name = "raw/" + target["target_id"] + "_" + str(index) + "_" + request["purpose"] + ".html"
+                    suffix = ".pdf" if raw.startswith(b"%PDF") else ".html"
+                    name = "raw/" + target["target_id"] + "_" + str(index) + "_" + request["purpose"] + suffix
                     (output / name).write_bytes(raw)
                     safe["artifact"] = name
                     row["artifacts"].append(name)
@@ -405,7 +422,7 @@ async def collect_watch_case(target, output, node):
                     row["http_response_complete"] = (body_verified and request.get("body_complete_mono_ns") is not None
                         and request.get("request_end_mono_ns") == request["body_complete_mono_ns"] and not request.get("error"))
                     if body_verified:
-                        canonical = "raw/" + target["target_id"] + ".html"
+                        canonical = "raw/" + target["target_id"] + (".pdf" if raw.startswith(b"%PDF") else ".html")
                         (output / canonical).write_bytes(raw)
                         row["artifacts"].append(canonical)
                         row.update(raw_document_artifact=canonical, bytes=len(raw), sha256=digest(raw))
@@ -418,10 +435,15 @@ async def collect_watch_case(target, output, node):
                 stem = Path(capture["original_document_path"]).with_suffix("")
                 saved = json.loads((runtime / stem.with_suffix(".json")).read_text(encoding="utf-8"))
                 parsed = {"text": (runtime / stem.with_suffix(".txt")).read_text(encoding="utf-8"), "tables": saved["tables"]}
-                comparison = reference_match(parsed, target["reference"])
+                parsed.update({key: saved[key] for key in ("table_spans", "table_details", "page_diagnostics") if key in saved})
                 verdict = capture["validation"]
-                parsed.update({key: verdict[key] for key in ("accepted", "tables_complete", "checks", "reason", "title") if key in verdict})
-                complete = row["http_response_complete"] and verdict.get("accepted") is True and verdict.get("tables_complete") is True and comparison["reference_text_matches"] and comparison["reference_tables_match"]
+                parsed.update({key: verdict[key] for key in ("accepted", "tables_complete", "checks", "reason", "title",
+                    "pdf_pages_total", "pdf_pages_processed", "pdf_pages_text_extracted", "pdf_structure_checks",
+                    "tables_extraction_scope") if key in verdict})
+                comparison = reference_match(parsed, target["reference"])
+                complete = (row["http_response_complete"] and verdict.get("accepted") is True and verdict.get("tables_complete") is True
+                            and comparison["reference_text_matches"] and comparison["reference_tables_match"]
+                            and comparison.get("reference_pages_match", True))
                 if actual_discovery:
                     row["discovery_clock_preserved"] = (capture.get("listing_request_id") == row.get("seed", {}).get("id")
                         and capture.get("discovered_mono_ns") is not None
@@ -475,7 +497,7 @@ async def run(args):
                                  timeout=httpx.Timeout(12, connect=5),
                                  limits=httpx.Limits(max_connections=2, max_keepalive_connections=2, keepalive_expiry=60)) as businesswire_client:
         browser_client = None
-        if args.scope == "msgk-browser-transport":
+        if any(target.get("transport") == "curl_cffi_chrome" for target in targets):
             from browser_transport import browser_session
             browser_client = await stack.enter_async_context(browser_session())
         try:
@@ -532,7 +554,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer"), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths"), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 

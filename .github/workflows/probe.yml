@@ -18,6 +18,7 @@ on:
           - msgk-issuer-cold
           - msgk-browser-transport
           - msgk-production-issuer
+          - repaired-paths
         default: all
 
 permissions:
