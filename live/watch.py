@@ -598,7 +598,7 @@ class Collector:
                                          "candidate_attempt": attempt, "attempt_started_mono_ns": attempt_started,
                                          "attempt_to_parsed_ms": (validated_mono-attempt_started)/1e6 if existing is None else None})
             duplicate_document = self.args.command == "run" and (event["symbol"], channel, document_url) in self.captured_documents
-            if result.get("accepted"):
+            if result.get("accepted") and duplicate_document:
                 # A previously archived stream target is terminal for this URL too.
                 self.candidate_retry[key] = float("inf")
             if result.get("accepted") and not duplicate_document:
@@ -636,15 +636,28 @@ class Collector:
                 target = self.store.root / "reports" / name
                 original = target.with_suffix(".xlsx" if result.get("document_format") == "xlsx" else
                                               ".pdf" if body.startswith(b"%PDF") else ".html")
-                original.write_bytes(body)
                 captured["original_document_path"] = str(original.relative_to(self.store.root))
-                target.with_suffix(".txt").write_text(result.get("text", ""), encoding="utf-8")
-                atomic_json(target.with_suffix(".json"), {"metadata": captured, "tables": result.get("tables", []),
-                            **{key: result[key] for key in ("table_spans", "table_details", "page_diagnostics", "spreadsheet") if key in result}})
-                self.store.add("capture", captured)
+                def write_documents():
+                    original.write_bytes(body)
+                    target.with_suffix(".txt").write_text(result.get("text", ""), encoding="utf-8")
+                    atomic_json(target.with_suffix(".json"), {"metadata": captured, "tables": result.get("tables", []),
+                                **{key: result[key] for key in ("table_spans", "table_details", "page_diagnostics", "spreadsheet") if key in result}})
+                # run() already preserves archive_tasks during shutdown. Keep
+                # this candidate alive through its files and success record;
+                # the SQLite connection stays on its owning event-loop thread.
+                archive_task = asyncio.current_task()
+                self.archive_tasks.add(archive_task)
+                try:
+                    await asyncio.to_thread(write_documents)
+                    self.store.add("capture", captured)
+                finally:
+                    self.archive_tasks.discard(archive_task)
+                self.candidate_retry[key] = float("inf")
                 self.captured_documents.add((event["symbol"], channel, document_url))
                 self.completed.add((event["symbol"], channel))
                 logging.info("CAPTURE %s %s %s", event["symbol"], channel, url)
+                if self.stop.is_set():
+                    return  # Shutdown drained this archive; do not launch new follow-up requests.
                 if channel == "official" and not getattr(self.args, "candidate_url", None) and result.get("document_format") != "xlsx":
                     self.follow_original_wire(session, event, body, rec["body_complete_ns"], rec["body_complete_mono_ns"])
                 self.summary()

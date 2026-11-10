@@ -1,13 +1,13 @@
 {
   "watch.py": {
-    "sha256": "a3e767ff0b1ebaeba8d8f33bcc3f62b70be11c83fa7492c917e934b308b8318a",
-    "production_sha256": "5089f61db0a27c591be3dfb0d9fb4ca22cbdd18681efb4d730180f7f6db2ab1d",
+    "sha256": "fa389938ecd81682e1942a7510452c3efd1a3fe8997cb5a751d017e25dcfca9e",
+    "production_sha256": "804640be9512309d63e3e817ff09daf74f3839a205a4404ca61d222c9c2b5277",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "watch.py"
   },
   "sources.py": {
-    "sha256": "20c55b97e74873e84c4ae4a989760e1e23e99964aeb31d88b1e2713528bdc4a3",
-    "production_sha256": "dac8e1a92b024d7a04769173fbfa15b8bb1dbb93cc2291641ea9671f677dbe02",
+    "sha256": "3384bc684ee11bfe70c5dcb76bbb803ab0bbb01ca13959290bb6734685139f37",
+    "production_sha256": "c3049a199ba0306aa3b4e202faa9822e1eb7e92bada1aeb50e5524b1fbfb1995",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "sources.py"
   },

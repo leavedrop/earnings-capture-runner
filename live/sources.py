@@ -288,10 +288,11 @@ def _lexbor_text_fragments(node):
     return " ".join(filter(None, node.text(separator="\x00", strip=True).split("\x00")))
 
 
-def _extract_barrick_native_html(body):
-    # The exact native route only accepts ASCII bytes. Decode numeric entities
+def _extract_barrick_native_html(body, *, document=None):
+    # The audited native routes only accept ASCII bytes. Decode numeric entities
     # as HTML5 visible characters, matching the frozen complete US reference.
-    document = LexborHTMLParser(body, encoding=False)
+    if document is None:
+        document = LexborHTMLParser(body, encoding=False)
     metadata = document.css('meta,script[type="application/ld+json"],time[datetime]')
     timestamp = (_native_timestamp(_document("".join(node.html for node in metadata).encode("utf-8")))
                  if metadata else _stamp(None))
@@ -340,10 +341,16 @@ def _sec_report_facts(tree, url, event):
     required = {"DocumentType", "DocumentPeriodEndDate", "DocumentFiscalYearFocus",
                 "DocumentFiscalPeriodFocus", "EntityRegistrantName", "EntityCentralIndexKey"}
     contexts = {}
-    for node in tree.iter("ix:nonnumeric"):
-        name = node.get("name", "")
+    native = isinstance(tree, LexborHTMLParser)
+    nodes = tree.css('[name^="dei:"]') if native else tree.iter("ix:nonnumeric")
+    for node in nodes:
+        if native and node.tag != "ix:nonnumeric":
+            continue
+        get = node.attrs.sget if native else node.get
+        name = get("name", "")
         if name.startswith("dei:") and name[4:] in required:
-            contexts.setdefault(node.get("contextref"), {}).setdefault(name[4:], set()).add(_clean(_text(node)))
+            value = _lexbor_text_fragments(node) if native else _text(node)
+            contexts.setdefault(get("contextref"), {}).setdefault(name[4:], set()).add(_clean(value))
     covers = [values for values in contexts.values()
               if values.get("DocumentType", set()) & {"10-Q", "10-K"}]
     if not covers:
@@ -659,6 +666,18 @@ def discover(body: bytes, url: str, content_type: str, event: dict) -> list[dict
         return found
     tree = _document(body)
     _drop_content(tree, "script", "style")
+    if (hostname == "ir.skydance.com" and event.get("symbol") == "SKYD"
+            and urlparse(url).path.rstrip("/") == "/financials/quarterly-results"):
+        for anchor in tree.xpath(".//div[contains(concat(' ', normalize-space(@class), ' '), ' qr-doc-list ')]//a[@href]"):
+            title = _clean(_text(anchor))
+            if not _target(title, event) or _ANNOUNCEMENT.search(title):
+                continue
+            target = _url(url, anchor.get("href"))
+            parsed_target = urlparse(target) if target else None
+            if (parsed_target and parsed_target.hostname == hostname
+                    and parsed_target.path.startswith("/static-files/")):
+                found.append(_candidate(target, title))
+        return list({item["url"]: item for item in found}.values())
     if hostname == "www.berkshirehathaway.com" and event.get("symbol") == "BRK.B":
         # The official reports grid uses image-only links, then a quarterly
         # index. Match the published link itself; do not guess a PDF URL.
@@ -1011,6 +1030,13 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
                     "checks": {"parse": False, "tables_complete": False}, "tables_extraction_scope": "partial",
                     "tables_complete": False, "pdf_pages_total": pdf_pages_total,
                     "pdf_pages_processed": pdf_pages_processed, "pdf_pages_text_extracted": len(pages)}
+    elif (prepared_tree is None and event.get("symbol") == "KKR" and body.isascii()
+          and url == "https://www.sec.gov/Archives/edgar/data/1404912/000140491226000034/kkr-20260930.htm"):
+        document = LexborHTMLParser(body, encoding=False)
+        cover = _sec_report_facts(document, url, event) or {
+            "identity": False, "reporting_period": False, "facts": {},
+            "reason": "missing_or_conflicting_cover_facts"}
+        title, text, tables, table_spans, timestamp = _extract_barrick_native_html(body, document=document)
     elif (prepared_tree is None and uses_native_html_parser(url, event)
           and body.isascii() and b"<ix:" not in body.lower()):
         title, text, tables, table_spans, timestamp = _extract_barrick_native_html(body)

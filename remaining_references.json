@@ -1328,7 +1328,8 @@
     "source_evidence_id": "42702189802-1:557",
     "source_listing_url": "https://data.sec.gov/submissions/CIK0001404912.json",
     "original_discovery_to_parsed_ms": 3077.031568,
-    "reference_scope": "Complete originally captured HTML; all 228 tables and original row/column spans independently checked against raw HTML; text and every table/span also match current full validation. Reference is an existing/backfill document, not a new-release latency result."
+    "reference_scope": "Complete originally captured HTML; all 228 tables and original row/column spans independently checked against raw HTML; text and every table/span also match current full validation. Reference is an existing/backfill document, not a new-release latency result.",
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/"
   },
   "TTWO_BACKLOG_PRODUCTION": {
     "url": "https://www.take2games.com/ir/news/take-two-interactive-software-inc-reports-results-fiscal-4",
