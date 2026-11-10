@@ -12,8 +12,8 @@
     "source": "sources.py"
   },
   "pdf_tables.py": {
-    "sha256": "3ebd0e9cb06798f254ade78a7faa8f3cb24fe9392dfe8518e39acbf455e8760b",
-    "production_sha256": "987dbda85b04eb6fba703ad2dca77c16fdfd62b950214fdccc4b38b1b7400caa",
+    "sha256": "16604454f097930955c2b85f354e49cdaf950de18502fad0a6c4b3a75f2cf3ff",
+    "production_sha256": "e662f15af162c7ad7e93be52227fdfc67ebe56b0500ec179f6dafd54d26dae81",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "pdf_tables.py"
   },

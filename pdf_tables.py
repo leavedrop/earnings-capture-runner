@@ -12,6 +12,7 @@ import atexit
 import collections
 import concurrent.futures
 import multiprocessing
+from multiprocessing import shared_memory
 from multiprocessing.connection import wait as wait_for_process
 import os
 import re
@@ -911,6 +912,12 @@ def _lcid_place_cells(rows):
 
 def _extract_lcid_tagged_batch(body, batch_index, batch_count):
     started = time.perf_counter_ns()
+    if isinstance(body, tuple):
+        shared = shared_memory.SharedMemory(name=body[0])
+        try:
+            body = bytes(shared.buf[:body[1]])
+        finally:
+            shared.close()
     texts, details, diagnostics, errors = [], [], [], []
     with fitz.open(stream=body, filetype="pdf") as document:
         count = len(document)
@@ -1031,9 +1038,20 @@ def extract_lcid_pdf_tables(body: bytes, event: dict | None = None) -> dict:
     started = time.perf_counter_ns()
     warmup = prewarm_pdf_pool()
     batches = min(4, _POOL_WORKERS)
-    futures = [_POOL.submit(_extract_lcid_tagged_batch, body, i, batches)
-               for i in range(batches)]
-    chunks = [future.result() for future in futures]
+    # Share this invocation's downloaded bytes instead of serializing the entire
+    # PDF through the pool's single input queue once per page batch. Workers own
+    # their PDF objects; neither decoded content nor prior results are cached.
+    shared = shared_memory.SharedMemory(create=True, size=len(body))
+    futures = []
+    try:
+        shared.buf[:len(body)] = body
+        for i in range(batches):
+            futures.append(_POOL.submit(_extract_lcid_tagged_batch, (shared.name, len(body)), i, batches))
+        chunks = [future.result() for future in futures]
+    finally:
+        concurrent.futures.wait(futures)
+        shared.close()
+        shared.unlink()
     texts = [text for _, text in sorted((index, text) for chunk in chunks for index, text in zip(chunk["indices"], chunk["texts"]))]
     details = sorted((table for chunk in chunks for table in chunk["details"]), key=lambda table: table["page"])
     pages = sorted((page for chunk in chunks for page in chunk["pages"]), key=lambda page: page["page"])
