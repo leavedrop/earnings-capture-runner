@@ -30,7 +30,15 @@ _METRICS = re.compile(r"\b(?:revenues?|net\s+(?:income|loss)|earnings\s+per\s+sh
 _ORDINAL = {1: "first", 2: "second", 3: "third", 4: "fourth"}
 _PDF_LOCK = threading.Lock()  # PyMuPDF table extraction mutates module-global CHARS/EDGES.
 _DIGIT = re.compile(r"\d")
-_TEXT_NODES = etree.XPath(".//text()", smart_strings=False)
+
+
+class _TextNodes(threading.local):
+    def __init__(self):
+        # A shared XPath evaluator serializes its prepared context across threads.
+        self.evaluate = etree.XPath(".//text()", smart_strings=False)
+
+
+_TEXT_NODES = _TextNodes()
 
 
 def _clean(value):
@@ -209,7 +217,7 @@ def check_table_spans(tables, spans):
 
 
 def _text(node, separator=" ", strip=True):
-    values = _TEXT_NODES(node) if len(node) else ((node.text,) if node.text else ())
+    values = _TEXT_NODES.evaluate(node) if len(node) else ((node.text,) if node.text else ())
     if strip:
         return separator.join(filter(None, map(str.strip, values)))
     return separator.join(values)
@@ -220,7 +228,7 @@ def _cell_text(node):
     if not len(node):
         text = node.text
         return " ".join(text.split()) if text else ""
-    return " ".join(" ".join(_TEXT_NODES(node)).split())
+    return " ".join(" ".join(_TEXT_NODES.evaluate(node)).split())
 
 
 def _cell_spans(cell):

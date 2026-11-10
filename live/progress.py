@@ -410,11 +410,8 @@ def read_database(root, output_root, replay=False):
             record = json.loads(payload)
             captures.append(capture_row(record, root, output_root, starts.get(record.get("run_id")), replay))
         groups = connection.execute("""
-            WITH requests AS MATERIALIZED (
-                SELECT symbol,channel,json_extract(payload,'$.status') AS status,at_ns
-                FROM log WHERE kind='request')
-            SELECT symbol,channel,status,COUNT(*),MAX(at_ns)
-            FROM requests GROUP BY symbol,channel,status
+            SELECT symbol,channel,json_extract(payload,'$.status') AS status,COUNT(*),MAX(at_ns)
+            FROM log WHERE kind='request' GROUP BY symbol,channel,status
         """).fetchall()
     request_total = sum(row[3] for row in groups)
     failed = [row for row in groups if row[2] is None or row[2] >= 400]
