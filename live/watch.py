@@ -356,7 +356,7 @@ class Collector:
         html_parser = None
         html_feed_ns = 0
         browser = urlsplit(url).hostname in ("investor.msgknicks.com", "www.barrick.com",
-                                              "investors.archer.com", "investors.hims.com")
+                                              "investors.archer.com", "investors.hims.com", "ir.lucidmotors.com")
         kkr_api = (event.get("symbol") == "KKR" and urlsplit(url).scheme == "https"
                    and urlsplit(url).hostname == "tools.cms-eqs.com"
                    and urlsplit(url).path == "/fcf5b4/content/events/eventbox")
@@ -384,8 +384,10 @@ class Collector:
                 if (not browser and not sec_exhibit and purpose == "candidate" and event.get("symbol") == "B"
                         and channel == "sec" and response.status_code == 200
                         and "html" in response.headers.get("content-type", "").lower()):
-                    from lxml import etree
-                    html_parser = etree.HTMLParser()
+                    from sources import uses_native_html_parser
+                    if not uses_native_html_parser(str(response.url), event):
+                        from lxml import etree
+                        html_parser = etree.HTMLParser()
                 if browser:
                     chunks.extend(response.content)
                 else:

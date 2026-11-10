@@ -16,6 +16,7 @@ from zoneinfo import ZoneInfo
 
 from bs4 import BeautifulSoup
 from lxml import etree
+from selectolax.lexbor import LexborHTMLParser
 
 _ANNOUNCEMENT = re.compile(
     r"\b(?:to\s+(?:report|release|announce|host)|will\s+(?:report|release|announce|host)|"
@@ -39,6 +40,7 @@ class _TextNodes(threading.local):
 
 
 _TEXT_NODES = _TextNodes()
+_NUMERIC_REFERENCE = re.compile(br"&#(?:([0-9]+)|[xX]([0-9A-Fa-f]+));")
 
 
 def _clean(value):
@@ -271,6 +273,70 @@ def _native_timestamp(root):
             pass
     tag = next((tag for tag in root.iter("time") if tag.get("datetime") is not None), None)
     return _stamp(tag.get("datetime") if tag is not None else None)
+
+
+def uses_native_html_parser(url, event):
+    """Only the SEC exhibit whose complete text, cells and spans were compared."""
+    parsed = urlparse(url)
+    return (event.get("symbol") == "B" and parsed.scheme == "https"
+            and parsed.hostname == "www.sec.gov"
+            and parsed.path == "/Archives/edgar/data/756894/000119312526453391/d141003dex992.htm")
+
+
+def _preserve_c1_reference(match):
+    # HTML5 maps numeric C1 references to Windows-1252 punctuation. Retain the
+    # original lxml codepoints instead; the archived HTTP body stays untouched.
+    value = int(match[1], 10) if match[1] else int(match[2], 16)
+    return chr(value).encode("utf-8") if 128 <= value <= 159 else match[0]
+
+
+def _lexbor_text_fragments(node):
+    # skip_empty only handles ASCII whitespace. Filter after Unicode strip so
+    # NBSP-only fragments do not introduce extra separators into the full text.
+    return " ".join(filter(None, node.text(separator="\x00", strip=True).split("\x00")))
+
+
+def _extract_barrick_native_html(body):
+    document = LexborHTMLParser(_NUMERIC_REFERENCE.sub(_preserve_c1_reference, body), encoding=True)
+    metadata = document.css('meta,script[type="application/ld+json"],time[datetime]')
+    timestamp = (_native_timestamp(_document("".join(node.html for node in metadata).encode("utf-8")))
+                 if metadata else _stamp(None))
+    root = document.css_first("article") or document.css_first("main") or document.root
+    for node in root.css("script,style"):
+        node.decompose()
+    h1 = root.css_first("h1")
+    og = document.css_first('meta[property="og:title"]')
+    title_node = document.css_first("title")
+    title = _clean(_lexbor_text_fragments(h1) if h1 is not None else
+                   og.attrs.sget("content") if og is not None else
+                   _lexbor_text_fragments(title_node) if title_node is not None else "")
+    for node in root.css("nav,header,footer"):
+        node.decompose()
+    text = _lexbor_text_fragments(root)
+    tables, table_spans = [], []
+    for table in root.css("table"):
+        rows, spans = [], []
+        for row in table.css("tr"):
+            cells = [cell for cell in row.iter() if cell.tag in ("td", "th")]
+            values = [" ".join(cell.text(separator=" ").split()) for cell in cells]
+            if not any(values):
+                continue
+            rows.append(values)
+            row_spans = []
+            for cell in cells:
+                attrs = cell.attrs
+                rowspan, colspan = attrs.sget("rowspan", "1"), attrs.sget("colspan", "1")
+                if rowspan == "1" and colspan == "1":
+                    row_spans.append([1, 1])
+                    continue
+                rowspan, colspan = rowspan.strip(), colspan.strip()
+                row_spans.append([int(rowspan) if rowspan.isdecimal() else 1,
+                                  int(colspan) if colspan.isdecimal() and int(colspan) > 0 else 1])
+            spans.append(row_spans)
+        if rows:
+            tables.append(rows)
+            table_spans.append(spans)
+    return title, text, tables, table_spans, timestamp
 
 
 def _sec_report_facts(tree, url, event):
@@ -802,6 +868,9 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
                     "checks": {"parse": False, "tables_complete": False}, "tables_extraction_scope": "partial",
                     "tables_complete": False, "pdf_pages_total": pdf_pages_total,
                     "pdf_pages_processed": pdf_pages_processed, "pdf_pages_text_extracted": len(pages)}
+    elif (prepared_tree is None and uses_native_html_parser(url, event)
+          and body.isascii() and b"<ix:" not in body.lower()):
+        title, text, tables, table_spans, timestamp = _extract_barrick_native_html(body)
     else:
         tree = prepared_tree if prepared_tree is not None else _document(body)
         cover = _sec_report_facts(tree, url, event)
