@@ -1071,6 +1071,10 @@ class Collector:
                 self.summary()
                 self.store.add("run_end", {"run_id": self.run_id, "replay_only": True})
                 return
+            if self.args.command == "run":
+                now = self.clock.stamp()[1] / 1e9
+                events.sort(key=lambda event: (0, 0) if epoch(event["window_start"]) <= now <= epoch(event["window_end"])
+                            else (1, epoch(event["window_start"])) if now < epoch(event["window_start"]) else (2, 0))
             tasks = [asyncio.create_task(self.source_loop(session, event, source, self.args.command == "probe"))
                      for event in events for source in event["sources"]]
             if self.args.command == "probe":

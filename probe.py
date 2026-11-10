@@ -55,9 +55,9 @@ def host_key(url):
     return "sec.gov" if host == "sec.gov" or host.endswith(".sec.gov") else host
 
 
-async def pace(url, recent, blocked):
+async def pace(url, recent, blocked, *, sec_rps=8):
     host, path = host_key(url), urlsplit(url).path
-    limit = 8 if host == "sec.gov" else 4  # Shared SEC budget stays below its 10 requests/second ceiling.
+    limit = sec_rps if host == "sec.gov" else 4  # The bounded transport pair uses 2; existing scopes retain 8.
     history = recent.setdefault(host, deque())
     while True:
         now = time.perf_counter()
@@ -84,6 +84,13 @@ async def identify_node(client):
 
 
 def select_targets(targets, scope):
+    if scope == "b-sec-transports":
+        target = next(row for row in select_targets(targets, "repaired-paths") if row["event"]["symbol"] == "B")
+        target = {key: value for key, value in target.items() if key != "pipeline"}
+        return [{**target, "target_id": "B_sec_" + profile, "protocol_profile": profile, "sec_rps": 2,
+                 "warmup_url": target["reference"]["connection_warmup_url"],
+                 **({"transport": "curl_cffi_chrome"} if profile == "curl_chrome" else {})}
+                for profile in ("httpx_h2", "curl_chrome")]
     if scope == "lcid-http-protocols":
         target = next(row for row in select_targets(targets, "repaired-paths") if row["event"]["symbol"] == "LCID")
         target = {key: value for key, value in target.items() if key != "pipeline"}
@@ -240,7 +247,7 @@ async def collect_one(client, target, output, node, recent, blocked):
 
         async def limited_request(request):
             queued = time.perf_counter_ns()
-            await pace(str(request.url), recent, blocked)
+            await pace(str(request.url), recent, blocked, sec_rps=target.get("sec_rps", 8))
             row["queue_ms"] += (time.perf_counter_ns() - queued) / 1e6
 
         # HTTPX invokes this for redirects too, preserving the per-host request budget.
@@ -503,7 +510,7 @@ async def collect_watch_case(target, output, node):
 
 async def run(args):
     targets = select_targets(json.loads(args.targets.read_text(encoding="utf-8")), args.scope)
-    repeated_target_pair = args.scope.startswith("msgk-cache-control") or args.scope == "lcid-http-protocols"
+    repeated_target_pair = args.scope.startswith("msgk-cache-control") or args.scope in ("lcid-http-protocols", "b-sec-transports")
     if not targets or not repeated_target_pair and len({row["url"] for row in targets}) != len(targets):
         raise ValueError("Expected a nonempty set of distinct public report URLs")
     source_manifest = json.loads((BASE / "parser_sources.json").read_text(encoding="utf-8"))
@@ -534,10 +541,33 @@ async def run(args):
         metadata = {"scope": "old_public_document_real_download_replay_not_new_release", "node": node,
                     "started_utc": utc(), "parser_sources": source_manifest,
                     "pdf_pool": warmup, "target_document_preparsed": False, "targets": len(targets),
-                    "requests_per_second": {"parent_direct_sec": 8, "production_child_sec": 2, "other_hosts_shared": 4},
+                    "requests_per_second": {"parent_direct_sec": 2 if args.scope == "b-sec-transports" else 8,
+                                             "production_child_sec": 2, "other_hosts_shared": 4},
                     "transport_policy": {"businesswire.com": "HTTP/1.1 persistent client after observed HTTP/2 StreamReset error_code=2", "msgk-issuer-cold": "HTTP/1.1 cold client matching the production official collector", "default": "HTTP/2 enabled"}}
         (args.output / "run.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
         results = []
+        if args.scope == "b-sec-transports":
+            # browser_response filters request-level UA. This dedicated session
+            # is now SEC-only; node identification above used the public UA.
+            browser_client.headers["User-Agent"] = os.environ.get("SEC_USER_AGENT", "").strip()
+            pairs = ((client, targets[0]), (browser_client, targets[1]))
+            warmups = await asyncio.gather(*(collect_one(connection,
+                {**target, "url": target["warmup_url"], "target_id": target["target_id"] + "_head",
+                 "method": "HEAD", "purpose": "connection_warmup"},
+                args.output, node, recent, blocked) for connection, target in pairs))
+            metadata.update(connection_warmups=warmups,
+                comparison_scope="Same-node old B filing: HTTPX H2 and curl Chrome each HEAD a different previously verified SEC directory, then one complete target GET. Both use the declared SEC contact identity and one shared 2 rps budget. Curl eager transfer and this full-body validator differ from production incremental HTML parsing; shared parser contention remains timed. Not new-release SLA or a causal estimate.",
+                protocol_profiles=[target["protocol_profile"] for target in targets])
+            if all(warm.get("status") == 200 and warm.get("http_response_complete") for warm in warmups):
+                wait_started = time.perf_counter_ns()
+                await asyncio.sleep(1.1)
+                metadata["pre_target_budget_window_wait_ms"] = (time.perf_counter_ns() - wait_started) / 1e6
+                results.extend(await asyncio.gather(*(collect_one(connection, target, args.output, node, recent, blocked)
+                                                     for connection, target in pairs)))
+            else:
+                metadata["comparison_stopped"] = "sec_head_warmup_not_successful_no_target_requests"
+                metadata["skipped_targets_after_warmup"] = [target["target_id"] for target in targets]
+            targets = []
         if args.scope == "lcid-http-protocols":
             pairs = ((businesswire_client, targets[0]), (client, targets[1]))
             warmups = await asyncio.gather(*(collect_one(connection,
@@ -601,7 +631,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "sec-quarterly", "lcid-http-protocols"), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "sec-quarterly", "lcid-http-protocols", "b-sec-transports"), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 
