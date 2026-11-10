@@ -546,13 +546,20 @@ class Collector:
                 rec, body = existing[0], existing[1]
             prepared = rec.pop("_html_tree", None)
             parser_options = {"prepared_tree": prepared} if prepared is not None else {}
-            if (rec["status"] in (301, 302, 303, 307, 308) and depth < 2 and event["symbol"] == "ACHR"
+            if (rec["status"] in (301, 302, 303, 307, 308) and event["symbol"] == "ACHR"
                     and item.get("role") == "report_supplement" and urlsplit(url).hostname == "investors.archer.com"):
                 target = urljoin(url, rec["response_headers"].get("location", ""))
+                origin = urlsplit(url)
                 location = urlsplit(target)
-                if location.scheme == "https" and location.hostname == "s206.q4cdn.com" and location.path.lower().endswith(".pdf"):
+                canonical_slash = (origin.scheme == "https" and origin.path == "/ShareholderLetter-Q326"
+                    and location.netloc == origin.netloc and location.path == origin.path + "/"
+                    and location.query == origin.query and location.fragment == origin.fragment)
+                if location.scheme == "https" and (canonical_slash or
+                        location.hostname == "s206.q4cdn.com" and location.path.lower().endswith(".pdf")):
+                    # Only short URL -> canonical slash -> CDN PDF is allowed.
+                    # Redirects keep the parent's content depth and discovery clock.
                     self.launch(self.candidate(session, event, channel, {**item, "url": target}, discovered_ns,
-                                               last_negative, depth+1, discovered_mono_ns=discovered_mono_ns,
+                                               last_negative, depth, discovered_mono_ns=discovered_mono_ns,
                                                last_negative_mono_ns=last_negative_mono_ns))
                     self.candidate_retry[key] = float("inf")
                     return
