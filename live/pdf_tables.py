@@ -11,6 +11,7 @@ import bisect
 import atexit
 import collections
 import concurrent.futures
+import itertools
 import multiprocessing
 from multiprocessing import shared_memory
 from multiprocessing.connection import wait as wait_for_process
@@ -415,6 +416,347 @@ _BAM_VALUE = re.compile(r"\(?[+\-\u2212]?\d[\d,]*(?:\.\d+)?\)?|[\u2014\u2013]")
 # or row-name templates. A changed profile remains rejected for review.
 _BAM_ROWS = (5, 22, 21, 20, 5, 6)
 _BAM_COLUMNS = (4, 2, 4, 4, 4, 4)
+
+
+# The Q3 shareholder letter has 18 visually audited ruled/painted tables.
+# Bounds are registration points for native rules, never cached cell values.
+# Every page is read, including the narrative pages between these regions.
+_SKYD_Q326_REGIONS = (
+    (10, 160.5, 468, 204.75, 6), (17, 117.2, 653.45, 176.45, 6),
+    (18, 117.2, 711.2, 141.2, 2), (19, 117.2, 597.95, 176.45, 3),
+    (21, 200.8, 452.8, 273.55, 3), (22, 140, 420.5, 212.75, 3),
+    (23, 138.8, 297.05, 211.55, 4), (24, 136, 293.5, 222.25, 4),
+    (24, 302.5, 462.25, 376.75, 4), (25, 136, 299.5, 214, 4),
+    (26, 136, 286, 214.75, 4), (26, 299, 497.75, 383.75, 4),
+    (27, 412.5, 554.25, 472.5, 6), (28, 251.7, 505.95, 347.7, 8),
+    (29, 210.9, 477.15, 318.9, 8), (29, 487.15, 571.15, 558.4, 6),
+    (30, 308.1, 557.85, 398.1, 8), (31, 482.2, 582.7, 532.45, 6),
+)
+_SKYD_VALUE = re.compile(r"^(?:\(?[+\-\u2212]?(?:\d[\d,]*(?:\.\d+)?|\.\d+)\)?|[\u2013\u2014\-])%?$")
+
+
+def _skyd_page_words(page):
+    tp = page.get_textpage(flags=fitz.TEXTFLAGS_TEXT)
+    lines = {}
+    for block in tp.extractDICT()["blocks"]:
+        for index, line in enumerate(block.get("lines", [])):
+            main = max(line["spans"], key=lambda span: span["size"])
+            lines[block["number"], index] = (main["origin"][1], main["size"])
+    words = []
+    for index, word in enumerate(tp.extractWORDS()):
+        baseline, size = lines[word[5], word[6]]
+        words.append({"word": index, "page": page.number + 1, "text": word[4],
+                      "bbox": list(word[:4]), "y": baseline, "size": size,
+                      "line": [word[5], word[6]]})
+    rules, fills = [], []
+    for path in page.get_cdrawings():
+        for item in path["items"]:
+            if item[0] == "l" and abs(item[1][1] - item[2][1]) < .1:
+                left, right = sorted((item[1][0], item[2][0]))
+                if right - left > 20:
+                    rules.append([left, item[1][1], right])
+            elif item[0] == "re" and path.get("fill") and min(path["fill"]) < .9:
+                fills.append(list(item[1]))
+    return tp.extractText(), words, rules, fills
+
+
+def _skyd_table(words, rules, fills, profile):
+    page, top, bottom, header_end, count = profile
+    native = [line for line in rules if top - .2 <= line[1] <= bottom + .2]
+    painted = [rect for rect in fills if top - .2 <= rect[1] and rect[3] <= bottom + .2]
+    registered = all(any(abs(line[1] - y) < .2 for line in native) or
+                     any(abs(rect[k] - y) < .2 for rect in painted for k in (1, 3))
+                     for y in (top, bottom, header_end))
+    if not native and not painted:
+        return None
+    left = min([line[0] for line in native] + [rect[0] for rect in painted])
+    right = max([line[2] for line in native] + [rect[2] for rect in painted])
+    source = [word for word in words if top <= word["y"] <= bottom and
+              left - .2 <= (word["bbox"][0] + word["bbox"][2]) / 2 <= right + .2]
+    inner = [line[0] for line in native if line[0] > left + 15]
+    if painted:
+        inner.extend(rect[0] for rect in painted if rect[0] > left + 15)
+    label_end = min(inner) if inner else right
+    data = [word for word in source if word["y"] > header_end]
+    baselines = clusters([word["y"] for word in data], .7)
+    line_words = [[] for _ in baselines]
+    for word in data:
+        line_words[nearest(baselines, word["y"])].append(word)
+    seeds = next((sorted([word for word in row if word["bbox"][0] > label_end and
+                            _SKYD_VALUE.fullmatch(word["text"])], key=lambda word: word["bbox"][0])
+                  for row in line_words if sum(word["bbox"][0] > label_end and
+                      bool(_SKYD_VALUE.fullmatch(word["text"])) for word in row) == count), [])
+    if len(seeds) != count:
+        return {"page": page, "source_word_count": len(source), "rows": [], "cells": [],
+                "quality_errors": ["no_full_native_value_row"], "native_region": [left, top, right, bottom]}
+    anchors = [word["bbox"][2] for word in seeds]
+    # Monetary values are right aligned. All original words, currency signs,
+    # percent signs and parentheses remain intact in their original columns.
+    by_column = [[] for _ in range(count)]
+    for word in data:
+        if word["bbox"][0] >= label_end and _SKYD_VALUE.fullmatch(word["text"]):
+            by_column[nearest(anchors, word["bbox"][2])].append(word)
+    value_lefts = [min(word["bbox"][0] for word in group) for group in by_column]
+    value_rights = [max(word["bbox"][2] for word in group) for group in by_column]
+    # Where the PDF provides individual period headings, their centered text
+    # independently fixes the data-column partition, including empty cells.
+    header = [word for word in source if word["y"] <= header_end]
+    header_line_sizes = collections.Counter(tuple(word["line"]) for word in header)
+    years = [word for word in header if re.fullmatch(r"20\d\d", word["text"])
+             and header_line_sizes[tuple(word["line"])] == 1]
+    year_rows = collections.defaultdict(list)
+    for word in years:
+        year_rows[round(word["y"], 1)].append(word)
+    full_years = next((sorted(row, key=lambda word: word["bbox"][0])
+                       for row in year_rows.values() if len(row) == count), [])
+    if full_years:
+        centers = [(word["bbox"][0] + word["bbox"][2]) / 2 for word in full_years]
+        separators = [(a + b) / 2 for a, b in zip(centers, centers[1:])]
+    else:
+        for word in data:
+            if word["text"] == "$" and word["bbox"][0] >= label_end:
+                column = next((i for i, anchor in enumerate(anchors) if anchor >= word["bbox"][0] - 2), count - 1)
+                value_lefts[column] = min(value_lefts[column], word["bbox"][0])
+            elif word["text"] == "%" and word["bbox"][0] >= label_end:
+                column = nearest(anchors, word["bbox"][0])
+                value_rights[column] = max(value_rights[column], word["bbox"][2])
+        separators = [(value_rights[i] + value_lefts[i + 1]) / 2 for i in range(count - 1)]
+    xs = [left, label_end, *separators, right]
+    header_ys = clusters([top, header_end] + (
+        [rect[k] for rect in painted if rect[3] - rect[1] > 4 for k in (1, 3)
+         if top < rect[k] < header_end] if painted else
+        [line[1] for line in native if top < line[1] < header_end]), .5)
+    # Native row labels can wrap while values are vertically centered or
+    # bottom aligned. Join only adjacent baselines closer than one row of type,
+    # never two baselines that both contain financial amounts.
+    row_groups = []
+    for baseline, items in zip(baselines, line_words):
+        numeric = any(word["bbox"][0] >= label_end and _SKYD_VALUE.fullmatch(word["text"]) for word in items)
+        size = statistics.median(word["size"] for word in items)
+        if (row_groups and baseline - row_groups[-1]["last_y"] < size * 1.3
+                and not (numeric and row_groups[-1]["numeric"])):
+            row_groups[-1]["words"].extend(items)
+            row_groups[-1]["numeric"] |= numeric
+            row_groups[-1]["last_y"] = baseline
+        else:
+            row_groups.append({"words": list(items), "numeric": numeric, "last_y": baseline})
+    rows = [[""] * (count + 1) for _ in range(len(header_ys) - 1 + len(row_groups))]
+    cells, assignments, issues = [], [], []
+
+    def cell(items, row, column, colspan=1, role="data"):
+        items.sort(key=lambda word: (word["y"], word["bbox"][0]))
+        result = _bam_cell(items, row, column, colspan=colspan, role=role)
+        result["source_words"] = items
+        result["bbox"] = result["page_bboxes"][0]["bbox"]
+        cells.append(result)
+        rows[row][column] = result["text"]
+        assignments.extend(word["word"] for word in items)
+
+    for index, group in enumerate(row_groups, len(header_ys) - 1):
+        buckets = [[] for _ in range(count + 1)]
+        for word in group["words"]:
+            if word["bbox"][0] < label_end:
+                column = 0
+            elif _SKYD_VALUE.fullmatch(word["text"]):
+                column = nearest(anchors, word["bbox"][2]) + 1
+            elif word["text"] in ("$", "%"):
+                candidates = [i for i, anchor in enumerate(anchors) if anchor >= word["bbox"][0] - 2]
+                column = (candidates[0] if candidates else count - 1) + 1
+                if word["text"] == "%":
+                    column = nearest(anchors, word["bbox"][0]) + 1
+            else:
+                column = 0
+            buckets[column].append(word)
+        for column, items in enumerate(buckets):
+            if items:
+                cell(items, index, column, role="row_label" if column == 0 else "financial_value")
+                if column and any(word["bbox"][0] < xs[column] - 1 or
+                                  word["bbox"][2] > xs[column + 1] + 1 for word in items):
+                    issues.append({"row": index, "column": column, "reason": "value_crosses_column",
+                                   "words": [word["text"] for word in items]})
+                if column and sum(bool(_SKYD_VALUE.fullmatch(word["text"])) for word in items) != 1:
+                    issues.append({"row": index, "column": column, "reason": "ambiguous_amount_cell"})
+        if any(buckets[1:]):
+            if not buckets[0]:
+                issues.append({"row": index, "reason": "amount_row_without_label"})
+            else:
+                low, high = min(word["y"] for word in buckets[0]), max(word["y"] for word in buckets[0])
+                for column, items in enumerate(buckets[1:], 1):
+                    if any(not low - word["size"] * .7 <= word["y"] <= high + word["size"] * .7 for word in items):
+                        issues.append({"row": index, "column": column, "reason": "amount_label_baseline_mismatch"})
+    # Headers use each original PDF text line as an indivisible unit. The
+    # ruled header bands and centered bounding boxes determine merged spans.
+    lines = collections.defaultdict(list)
+    for word in header:
+        lines[tuple(word["line"])].append(word)
+    header_lines = collections.defaultdict(list)
+    for items in lines.values():
+        y = items[0]["y"]
+        row = min(len(header_ys) - 2, bisect.bisect_right(header_ys, y) - 1)
+        x0, x1 = min(word["bbox"][0] for word in items), max(word["bbox"][2] for word in items)
+        header_lines[row].append(((x0 + x1) / 2, items))
+    for row, entries in sorted(header_lines.items()):
+        groups, label = [], []
+        for center, items in sorted(entries, key=lambda entry: entry[0]):
+            if center < label_end:
+                label.extend(items)
+            elif groups and center - groups[-1]["centers"][0] < 7:
+                groups[-1]["words"].extend(items)
+                groups[-1]["centers"].append(center)
+            else:
+                groups.append({"words": list(items), "centers": [center]})
+        if label:
+            cell(label, row, 0, role="column_header")
+        lower_rules = [line for line in native if abs(line[1] - header_ys[row + 1]) < .5]
+        active_columns = [column for column in range(1, count + 1) if any(
+            line[0] - 1 <= (xs[column] + xs[column + 1]) / 2 <= line[2] + 1 for line in lower_rules)]
+        last_column = max(active_columns, default=count)
+        if groups:
+            # An unruled heading can continue over the lower currency/% band.
+            # Its actual text still owns those columns; a short neighboring
+            # rule is not permission to discard the heading's right-hand span.
+            last_column = max(last_column, min(count, bisect.bisect_left(xs,
+                max(word["bbox"][2] for group in groups for word in group["words"])) - 1))
+        choices = []
+        if 0 < len(groups) <= last_column:
+            # Exhaustive contiguous partitions are tiny (at most eight value
+            # columns). They force a single ownership for every header slot.
+            for cuts in itertools.combinations(range(2, last_column + 1), len(groups) - 1):
+                bounds = (1, *cuts, last_column + 1)
+                score = 0.
+                for group, a, b in zip(groups, bounds, bounds[1:]):
+                    x0 = min(word["bbox"][0] for word in group["words"])
+                    x1 = max(word["bbox"][2] for word in group["words"])
+                    # First-period headings can extend left of the indented
+                    # monetary gutter; the adjacent row-label header is blank.
+                    if x0 < (left if a == 1 else xs[a]) - 5 or x1 > xs[b] + 5:
+                        break
+                    score += abs(statistics.mean(group["centers"]) - (xs[a] + xs[b]) / 2)
+                else:
+                    choices.append((score, bounds))
+        if not choices and groups:
+            issues.append({"reason": "unresolved_header_partition", "row": row,
+                           "centers": [group["centers"] for group in groups]})
+            # Keep original source text available even when the column proof
+            # cannot pass; an unresolved layout never receives acceptance.
+            for group in groups:
+                cell(group["words"], row, 1, count, "unresolved_header")
+            continue
+        if choices:
+            _, bounds = min(choices)
+            for group, a, b in zip(groups, bounds, bounds[1:]):
+                cell(group["words"], row, a, b - a, "column_header")
+    # A missing divider over one header region is a native vertical merge,
+    # not a blank header followed by a different column group. Preserve it.
+    for item in cells:
+        if item["role"] != "column_header":
+            continue
+        first, last = item["column"], item["column"] + item["colspan"]
+        while item["row"] > 0:
+            boundary = header_ys[item["row"]]
+            mid = (xs[first] + xs[last]) / 2
+            divided = any(abs(line[1] - boundary) < .5 and line[0] - 1 <= mid <= line[2] + 1 for line in native)
+            if painted:
+                divided |= any(abs(rect[k] - boundary) < .5 and rect[0] - 1 <= mid <= rect[2] + 1
+                               for rect in painted for k in (1, 3))
+            conflict = any(other is not item and other["row"] <= item["row"] - 1 < other["row"] + other["rowspan"]
+                           and max(first, other["column"]) < min(last, other["column"] + other["colspan"])
+                           for other in cells)
+            if divided or conflict:
+                break
+            rows[item["row"]][first] = ""
+            item["row"] -= 1
+            item["rowspan"] += 1
+            item["logical_row"] = item["row"]
+            item["logical_rowspan"] = item["rowspan"]
+            rows[item["row"]][first] = item["text"]
+    occupancy = collections.Counter((r, c) for item in cells for r in range(item["row"], item["row"] + item["rowspan"])
+                                    for c in range(item["column"], item["column"] + item["colspan"]))
+    if any(amount != 1 for amount in occupancy.values()):
+        issues.append({"reason": "overlapping_native_cell_spans"})
+    occupied = set(occupancy)
+    for row in range(len(rows)):
+        for column in range(count + 1):
+            if (row, column) not in occupied:
+                cells.append({"row": row, "column": column, "rowspan": 1, "colspan": 1,
+                              "logical_row": row, "logical_column": column,
+                              "logical_rowspan": 1, "logical_colspan": 1,
+                              "role": "empty_cell", "text": "", "source_words": [], "word_ids": [],
+                              "inferred_blank": True})
+    compact_rows, spans = [], []
+    for row in range(len(rows)):
+        own = sorted((item for item in cells if item["row"] == row), key=lambda item: item["column"])
+        compact_rows.append([item["text"] for item in own])
+        spans.append([[item["rowspan"], item["colspan"]] for item in own])
+    source_tokens = collections.Counter(token for word in source for token in word["text"].split())
+    emitted_tokens = collections.Counter(token for row in rows for value in row for token in value.split())
+    assigned = collections.Counter(assignments)
+    return {"page": page, "native_region": [left, top, right, bottom], "rows": rows,
+            "compact_rows": compact_rows, "table_spans": spans,
+            "cells": cells, "source_words": source, "source_word_count": len(source),
+            "column_bounds": list(zip(xs, xs[1:])), "header_row_count": len(header_ys) - 1,
+            "native_rule_registration": registered, "numeric_tokens": sum(bool(_SKYD_VALUE.fullmatch(word["text"])) for word in source),
+            "word_tokens_preserved": source_tokens == emitted_tokens,
+            "numeric_tokens_preserved": collections.Counter(word["text"] for word in source if _SKYD_VALUE.fullmatch(word["text"])) ==
+                collections.Counter(word["text"] for item in cells for word in item["source_words"] if _SKYD_VALUE.fullmatch(word["text"])),
+            "unassigned_words": [word for word in source if not assigned[word["word"]]],
+            "duplicate_assignments": [word for word, amount in assigned.items() if amount != 1],
+            "quality_errors": issues}
+
+
+def _extract_skyd_batch(body, indices):
+    pages, details, diagnostics = [], [], []
+    with fitz.open(stream=body, filetype="pdf") as document:
+        for index in indices:
+            page = document[index]
+            text, words, rules, fills = _skyd_page_words(page)
+            pages.append((index + 1, text))
+            selected = [profile for profile in _SKYD_Q326_REGIONS if profile[0] == index + 1]
+            tables = [table for profile in selected if (table := _skyd_table(words, rules, fills, profile))]
+            details.extend(tables)
+            unexplained_rules = [line for line in rules if line[2] - line[0] > page.rect.width * .6 and
+                                 not any(profile[1] - .2 <= line[1] <= profile[2] + .2 for profile in selected)]
+            diagnostics.append({"page": index + 1, "words": len(words), "word_details": words,
+                                "tables": len(tables), "text_extracted": bool(text.strip()),
+                                "uncovered_wide_rules": unexplained_rules})
+    return pages, details, diagnostics
+
+
+def extract_skyd_pdf_tables(body: bytes) -> dict:
+    """Read all 31 pages and the 18 registered native financial-table regions."""
+    started = time.perf_counter_ns()
+    prewarm_pdf_pool()
+    with fitz.open(stream=body, filetype="pdf") as document:
+        count = len(document)
+        metadata = dict(document.metadata)
+        recognized = (count == 31 and metadata.get("creator") == "Workiva" and
+                      metadata.get("title") == "Ex 99_Q3'26" and
+                      all(tuple(page.rect) == (0., 0., 612., 792.) for page in document))
+    jobs = [_POOL.submit(_extract_skyd_batch, body, list(range(i, count, 4))) for i in range(min(4, count))]
+    chunks = [job.result() for job in jobs]
+    page_pairs = sorted(pair for pages, _, _ in chunks for pair in pages)
+    details = sorted((table for _, tables, _ in chunks for table in tables),
+                     key=lambda table: (table["page"], table["native_region"][1]))
+    diagnostics = sorted((page for _, _, pages in chunks for page in pages), key=lambda page: page["page"])
+    checks = {"all_pages_extracted": len(page_pairs) == count and all(page["text_extracted"] for page in diagnostics),
+              "native_layout": recognized and len(details) == len(_SKYD_Q326_REGIONS) and
+                  all(table.get("native_rule_registration") for table in details) and
+                  all(not page["uncovered_wide_rules"] for page in diagnostics),
+              "table_words_preserved": bool(details) and all(table.get("word_tokens_preserved") and
+                  not table["unassigned_words"] and not table["duplicate_assignments"] for table in details),
+              "numeric_tokens_preserved": bool(details) and all(table.get("numeric_tokens_preserved") for table in details),
+              "column_associations_verified": bool(details) and all(not table["quality_errors"] for table in details)}
+    verified = all(checks.values())
+    return {"text": "\n".join(text for _, text in page_pairs), "pages": [text for _, text in page_pairs],
+            "tables": [table.get("compact_rows", table["rows"]) for table in details],
+            "table_spans": [table.get("table_spans", []) for table in details], "table_details": details,
+            "page_diagnostics": diagnostics, "pdf_metadata": metadata,
+            "pdf_pages_total": count, "pdf_pages_processed": len(page_pairs),
+            "pdf_pages_text_extracted": len(page_pairs), "tables_extraction_scope": "skyd_native_ruled_financial_tables",
+            "tables_complete": verified, "pdf_structure_checks": checks,
+            "quality_reason": "skyd_native_words_columns_and_regions_verified" if verified else
+                "skyd_native_quality_failed:" + ",".join(key for key, value in checks.items() if not value),
+            "parse_ms": (time.perf_counter_ns() - started) / 1e6}
 
 
 def _bam_cell(items, row, column, *, colspan=1, role="data"):

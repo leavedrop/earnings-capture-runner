@@ -1010,5 +1010,60 @@
     "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
     "source_evidence_id": "42655791769-1:123209",
     "original_discovery_to_parsed_ms": 449.271582
+  },
+  "SKYD_PDF": {
+    "url": "https://ir.skydance.com/static-files/af510edc-00d2-44ca-8e8c-b73466e99694",
+    "format": "pdf",
+    "raw_sha256": "f4d772a634018d7042f887b012a1d534ebe1f685ffdf586a48e646e421008694",
+    "bytes": 2115934,
+    "text_sha256": "a860ddb580afeb64ee0f67ace29cc0240bfe60071091cd2735ce712b169936dd",
+    "table_sha256": [
+      "1ed940dd5b437a3468858c26272960a5b08291a3c84ddda21891acee4082e365",
+      "2f319eb51b8f9b4a0bac845536c8c9d9f15b0c325c8ca8c3b7a8b1d8eee9da63",
+      "17f63212b9458ece6a8971549ba03281e0900673cdaf37d96530ec4996b26198",
+      "66232ff4cd34248bf486c288312f7f1e306d25deed0d17da8c617895c2813fed",
+      "a5207e4047c0e0033938017e0ef6b5fff87cfe225d8ede8bd8435177950f0cf6",
+      "46f763ac2d70e616519196e3c6fe92ca3fe220d6c40ca634dd9fdf18adfd0794",
+      "7cb2c76eac86964f2fd6c2441e3be9a3a80d2f111804a0b53be0c9f5dafbfa9e",
+      "034726d64c816a4ad7ce798f005613cf9615e5597e718c798ee704b22d74f332",
+      "b6eb5727fc1a806b90f1eb401e27a40aced2cd136180f58c2eb11044ad283ed3",
+      "4006fa2c699f37cd39ae66b4bd9e07fc5d50ab8b23e55eb96633759f142fd1b0",
+      "c9f52e349a988bdc904bd0329e7544dab0fdbb93ac7e28d83f0634d07c6e995f",
+      "c45a8f8dc767e81aea84ee44c72b9233c12841b368889bfd291fdb5770ab5d98",
+      "eb3b8d36d8961ba9dce9387ae1c0b0bacf119bc7286811d377428e09b0d5349e",
+      "77fe84a57e613a9a3dbb7e124804febd75acc8507ce63d0094f0c24519d829ac",
+      "277db91509f02fdccc96b8da2f5576522506b39a7820f349e4ca66f1f5f81e7b",
+      "921c282a1d165caab55b2e3fd496af8f49617461b3eba0fae4b140a3307142b9",
+      "475aa4864db04d8bb4cdda333b6a3ffd1534cc23b459465e5079063b20447f4a",
+      "f810ffc03f376b6bb0aaf6479b43ec913bfb22d7207b979859165ab70581395b"
+    ],
+    "table_spans_sha256": "9185890aa39d7615eac3cdc76b57993b4ced30d55955c456823ad8c22405c3ad",
+    "structure_sha256": "56d019f60b2102974f65530ef0a496565ad55a86ab80967ff1d0697b684a84dc",
+    "reference_scope": "Complete 31-page native PDF; all 18 financial table regions independently checked against original words, numeric columns and merged headers",
+    "pdf_pages_total": 31
+  },
+  "SKYD_XLSX": {
+    "url": "https://ir.skydance.com/static-files/ce71d9f0-8c13-4a67-9259-576b602305da",
+    "format": "xlsx",
+    "raw_sha256": "824cd6a60c98b4a1f6668452f3c24b29b46ec58fa3987d7374b6b2195d497bf4",
+    "bytes": 11841890,
+    "text_sha256": "40d26176701430c3eb03b310caa8ef64807bbaa660bc0a8ec27710e933ed9328",
+    "table_sha256": [
+      "f78314ccd76bdd990a2fbff9c56a176b3390511069fa8f6c169b731b9d27f539",
+      "de0bba21fd86f19478357bf9d00963e6f43362493a556fd1a39ad74b4769dfae",
+      "8ff2d1d8ca17c55a0f869e997dc959461cc50b70f615de76709a1279f699fe72",
+      "030a07de42dd04907809d6eeaa685f7165917ff80e9b4c0d9e9f10aa63550d58",
+      "4be4dd593ae70692672c8a01136744e06fa35ef7305f9c6bb67eca16f17f4b89",
+      "a121869c394d0313687ece3dcc643c90c833e9bf950d95d82d62cb76dc0cbdf5",
+      "969570d6b77bc287674ea012a3328dcdd99b18b3f0703ff1bc51b0414956bec2",
+      "c78acaa06cfd229b2bbe2342df6bfa18d6ee1ec9e00128bdc4658ca9904d17e3",
+      "1e3a87610cb667b0fac6b967802b6266978445f1a86582f385f9aaafa22ccd34",
+      "6737846a7af62a08f7b4ce9bc3a52955f2e99163acec9a1e86308ee9f7d41024",
+      "dd997807c73bf042610f226d54d0509555ae76f411b4a67f4e37fb2b495d6cb0"
+    ],
+    "table_spans_sha256": "a4ce567bf8bee8d565d73ae00c56cce81a630025dff5a07d3e33248226134af0",
+    "structure_sha256": "6de0e42b3166029cb371c9bfd675d3b6441948cf17ec1005f8cbde31889ace5e",
+    "reference_scope": "All 11 worksheets, 8987 explicit cells, 497 formulas, 364 merges, original values and verified Excel display formats; every ZIP part preserved",
+    "xlsx_sheets_total": 11
   }
 }

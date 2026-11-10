@@ -839,6 +839,111 @@ def is_tgtx_announcement_index(url: str) -> bool:
     return parsed.hostname == "ir.tgtherapeutics.com" and parsed.path.rstrip("/") == "/press-releases"
 
 
+SKYD_XLSX_URL = "https://ir.skydance.com/static-files/ce71d9f0-8c13-4a67-9259-576b602305da"
+SKYD_PDF_URL = "https://ir.skydance.com/static-files/af510edc-00d2-44ca-8e8c-b73466e99694"
+XLSX_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
+
+def _validate_skyd_xlsx(body, url, content_type, event):
+    result = {"accepted": False, "reason": "unsupported_spreadsheet_source", "title": "",
+              "text": "", "tables": [], "table_spans": [], "publisher_timestamp": _stamp(None),
+              "checks": {"source": False}, "tables_complete": False,
+              "tables_extraction_scope": "not_parsed", "document_format": "xlsx"}
+    if (event.get("symbol") != "SKYD" or url != SKYD_XLSX_URL
+            or content_type.split(";", 1)[0].strip().lower() != XLSX_CONTENT_TYPE
+            or not body.startswith(b"PK\x03\x04")):
+        return result
+    try:
+        from spreadsheet_tables import extract_xlsx_tables
+        workbook = extract_xlsx_tables(body)
+    except Exception as exc:
+        result.update(reason="xlsx_parse_error: " + type(exc).__name__, checks={"parse": False})
+        return result
+    # The cover identifies this release; comparison years in the schedules do not.
+    sheets = {sheet["name"]: sheet for sheet in workbook["worksheets"]}
+    cover = " ".join(str(cell["value"] or "") for cell in sheets.get("Cover", {}).get("cells", []))
+    intro = " ".join(str(cell["value"] or "") for cell in sheets.get("Intro", {}).get("cells", []))
+    heading = re.search(r"\b(March|June|September|December)\s+Quarter\s+(20\d{2})\s+Trending Schedules\b", cover, re.I)
+    period = None
+    if heading:
+        quarter_ends = {"march": "03-31", "june": "06-30", "september": "09-30", "december": "12-31"}
+        period = heading[2] + "-" + quarter_ends[heading[1].lower()]
+    tables = workbook["tables"]
+    checks = {"identity": bool(re.search(r"\bSkydance Corporation\b", intro, re.I)),
+              "reporting_period": period is not None and period == event["period_end"],
+              "not_announcement": True,
+              "financial_body": len(workbook["text"]) >= 1200 and len(_METRICS.findall(workbook["text"])) >= 5,
+              "financial_tables": any(_financial_table(table) for table in tables),
+              "tables_complete": (workbook["tables_complete"] is True and
+                  len(tables) == len(workbook["worksheets"]) == workbook["xlsx_sheets_total"] == workbook["xlsx_sheets_processed"]),
+              "display_complete": workbook["display_complete"] is True and workbook["unsupported_display_cell_count"] == 0}
+    accepted = all(checks.values())
+    result.update(accepted=accepted, reason="validated_release" if accepted else
+                  "needs_review: " + ",".join(key for key, value in checks.items() if not value),
+                  title=_clean(heading[0]) if heading else "Trending Schedules",
+                  text=workbook["text"], tables=tables, table_spans=workbook["table_spans"], checks=checks,
+                  spreadsheet={key: value for key, value in workbook.items() if key not in ("text", "tables", "table_spans")},
+                  tables_complete=checks["tables_complete"] and checks["display_complete"],
+                  tables_extraction_scope=workbook["tables_extraction_scope"], quality_reason=workbook["quality_reason"],
+                  document_facts={"cover_period_end": period},
+                  **{key: workbook[key] for key in ("xlsx_sheets_total", "xlsx_sheets_processed", "explicit_cell_count",
+                                                    "formula_count", "merge_count", "display_complete")})
+    return result
+
+
+def check_xlsx_archive(body, report):
+    """Check an exported workbook against its complete original, outside capture timing."""
+    import hashlib
+    from spreadsheet_tables import extract_xlsx_tables
+    saved = report.get("spreadsheet", {})
+    if saved.get("display_complete") is not True or saved.get("tables_complete") is not True:
+        raise ValueError("xlsx_structure_or_display_unverified")
+    if len(body) != saved.get("source_bytes") or hashlib.sha256(body).hexdigest() != saved.get("source_sha256"):
+        raise ValueError("xlsx_original_digest_or_length_mismatch")
+    actual = extract_xlsx_tables(body)
+    for key, value in actual.items():
+        if key == "parse_ms":  # Reverification never substitutes the original capture clock.
+            continue
+        archived = report.get(key) if key in ("text", "tables", "table_spans") else saved.get(key)
+        if archived != value:
+            raise ValueError("xlsx_archive_mismatch:" + key)
+
+
+def _skyd_pdf_facts(native, event):
+    title = native["pdf_metadata"]["title"]
+    metadata_period = re.fullmatch(r"Ex 99_Q([1-4])['\u2019](\d{2})", title)
+    operations = next((table for table in native["table_details"] if table["page"] == 17), None)
+    column_period = None
+    if operations:
+        try:
+            column_period = datetime.strptime(operations["rows"][1][1] + " " + operations["rows"][2][1],
+                                               "Three Months Ended %B %d, %Y").date().isoformat()
+        except (ValueError, IndexError):
+            pass
+    quarter, year = (int(metadata_period[1]), 2000 + int(metadata_period[2])) if metadata_period else (None, None)
+    return {"identity": "SKYDANCE CORPORATION AND SUBSIDIARIES" in native["pages"][16]
+                       and "Paramount Skydance" in native["pages"][1],
+            "reporting_period": bool(quarter == event["quarter"] and year == event["fiscal_year"]
+                and column_period == event["period_end"]
+                and re.search(r"\bParamount Skydance Q" + str(quarter) + r"\b", native["pages"][1])),
+            "facts": {"metadata_title": title, "metadata_quarter": quarter, "metadata_year": year,
+                      "primary_operations_column_period_end": column_period, "identity_pages": [2, 17]}}
+
+
+def check_skyd_pdf_archive(body, report):
+    """Recheck all native word/column/span evidence outside the capture clock."""
+    import hashlib
+    from pdf_tables import extract_skyd_pdf_tables
+    if hashlib.sha256(body).hexdigest() != "f4d772a634018d7042f887b012a1d534ebe1f685ffdf586a48e646e421008694":
+        raise ValueError("skyd_pdf_original_digest_mismatch")
+    actual = extract_skyd_pdf_tables(body)
+    if actual["tables_complete"] is not True:
+        raise ValueError("skyd_pdf_structure_unverified")
+    for key in ("text", "tables", "table_spans", "table_details", "page_diagnostics"):
+        if json.dumps(report.get(key), sort_keys=True) != json.dumps(actual[key], sort_keys=True):
+            raise ValueError("skyd_pdf_archive_mismatch:" + key)
+
+
 def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_tree=None) -> dict:
     """Validate identity, current reporting period and financial content together.
 
@@ -850,6 +955,8 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
         return {"accepted": False, "reason": "announcement_index_not_full_report", "title": "Press Releases",
                 "text": "", "tables": [], "publisher_timestamp": _stamp(None),
                 "checks": {"full_report": False}, "tables_complete": False, "tables_extraction_scope": "not_a_report"}
+    if body.startswith(b"PK\x03\x04") or XLSX_CONTENT_TYPE in content_type.lower():
+        return _validate_skyd_xlsx(body, url, content_type, event)
     tables = []
     table_spans = []
     timestamp = _stamp(None)
@@ -879,6 +986,10 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
             elif event.get("symbol") == "LCID" and parsed_url.hostname == "ir.lucidmotors.com" and parsed_url.path.startswith("/static-files/"):
                 from pdf_tables import extract_lcid_pdf_tables
                 native_pdf = extract_lcid_pdf_tables(body, event)
+            elif event.get("symbol") == "SKYD" and url == SKYD_PDF_URL:
+                from pdf_tables import extract_skyd_pdf_tables
+                native_pdf = extract_skyd_pdf_tables(body)
+                cover = _skyd_pdf_facts(native_pdf, event)
             else:
                 from pdf_tables import extract_generic_pdf_tables
                 generic = extract_generic_pdf_tables(body)
@@ -893,7 +1004,7 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
                 tables = native_pdf["tables"]
                 pdf_pages_total = native_pdf["pdf_pages_total"]
                 pdf_pages_processed = native_pdf["pdf_pages_processed"]
-                title = _pdf_title(text)
+                title = native_pdf["pdf_metadata"]["title"] if event.get("symbol") == "SKYD" and url == SKYD_PDF_URL else _pdf_title(text)
         except Exception as exc:
             return {"accepted": False, "reason": "pdf_parse_error: " + type(exc).__name__,
                     "title": title, "text": "\n".join(pages), "tables": tables, "publisher_timestamp": timestamp,
@@ -982,6 +1093,8 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
             result["table_spans"] = native_pdf["table_spans"]
         result["pdf_parse_ms"] = native_pdf["parse_ms"]
         result["pdf_parse_phases_ms"] = native_pdf.get("phases_ms")
+        if "pdf_metadata" in native_pdf:
+            result["pdf_metadata"] = native_pdf["pdf_metadata"]
     elif publisher_pdf_needs_review:
         result.update(tables_complete=False, tables_extraction_scope="unverified_text_alignment",
                       quality_reason="publisher_pdf_table_cells_not_verified")

@@ -25,6 +25,7 @@ on:
           - b-sec-transports
           - skyd-materials
           - skyd-range
+          - skyd-complete
         default: all
 
 permissions:

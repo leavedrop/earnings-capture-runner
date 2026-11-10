@@ -19,6 +19,84 @@ from probe import BASE, collect_one, collect_watch_case, content_hashes, pace, r
 
 
 class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
+    async def test_skyd_complete_production_export_keeps_both_original_formats_and_structure(self):
+        targets = select_targets(json.loads((BASE / "targets.json").read_text(encoding="utf-8")), "skyd-complete")
+        self.assertEqual(len(targets), 2)
+        self.assertEqual([t["reference"]["format"] for t in targets], ["pdf", "xlsx"])
+        self.assertTrue(all(t["pipeline"] == "production_watch_list_seed" and t["require_seed_candidate"] for t in targets))
+        current = {}
+        def collector(command, **kwargs):
+            target, raw, parsed = current["target"], current["raw"], current["parsed"]
+            self.assertEqual(command[command.index("--samples") + 1], "1")
+            self.assertEqual(command[command.index("--candidate-url") + 1], target["url"])
+            self.assertNotIn("SEC_USER_AGENT", kwargs["env"])
+            runtime = Path(command[command.index("--output") + 1])
+            (runtime / "reports").mkdir(); (runtime / "raw").mkdir()
+            sha = hashlib.sha256(raw).hexdigest()
+            stem = "reports/SKYD_official_" + sha[:12]
+            extension = "." + target["reference"]["format"]
+            (runtime / (stem + extension)).write_bytes(raw)
+            (runtime / (stem + ".txt")).write_text(parsed["text"], encoding="utf-8")
+            (runtime / (stem + ".json")).write_text(json.dumps({"metadata": {"private": "SECRET_TEST_TOKEN"}, **parsed}), encoding="utf-8")
+            listing = ('<html><div class="qr-doc-list"><a href="' + target["url"] + '">Q3 2026 financial results</a></div></html>').encode()
+            requests = []
+            for purpose, payload, url in (("discovery", listing, target["listing_url"]), ("candidate", raw, target["url"])):
+                path = "raw/" + purpose + ".gz"
+                with gzip.open(runtime / path, "wb") as stream:
+                    stream.write(payload)
+                done = 100_000_000 if purpose == "discovery" else 190_000_000
+                requests.append({"id": purpose, "purpose": purpose, "url": url, "final_url": url,
+                    "status": 200, "raw_path": path, "queued_mono_ns": 0,
+                    "body_complete_mono_ns": done, "request_end_mono_ns": done,
+                    "sha256": hashlib.sha256(payload).hexdigest(), "body_bytes": len(payload)})
+            capture = {"original_document_path": stem + extension,
+                "validation": {"accepted": True, "tables_complete": True,
+                    **{key: parsed[key] for key in ("pdf_pages_total", "pdf_pages_processed", "pdf_metadata", "display_complete", "document_format") if key in parsed}},
+                "discovery_to_parsed_ms": 60, "discovered_utc": "2026-11-10T00:00:00.140Z", "discovered_mono_ns": 140_000_000,
+                "validated_utc": "2026-11-10T00:00:00.200Z", "validated_mono_ns": 200_000_000,
+                "parse_ms": 10, "sha256": sha, "body_bytes": len(raw)}
+            with sqlite3.connect(runtime / "observations.sqlite3") as connection:
+                connection.execute("CREATE TABLE log(id INTEGER PRIMARY KEY,kind TEXT,payload TEXT)")
+                for request in requests:
+                    connection.execute("INSERT INTO log(kind,payload) VALUES('request',?)", (json.dumps(request),))
+                connection.execute("INSERT INTO log(kind,payload) VALUES('capture',?)", (json.dumps(capture),))
+            connection.close()
+            return MagicMock(returncode=0)
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory)
+            (output / "raw").mkdir(); (output / "parsed").mkdir()
+            for target in targets:
+                kind = target["reference"]["format"]
+                raw = b"%PDF-fixture" if kind == "pdf" else b"PK\x03\x04-complete-fixture"
+                parsed = {"text": "Complete fixture", "tables": [[["Revenue", "$ 2,513"]]], "table_spans": [[[[1, 1], [1, 1]]]]}
+                if kind == "pdf":
+                    parsed.update(table_details=[{"source_words": ["Revenue", "$", "2,513"]}], page_diagnostics=[{"page": 1}],
+                                  pdf_metadata={"title": "Ex 99_Q3'26"}, pdf_pages_total=1, pdf_pages_processed=1)
+                    structure = {key: parsed[key] for key in ("table_details", "page_diagnostics", "pdf_metadata")}
+                else:
+                    parsed.update(document_format="xlsx", display_complete=True, spreadsheet={"worksheets": [{"cells": [{"raw_value": "2513000000", "display_value": "$ 2,513"}], "merged_ranges": ["A1:B1"]}], "display_complete": True})
+                    structure = parsed["spreadsheet"]
+                sha = lambda value: hashlib.sha256(value).hexdigest()
+                reference = {"url": target["url"], "format": kind, "raw_sha256": sha(raw), **content_hashes(parsed),
+                    "table_spans_sha256": sha(json.dumps(parsed["table_spans"], ensure_ascii=False, separators=(",", ":")).encode()),
+                    "structure_sha256": sha(json.dumps(structure, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode())}
+                current.update(target={**target, "reference": reference}, raw=raw, parsed=parsed)
+                with patch("probe.subprocess.run", side_effect=collector):
+                    row = await collect_watch_case(current["target"], output, {"loc": "US", "colo": "TEST"})
+                self.assertTrue(row["complete"])
+                self.assertNotIn("error_type", row)
+                self.assertTrue(row["reference_raw_matches"] and row["reference_spans_match"] and row["reference_structure_matches"])
+                self.assertEqual(row["discovery_to_parsed_ms"], 60)
+                self.assertEqual((output / row["raw_document_artifact"]).suffix, "." + kind)
+                archived = json.loads((output / ("parsed/" + target["target_id"] + ".json")).read_text(encoding="utf-8"))
+                self.assertEqual(archived.get("spreadsheet"), parsed.get("spreadsheet"))
+                self.assertNotIn("SECRET_TEST_TOKEN", json.dumps(archived))
+                if kind == "xlsx":
+                    broken = {**archived, "spreadsheet": {}}
+                    self.assertFalse(reference_match(broken, reference)["reference_structure_matches"])
+            self.assertEqual(len((output / "results.ndjson").read_text().splitlines()), 2)
+            self.assertFalse((output / "materials.ndjson").exists())
+
     async def test_skyd_range_streams_exact_cover_and_aborts_ignored_range_before_full_transfer(self):
         targets = select_targets(json.loads((BASE / "targets.json").read_text(encoding="utf-8")), "skyd-range")
         self.assertEqual(len(targets), 1)

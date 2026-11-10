@@ -84,6 +84,16 @@ async def identify_node(client):
 
 
 def select_targets(targets, scope):
+    if scope == "skyd-complete":
+        references = json.loads((BASE / "remaining_references.json").read_text(encoding="utf-8"))
+        event = next(event for event in json.loads((BASE / "live/watchlist.json").read_text(encoding="utf-8"))
+                     if event["symbol"] == "SKYD")
+        return [{"target_id": "SKYD_" + role + "_complete", "channel": "official", "event": event,
+                 "url": references[key]["url"], "reference": references[key],
+                 "listing_url": "https://ir.skydance.com/financials/quarterly-results",
+                 "require_seed_candidate": True, "require_raw_reference_match": True,
+                 "cache_profile": "ordinary", "pipeline": "production_watch_list_seed"}
+                for role, key in (("shareholder_letter", "SKYD_PDF"), ("trending_schedules", "SKYD_XLSX"))]
     if scope == "skyd-range":
         return [{**select_targets(targets, "skyd-materials")[1],
                  "target_id": "SKYD_trending_schedules_range_material", "reference_bytes": 11841890,
@@ -218,6 +228,15 @@ def reference_match(parsed, reference):
         actual_rows = financial_row_hashes([table["data_rows"] for table in parsed.get("table_details", [])])
         result.update(financial_row_sha256=actual_rows, reference_tables_match=actual_rows == reference["financial_row_sha256"],
                       reference_tables_basis="all 79 financial data rows; normalized labels and exact numeric tokens; headers retained and checked by native PDF structure gates")
+    if "table_spans_sha256" in reference:
+        result["reference_spans_match"] = digest(json.dumps(parsed.get("table_spans"), ensure_ascii=False,
+            separators=(",", ":")).encode()) == reference["table_spans_sha256"]
+    if "structure_sha256" in reference:
+        structure = ({key: value for key, value in parsed.get("spreadsheet", {}).items() if key != "parse_ms"}
+                     if reference.get("format") == "xlsx" else
+                     {key: parsed.get(key) for key in ("table_details", "page_diagnostics", "pdf_metadata")})
+        result["reference_structure_matches"] = digest(json.dumps(structure, ensure_ascii=False,
+            sort_keys=True, separators=(",", ":")).encode()) == reference["structure_sha256"]
     return result
 
 
@@ -560,7 +579,7 @@ async def collect_watch_case(target, output, node):
                     safe["error"] = safe_error_message(request["error"])
                 raw = gzip.open(runtime / request["raw_path"], "rb").read() if request.get("raw_path") else b""
                 if raw:
-                    suffix = ".pdf" if raw.startswith(b"%PDF") else ".html"
+                    suffix = ".xlsx" if raw.startswith(b"PK\x03\x04") else ".pdf" if raw.startswith(b"%PDF") else ".html"
                     name = "raw/" + target["target_id"] + "_" + str(index) + "_" + request["purpose"] + suffix
                     (output / name).write_bytes(raw)
                     safe["artifact"] = name
@@ -583,7 +602,7 @@ async def collect_watch_case(target, output, node):
                     row["http_response_complete"] = (body_verified and request.get("body_complete_mono_ns") is not None
                         and request.get("request_end_mono_ns") == request["body_complete_mono_ns"] and not request.get("error"))
                     if body_verified:
-                        canonical = "raw/" + target["target_id"] + (".pdf" if raw.startswith(b"%PDF") else ".html")
+                        canonical = "raw/" + target["target_id"] + suffix
                         (output / canonical).write_bytes(raw)
                         row["artifacts"].append(canonical)
                         row.update(raw_document_artifact=canonical, bytes=len(raw), sha256=digest(raw))
@@ -596,15 +615,25 @@ async def collect_watch_case(target, output, node):
                 stem = Path(capture["original_document_path"]).with_suffix("")
                 saved = json.loads((runtime / stem.with_suffix(".json")).read_text(encoding="utf-8"))
                 parsed = {"text": (runtime / stem.with_suffix(".txt")).read_text(encoding="utf-8"), "tables": saved["tables"]}
-                parsed.update({key: saved[key] for key in ("table_spans", "table_details", "page_diagnostics") if key in saved})
+                parsed.update({key: saved[key] for key in ("table_spans", "table_details", "page_diagnostics", "spreadsheet") if key in saved})
                 verdict = capture["validation"]
                 parsed.update({key: verdict[key] for key in ("accepted", "tables_complete", "checks", "reason", "title",
                     "pdf_pages_total", "pdf_pages_processed", "pdf_pages_text_extracted", "pdf_structure_checks",
-                    "tables_extraction_scope") if key in verdict})
+                    "tables_extraction_scope", "pdf_metadata", "document_format", "document_facts",
+                    "xlsx_sheets_total", "xlsx_sheets_processed", "explicit_cell_count", "formula_count", "merge_count", "display_complete") if key in verdict})
                 comparison = reference_match(parsed, target["reference"])
                 complete = (row["http_response_complete"] and verdict.get("accepted") is True and verdict.get("tables_complete") is True
                             and comparison["reference_text_matches"] and comparison["reference_tables_match"]
-                            and comparison.get("reference_pages_match", True))
+                            and comparison.get("reference_pages_match", True)
+                            and comparison.get("reference_spans_match", True)
+                            and comparison.get("reference_structure_matches", True))
+                if target.get("require_raw_reference_match"):
+                    row["reference_raw_matches"] = row.get("sha256") == target["reference"]["raw_sha256"]
+                    complete = complete and row["reference_raw_matches"]
+                if target.get("require_seed_candidate"):
+                    complete = (complete and row.get("seed_listing_contains_candidate") is True
+                                and row.get("seed", {}).get("status") == 200
+                                and row.get("seed", {}).get("url") == target["listing_url"])
                 if actual_discovery:
                     row["discovery_clock_preserved"] = (capture.get("listing_request_id") == row.get("seed", {}).get("id")
                         and capture.get("discovered_mono_ns") is not None
@@ -795,7 +824,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports", "skyd-materials", "skyd-range"), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports", "skyd-materials", "skyd-range", "skyd-complete"), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 

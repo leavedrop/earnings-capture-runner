@@ -25,7 +25,7 @@ BASE = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE))
 import progress
 
-PUBLIC_REPORT = re.compile(r"reports/[A-Za-z0-9._-]+\.(?:html|pdf|txt|json)")
+PUBLIC_REPORT = re.compile(r"reports/[A-Za-z0-9._-]+\.(?:html|pdf|xlsx|txt|json)")
 
 
 def utc():
@@ -139,7 +139,7 @@ def snapshot(runtime, checkout, metadata, cached):
                     if not PUBLIC_REPORT.fullmatch(relative) or source.parent != runtime / "reports":
                         raise ValueError("Artifact outside the public reports directory")
                     body = source.read_bytes()
-                    if source.suffix in (".html", ".pdf") and hashlib.sha256(body).hexdigest() != record["sha256"]:
+                    if source.suffix in (".html", ".pdf", ".xlsx") and hashlib.sha256(body).hexdigest() != record["sha256"]:
                         raise ValueError("Original report SHA-256 mismatch")
                     write_public(checkout / relative, body)
                     artifacts.append({"path": relative, "sha256": hashlib.sha256(body).hexdigest(),
@@ -151,7 +151,7 @@ def snapshot(runtime, checkout, metadata, cached):
                     from sources import check_table_spans
                     check_table_spans(report["tables"], report["table_spans"])
                     parsed["table_spans"] = report["table_spans"]
-                parsed.update({key: report[key] for key in ("table_details", "page_diagnostics") if key in report})
+                parsed.update({key: report[key] for key in ("table_details", "page_diagnostics", "spreadsheet") if key in report})
                 body = public_bytes(parsed)
                 write_public(checkout / (stem + ".json"), body)
                 artifacts.append({"path": stem + ".json", "sha256": hashlib.sha256(body).hexdigest(),

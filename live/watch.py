@@ -356,7 +356,7 @@ class Collector:
         html_parser = None
         html_feed_ns = 0
         browser = urlsplit(url).hostname in ("investor.msgknicks.com", "www.barrick.com",
-                                              "investors.archer.com", "investors.hims.com", "ir.lucidmotors.com")
+                                              "investors.archer.com", "investors.hims.com", "ir.lucidmotors.com", "ir.skydance.com")
         kkr_api = (event.get("symbol") == "KKR" and urlsplit(url).scheme == "https"
                    and urlsplit(url).hostname == "tools.cms-eqs.com"
                    and urlsplit(url).path == "/fcf5b4/content/events/eventbox")
@@ -583,7 +583,7 @@ class Collector:
             validated_mono = parse_timing["validated_mono_ns"]
             validated = rec["body_complete_ns"] + (validated_mono-rec["body_complete_mono_ns"])
             discovery_to_parsed = (validated_mono-discovered_mono_ns)/1e6 if discovered_mono_ns is not None else None
-            verdict = {k: v for k, v in result.items() if k not in ("text", "tables", "table_spans", "table_details", "page_diagnostics")}
+            verdict = {k: v for k, v in result.items() if k not in ("text", "tables", "table_spans", "table_details", "page_diagnostics", "spreadsheet")}
             if "table_details" in result:
                 verdict["pdf_table_count"] = len(result["table_details"])
                 verdict["pdf_table_word_count"] = sum(t["source_word_count"] for t in result["table_details"])
@@ -634,23 +634,25 @@ class Collector:
                             "validation_semantics": "automated identity/period/table checks; not an audited accounting opinion"}
                 name = f"{event['symbol'].replace('.', '_')}_{channel}_{rec['sha256'][:12]}"
                 target = self.store.root / "reports" / name
-                original = target.with_suffix(".pdf" if body.startswith(b"%PDF") else ".html")
+                original = target.with_suffix(".xlsx" if result.get("document_format") == "xlsx" else
+                                              ".pdf" if body.startswith(b"%PDF") else ".html")
                 original.write_bytes(body)
                 captured["original_document_path"] = str(original.relative_to(self.store.root))
                 target.with_suffix(".txt").write_text(result.get("text", ""), encoding="utf-8")
                 atomic_json(target.with_suffix(".json"), {"metadata": captured, "tables": result.get("tables", []),
-                            **{key: result[key] for key in ("table_spans", "table_details", "page_diagnostics") if key in result}})
+                            **{key: result[key] for key in ("table_spans", "table_details", "page_diagnostics", "spreadsheet") if key in result}})
                 self.store.add("capture", captured)
                 self.captured_documents.add((event["symbol"], channel, document_url))
                 self.completed.add((event["symbol"], channel))
                 logging.info("CAPTURE %s %s %s", event["symbol"], channel, url)
-                if channel == "official" and not getattr(self.args, "candidate_url", None):
+                if channel == "official" and not getattr(self.args, "candidate_url", None) and result.get("document_format") != "xlsx":
                     self.follow_original_wire(session, event, body, rec["body_complete_ns"], rec["body_complete_mono_ns"])
                 self.summary()
             elif not result.get("accepted") and depth < 2:
                 if not result.get("checks", {}).get("reporting_period", False) or not result.get("checks", {}).get("not_announcement", True):
                     self.candidate_retry[key] = time.monotonic() + 120
-                children = await asyncio.to_thread(discover, body, rec["final_url"], ctype, event)
+                children = ([] if result.get("document_format") == "xlsx" else
+                            await asyncio.to_thread(discover, body, rec["final_url"], ctype, event))
                 if channel == "sec" and item.get("role") == "filing_index" and children:
                     self.store.add("filing_documents", {"symbol": event["symbol"], "channel": channel,
                                                        "run_id": self.run_id, "index_url": url,

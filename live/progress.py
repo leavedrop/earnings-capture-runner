@@ -293,6 +293,36 @@ def archived_lcid_pdf_check(original, report_path, original_mtime, report_mtime)
     return True, ""
 
 
+_SKYD_PDF_QUALITY_NOTE = "SKYD PDF 原件、全部页词语、财务列或合并跨度证据未通过；保留原耗时，不计完整解析达标。"
+
+
+@lru_cache(maxsize=128)
+def archived_skyd_pdf_check(original, report_path, original_mtime, report_mtime, text_mtime):
+    try:
+        from sources import check_skyd_pdf_archive
+        report = read_json(Path(report_path))
+        report["text"] = Path(report_path).with_suffix(".txt").read_text(encoding="utf-8")
+        check_skyd_pdf_archive(Path(original).read_bytes(), report)
+    except (OSError, KeyError, TypeError, ValueError):
+        return False, _SKYD_PDF_QUALITY_NOTE
+    return True, ""
+
+
+_XLSX_QUALITY_NOTE = "XLSX 原件、全部工作表/单元格/公式/合并结构或显示格式未通过核验；保留原耗时，不计完整解析达标。"
+
+
+@lru_cache(maxsize=128)
+def archived_xlsx_check(original, report_path, original_mtime, report_mtime, text_mtime):
+    try:
+        from sources import check_xlsx_archive
+        report = read_json(Path(report_path))
+        report["text"] = Path(report_path).with_suffix(".txt").read_text(encoding="utf-8")
+        check_xlsx_archive(Path(original).read_bytes(), report)
+    except (OSError, KeyError, TypeError, ValueError):
+        return False, _XLSX_QUALITY_NOTE
+    return True, ""
+
+
 def capture_row(record, root, output_root, run_started, replay=False):
     from sources import is_tgtx_announcement_index
 
@@ -311,7 +341,7 @@ def capture_row(record, root, output_root, run_started, replay=False):
     if re.fullmatch(r"[A-Za-z0-9._-]+", symbol) and channel in CHANNELS and re.fullmatch(r"[a-fA-F0-9]{64}", digest):
         stem = f"reports/{symbol.replace('.', '_')}_{channel}_{digest[:12]}"
         original = record.get("original_document_path")
-        candidates = [(original, "原文") ] if original else [(stem + ".html", "原文 HTML"), (stem + ".pdf", "原文 PDF")]
+        candidates = [(original, "原文") ] if original else [(stem + ".html", "原文 HTML"), (stem + ".pdf", "原文 PDF"), (stem + ".xlsx", "原文 XLSX")]
         candidates.append((stem + ".txt", "提取文本"))
         for relative, label in candidates:
             path = artifact_path(root, relative, output_root)
@@ -335,6 +365,25 @@ def capture_row(record, root, output_root, run_started, replay=False):
             parsed_file = root / (report_path or stem + ".json")
             complete, quality_note = archived_lcid_pdf_check(str(original_pdf), str(parsed_file),
                 original_pdf.stat().st_mtime_ns, parsed_file.stat().st_mtime_ns if parsed_file.is_file() else 0)
+            if not complete:
+                tables_complete = False
+        if symbol == "SKYD" and saved_pdf and saved_pdf.lower().endswith(".pdf"):
+            original_pdf = root / saved_pdf
+            parsed_file = root / (report_path or stem + ".json")
+            text_file = parsed_file.with_suffix(".txt")
+            complete, quality_note = archived_skyd_pdf_check(str(original_pdf), str(parsed_file),
+                original_pdf.stat().st_mtime_ns, parsed_file.stat().st_mtime_ns if parsed_file.is_file() else 0,
+                text_file.stat().st_mtime_ns if text_file.is_file() else 0)
+            if not complete:
+                tables_complete = False
+        if validation.get("document_format") == "xlsx" or str(original or "").endswith(".xlsx"):
+            original_xlsx = root / (original or stem + ".xlsx")
+            parsed_file = root / (report_path or stem + ".json")
+            text_file = parsed_file.with_suffix(".txt")
+            complete, quality_note = archived_xlsx_check(str(original_xlsx), str(parsed_file),
+                original_xlsx.stat().st_mtime_ns if original_xlsx.is_file() else 0,
+                parsed_file.stat().st_mtime_ns if parsed_file.is_file() else 0,
+                text_file.stat().st_mtime_ns if text_file.is_file() else 0)
             if not complete:
                 tables_complete = False
     semantics = record.get("discovery_timestamp_semantics")
@@ -502,7 +551,7 @@ def read_us_runner(root):
                            and record.get("document_variant") == "issuer_copy"
                            and urlsplit(record.get("url", "")).hostname == "investor.msgknicks.com")
             artifacts = record.get("artifacts", [])
-            raw_name = next((name for name in artifacts if name in (f"raw/{target}.html", f"raw/{target}.pdf")), None)
+            raw_name = next((name for name in artifacts if name in (f"raw/{target}.html", f"raw/{target}.pdf", f"raw/{target}.xlsx")), None)
             pipeline = record.get("pipeline")
             candidate, seed = {}, {}
             response_complete = record.get("http_response_complete") is True
@@ -518,7 +567,7 @@ def read_us_runner(root):
                     and item.get("status") == 200 and item.get("sha256") == record.get("sha256")
                     and item.get("body_bytes") == record.get("bytes")), {})
                 artifact = candidate.get("artifact", "")
-                raw_name = artifact if artifact in artifacts and re.fullmatch(r"raw/" + re.escape(target) + r"_\d+_candidate\.(?:html|pdf)", artifact) else None
+                raw_name = artifact if artifact in artifacts and re.fullmatch(r"raw/" + re.escape(target) + r"_\d+_candidate\.(?:html|pdf|xlsx)", artifact) else None
                 times = [date_value(candidate.get(key)) for key in ("request_start_utc", "body_complete_utc", "request_end_utc")]
                 parsed_at = date_value(record.get("parsed_utc"))
                 monotonic = [candidate.get(key) for key in ("queued_mono_ns", "request_start_mono_ns", "body_complete_mono_ns", "request_end_mono_ns")]
@@ -546,16 +595,35 @@ def read_us_runner(root):
             table_complete = (parsed.get("tables_complete") is True and bool(tables)
                               and len(tables) == record.get("table_count"))
             if table_complete and raw_verified:
-                if raw.startswith(b"%PDF"):
+                if raw_name.endswith(".xlsx"):
+                    from sources import SKYD_XLSX_URL, check_xlsx_archive
+                    table_complete = record.get("symbol") == "SKYD" and record.get("url") == SKYD_XLSX_URL
+                    if table_complete:
+                        try:
+                            check_xlsx_archive(raw, parsed)
+                        except (KeyError, TypeError, ValueError):
+                            table_complete = False
+                elif raw.startswith(b"%PDF"):
                     pages = parsed.get("pdf_pages_total")
                     structure_keys = ("all_pages_extracted", "native_layout", "all_table_words_assigned", "numeric_tokens_preserved")
                     if record.get("symbol") == "LCID" and parsed.get("tables_extraction_scope") == "lcid_native_tagged_cells_and_geometry":
                         structure_keys = ("all_pages_extracted", "native_layout", "all_native_cells_preserved",
                                           "table_words_preserved", "numeric_tokens_preserved", "column_associations_verified")
+                    if record.get("symbol") == "SKYD":
+                        structure_keys = ("all_pages_extracted", "native_layout", "table_words_preserved",
+                                          "numeric_tokens_preserved", "column_associations_verified")
                     table_complete = (type(pages) is int and pages > 0
                         and parsed.get("pdf_pages_processed") == pages and parsed.get("pdf_pages_text_extracted") == pages
                         and all(parsed.get("pdf_structure_checks", {}).get(key) is True for key in
                             structure_keys))
+                    if table_complete and record.get("symbol") == "SKYD":
+                        from sources import SKYD_PDF_URL, check_skyd_pdf_archive
+                        table_complete = record.get("url") == SKYD_PDF_URL
+                        if table_complete:
+                            try:
+                                check_skyd_pdf_archive(raw, parsed)
+                            except (KeyError, TypeError, ValueError):
+                                table_complete = False
                 else:
                     raw_file, parsed_file = path.parent / raw_path, path.parent / parsed_path
                     table_complete = archived_table_check(str(raw_file), str(parsed_file),
@@ -760,6 +828,32 @@ def read_us_live(root, now=None):
             row.update(accepted=False, tables_complete=False, latency_budget_passed=False,
                        document_kind="announcement_listing",
                        quality_note="公告目录不是完整财报；原始记录和耗时保留，不计全文采集或300ms通过。")
+        elif row.get("symbol") == "SKYD" and any(str(item.get("path", "")).endswith(".pdf") for item in row.get("artifacts", [])):
+            original = next((artifact_path(root, item.get("path"), root) for item in row.get("artifacts", [])
+                             if str(item.get("path", "")).endswith(".pdf")), None)
+            complete, note = False, _SKYD_PDF_QUALITY_NOTE
+            if original:
+                original_path = root / original
+                report_path = original_path.with_suffix(".json")
+                text_path = original_path.with_suffix(".txt")
+                complete, note = archived_skyd_pdf_check(str(original_path), str(report_path),
+                    original_path.stat().st_mtime_ns, report_path.stat().st_mtime_ns if report_path.is_file() else 0,
+                    text_path.stat().st_mtime_ns if text_path.is_file() else 0)
+            if not complete:
+                row.update(tables_complete=False, latency_budget_passed=False, quality_note=note)
+        elif any(str(item.get("path", "")).endswith(".xlsx") for item in row.get("artifacts", [])):
+            original = next((artifact_path(root, item.get("path"), root) for item in row.get("artifacts", [])
+                             if str(item.get("path", "")).endswith(".xlsx")), None)
+            complete, note = False, _XLSX_QUALITY_NOTE
+            if original:
+                original_path = root / original
+                report_path = original_path.with_suffix(".json")
+                text_path = original_path.with_suffix(".txt")
+                complete, note = archived_xlsx_check(str(original_path), str(report_path),
+                    original_path.stat().st_mtime_ns, report_path.stat().st_mtime_ns if report_path.is_file() else 0,
+                    text_path.stat().st_mtime_ns if text_path.is_file() else 0)
+            if not complete:
+                row.update(tables_complete=False, latency_budget_passed=False, quality_note=note)
         elif row.get("symbol") == "LCID" and any(str(item.get("path", "")).endswith(".pdf") for item in row.get("artifacts", [])):
             original = next((artifact_path(root, item.get("path"), root) for item in row.get("artifacts", [])
                              if str(item.get("path", "")).endswith(".pdf")), None)
