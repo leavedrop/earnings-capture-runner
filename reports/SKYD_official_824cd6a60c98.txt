@@ -1,0 +1,1795 @@
+[Cover]
+A26	September Quarter 2026
+Trending Schedules
+[Intro]
+A7	Trending Schedules
+A9	
+Information included in these schedules has been derived from information contained in our Quarterly Reports on Form 10-Q for 2026, our Form 8-K filed with the Securities and Exchange Commission (“SEC”) on May 13, 2026, which was filed in order to recast our financial statements included in our Annual Report on Form 10-K to reflect our new segment presentation, our Form 8-K filed with the SEC on April 8, 2026, and Quarterly Report on Form 10-Q for the third quarter of 2025, as well as the Quarterly Reports on Form 10-Q of our predecessor, Paramount Global, for the first and second quarters of 2025. 
+
+On October 6, 2026, we completed the acquisition of Warner Bros. Discovery (“WBD”) and changed our name from Paramount Skydance Corporation to Skydance Corporation. References herein to “Skydance,” “Skydance Corporation,” the “Company,” "we," "us" and "our" refer, prior to such date, to Paramount Skydance Corporation, and beginning on such date to Skydance Corporation, in each case with its consolidated subsidiaries, unless the context otherwise requires. The results of WBD are not included in any of the periods presented within these schedules. 
+ 
+Beginning in 2026, we transitioned our reporting structure into three new segments: Studios, Direct-to-Consumer, and TV Media. In addition, we updated our segment expense allocations to better reflect how we operate and make cost decisions across the business. Certain centralized costs that were previously allocated at the segment level are now reported within corporate expenses. Segment results for 2025 in these schedules have been recast to reflect these changes.
+
+On August 7, 2025, Paramount Global and Skydance Media, LLC (“Skydance Media”) became subsidiaries of Paramount Skydance Corporation (the “Skydance Transactions”). Our financial results are presented in two distinct periods to indicate the new basis of accounting established for Paramount Global’s net assets upon the closing of the Skydance Transactions. The periods prior to August 7, 2025 include only Paramount Global and are identified as “Predecessor”, and the periods beginning on August 7, 2025 reflect Skydance Corporation and are identified as “Successor”. For additional information, please refer to Note 1 of our Form 10-Q for the quarter ended September 30, 2026.
+
+In addition, in order to help investors view our results in a manner consistent with our management we are including supplemental pro forma revenues and combined amounts for the third quarter and full year 2025. 
+
+These schedules contain certain financial measures that are not in accordance with accounting principles generally accepted in the United States of America (“GAAP”). As a result of the new accounting basis established upon the closing of the Skydance Transactions, the GAAP basis for our segment information for the Predecessor period is based on our previous segments. To provide information consistent with how management reviews results, the 2025 amounts by segment presented in these schedules in each of the Predecessor periods reflect amounts recast under the new segment presentation and therefore constitute a non‑GAAP presentation. Reconciliations from the historical segment presentation to the new segment presentation are provided in Supplemental Disclosures Regarding Non‑GAAP Financial Measures in a letter to our shareholders for the first quarter of 2026, which can be found on the Skydance Investors homepage. Other reconciliations of non-GAAP financial measures to the most directly comparable GAAP financial measures are provided in the body of these schedules.
+[Sch. 1]
+A1	TRENDING SCHEDULES
+O1	Schedule 1
+A2	Summarized Reported Results (GAAP)
+A3	(unaudited; in millions, except per share amounts)
+F6	Predecessor
+N6	Successor
+J7	Period
+O7	Period
+S7	Quarter
+AA7	9 Months
+F8	Quarter Ended
+J8	From
+O8	From
+S8	Ended
+U8	Quarter Ended
+AA8	Ended
+F9	3/31/25
+H9	6/30/25
+J9	7/1/25 - 8/6/25
+O9	8/7/25 - 9/30/25
+S9	12/31/25
+U9	3/31/26
+W9	6/30/26
+Y9	9/30/26
+AA9	9/30/26
+A11	Advertising
+F11	$ 2,513
+H11	$ 2,152
+K11	$ 664
+P11	$ 1,280
+S11	$ 2,523
+U11	$ 2,442
+W11	$ 1,959
+Y11	$ 1,889
+AA11	$ 6,290	formula=+Y11+U11+W11
+A13	Affiliate and subscription
+F13	3,397
+H13	3,445
+K13	1,400
+P13	2,027
+S13	3,402
+U13	3,501
+W13	3,520
+Y13	3,521
+AA13	10,542	formula=+U13+W13+Y13
+A15	Theatrical
+F15	148
+H15	254
+K15	73
+P15	39
+S15	115
+U15	152
+W15	138
+Y15	112
+AA15	402	formula=+U15+W15+Y15
+A17	Licensing and other
+F17	1,134
+H17	998
+K17	444
+P17	775
+S17	2,108
+U17	1,252
+W17	1,296
+Y17	1,503
+AA17	4,051	formula=+U17+W17+Y17
+A19	Revenues
+F19	7,192	formula=SUM(F11:F17)
+H19	6,849	formula=SUM(H11:H17)
+K19	2,581	formula=SUM(K11:K17)
+P19	4,121	formula=SUM(P11:P17)
+S19	8,148	formula=SUM(S11:S17)
+U19	7,347	formula=SUM(U11:U17)
+W19	6,913	formula=SUM(W11:W17)
+Y19	7,025	formula=SUM(Y11,Y13,Y15,Y17)
+AA19	21,285	formula=+AA17+AA15+AA13+AA11
+A21	Expenses
+F21	(6,504)
+H21	(6,025)
+K21	(2,284)
+P21	(3,466)
+S21	(7,536)
+U21	(6,266)
+W21	(5,886)
+Y21	(6,099)
+AA21	(18,251)	formula=+U21+W21+Y21
+A23	Programming charges
+F23	—
+H23	—
+K23	—
+P23	—
+S23	(41)
+U23	—
+W23	—
+Y23	—
+AA23	—	formula=+U23+W23+Y23
+A25	Impairment charges
+F25	—
+H25	(157)
+K25	—
+P25	—
+S25	—
+U25	—
+W25	—
+Y25	—
+AA25	—	formula=+U25+W25+Y25
+A27	Restructuring, transaction-related items, 
+   and other corporate matters
+F27	(85)
+H27	(181)
+K27	(188)
+P27	(185)
+S27	(546)
+U27	(103)
+W27	(188)
+Y27	(187)
+AA27	(478)	formula=+U27+W27+Y27
+A29	Gain on dispositions
+F29	35
+H29	—
+K29	—
+P29	—
+S29	—
+U29	—
+W29	—
+Y29	—
+AA29	—	formula=+U29+W29+Y29
+A31	Depreciation and amortization
+F31	(88)
+H31	(87)
+K31	(29)
+P31	(226)
+S31	(364)
+U31	(362)
+W31	(364)
+Y31	(371)
+AA31	(1,097)	formula=+U31+W31+Y31
+A33	Operating income (loss)
+F33	$ 550	formula=SUM(F19:F31)
+H33	$ 399	formula=SUM(H19:H31)
+K33	$ 80	formula=SUM(K19:K31)
+P33	$ 244	formula=SUM(P19:P31)
+S33	$ (339)	formula=SUM(S19:S31)
+U33	$ 616	formula=SUM(U19:U31)
+W33	$ 475	formula=SUM(W19:W31)
+Y33	$ 368	formula=SUM(Y19,Y21,Y23,Y25,Y27,Y29,Y31)
+AA33	$ 1,459	formula=+AA19+AA21+AA23+AA25+AA27+AA29+AA31
+A35	Amounts attributable to Parent:
+A36	Net earnings (loss) from continuing operations
+F36	$ 152
+H36	$ 57
+K36	$ (244)
+P36	$ (13)
+S36	$ (573)
+Y36	$ 73
+A38	Discontinued operations, net of tax
+F38	$ 0
+H38	$ 0
+K38	$ 0
+P38	$ 0
+S38	$ 0
+Y38	$ 0
+A40	Net earnings (loss) attributable to Parent
+F40	$ 152	formula=SUM(F36:F38)
+H40	$ 57	formula=SUM(H36:H38)
+K40	$ (244)	formula=+K36+K38
+P40	$ (13)	formula=+P36+P38
+S40	$ (573)	formula=+S36+S38
+U40	$ 168
+W40	$ 41
+Y40	$ 73	formula=+Y36+Y38
+AA40	$ 282	formula=+U40+W40+Y40
+A42	Diluted net earnings (loss) per share 
+   attributable to Parent: (1)
+A44	Continuing operations
+F44	$ 0.22
+H44	$ 0.08
+K44	$ (0.36)	formula=ROUND((K36/K50),2)
+P44	$ (0.01)	formula=ROUND((P36/P50),2)
+S44	$ (0.52)	formula=ROUND((S36/S50),2)
+Y44	0.06	formula=ROUND((Y36/Y50),2)
+A46	Discontinued operations
+F46	$ —
+H46	$ —
+K46	$ —	formula=+K38/K50
+P46	$ —	formula=+P38/P50
+S46	$ —	formula=+S38/S50
+Y46	0	formula=+Y38/Y50
+A48	Diluted net earnings (loss) per common 
+   share attributable to Parent (1)
+F48	$ .22
+H48	$ .08
+K48	$ (.36)	formula=ROUND((K40/K50),2)
+P48	$ (.01)	formula=ROUND((P40/P50),2)
+S48	$ (.52)	formula=ROUND((S40/S50),2)
+U48	$ .15
+W48	$ .04
+Y48	$ .06	formula=ROUND((Y40/Y50),2)
+AA48	$ .25	formula=ROUND((AA40/AA50),2)
+A50	Weighted average number of diluted 
+   shares outstanding
+F50	678
+H50	680
+K50	675
+P50	1,098
+S50	1,104
+U50	1,118
+W50	1,120
+Y50	1,125
+AA50	1,121
+A54	(1) Refer to Schedule 7 for further details on the calculation of reported diluted net earnings (loss) per common share attributable to Parent (“Reported EPS”). 
+[Sch. 2]
+A1	TRENDING SCHEDULES
+L1	                              Schedule 2
+A2	Summarized Adjusted Results (Non-GAAP)
+A3	(unaudited; in millions, except per share amounts)
+F6	Predecessor
+O6	Successor
+S6	Pro Forma (2)
+U6	Successor
+W6	Pro Forma (2)
+Y6	Successor
+J7	Period
+O7	Period
+S7	Quarter
+U7	Quarter
+W7	12 Months
+AE7	9 Months
+F8	Quarter Ended
+J8	From
+O8	From
+S8	Ended
+U8	Ended
+W8	Ended
+Y8	Quarter Ended
+AE8	Ended
+F9	3/31/25
+H9	6/30/25
+J9	7/1/25 - 8/6/25
+O9	8/7/25 - 9/30/25
+S9	9/30/25
+U9	12/31/25
+W9	12/31/25
+Y9	3/31/26
+AA9	6/30/26
+AC9	9/30/26
+AE9	9/30/26
+A11	Advertising
+F11	$ 2,513
+H11	$ 2,152
+K11	$ 664
+P11	$ 1,280
+S11	$ 1,944	formula=+P11+K11
+U11	$ 2,523
+W11	$ 9,132	formula=+U11+P11+K11+H11+F11
+Y11	$ 2,442
+AA11	$ 1,959
+AC11	$ 1,889
+AE11	$ 6,290	formula=+AC11+Y11+AA11
+A13	Affiliate and subscription
+F13	3,397
+H13	3,445
+K13	1,400
+P13	2,027
+S13	3,427	formula=+P13+K13
+U13	3,402
+W13	13,671	formula=+U13+P13+K13+H13+F13
+Y13	3,501
+AA13	3,520
+AC13	3,521
+AE13	10,542	formula=+AC13+Y13+AA13
+A15	Theatrical
+F15	148
+H15	254
+K15	73
+P15	39
+S15	112	formula=+P15+K15
+U15	115
+W15	629	formula=+U15+P15+K15+H15+F15
+Y15	152
+AA15	138
+AC15	112
+AE15	402	formula=+AC15+Y15+AA15
+A17	Licensing and other
+F17	1,134
+H17	998
+K17	444
+P17	775
+S17	1,231	formula=+P17+K17+K45
+U17	2,108
+W17	5,962	formula=+U17+P17+K17+H17+F17+F45+H45+K45
+Y17	1,252
+AA17	1,296
+AC17	1,503
+AE17	4,051	formula=+AC17+Y17+AA17
+A19	Revenues
+F19	$ 7,192	formula=SUM(F11:F17)
+H19	$ 6,849	formula=SUM(H11:H17)
+K19	$ 2,581	formula=SUM(K11:K17)
+P19	$ 4,121	formula=SUM(P11:P17)
+S19	$ 6,714	formula=SUM(S11:S17)
+U19	$ 8,148	formula=SUM(U11:U17)
+W19	$ 29,394	formula=SUM(W11:W17)
+Y19	$ 7,347	formula=SUM(Y11:Y17)
+AA19	$ 6,913	formula=SUM(AA11:AA17)
+AC19	$ 7,025	formula=SUM(AC11:AC17)
+AE19	$ 21,285	formula=+AE17+AE15+AE13+AE11
+F22	Predecessor
+O22	Successor
+S22	Combined (3)
+U22	Successor
+W22	Combined (3)
+Y22	Successor
+J23	Period
+O23	Period
+S23	Quarter 
+U23	Quarter
+W23	12 Months
+AE23	9 Months
+F24	Quarter Ended
+J24	From
+O24	From
+S24	Ended
+U24	Ended
+W24	Ended
+Y24	Quarter Ended
+AE24	Ended
+F25	3/31/25
+H25	6/30/25
+J25	7/1/25 - 8/6/25
+O25	8/7/25 - 9/30/25
+S25	9/30/25
+U25	12/31/25
+W25	12/31/25
+Y25	3/31/26
+AA25	6/30/26
+AC25	9/30/26
+AE25	9/30/26
+A27	Expenses (1)
+F27	$ (6,460)
+H27	$ (5,986)
+K27	$ (2,268)
+P27	$ (3,437)
+S27	$ (5,705)	formula=+P27+K27
+U27	$ (7,474)
+W27	$ (25,625)	formula=+U27+P27+K27+H27+F27
+Y27	$ (6,186)
+AA27	$ (5,814)
+AC27	$ (6,025)
+AE27	$ (18,025)	formula=+AC27+Y27+AA27
+A29	Adjusted EBITDA
+F29	$ 732
+H29	$ 863
+K29	$ 313
+P29	$ 684
+S29	$ 997
+U29	$ 674
+W29	$ 3,266	formula=+U29+P29+K29+H29+F29
+Y29	$ 1,161
+AA29	$ 1,099
+AC29	$ 1,000
+AE29	$ 3,260	formula=+AC29+Y29+AA29
+A31	Adjusted net earnings (loss) attributable to 
+   Parent
+F31	$ 195
+H31	$ 315
+K31	$ (162)
+P31	$ 138
+S31	$ (24)	formula=+K31+P31
+U31	$ (129)
+W31	$ 357	formula=+U31+P31+K31+H31+F31
+Y31	$ 261
+AA31	$ 205
+AC31	$ 506
+AE31	$ 972	formula=+AC31+Y31+AA31
+A33	Adjusted diluted net earnings (loss) per 
+   common share attributable to Parent (4)
+F33	$ .29
+H33	$ .46
+K33	$ (.24)	formula=+K31/K35
+P33	$ .12	formula=+P31/P35
+S33	$ (.12)	formula=+P33+K33
+U33	$ (.12)	formula=+U31/U35
+W33	$ .52
+Y33	$ .23
+AA33	$ .18
+AC33	$ .45
+AE33	$ .87
+A35	Weighted average number of diluted 
+    shares outstanding
+F35	678
+H35	680
+K35	675
+P35	1,120
+S35	n/a
+U35	1,104
+W35	n/a
+Y35	1,118
+AA35	1,120
+AC35	1,125
+AE35	1,121
+A38	(1) Excludes stock-based compensation expense, which is a noncash expense that management does not consider to be part of our underling operating performance.
+A40	(2)  Pro Forma Revenues for the third quarter of 2025 and twelve months ended December 31, 2025 include the below adjustments in the applicable Predecessor period, which represent Skydance Media revenues after the elimination of intercompany revenues
+        from Paramount Global. Pro Forma Revenues also reflect the combination of the Predecessor and Successor revenues during each of these periods. 
+J42	Period
+F43	Quarter Ended
+J43	From
+F44	3/31/25
+H44	6/30/25
+J44	7/1/25 - 8/6/25
+A45	Licensing and other
+F45	$ 96
+H45	$ 395
+K45	$ 12
+A47	Revenues
+F47	$ 96
+H47	$ 395
+K47	$ 12
+A49	(3) Combined amounts for the third quarter of 2025 and twelve months ended December 31, 2025 each reflect the combination of the Predecessor and Successor amounts during the period, which is supplementally presented to help investors view these amounts
+       in a manner consistent with our management. 
+A51	(4) Refer to Schedule 7 for further details on the calculation of Adjusted diluted EPS attributable to Parent (“Adjusted EPS”), including a reconciliation between Reported EPS and Adjusted EPS. 
+[Sch. 3]
+A1	TRENDING SCHEDULES
+P1	     Schedule 3
+A2	Studios Financial Results
+A3	(unaudited; in millions)
+E6	Predecessor
+N6	Successor
+R6	Pro Forma (1)
+T6	Successor
+V6	Pro Forma (1)
+X6	Successor
+I7	Period
+N7	Period
+R7	Quarter
+T7	Quarter
+V7	12 Months
+AD7	9 Months
+E8	Quarter Ended
+I8	From
+N8	From
+R8	Ended
+T8	Ended
+V8	Ended
+X8	Quarter Ended
+AD8	Ended
+E9	3/31/25
+G9	6/30/25
+I9	7/1/25 - 8/6/25
+N9	8/7/25 - 9/30/25
+R9	9/30/25
+T9	12/31/25
+V9	12/31/25
+X9	3/31/26
+Z9	6/30/26
+AB9	9/30/26
+AD9	9/30/26
+A11	Theatrical
+E11	$ 148
+G11	$ 254
+J11	$ 73
+O11	$ 39
+R11	$ 112	formula=+O11+J11
+T11	$ 115
+V11	$ 629	formula=+T11+R11+G11+E11
+X11	$ 152
+Z11	$ 138
+AB11	$ 112
+AD11	$ 402	formula=+AB11+X11+Z11
+A13	Licensing and other 
+E13	1,006
+G13	877
+J13	387
+O13	695
+R13	1,094	formula=+O13+J13+J42
+T13	1,937
+V13	5,405	formula=+T13+R13+G13+E13+E42+G42
+X13	1,127
+Z13	1,172
+AB13	1,377
+AD13	3,676	formula=+AB13+X13+Z13
+A15	Advertising
+E15	5
+G15	4
+J15	2
+O15	4
+R15	6	formula=+O15+J15
+T15	8
+V15	23	formula=+T15+R15+G15+E15
+X15	4
+Z15	4
+AB15	7
+AD15	15	formula=+AB15+X15+Z15
+A17	Revenues 
+E17	$ 1,159	formula=SUM(E11:E15)
+G17	$ 1,135	formula=SUM(G11:G15)
+J17	$ 462	formula=SUM(J11:J15)
+O17	$ 738	formula=SUM(O11:O15)
+R17	$ 1,212	formula=SUM(R11:R15)
+T17	$ 2,060	formula=SUM(T11:T15)
+V17	$ 6,057	formula=SUM(V11:V15)
+X17	$ 1,283	formula=SUM(X11:X15)
+Z17	$ 1,314	formula=SUM(Z11:Z15)
+AB17	$ 1,496	formula=SUM(AB11:AB15)
+AD17	$ 4,093	formula=SUM(AD11:AD15)
+E20	Predecessor
+N20	Successor
+R20	Combined (2)
+T20	Successor
+V20	Combined (2)
+X20	Successor
+I21	Period
+N21	Period
+R21	Quarter 
+T21	Quarter
+V21	12 Months
+AD21	9 Months
+E22	Quarter Ended
+I22	From
+N22	From
+R22	Ended
+T22	Ended
+V22	Ended
+X22	Quarter Ended
+AD22	Ended
+E23	3/31/25
+G23	6/30/25
+I23	7/1/25 - 8/6/25
+N23	8/7/25 - 9/30/25
+R23	9/30/25
+T23	12/31/25
+V23	12/31/25
+X23	3/31/26
+Z23	6/30/26
+AB23	9/30/26
+AD23	9/30/26
+A25	Content costs
+E25	$ 738
+G25	$ 737
+J25	$ 278
+O25	$ 540
+R25	$ 818	formula=+O25+J25
+T25	$ 1,434
+V25	$ 3,727	formula=+T25+R25+G25+E25
+X25	$ 816
+Z25	$ 926
+AB25	$ 977
+AD25	$ 2,719	formula=+AB25+X25+Z25
+A27	Advertising and 
+   marketing 
+E27	117
+G27	200
+J27	108
+O27	57
+R27	165	formula=+O27+J27
+T27	248
+V27	730	formula=+T27+R27+G27+E27
+X27	100
+Z27	143
+AB27	187
+AD27	430	formula=+AB27+X27+Z27
+A29	Other (3)
+E29	222
+G29	229
+J29	78
+O29	120
+R29	198	formula=+O29+J29
+T29	215
+V29	864	formula=+T29+R29+G29+E29
+X29	203
+Z29	209
+AB29	203
+AD29	615	formula=+AB29+X29+Z29
+A31	Expenses
+E31	$ 1,077	formula=SUM(E25:E29)
+G31	$ 1,166	formula=SUM(G25:G29)
+J31	$ 464	formula=SUM(J25:J29)
+O31	$ 717	formula=SUM(O25:O29)
+R31	$ 1,181	formula=SUM(R25:R29)
+T31	$ 1,897	formula=SUM(T25:T29)
+V31	$ 5,321	formula=SUM(V25:V29)
+X31	$ 1,119	formula=SUM(X25:X29)
+Z31	$ 1,278	formula=SUM(Z25:Z29)
+AB31	$ 1,367	formula=SUM(AB25:AB29)
+AD31	$ 3,764	formula=SUM(AD25:AD29)
+A33	Adjusted EBITDA
+E33	$ 82	formula=+E17-E31
+G33	$ (31)	formula=+G17-G31
+J33	$ (2)	formula=+J17-J31
+O33	$ 21	formula=+O17-O31
+R33	$ 19	formula=+J33+O33
+T33	$ 163	formula=+T17-T31
+V33	$ 233	formula=+T33+R33+G33+E33
+X33	$ 164	formula=+X17-X31
+Z33	$ 36	formula=+Z17-Z31
+AB33	$ 129	formula=+AB17-AB31
+AD33	$ 329	formula=+AD17-AD31
+A37	(1) Pro Forma Revenues for the third quarter of 2025 and twelve months ended December 31, 2025 include the below adjustments in the applicable Predecessor period, which represent Skydance Media revenues after the elimination of 
+     intercompany revenues from Paramount Global. Pro Forma Revenues also reflect the combination of the Predecessor and Successor revenues during each of these periods. 
+I39	Period
+E40	Quarter Ended
+I40	From
+E41	3/31/25
+G41	6/30/25
+I41	7/1/25 - 8/6/25
+A42	Licensing and other
+E42	$ 96
+G42	$ 395
+J42	$ 12
+A44	Revenues
+E44	$ 96
+G44	$ 395
+J44	$ 12
+A46	(2) Combined amounts for the third quarter of 2025 and twelve months ended December 31, 2025 each reflect the combination of the Predecessor and Successor amounts during the period, which is supplementally presented to help
+       investors view these amounts in a manner consistent with our management. 
+A48	(3) Other segment expenses for our Studios segment include employee compensation; costs relating to the distribution of our content; costs for occupancy, technology, and professional services; and other costs associated with our
+       operations.
+[Sch. 4]
+A1	TRENDING SCHEDULES
+P1	     Schedule 4
+A2	Direct-to-Consumer Financial Results
+A3	(unaudited; in millions)
+E6	Predecessor
+N6	Successor
+R6	Pro Forma (1)
+T6	Successor
+V6	Pro Forma (1)
+X6	Successor
+I7	Period
+N7	Period
+R7	Quarter
+T7	Quarter
+V7	12 Months
+AD7	9 Months
+E8	Quarter Ended
+I8	From
+N8	From
+R8	Ended
+T8	Ended
+V8	Ended
+X8	Quarter Ended
+AD8	Ended
+E9	3/31/25
+G9	6/30/25
+I9	7/1/25 - 8/6/25
+N9	8/7/25 - 9/30/25
+R9	9/30/25
+T9	12/31/25
+V9	12/31/25
+X9	3/31/26
+Z9	6/30/26
+AB9	9/30/26
+AD9	9/30/26
+A11	Advertising
+E11	$ 473
+G11	$ 494
+J11	$ 179
+O11	$ 300
+R11	$ 479	formula=+O11+J11
+T11	$ 553
+V11	$ 1,999	formula=+T11+R11+G11+E11
+X11	$ 517
+Z11	$ 535
+AB11	$ 542
+AD11	$ 1,594	formula=+AB11+X11+Z11
+A13	Affiliate and subscription
+E13	1,678
+G13	1,769
+J13	744
+O13	1,043
+R13	1,787	formula=+O13+J13
+T13	1,756
+V13	6,990	formula=+T13+R13+G13+E13
+X13	1,881
+Z13	1,939
+AB13	1,968
+AD13	5,788	formula=+AB13+X13+Z13
+A15	Licensing and other
+E15	—
+G15	1
+J15	—
+O15	1
+R15	1	formula=+O15+J15
+T15	—
+V15	2	formula=+T15+R15+G15+E15
+X15	—
+Z15	—
+AB15	—
+AD15	—	formula=+AB15+X15+Z15
+A17	Revenues
+E17	$ 2,151	formula=SUM(E11:E15)
+G17	$ 2,264	formula=SUM(G11:G15)
+J17	$ 923	formula=SUM(J11:J15)
+O17	$ 1,344	formula=SUM(O11:O15)
+R17	$ 2,267	formula=SUM(R11:R15)
+T17	$ 2,309	formula=SUM(T11:T15)
+V17	$ 8,991	formula=SUM(V11:V15)
+X17	$ 2,398	formula=SUM(X11:X15)
+Z17	$ 2,474	formula=SUM(Z11:Z15)
+AB17	$ 2,510	formula=SUM(AB11:AB15)
+AD17	$ 7,382	formula=SUM(AD11:AD15)
+E20	Predecessor
+N20	Successor
+R20	Combined (1)
+T20	Successor
+V20	Combined (1)
+X20	Successor
+I21	Period
+N21	Period
+R21	Quarter 
+T21	Quarter
+V21	12 Months
+AD21	9 Months
+E22	Quarter Ended
+I22	From
+N22	From
+R22	Ended
+T22	Ended
+V22	Ended
+X22	Quarter Ended
+AD22	Ended
+E23	3/31/25
+G23	6/30/25
+I23	7/1/25 - 8/6/25
+N23	8/7/25 - 9/30/25
+R23	9/30/25
+T23	12/31/25
+V23	12/31/25
+X23	3/31/26
+Z23	6/30/26
+AB23	9/30/26
+AD23	9/30/26
+A25	Content costs
+E25	$ 1,230
+G25	$ 1,114
+J25	$ 428
+O25	$ 546
+R25	$ 974	formula=+O25+J25
+T25	$ 1,214
+V25	$ 4,532	formula=+T25+R25+G25+E25
+X25	$ 1,246
+Z25	$ 1,161
+AB25	$ 1,320
+AD25	$ 3,727	formula=+AB25+X25+Z25
+A27	Advertising and marketing 
+E27	359
+G27	305
+J27	120
+O27	160
+R27	280	formula=+O27+J27
+T27	514
+V27	1,458	formula=+T27+R27+G27+E27
+X27	315
+Z27	316
+AB27	312
+AD27	943	formula=+AB27+X27+Z27
+A29	Other (2)
+E29	566
+G29	591
+J29	238
+O29	329
+R29	567	formula=+O29+J29
+T29	611
+V29	2,335	formula=+T29+R29+G29+E29
+X29	586
+Z29	631
+AB29	653
+AD29	1,870	formula=+AB29+X29+Z29
+A31	Expenses
+E31	$ 2,155	formula=SUM(E25:E29)
+G31	$ 2,010	formula=SUM(G25:G29)
+J31	$ 786	formula=SUM(J25:J29)
+O31	$ 1,035	formula=SUM(O25:O29)
+R31	$ 1,821	formula=SUM(R25:R29)
+T31	$ 2,339	formula=SUM(T25:T29)
+V31	$ 8,325	formula=SUM(V25:V29)
+X31	$ 2,147	formula=SUM(X25:X29)
+Z31	$ 2,108	formula=SUM(Z25:Z29)
+AB31	$ 2,285	formula=SUM(AB25:AB29)
+AD31	$ 6,540	formula=SUM(AD25:AD29)
+A33	Adjusted EBITDA
+E33	$ (4)	formula=+E17-E31
+G33	$ 254	formula=+G17-G31
+J33	$ 137	formula=+J17-J31
+O33	$ 309	formula=+O17-O31
+R33	$ 446	formula=+R17-R31
+T33	$ (30)	formula=+T17-T31
+V33	$ 666	formula=+V17-V31
+X33	$ 251	formula=+X17-X31
+Z33	$ 366	formula=+Z17-Z31
+AB33	$ 225	formula=+AB17-AB31
+AD33	$ 842	formula=+X33+AB33+Z33
+A35	Paramount+ (Global)
+A37	Subscribers (3)
+E37	77.8
+G37	76.8
+J37	n/a
+O37	n/a
+R37	77.9
+T37	78.9
+V37	78.9
+X37	79.6
+Z37	81.6
+AB37	82.2
+AD37	82.2	formula=+AB37
+A39	Revenues
+E39	$ 1,686
+G39	$ 1,771
+J39	$ 709
+O39	$ 1,060
+R39	$ 1,769	formula=+O39+J39
+T39	$ 1,837
+V39	$ 7,063
+X39	$ 1,974
+Z39	$ 2,061
+AB39	$ 2,134
+AD39	$ 6,169	formula=+X39+Z39+AB39
+A43	(1) The third quarter of 2025 and twelve months ended December 31, 2025 each reflect the combination of the Predecessor and Successor amounts during the period, which is supplementally presented to help investors view these amounts
+      in a manner consistent with our management.
+A45	(2) Other segment expenses for our Direct-to-Consumer segment include employee compensation; revenue-sharing costs, including for third-party distribution; costs for occupancy, technology, and professional services; and other costs
+       associated with our operations.
+A47	(3)  Subscribers include customers who are registered for Paramount+, either directly through our owned and operated apps and websites, or through third-party distributors. Subscribers also include customers who are provided with
+        access through a subscription bundle with a domestic linear video streaming service (vMVPD) or an international third-party distributor. Our subscriber count includes only paid subscriptions and reflects the number of subscribers as of 
+        the applicable period-end date.
+[Sch. 5]
+A1	TRENDING SCHEDULES
+M1	                         Schedule 5
+A2	TV Media Financial Results
+A3	(unaudited; in millions)
+E6	Predecessor
+N6	Successor
+R6	Pro Forma (1)
+T6	Successor
+V6	Pro Forma (1)
+X6	Successor
+I7	Period
+N7	Period
+R7	Quarter
+T7	Quarter
+V7	12 Months
+AD7	9 Months
+E8	Quarter Ended
+I8	From
+N8	From
+R8	Ended
+T8	Ended
+V8	Ended
+X8	Quarter Ended
+AD8	Ended
+E9	3/31/25
+G9	6/30/25
+I9	7/1/25 - 8/6/25
+N9	8/7/25 - 9/30/25
+R9	9/30/25
+T9	12/31/25
+V9	12/31/25
+X9	3/31/26
+Z9	6/30/26
+AB9	9/30/26
+AD9	9/30/26
+A11	Advertising
+E11	$ 2,036
+G11	$ 1,655
+J11	$ 484
+O11	$ 977
+R11	$ 1,461	formula=+O11+J11
+T11	$ 1,966
+V11	$ 7,118	formula=+T11+R11+G11+E11
+X11	$ 1,921
+Z11	$ 1,420
+AB11	$ 1,344
+AD11	$ 4,685	formula=+AB11+X11+Z11
+A13	Affiliate and subscription
+E13	1,719
+G13	1,676
+J13	656
+O13	984
+R13	1,640	formula=+O13+J13
+T13	1,646
+V13	6,681	formula=+T13+R13+G13+E13
+X13	1,620
+Z13	1,581
+AB13	1,553
+AD13	4,754	formula=+AB13+X13+Z13
+A15	Licensing and other
+E15	129
+G15	123
+J15	58
+O15	81
+R15	139	formula=+O15+J15
+T15	187
+V15	578	formula=+T15+R15+G15+E15
+X15	125
+Z15	127
+AB15	127
+AD15	379	formula=+AB15+X15+Z15
+A17	Revenues
+E17	$ 3,884	formula=SUM(E11:E15)
+G17	$ 3,454	formula=SUM(G11:G15)
+J17	$ 1,198	formula=SUM(J11:J15)
+O17	$ 2,042	formula=SUM(O11:O15)
+R17	$ 3,240	formula=+O17+J17
+T17	$ 3,799	formula=SUM(T11:T15)
+V17	$ 14,377	formula=SUM(V11:V15)
+X17	$ 3,666	formula=SUM(X11:X15)
+Z17	$ 3,128	formula=SUM(Z11:Z15)
+AB17	$ 3,024	formula=SUM(AB11:AB15)
+AD17	$ 9,818	formula=SUM(AD11:AD15)
+E20	Predecessor
+N20	Successor
+R20	Combined (1)
+T20	Successor
+V20	Combined (1)
+X20	Successor
+I21	Period
+N21	Period
+R21	Quarter 
+T21	Quarter
+V21	12 Months
+AD21	9 Months
+E22	Quarter Ended
+I22	From
+N22	From
+R22	Ended
+T22	Ended
+V22	Ended
+X22	Quarter Ended
+AD22	Ended
+E23	3/31/25
+G23	6/30/25
+I23	7/1/25 - 8/6/25
+N23	8/7/25 - 9/30/25
+R23	9/30/25
+T23	12/31/25
+V23	12/31/25
+X23	3/31/26
+Z23	6/30/26
+AB23	9/30/26
+AD23	9/30/26
+A25	Content costs
+E25	$ 1,896
+G25	$ 1,576
+J25	$ 504
+O25	$ 903
+R25	$ 1,407	formula=+O25+J25
+T25	$ 1,871
+V25	$ 6,750	formula=+T25+R25+G25+E25
+X25	$ 1,719
+Z25	$ 1,185
+AB25	$ 1,115
+AD25	$ 4,019	formula=+AB25+X25+Z25
+A27	Advertising and marketing 
+E27	133
+G27	100
+J27	52
+O27	52
+R27	104	formula=+O27+J27
+T27	172
+V27	509	formula=+T27+R27+G27+E27
+X27	80
+Z27	66
+AB27	73
+AD27	219	formula=+AB27+X27+Z27
+A29	Other (2)
+E29	904
+G29	866
+J29	357
+O29	527
+R29	884	formula=+O29+J29
+T29	881
+V29	3,535	formula=+T29+R29+G29+E29
+X29	812
+Z29	814
+AB29	808
+AD29	2,434	formula=+AB29+X29+Z29
+A31	Expenses
+E31	$ 2,933	formula=SUM(E25:E29)
+G31	$ 2,542	formula=SUM(G25:G29)
+J31	$ 913	formula=SUM(J25:J29)
+O31	$ 1,482	formula=SUM(O25:O29)
+R31	$ 2,395	formula=SUM(R25:R29)
+T31	$ 2,924	formula=SUM(T25:T29)
+V31	$ 10,794	formula=SUM(V25:V29)
+X31	$ 2,611	formula=SUM(X25:X29)
+Z31	$ 2,065	formula=SUM(Z25:Z29)
+AB31	$ 1,996	formula=SUM(AB25:AB29)
+AD31	$ 6,672	formula=SUM(AD25:AD29)
+A33	Adjusted EBITDA
+E33	$ 951	formula=+E17-E31
+G33	$ 912	formula=+G17-G31
+J33	$ 285	formula=+J17-J31
+O33	$ 560	formula=+O17-O31
+R33	$ 845	formula=+R17-R31
+T33	$ 875	formula=+T17-T31
+V33	$ 3,583	formula=+V17-V31
+X33	$ 1,055	formula=+X17-X31
+Z33	$ 1,063	formula=+Z17-Z31
+AB33	$ 1,028	formula=+AB17-AB31
+AD33	$ 3,146	formula=+AD17-AD31
+A37	(1) The third quarter of 2025 and twelve months ended December 31, 2025 each reflect the combination of the Predecessor and Successor amounts during the period, which is supplementally presented to help investors view these amounts
+      in a manner consistent with our management.
+A39	(2) Other segment expenses for our TV Media segment include employee compensation; revenue-sharing costs to television stations affiliated with the CBS Television Network; costs relating to the distribution of our content; costs for
+       research, occupancy, technology, and professional services; and other costs associated with our operations. 
+[Sch. 6]
+A1	TRENDING SCHEDULES
+Q1	     Schedule 6
+A2	Reconciliation of Adjusted EBITDA (Non-GAAP)
+A3	(unaudited; in millions)
+F6	Predecessor
+O6	Successor
+S6	Combined (1)
+U6	Successor
+W6	Combined (1)
+Y6	Successor
+J7	Period
+O7	Period
+S7	Quarter 
+U7	Quarter
+W7	12 Months
+AE7	9 Months
+F8	Quarter Ended
+J8	From
+O8	From
+S8	Ended
+U8	Ended
+W8	Ended
+Y8	Quarter Ended
+AE8	Ended
+F9	3/31/25
+H9	6/30/25
+J9	7/1/25 - 8/6/25
+O9	8/7/25 - 9/30/25
+S9	9/30/25
+U9	12/31/25
+W9	12/31/25
+Y9	3/31/26
+AA9	6/30/26
+AC9	9/30/26
+AE9	9/30/26
+A11	Studios
+F11	$ 82
+H11	$ (31)
+K11	$ (2)
+P11	$ 21
+S11	$ 19	formula=+P11+K11
+U11	$ 163
+W11	$ 233	formula=+U11+S11+H11+F11
+Y11	$ 164
+AA11	$ 36
+AC11	$ 129
+AE11	$ 329	formula=+AC11+Y11+AA11
+A13	Direct-to-Consumer
+F13	(4)
+H13	254
+K13	137
+P13	309
+S13	446	formula=+P13+K13
+U13	(30)
+W13	666	formula=+U13+S13+H13+F13
+Y13	251
+AA13	366
+AC13	225
+AE13	842	formula=+AC13+Y13+AA13
+A15	TV Media
+F15	951
+H15	912
+K15	285
+P15	560
+S15	845	formula=+P15+K15
+U15	875
+W15	3,583	formula=+U15+S15+H15+F15
+Y15	1,055
+AA15	1,063
+AC15	1,028
+AE15	3,146	formula=+AC15+Y15+AA15
+A17	Corporate/Eliminations
+F17	(297)
+H17	(272)
+K17	(107)
+P17	(206)
+S17	(313)	formula=+P17+K17
+U17	(334)
+W17	(1,216)	formula=+U17+S17+H17+F17
+Y17	(309)
+AA17	(366)
+AC17	(382)
+AE17	(1,057)	formula=+AC17+Y17+AA17
+A19	Adjusted EBITDA
+F19	732	formula=SUM(F11:F17)
+H19	863	formula=SUM(H11:H17)
+K19	313	formula=SUM(K11:K17)
+P19	684	formula=SUM(P11:P17)
+S19	997	formula=SUM(S11:S17)
+U19	674	formula=SUM(U11:U17)
+W19	3,266	formula=+W11+W13+W15+W17
+Y19	1,161	formula=+Y11+Y13+Y15+Y17
+AA19	1,099	formula=+AA11+AA13+AA15+AA17
+AC19	1,000	formula=+AC11+AC13+AC15+AC17
+AE19	3,260	formula=+AE11+AE13+AE15+AE17
+A21	Depreciation and amortization
+F21	(88)
+H21	(87)
+K21	(29)
+P21	(226)
+S21	(255)	formula=+P21+K21
+U21	(364)
+W21	(794)	formula=+U21+S21+H21+F21
+Y21	(362)
+AA21	(364)
+AC21	(371)
+AE21	(1,097)	formula=+AC21+Y21+AA21
+A23	Stock-based compensation
+F23	(44)
+H23	(39)
+K23	(16)
+P23	(29)
+S23	(45)	formula=+P23+K23
+U23	(62)
+W23	(190)	formula=+U23+S23+H23+F23
+Y23	(80)
+AA23	(72)
+AC23	(74)
+AE23	(226)	formula=+AC23+Y23+AA23
+A25	Programming charges (2)
+F25	—
+H25	—
+K25	—
+P25	—
+S25	—	formula=+P25+K25
+U25	(41)
+W25	(41)	formula=+U25+S25+H25+F25
+Y25	—
+AA25	—
+AC25	—
+AE25	—	formula=+AC25+Y25+AA25
+A27	Impairment charges (2)
+F27	—
+H27	(157)
+K27	—
+P27	—
+S27	—	formula=+P27+K27
+U27	—
+W27	(157)	formula=+U27+S27+H27+F27
+Y27	—
+AA27	—
+AC27	—
+AE27	—	formula=+AC27+Y27+AA27
+A29	Restructuring, transaction-related items, and other 
+    corporate matters (2)
+F29	(85)
+H29	(181)
+K29	(188)
+P29	(185)
+S29	(373)	formula=+P29+K29
+U29	(546)
+W29	(1,185)	formula=+U29+S29+H29+F29
+Y29	(103)
+AA29	(188)
+AC29	(187)
+AE29	(478)	formula=+AC29+Y29+AA29
+A31	Gain on dispositions (2)
+F31	35
+H31	—
+K31	—	formula=+'Sch. 1'!K29
+P31	—	formula=+'Sch. 1'!P29
+S31	—	formula=+P31+K31
+U31	—
+W31	35	formula=+U31+S31+H31+F31
+Y31	—
+AA31	—
+AC31	—
+AE31	—	formula=+AC31+Y31+AA31
+A33	Interest expense, net
+F33	(179)
+H33	(182)
+K33	(72)
+P33	(114)
+S33	(186)	formula=+P33+K33
+U33	(188)
+W33	(735)	formula=+U33+S33+H33+F33
+Y33	(200)
+AA33	(226)
+AC33	(229)
+AE33	(655)	formula=+AC33+Y33+AA33
+A35	Loss from investment
+F35	—
+H35	—
+K35	—
+P35	—
+S35	—	formula=+P35+K35
+U35	(40)
+W35	(40)	formula=+U35+S35+H35+F35
+Y35	—
+AA35	—
+AC35	—
+AE35	—	formula=+AC35+Y35+AA35
+A37	Net gain on derivatives
+F37	—
+H37	—
+K37	—
+P37	—
+S37	—
+U37	—
+W37	—	formula=+U37+S37+H37+F37
+Y37	—
+AA37	(12)
+AC37	514
+AE37	502	formula=+AC37+Y37+AA37
+A39	Other items, net
+F39	(37)
+H39	(39)
+K39	(16)
+P39	(8)
+S39	(24)	formula=+P39+K39
+U39	(31)
+W39	(131)	formula=+U39+S39+H39+F39
+Y39	(24)
+AA39	(22)
+AC39	(27)
+AE39	(73)	formula=+AC39+Y39+AA39
+A41	(Provision for) benefit from income taxes
+F41	(100)
+H41	(50)
+K41	229
+P41	(85)
+S41	144	formula=+P41+K41
+U41	125
+W41	119	formula=+U41+S41+H41+F41
+Y41	(155)
+AA41	(120)
+AC41	(464)
+AE41	(739)	formula=+AC41+Y41+AA41
+A43	Equity in loss of investee companies, net of tax
+F43	(73)
+H43	(67)
+K43	(31)
+P43	(33)
+S43	(64)	formula=+P43+K43
+U43	(71)
+W43	(275)	formula=+U43+S43+H43+F43
+Y43	(62)
+AA43	(54)
+AC43	(64)
+AE43	(180)	formula=+AC43+Y43+AA43
+A45	Net earnings (loss) (Parent and noncontrolling interests)
+F45	161	formula=+F19+F21+F25+F27+F29+F31+F33+F35+F39+F41+F43+F23
+H45	61	formula=+H19+H21+H25+H27+H29+H31+H33+H35+H39+H41+H43+H23
+K45	190	formula=+K19+K21+K25+K27+K29+K31+K33+K35+K39+K41+K43+K23
+P45	4	formula=+P19+P21+P25+P27+P29+P31+P33+P35+P39+P41+P43+P23
+S45	194	formula=+S19+S21+S25+S27+S29+S31+S33+S35+S39+S41+S43+S23
+U45	(544)	formula=+U19+U21+U25+U27+U29+U31+U33+U35+U39+U41+U43+U23
+W45	(128)	formula=+W19+W21+W25+W27+W29+W31+W33+W35+W39+W41+W43+W23
+Y45	175	formula=+Y19+Y21+Y25+Y27+Y29+Y31+Y33+Y35+Y39+Y41+Y43+Y23
+AA45	41	formula=+AA19+AA21+AA25+AA27+AA29+AA31+AA33+AA35+AA39+AA41+AA43+AA23+AA37
+AC45	98	formula=+AC19+AC21+AC25+AC27+AC29+AC31+AC33+AC35+AC39+AC41+AC43+AC23+AC37
+AE45	314	formula=+AE19+AE21+AE25+AE27+AE29+AE31+AE33+AE35+AE39+AE41+AE43+AE23+AE37
+A47	Net earnings attributable to noncontrolling interests
+F47	(9)
+H47	(4)
+K47	(434)
+P47	(17)
+S47	(451)	formula=+P47+K47
+U47	(29)
+W47	(493)	formula=+U47+S47+H47+F47
+Y47	(7)
+AA47	—
+AC47	(25)
+AE47	(32)	formula=+AC47+Y47+AA47
+A49	Net earnings (loss) attributable to Parent
+F49	$ 152	formula=+F47+F45
+H49	$ 57	formula=+H47+H45
+K49	$ (244)	formula=+K47+K45
+P49	$ (13)	formula=+P47+P45
+S49	$ (257)	formula=+S47+S45
+U49	$ (573)	formula=+U47+U45
+W49	$ (621)	formula=+W47+W45
+Y49	$ 168	formula=+Y47+Y45
+AA49	$ 41	formula=+AA47+AA45
+AC49	$ 73	formula=+AC47+AC45
+AE49	$ 282	formula=+AE47+AE45
+A52	(1) The third quarter of 2025 and twelve months ended December 31, 2025 each reflect the combination of the Predecessor and Successor amounts during the period, which is supplementally presented to help investors view these amounts in a manner consistent with our
+       management.
+A53	(2) See Schedule 8 for a description of these items affecting comparability.
+[Sch. 7]
+A1	TRENDING SCHEDULES
+Q1	Schedule 7
+A2	Reconciliation of Adjusted Net Earnings (Loss) and Diluted EPS (Non-GAAP)
+A3	(unaudited; in millions, except per share amounts)
+F6	Predecessor
+O6	Successor
+S6	Combined (1)
+U6	Successor
+W6	Combined (1)
+Y6	Successor
+J7	Period
+O7	Period
+S7	Quarter
+U7	Quarter
+W7	12 Months
+AE7	9 Months
+F8	Quarter Ended
+J8	From
+O8	From
+S8	Ended
+U8	Ended
+W8	Ended
+Y8	Quarter Ended
+AE8	Ended
+F9	3/31/25
+H9	6/30/25
+J9	7/1/25 - 8/6/25
+O9	8/7/25 - 9/30/25
+S9	9/30/25
+U9	12/31/25
+W9	12/31/25
+Y9	3/31/26
+AA9	6/30/26
+AC9	9/30/26
+AE9	9/30/26
+A11	Net earnings (loss) attributable to Parent:
+A13	Reported net earnings (loss)
+F13	$ 152	formula=+'Sch. 1'!F36
+H13	$ 57	formula=+'Sch. 1'!H36
+K13	$ (244)	formula=+'Sch. 1'!K36
+P13	$ (13)	formula=+'Sch. 1'!P36
+S13	$ (257)	formula=+P13+K13
+U13	$ (573)
+W13	$ (621)	formula=+U13+S13+H13+F13
+Y13	$ 168
+AA13	$ 41
+AC13	$ 73
+AE13	$ 282	formula=+AC13+Y13+AA13
+A15	Impact of adjustments on net earnings 
+   (loss) (2)
+F15	43	formula=+'Sch. 8'!F31
+H15	258	formula=+'Sch. 8'!H31
+K15	82	formula=+'Sch. 8'!K31
+P15	151	formula=+'Sch. 8'!P31
+S15	233	formula=+P15+K15
+U15	444	formula=+'Sch. 8'!U31
+W15	978	formula=+U15+S15+H15+F15
+Y15	93
+AA15	164
+AC15	433
+AE15	690	formula=+AC15+Y15+AA15
+A17	Adjusted net earnings (loss)
+F17	$ 195	formula=+F13+F15
+H17	$ 315	formula=+H13+H15
+K17	$ (162)	formula=+K13+K15
+P17	$ 138	formula=+P13+P15
+S17	$ (24)	formula=+S13+S15
+U17	$ (129)	formula=+U13+U15
+W17	$ 357	formula=+W13+W15
+Y17	$ 261	formula=+Y13+Y15
+AA17	$ 205	formula=+AA13+AA15
+AC17	$ 506	formula=+AC13+AC15
+AE17	$ 972	formula=+AE13+AE15
+A21	Per share information attributable to 
+   Parent:
+A23	Reported diluted earnings (loss) per share  
+F23	$ .22
+H23	$ .08
+K23	$ (.36)	formula=+'Sch. 1'!K44
+P23	$ (.01)	formula=+'Sch. 1'!P44
+S23	$ (.37)	formula=+P23+K23
+U23	$ (.52)
+W23	$ (.58)
+Y23	$ .15
+AA23	$ .04
+AC23	$ .06	formula=+'Sch. 1'!Y48
+AE23	$ .25	formula=+'Sch. 1'!AA48
+A24	 
+A25	Impact of adjustments on diluted earnings 
+   (loss) per share (2)
+F25	.07	formula=+F27-F23
+H25	.38	formula=+H27-H23
+K25	.12	formula=+K27-K23
+P25	.13	formula=+P27-P23
+S25	.25	formula=+S27-S23
+U25	.40	formula=+U27-U23
+W25	1.10	formula=+W27-W23
+Y25	.08	formula=+Y27-Y23
+AA25	.14	formula=+AA27-AA23
+AC25	.39	formula=+AC27-AC23
+AE25	.62	formula=+AE27-AE23
+A27	Adjusted diluted EPS 
+F27	$ .29
+H27	$ .46
+K27	$ (.24)	formula=+'Sch. 2'!K33
+P27	$ .12	formula=+'Sch. 2'!P33
+S27	$ (.12)	formula=+'Sch. 2'!S33
+U27	$ (.12)
+W27	$ .52
+Y27	$ .23
+AA27	$ .18
+AC27	$ .45	formula=+'Sch. 2'!AC33
+AE27	$ .87	formula=+'Sch. 2'!AE33
+A32	Weighted average number of diluted 
+   shares outstanding, reported (3)
+F32	678	formula=+'Sch. 1'!F50
+H32	680	formula=+'Sch. 1'!H50
+K32	675	formula=+'Sch. 1'!K50
+P32	1,098	formula=+'Sch. 1'!P50
+S32	n/a
+U32	1,104	formula=+'Sch. 1'!S50
+W32	n/a
+Y32	1,118	formula=+'Sch. 1'!U50
+AA32	1,120
+AC32	1,125	formula=+'Sch. 1'!Y50
+AE32	1,121
+A34	Weighted average number of diluted 
+   shares outstanding, adjusted
+F34	678
+H34	680
+K34	675
+P34	1,120
+S34	n/a
+U34	1,104
+W34	n/a
+Y34	1,118
+AA34	1,120
+AC34	1,125
+AE34	1,121
+A38	(1) The third quarter of 2025 and twelve months ended December 31, 2025 each reflect the combination of the Predecessor and Successor amounts during the period, which is supplementally presented to help investors view these amounts in a manner
+      consistent with our management.
+A39	(2) See Schedule 8 for a description of items affecting comparability of net earnings (loss) and diluted EPS.
+A40	(3) For periods when we reported a net loss the dilutive impact to shares for Reported EPS is excluded because it would be antidilutive.
+[Sch. 8]
+A1	TRENDING SCHEDULES
+Q1	Schedule 8
+A2	Items Affecting Comparability
+A3	(unaudited; in millions, except per share amounts)
+F6	Predecessor
+O6	Successor
+S6	Combined (1)
+U6	Successor
+W6	Combined (1)
+Y6	Successor
+J7	Period
+O7	Period
+S7	Quarter
+U7	Quarter
+W7	12 Months
+AE7	9 Months
+F8	Quarter Ended
+J8	From
+O8	From
+S8	Ended
+U8	Ended
+W8	Ended
+Y8	Quarter Ended
+AE8	Ended
+F9	3/31/25
+H9	6/30/25
+J9	7/1/25 - 8/6/25
+O9	8/7/25 - 9/30/25
+S9	9/30/25
+U9	12/31/25
+W9	12/31/25
+Y9	3/31/26
+AA9	6/30/26
+AC9	9/30/26
+AE9	9/30/26
+A11	Programming charges (2)
+F11	$ —	formula=-'Sch. 1'!F23
+H11	$ —	formula=-'Sch. 1'!H23
+K11	$ —	formula=-'Sch. 1'!K23
+P11	$ —	formula=-'Sch. 1'!P23
+S11	$ —	formula=+P11+K11
+U11	$ 41	formula=-'Sch. 1'!S23
+W11	$ 41	formula=+F11+H11+S11+U11
+Y11	$ —
+AA11	$ —
+AC11	$ —	formula=-'Sch. 1'!Y23
+AE11	$ —	formula=+AC11+Y11+AA11
+A13	Impairment charges (3)
+F13	—	formula=-'Sch. 1'!F25
+H13	157	formula=-'Sch. 1'!H25
+K13	—	formula=-'Sch. 1'!K25
+P13	—	formula=-'Sch. 1'!P25
+S13	—	formula=+P13+K13
+U13	—	formula=-'Sch. 1'!S25
+W13	157	formula=+F13+H13+S13+U13
+Y13	—
+AA13	—
+AC13	—	formula=-'Sch. 1'!Y25
+AE13	—	formula=+AC13+Y13+AA13
+A15	Restructuring, transaction-related items, 
+   and other corporate matters (4)
+F15	85	formula=-'Sch. 1'!F27
+H15	181	formula=-'Sch. 1'!H27
+K15	188	formula=-'Sch. 1'!K27
+P15	185	formula=-'Sch. 1'!P27
+S15	373	formula=+P15+K15
+U15	546	formula=-'Sch. 1'!S27
+W15	1,185	formula=+F15+H15+S15+U15
+Y15	103
+AA15	188
+AC15	187	formula=-'Sch. 1'!Y27
+AE15	478	formula=+AC15+Y15+AA15
+A17	Gain on dispositions (5)
+F17	(35)	formula=-'Sch. 1'!F29
+H17	—	formula=-'Sch. 1'!H29
+K17	—	formula=-'Sch. 1'!K29
+P17	—	formula=-'Sch. 1'!P29
+S17	—	formula=+P17+K17
+U17	—	formula=-'Sch. 1'!S29
+W17	(35)	formula=+F17+H17+S17+U17
+Y17	—
+AA17	—
+AC17	—	formula=-'Sch. 1'!Y29
+AE17	—	formula=+AC17+Y17+AA17
+A19	Gain on extinguishment of debt
+F19	—
+H19	—
+K19	—
+P19	—
+S19	—	formula=+P19+K19
+U19	—
+W19	—	formula=+F19+H19+S19+U19
+AC19	—
+A21	Loss from investments (6)
+F21	—
+H21	—
+K21	—
+P21	—
+S21	—	formula=+P21+K21
+U21	40	formula=-'Sch. 6'!U35
+W21	40	formula=+F21+H21+S21+U21
+Y21	—
+AA21	—
+AC21	—
+AE21	—	formula=+AC21+Y21+AA21
+A23	Impact of adjustments on earnings (loss)
+    before income taxes
+F23	50	formula=SUM(F11,F13,F15,F17,F19,F21)
+H23	338	formula=SUM(H11,H13,H15,H17,H19,H21)
+K23	188	formula=SUM(K11,K13,K15,K17,K19,K21)
+P23	185	formula=SUM(P11,P13,P15,P17,P19,P21)
+S23	373	formula=SUM(S11,S13,S15,S17,S19,S21)
+U23	627	formula=SUM(U11,U13,U15,U17,U19,U21)
+W23	1,388	formula=SUM(W11,W13,W15,W17,W19,W21)
+Y23	103	formula=SUM(Y11,Y13,Y15,Y17,Y19,Y21)
+AA23	188	formula=SUM(AA11,AA13,AA15,AA17,AA19,AA21)
+AC23	187	formula=SUM(AC11,AC13,AC15,AC17,AC19,AC21)
+AE23	478	formula=SUM(AE11,AE13,AE15,AE17,AE19,AE21)
+A25	Income tax impact of above items (7)
+F25	(14)
+H25	(82)
+K25	(33)
+P25	(30)
+S25	(63)	formula=+P25+K25
+U25	(155)
+W25	(314)	formula=+F25+H25+S25+U25
+Y25	(6)
+AA25	(20)
+AC25	(29)
+AE25	(55)	formula=+AC25+Y25+AA25
+A27	Discrete tax items (8)
+F27	7
+H27	2
+K27	(73)
+P27	(4)
+S27	(77)	formula=+P27+K27
+U27	(28)
+W27	(96)	formula=+F27+H27+S27+U27
+Y27	(4)
+AA27	(4)
+AC27	275
+AE27	267	formula=+AC27+Y27+AA27
+A29	Impact of adjustments on income taxes
+F29	(7)	formula=SUM(F25,F27)
+H29	(80)	formula=SUM(H25,H27)
+K29	(106)	formula=SUM(K25,K27)
+P29	(34)	formula=SUM(P25,P27)
+S29	(140)	formula=SUM(S25,S27)
+U29	(183)	formula=SUM(U25,U27)
+W29	(410)	formula=SUM(W25,W27)
+Y29	(10)	formula=SUM(Y25,Y27)
+AA29	(24)	formula=SUM(AA25,AA27)
+AC29	246	formula=SUM(AC25,AC27)
+AE29	212	formula=SUM(AE25,AE27)
+A31	Impact of adjustments on net earnings 
+   (loss) attributable to Parent
+F31	$ 43	formula=+F23+F29
+H31	$ 258	formula=+H23+H29
+K31	$ 82	formula=+K23+K29
+P31	$ 151	formula=+P23+P29
+S31	$ 233	formula=+S23+S29
+U31	$ 444	formula=+U23+U29
+W31	$ 978	formula=+W23+W29
+Y31	$ 93	formula=+Y23+Y29
+AA31	$ 164	formula=+AA23+AA29
+AC31	$ 433	formula=+AC23+AC29
+AE31	$ 690	formula=+AE23+AE29
+A33	Impact of adjustments on diluted EPS 
+    attributable to Parent
+F33	$ .07	formula=+'Sch. 7'!F25
+H33	$ .38	formula=+'Sch. 7'!H25
+K33	$ .12	formula=+'Sch. 7'!K25
+P33	$ .13	formula=+'Sch. 7'!P25
+S33	$ .25	formula=+P33+K33
+U33	$ .40	formula=+'Sch. 7'!U25
+W33	$ 1.10	formula=+'Sch. 7'!W25
+Y33	$ .08	formula=+'Sch. 7'!Y25
+AA33	$ .14	formula=+'Sch. 7'!AA25
+AC33	$ .39	formula=+'Sch. 7'!AC25
+AE33	$ .62	formula=+'Sch. 7'!AE25
+A37	(1) The third quarter of 2025 and twelve months ended December 31, 2025 each reflect the combination of the Predecessor and Successor amounts during the period, which is supplementally presented to help investors view these amounts in a manner
+      consistent with our management.
+A38	(2) In the fourth quarter of 2025, we abandoned certain Skydance Media content, principally development projects, in connection with a review of our content portfolio following the closing of the Skydance Transactions.
+A39	(3) The second quarter of 2025 reflects charges to reduce the carrying value of intangible assets to their fair value.
+A40	(4) Reflects severance costs, lease impairments, transaction-related items, and other corporate matters.
+A41	(5) Primarily reflects a gain recognized upon the disposition of a noncore business. 
+A42	(6) Reflects fair value adjustments to our investments.
+A43	(7) The tax impact has been calculated by applying the tax rates applicable to the adjustments presented.
+A44	(8) Includes the net discrete tax expense or (benefit) related to valuation allowance changes, the establishment of a reserve for uncertain tax positions, the resolution of income tax matters, amounts realized in connection with the filing of tax returns, and
+       tax expense or (excess benefit) from the vesting of stock-based compensation awards, among others. 
+[Sch. 9]
+A1	TRENDING SCHEDULES
+R1	Schedule 9
+A2	Free Cash Flow (Non-GAAP)
+A3	(unaudited; in millions)
+F6	Predecessor
+P6	Successor
+T6	Combined (1)
+V6	Successor
+X6	Combined (1)
+Z6	Successor
+K7	Period
+P7	Period
+T7	Quarter
+V7	Quarter
+X7	12 Months
+AF7	9 Months
+F8	Quarter Ended
+K8	From
+P8	From
+T8	Ended
+V8	Ended
+X8	Ended
+Z8	Quarter Ended
+AF8	Ended
+F9	3/31/25
+H9	6/30/25
+K9	7/1/25 - 8/6/25
+P9	8/7/25 - 9/30/25
+T9	9/30/25
+V9	12/31/25
+X9	12/31/25
+Z9	3/31/26
+AB9	6/30/26
+AD9	9/30/26
+AF9	9/30/26
+A11	Net cash flow provided by (used for) 
+   operating activities 
+F11	$ 180
+H11	$ 159
+L11	$ (175)
+Q11	$ 268
+T11	$ 93	formula=+Q11+L11
+V11	$ 217
+X11	$ 649	formula=+V11+Q11+L11+H11+F11
+Z11	$ 185
+AB11	$ 319
+AD11	$ 123	formula=+AF11-Z11-AB11
+AF11	$ 627
+A13	Capital expenditures
+F13	(57)
+H13	(45)
+L13	(32)
+Q13	(46)
+T13	(78)	formula=+Q13+L13
+V13	(116)
+X13	(296)	formula=+V13+Q13+L13+H13+F13
+Z13	(89)
+AB13	(61)
+AD13	(92)	formula=+AF13-Z13-AB13
+AF13	(242)
+A15	Free cash flow
+F15	$ 123	formula=+F11+F13
+H15	$ 114	formula=+H11+H13
+L15	$ (207)	formula=+L11+L13
+Q15	$ 222	formula=+Q11+Q13
+T15	$ 15	formula=+Q15+L15
+V15	$ 101	formula=+V13+V11
+X15	$ 353	formula=+X13+X11
+Z15	$ 96	formula=+Z13+Z11
+AB15	$ 258	formula=+AB13+AB11
+AD15	$ 31	formula=+AD13+AD11
+AF15	$ 385	formula=+AF13+AF11
+F18	Predecessor
+K18	Successor
+X19	Quarter
+F20	Quarter Ended
+K20	Quarter Ended
+T20	Quarter Ended
+X20	Ended
+F21	3/31/25
+H21	6/30/25
+K21	9/30/25
+P21	12/31/25
+T21	3/31/26
+V21	6/30/26
+X21	9/30/26
+A23	Debt
+F23	$ 14,507
+H23	$ 14,514
+L23	$ 13,633
+Q23	$ 13,658
+T23	$ 15,483
+V23	$ 15,156
+X23	$ 15,044
+A25	Less: Cash and cash equivalents
+F25	2,673
+H25	2,739
+L25	3,263
+Q25	3,274
+T25	1,941
+V25	1,627
+X25	1,377
+A27	Net debt
+F27	$ 11,834	formula=+F23-F25
+H27	$ 11,775	formula=+H23-H25
+L27	$ 10,370	formula=+L23-L25
+Q27	$ 10,384	formula=+Q23-Q25
+T27	$ 13,542	formula=+T23-T25
+V27	$ 13,529	formula=+V23-V25
+X27	$ 13,667	formula=+X23-X25
+F31	Predecessor
+P31	Successor
+T31	Combined (1)
+V31	Successor
+X31	Combined (1)
+Z31	Successor
+K32	Period
+P32	Period
+T32	Quarter
+V32	Quarter
+X32	12 Months
+AF32	9 Months
+F33	Quarter Ended
+K33	From
+P33	From
+T33	Ended
+V33	Ended
+X33	Ended
+Z33	Quarter Ended
+AF33	Ended
+A34	Supplemental Cash Flow Information
+F34	3/31/25
+H34	6/30/25
+K34	7/1/25 - 8/6/25
+P34	8/7/25 - 9/30/25
+T34	9/30/25
+V34	12/31/25
+X34	12/31/25
+Z34	3/31/26
+AB34	6/30/26
+AD34	9/30/26
+AF34	9/30/26
+A35	Payments for restructuring, transaction-related items, and transformation initiatives (2)
+F35	$ 108
+H35	$ 71
+L35	$ 49
+Q35	$ 81
+T35	$ 130	formula=+Q35+L35
+V35	$ 153
+X35	$ 462	formula=+V35+Q35+L35+H35+F35
+Z35	$ 181
+AB35	$ 162
+AD35	$ 174	formula=+AF35-Z35-AB35
+AF35	$ 517
+A36	    
+A40	(1) The third quarter of 2025 and twelve months ended December 31, 2025 each reflect the combination of the Predecessor and Successor amounts during the period, which is supplementally presented to help investors view these amounts in a manner consistent
+      with our management.
+A41	(2) Free cash flow includes payments for restructuring, transaction-related items, and transformation initiatives, which are related to advancing our technology and operations, including the unification and evolution of systems and platforms, and migration to the
+       cloud.
