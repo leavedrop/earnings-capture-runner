@@ -55,25 +55,32 @@ def handoff_sources(runtime, status, connection, metadata):
         for symbol, channel, payload in connection.execute("""
             SELECT symbol,channel,payload FROM log WHERE id IN (
               SELECT max(id) FROM log WHERE kind='request' AND json_extract(payload,'$.purpose')='discovery'
-              GROUP BY symbol,channel)"""):
-            latest[(symbol, channel)] = json.loads(payload)
+              GROUP BY symbol,channel,json_extract(payload,'$.url'))"""):
+            record = json.loads(payload)
+            latest[(symbol, channel, record.get("url"))] = record
         for symbol, channel, payload in connection.execute("""
             SELECT symbol,channel,payload FROM log WHERE id IN (
               SELECT min(id) FROM log WHERE kind='request' AND json_extract(payload,'$.purpose')='discovery'
-              GROUP BY symbol,channel)"""):
-            first[(symbol, channel)] = json.loads(payload)
+              GROUP BY symbol,channel,json_extract(payload,'$.url'))"""):
+            record = json.loads(payload)
+            first[(symbol, channel, record.get("url"))] = record
     now = datetime.now(timezone.utc)
+    patrols = {(*key.split(":", 2)[:2], value.get("url")): value
+               for key, value in status.get("source_status", {}).items()}
     rows = []
     for event in events:
         if selected and event["symbol"] not in selected:
             continue
         for source in event["sources"]:
             symbol, channel = event["symbol"], source["channel"]
-            key = (symbol, channel)
-            patrol = status.get("source_status", {}).get(symbol + ":" + channel, {})
+            key = (symbol, channel, source["url"])
+            patrol = patrols.get(key, {})
             completed = patrol.get("state") in ("captured", "captured_monitoring_later_filings")
-            required = (not completed and datetime.fromisoformat(event["window_start"]) <= now
-                        <= datetime.fromisoformat(event["window_end"]))
+            deadline = datetime.fromisoformat(metadata.get("hard_stop_utc") or metadata.get("until_utc")
+                                             or "2026-11-13T13:03:00+08:00")
+            required = (datetime.fromisoformat(event["window_start"]) <= now and
+                        (now <= deadline if channel == "sec" else
+                         not completed and now <= datetime.fromisoformat(event["window_end"])))
             rec, initial = latest.get(key, {}), first.get(key, {})
             valid, basis = False, None
             if rec.get("status") in (200, 304) and rec.get("request_end_utc"):
@@ -162,6 +169,34 @@ def snapshot(runtime, checkout, metadata, cached):
                            started_utc=record.get("discovered_utc"), parsed_utc=record.get("validated_utc"),
                            parse_ms=record.get("parse_ms"), queue_ms=record.get("queue_ms"))
                 cached[ident] = row
+            for ident, payload in connection.execute("select id,payload from log where kind='attachment' order by id"):
+                cache_key = ("attachment", ident)
+                if cache_key in cached:
+                    continue
+                record = json.loads(payload)
+                if not progress.recognized_achr_attachment(record):
+                    continue
+                row = progress.attachment_row(record, runtime)
+                artifacts = []
+                if {Path(item["path"]).suffix for item in row.get("artifacts", [])} != {".pdf", ".txt", ".json"}:
+                    raise ValueError("Supporting letter public files incomplete")
+                for artifact in row["artifacts"]:
+                    relative = artifact["path"]
+                    source = (runtime / relative).resolve()
+                    if not progress.ACHR_SUPPORT_FILE.fullmatch(relative) or source.parent != runtime / "reports":
+                        raise ValueError("Supporting letter outside public reports directory")
+                    body = source.read_bytes()
+                    if source.suffix == ".pdf" and hashlib.sha256(body).hexdigest() != row["sha256"]:
+                        raise ValueError("Supporting letter SHA-256 mismatch")
+                    if source.suffix == ".json":
+                        parsed = json.loads(body)
+                        body = public_bytes({key: parsed[key] for key in ("text", "tables", "table_spans", "page_diagnostics",
+                            "pdf_pages_total", "pdf_pages_processed", "pdf_pages_text_extracted", "pdf_metadata", "supporting_document")})
+                    write_public(checkout / relative, body)
+                    artifacts.append({"path": relative, "sha256": hashlib.sha256(body).hexdigest(),
+                                      "bytes": len(body), "kind": source.suffix[1:]})
+                row.update(evidence_id=metadata["run_id"] + ":" + str(ident), artifacts=artifacts)
+                cached[cache_key] = row
             groups = connection.execute("""
                 select symbol,channel,json_extract(payload,'$.status'),
                     case when json_extract(payload,'$.status') is null then
@@ -188,7 +223,9 @@ def snapshot(runtime, checkout, metadata, cached):
         readiness = handoff_sources(runtime, status, None, metadata)
     data = {**metadata, "schema_version": 1, "updated_utc": utc(),
             "collector_heartbeat_utc": status.get("updated_utc"),
-            "captures": list(cached.values()), "capture_count": len(cached),
+            "captures": [row for key, row in cached.items() if isinstance(key, int)],
+            "capture_count": sum(isinstance(key, int) for key in cached),
+            "attachments": [row for key, row in cached.items() if isinstance(key, tuple) and key[0] == "attachment"],
             "source_patrols": progress.source_patrols(status, "US live runner"),
             "handoff_sources": readiness,
             "request_failures": {"requests": requests, "failed_requests": failed_requests},

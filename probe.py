@@ -12,6 +12,7 @@ import gzip
 import json
 import os
 from pathlib import Path
+import platform
 import re
 import shutil
 import sqlite3
@@ -37,6 +38,23 @@ def utc():
 
 def digest(value):
     return hashlib.sha256(value).hexdigest()
+
+
+def execution_hardware():
+    """Record only measured CPU properties, never host identity or environment."""
+    result = {"machine": platform.machine(), "logical_cpus": os.cpu_count(), "cpu_model": None}
+    if platform.system() == "Linux":
+        try:
+            output = subprocess.run(["lscpu", "--json"], capture_output=True, text=True, check=True, timeout=3)
+            fields = json.loads(output.stdout)["lscpu"]
+            result["cpu_model"] = next((row["data"] for row in fields if row["field"] == "Model name:"), None)
+            result["cpu_model_source"] = "lscpu Model name"
+        except (OSError, subprocess.SubprocessError, ValueError, KeyError) as exc:
+            result["cpu_identification_error"] = type(exc).__name__
+    else:
+        result["cpu_model"] = platform.processor() or None
+        result["cpu_model_source"] = "platform.processor"
+    return result
 
 
 def safe_error_message(exc):
@@ -693,7 +711,8 @@ async def collect_bw_browser_access(output, *, http1=False):
                "company_query": "D-Wave Quantum", "symbol": "QBTS", "navigation_attempts": 0,
                "navigation_status": None, "network_events": 0, "evidence_errors": [],
                "search": {"attempted": False}, "artifacts": [], "cooldown_seconds_on_denial": 120,
-               "browser_http2_disabled": http1}
+                "browser_http2_disabled": http1, "execution_environment": execution_hardware(),
+                "node_semantics": "Cloudflare loc/colo identify observed egress country/responding edge, not the runner data-center"}
     phase, request_ids = "entry", {}
     denied = asyncio.Event()
     public_query_keys = {"q", "query", "keywords", "keyword", "search", "term", "page", "pagesize",
@@ -749,7 +768,7 @@ async def collect_bw_browser_access(output, *, http1=False):
         for kind, operation in (("html", lambda: page.content()), ("title", lambda: page.title()),
                                 ("png", lambda: page.screenshot(full_page=True, timeout=10000))):
             try:
-                value = await operation()
+                value = await asyncio.wait_for(operation(), timeout=10)
                 if kind == "title":
                     result["title"] = value
                     continue
@@ -774,6 +793,10 @@ async def collect_bw_browser_access(output, *, http1=False):
 
         executable = shutil.which("google-chrome") or shutil.which("google-chrome-stable")
         if not executable:
+            if summary["execution_environment"]["machine"].lower() in ("aarch64", "arm64"):
+                summary.update(outcome="skipped_no_installed_chrome", skipped=True)
+                (output / "run.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+                return 0
             raise RuntimeError("Runner-installed Google Chrome executable not found")
         summary["playwright_version"] = version("playwright")
         summary["browser_executable"] = Path(executable).name
@@ -887,6 +910,8 @@ async def run(args):
                 raise
             node = {"loc": None, "colo": None, "is_us": False, "error_type": type(exc).__name__}
         metadata = {"scope": "old_public_document_real_download_replay_not_new_release", "node": node,
+                    "execution_environment": execution_hardware(),
+                    "node_semantics": "Cloudflare loc/colo identify observed egress country/responding edge, not the runner data-center",
                     "started_utc": utc(), "parser_sources": source_manifest,
                     "pdf_pool": warmup, "target_document_preparsed": False, "targets": len(targets),
                     "requests_per_second": {"parent_direct_sec": 2 if args.scope == "b-sec-transports" else 8,

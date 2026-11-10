@@ -32,13 +32,20 @@ on:
           - bw-browser-access
           - bw-browser-http1-access
         default: all
+      architecture:
+        description: Runner CPU architecture for this independent replay only
+        type: choice
+        options:
+          - x64
+          - arm64
+        default: x64
 
 permissions:
   contents: read
 
 jobs:
   probe:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ inputs.architecture == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4

@@ -401,6 +401,15 @@
         "last_status_code": 200
       },
       {
+        "channel": "official",
+        "url": "https://www.berkshirehathaway.com/news/2026news.html",
+        "kind": "html",
+        "original_url": "https://www.berkshirehathaway.com/news/2026news.html",
+        "note": "Original task also requires the annual news index for the earnings release; monitor separately from the financial reports index.",
+        "verification": "pending_live_verification",
+        "last_status_code": null
+      },
+      {
         "channel": "sec",
         "url": "https://data.sec.gov/submissions/CIK0001067983.json",
         "kind": "sec_json",
@@ -940,7 +949,8 @@
     "symbol": "TTD",
     "company": "The Trade Desk",
     "aliases": [
-      "The Trade Desk"
+      "The Trade Desk",
+      "TRADE DESK, INC."
     ],
     "fiscal_year": 2026,
     "quarter": 3,
@@ -2091,12 +2101,24 @@
     "sources": [
       {
         "channel": "official",
-        "url": "https://www.franco-nevada.com/investors/news/",
-        "kind": "html",
+        "url": "https://www.franco-nevada.com/feed/PressRelease.svc/GetPressReleaseList?LanguageId=1&bodyType=0&pressReleaseDateFilter=3&categoryId=1cb807d2-208f-4bc3-9133-6a9ad45ac3b0&pageSize=-1&pageNumber=0&tagList=&includeTags=true&year=2026&excludeSelection=1",
+        "kind": "json",
         "original_url": "https://www.franco-nevada.com/investors/news-releases/",
-        "note": "Correct issuer news path. Latest ordinary HTTP/browser attempts are still denied; do not treat this source as recovered.",
-        "verification": "http_403",
-        "last_status_code": 403
+        "note": "Public Q4 press-release API used by the issuer website. Local direct Chrome transport returned 200 and 21 news entries; Q3 results not yet published in that observation. US production access remains to be verified.",
+        "verification": "http_ok_discovery_links_present",
+        "last_status_code": 200,
+        "replaced_discovery_url": "https://www.franco-nevada.com/investors/news/",
+        "verification_evidence": {
+          "source_url": "https://www.franco-nevada.com/investors/news/",
+          "checked_at": "2026-11-10T10:12:05.690796+00:00",
+          "method": "GET",
+          "status_code": 200,
+          "bytes": 28361,
+          "sha256": "4b8b98dd1e0964989b856e4ebc3bcf253c4ad270439d624217476b77f37f845c",
+          "route": "direct trust_env=False",
+          "transport": "curl_cffi_chrome",
+          "finding": "Issuer public JavaScript news feed parameters; 21 PressReleaseList entries; historical earnings links available."
+        }
       },
       {
         "channel": "sec",

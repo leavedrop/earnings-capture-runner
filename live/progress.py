@@ -103,10 +103,11 @@ def source_patrols(status, observer):
     rows = []
     labels = {"captured": "已取得文档", "scheduled": "等待监测窗口", "polling": "巡视中",
               "source_error": "来源请求失败", "window_expired_without_capture": "窗口结束，未取得文档",
+              "window_expired": "监测窗口结束",
               "no_new": "已巡视，暂无新稿", "ok": "巡视完成", "requesting": "正在巡视",
               "cooldown": "远端暂缓，等待下次巡视", "backoff": "巡视失败，等待重试"}
     for key, source in status.get("source_status", {}).items():
-        symbol, _, channel = key.partition(":")
+        symbol, channel = key.split(":", 2)[:2]
         url = public_url(source.get("listing_url") or source.get("url"))
         new_count = source.get("new_count")
         state = labels.get(source.get("state"), "状态未记录")
@@ -777,34 +778,72 @@ def read_cloud_observations(root):
     return captures, {"failed_records": sum(row[4] for row in failure_groups), "groups": failures}
 
 
+ACHR_SUPPORT_URL = "https://s206.q4cdn.com/823642595/files/content_files/Archer-Letter-to-Shareholders-_-Q3-2026.pdf"
+ACHR_SUPPORT_FILE = re.compile(r"reports/(?:us_[a-f0-9]{12}_)?ACHR_official_[a-f0-9]{12}\.(pdf|txt|json)")
+SUPPORT_FIELDS = ("kind", "recognized", "source_sha256", "native_text_complete", "financial_table_count",
+                  "rendered_text_complete", "latency_budget_applicable", "visual_content_source", "limitations")
+
+
+def recognized_achr_attachment(record):
+    support = record.get("supporting_document") or {}
+    return (record.get("symbol") == "ACHR" and record.get("url") == ACHR_SUPPORT_URL
+            and record.get("supporting_title") == "Archer Letter to Shareholders | Q3 2026"
+            and record.get("pdf_pages_total") == record.get("pdf_pages_processed") == 16
+            and support.get("kind") == "shareholder_letter" and support.get("recognized") is True
+            and support.get("native_text_complete") is True and type(support.get("financial_table_count")) is int
+            and support["financial_table_count"] == 0 and support.get("rendered_text_complete") is False
+            and support.get("latency_budget_applicable") is False and support.get("source_sha256") == record.get("sha256")
+            and re.fullmatch(r"[a-f0-9]{64}", str(record.get("sha256", ""))) is not None)
+
+
+def attachment_row(record, root):
+    symbol = str(record.get("symbol", ""))
+    relative = PurePosixPath(str(record.get("original_document_path") or record.get("path") or "").replace("\\", "/"))
+    path, supporting = None, recognized_achr_attachment(record)
+    if (len(relative.parts) >= 4 and relative.parts[:2] == ("attachments", symbol)
+            and re.fullmatch(r"\d{18}", relative.parts[2])):
+        path = artifact_path(root, str(relative), root)
+        if path and not (root / path).resolve().is_relative_to((root / "attachments").resolve()):
+            path = None
+    elif supporting and ACHR_SUPPORT_FILE.fullmatch(str(relative)) and relative.suffix == ".pdf":
+        path = artifact_path(root, str(relative), root)
+        if path and (root / path).resolve().parent != (root / "reports").resolve():
+            path = None
+    url = public_url(record.get("url"))
+    if url and not supporting and urlsplit(url).hostname not in ("www.sec.gov", "sec.gov"):
+        url = None
+    digest, size = record.get("sha256"), record.get("body_bytes", record.get("bytes"))
+    row = {"symbol": symbol, "form": record.get("form"), "url": url,
+           "received_at_beijing": record.get("received_at_beijing") or beijing(record.get("original_body_complete_utc") or record.get("body_complete_utc")),
+           "archived_at_beijing": record.get("archived_at_beijing") or beijing(record.get("recovered_utc") or record.get("archived_utc")),
+           "bytes": size if type(size) is int and size >= 0 else None,
+           "sha256": digest if isinstance(digest, str) and re.fullmatch(r"[a-fA-F0-9]{64}", digest) else None,
+           "path": path, "discovery_to_parsed_ms": None, "latency_budget_passed": None,
+           "evidence_id": record.get("evidence_id"), "log_id": record.get("log_id"), "observer": record.get("observer", "本地")}
+    if supporting:
+        row.update({key: record.get(key) for key in ("supporting_title", "pdf_pages_total", "pdf_pages_processed", "mode", "retry",
+                    "discovered_utc", "validated_utc", "discovered_mono_ns", "validated_mono_ns", "already_present_on_first_poll",
+                    "last_negative_listing_ns", "last_negative_listing_mono_ns")})
+        row["supporting_document"] = {key: record["supporting_document"][key] for key in SUPPORT_FIELDS if key in record["supporting_document"]}
+        row["discovery_to_parsed_ms"] = milliseconds(record.get("discovery_to_parsed_ms"))
+        row["artifacts"] = [{"path": found, "label": label, "local_only": True} for suffix, label in
+                            ((".pdf", "原始股东信 PDF"), (".txt", "原生文字 TXT"), (".json", "原生文字与坐标 JSON"))
+                            if path and (found := artifact_path(root, str(PurePosixPath(path).with_suffix(suffix)), root))]
+    return row
+
+
 def read_attachments(root):
     rows = []
-    with closing(sqlite3.connect((root / "observations.sqlite3").resolve().as_uri() + "?mode=ro", uri=True)) as connection:
-        connection.execute("PRAGMA query_only=ON")
-        for (payload,) in connection.execute("SELECT payload FROM log WHERE kind='attachment' ORDER BY id DESC"):
-            record = json.loads(payload)
-            symbol = str(record.get("symbol", ""))
-            relative = PurePosixPath(str(record.get("original_document_path", "")).replace("\\", "/"))
-            path = None
-            if (len(relative.parts) >= 4 and relative.parts[:2] == ("attachments", symbol)
-                    and re.fullmatch(r"\d{18}", relative.parts[2])):
-                path = artifact_path(root, str(relative), root)
-                if path and not (root / path).resolve().is_relative_to((root / "attachments").resolve()):
-                    path = None
-            url = public_url(record.get("url"))
-            if url and urlsplit(url).hostname not in ("www.sec.gov", "sec.gov"):
-                url = None
-            digest = record.get("sha256")
-            size = record.get("body_bytes")
-            rows.append({
-                "symbol": symbol, "form": record.get("form"), "url": url,
-                "received_at_beijing": beijing(record.get("original_body_complete_utc") or record.get("body_complete_utc")),
-                "archived_at_beijing": beijing(record.get("recovered_utc")),
-                "bytes": size if isinstance(size, int) and not isinstance(size, bool) and size >= 0 else None,
-                "sha256": digest if isinstance(digest, str) and re.fullmatch(r"[a-fA-F0-9]{64}", digest) else None,
-                "path": path,
-                "discovery_to_parsed_ms": None, "latency_budget_passed": None,
-            })
+    for name in ("observations.sqlite3", "us_live_observations.sqlite3"):
+        database = root / name
+        if not database.is_file():
+            continue
+        with closing(sqlite3.connect(database.resolve().as_uri() + "?mode=ro", uri=True)) as connection:
+            connection.execute("PRAGMA query_only=ON")
+            for ident, payload in connection.execute("SELECT id,payload FROM log WHERE kind='attachment' ORDER BY id DESC"):
+                record = json.loads(payload)
+                record.setdefault("log_id", str(ident))
+                rows.append(attachment_row(record, root))
     return rows
 
 
@@ -1053,8 +1092,13 @@ def patrol_table(rows):
 def attachment_table(rows):
     output = []
     for row in rows:
-        public = f'<a href="{esc(row["url"])}" target="_blank" rel="noreferrer noopener">SEC 公开原文 ↗</a>' if row["url"] else "公开原文未提供"
+        public = f'<a href="{esc(row["url"])}" target="_blank" rel="noreferrer noopener">公开原文 ↗</a>' if row["url"] else "公开原文未提供"
         local = (f'<a class="local-artifact" href="{esc(quote(row["path"], safe="/._-"))}">本机原件</a><span class="sub">{esc(row["path"])}</span>' if row["path"] else "本机原件未找到或路径未通过检查")
+        if recognized_achr_attachment(row):
+            local += '<div class="links">' + ' · '.join(f'<a class="local-artifact" href="{esc(quote(item["path"], safe="/._-"))}">{esc(item["label"])}</a>' for item in row.get("artifacts", [])) + '</div>'
+            local += '<span class="sub">16 页原生文字已保留；图中文字与轮廓文字请查看原 PDF。非财务全文，不参与 300ms 成绩。</span>'
+            if row.get("discovery_to_parsed_ms") is not None:
+                local += f'<span class="sub">发现至原生文字解析：{row["discovery_to_parsed_ms"]:.3f} ms</span>'
         size = f'{row["bytes"]:,}' if row["bytes"] is not None else "—"
         output.append(f'<tr><td class="symbol">{esc(row["symbol"])}</td><td>{esc(row["form"] or "—")}</td><td class="document">{public}<div class="links">{local}</div><details><summary>SHA-256</summary><span style="overflow-wrap:anywhere">{esc(row["sha256"] or "未记录")}</span></details></td><td class="time">{esc(time_text(row["received_at_beijing"]))}</td><td class="time">{esc(time_text(row["archived_at_beijing"]))}</td><td class="number">{size}</td></tr>')
     return '<div class="table-scroll" style="max-height:520px"><table><thead><tr><th>公司</th><th>附件类型</th><th>原文与本机原件</th><th>原始接收 · 北京时间</th><th>恢复归档 · 北京时间</th><th class="number">字节数</th></tr></thead><tbody>' + ''.join(output) + ('' if rows else '<tr><td colspan="6" class="empty">暂无支持附件记录</td></tr>') + '</tbody></table></div>'
@@ -1083,7 +1127,7 @@ def render_html(data):
 <section><h2>云端采集记录</h2><p class="note">发现→解析不含归档和返回本机；归档、含列表请求和本机往返分别展示。重试保留首次发现时刻，不用本次尝试的快速结果冒充首次达标。私人产物需要站点权限，无权限可查看公开原文；重放记录不计入实际采集统计。</p>{cloud_capture_table(data['cloud_captures'])}</section>
 <section><h2>来源巡视状态</h2><p class="note">暂无新稿也保留最近巡视时间；等待窗口与请求失败分开显示。这里的状态不表示该公司所有资料已收齐。</p>{patrol_table(data['source_patrols'])}</section>
 <section><h2>本地实际采集的资料</h2><p class="note">{esc(data['metric'])} “—” 表示没有计时记录，不能用下载时间替代。0 达标按 0 展示。</p>{document_table(data['captures'])}</section>
-<section><details id="support-attachments" class="failure-details"><summary>{len(data['attachments'])} 份支持附件</summary><p class="note">支持附件单独展示，不计入财务文档数量或 300ms 成绩。原始接收与事后恢复归档时间分别保留；没有跨运行的完整计时，耗时保持为空。本机原件链接仅在本机打开本页时有效。</p>{attachment_table(data['attachments'])}</details></section>
+<section><details id="support-attachments" class="failure-details"><summary>{len(data['attachments'])} 份支持附件</summary><p class="note">支持附件单独展示，不计入财务文档数量或 300ms 成绩。原始接收与事后恢复归档时间分别保留；未记录完整连续计时的附件耗时保持为空。本机原件链接仅在本机打开本页时有效。</p>{attachment_table(data['attachments'])}</details></section>
 <section><h2>本地旧公开文档性能重放</h2><p class="note">{summary['replays']['passed']} / {summary['replays']['measured']} 个已计时样本在 300ms 内完成；另有 {summary['replay_failed_requests']} 次重放请求失败。这里的成功不计入实时新增验收。</p>{document_table(data['local_replays'])}</section>
 <section class="cloud"><h2>云端旧公开文档性能重放</h2><p class="note">{summary['cloud_replays']['passed']} / {summary['cloud_replays']['measured']} 个已计时样本解析通过。逐项展示所有地区与失败样本；解析耗时为记录的上界，归档耗时另列，解析达标不代表归档达标。均不含结果传回国内，不代表新发布公告 SLA。</p><div class="table-scroll"><table><thead><tr><th>公司</th><th>执行地区</th><th>样本</th><th>开始 · 北京时间</th><th>资料核验</th><th class="number">发现→解析 / ms</th><th class="number">发现→归档 / ms</th><th>解析 300ms 检查</th></tr></thead><tbody>{''.join(cloud_rows) or '<tr><td colspan="8" class="empty">暂无已保存的云端重放结果</td></tr>'}</tbody></table></div></section>
 <section><h2>失败记录</h2><p class="note">本地累计 {data['request_failures']['requests']:,} 次请求，{data['request_failures']['failed_requests']:,} 次为网络异常或 HTTP 400 及以上；另有 {summary['cloud_failed_records']:,} 条云端请求或处理失败。HTTP 304 不算失败；失败不会被计为低延迟成功。</p><details class="failure-details"><summary>按采集端、公司、渠道和错误类型查看全部累计数</summary><div class="table-scroll"><table><thead><tr><th>采集端</th><th>公司</th><th>渠道</th><th>失败类型</th><th class="number">次数</th><th>最近发生 · 北京时间</th></tr></thead><tbody>{failures or '<tr><td colspan="6" class="empty">没有失败记录</td></tr>'}</tbody></table></div></details></section>

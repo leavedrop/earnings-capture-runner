@@ -356,7 +356,8 @@ class Collector:
         html_parser = None
         html_feed_ns = 0
         browser = urlsplit(url).hostname in ("investor.msgknicks.com", "www.barrick.com",
-                                              "investors.archer.com", "investors.hims.com", "ir.lucidmotors.com", "ir.skydance.com")
+                                              "investors.archer.com", "investors.hims.com", "ir.lucidmotors.com", "ir.skydance.com",
+                                              "www.franco-nevada.com")
         kkr_api = (event.get("symbol") == "KKR" and urlsplit(url).scheme == "https"
                    and urlsplit(url).hostname == "tools.cms-eqs.com"
                    and urlsplit(url).path == "/fcf5b4/content/events/eventbox")
@@ -513,8 +514,11 @@ class Collector:
         key = (*document_key, bool(item.get("skip_sec_stream")))
         discovered_ns, last_negative, discovered_mono_ns, last_negative_mono_ns = self.first_discovered.setdefault(
             document_key, (discovered_ns, last_negative, discovered_mono_ns, last_negative_mono_ns))
-        if self.args.command == "run" and (document_key in self.captured_documents
-                or item.get("inspection_only") and document_key in self.inspected_documents):
+        scan_inherited_supplements = (self.args.command == "run" and document_key in self.captured_documents
+            and event["symbol"] == "ACHR" and channel == "official"
+            and url == "https://investors.archer.com/news/news-details/2026/Archer-Announces-Q3-2026-Results-Receives-FAA-Market-Survey-Certificate-Unlocking-LA-Operations-and-Boeing-Deal-Close-Imminent/default.aspx")
+        if self.args.command == "run" and (document_key in self.captured_documents and not scan_inherited_supplements
+                or (item.get("inspection_only") or item.get("role") == "report_supplement") and document_key in self.inspected_documents):
             return
         if key in self.active_candidates or time.monotonic() < self.candidate_retry.get(key, 0):
             return
@@ -542,6 +546,16 @@ class Collector:
                 rec, body = existing[0], existing[1]
             prepared = rec.pop("_html_tree", None)
             parser_options = {"prepared_tree": prepared} if prepared is not None else {}
+            if (rec["status"] in (301, 302, 303, 307, 308) and depth < 2 and event["symbol"] == "ACHR"
+                    and item.get("role") == "report_supplement" and urlsplit(url).hostname == "investors.archer.com"):
+                target = urljoin(url, rec["response_headers"].get("location", ""))
+                location = urlsplit(target)
+                if location.scheme == "https" and location.hostname == "s206.q4cdn.com" and location.path.lower().endswith(".pdf"):
+                    self.launch(self.candidate(session, event, channel, {**item, "url": target}, discovered_ns,
+                                               last_negative, depth+1, discovered_mono_ns=discovered_mono_ns,
+                                               last_negative_mono_ns=last_negative_mono_ns))
+                    self.candidate_retry[key] = float("inf")
+                    return
             if rec["status"] != 200:
                 self.retry_candidate(session, event, channel, item, discovered_ns, last_negative,
                                      depth, discovered_mono_ns, last_negative_mono_ns)
@@ -597,8 +611,46 @@ class Collector:
                                          "validated_ns": validated, "validated_utc": iso(validated), **parse_timing,
                                          "candidate_attempt": attempt, "attempt_started_mono_ns": attempt_started,
                                          "attempt_to_parsed_ms": (validated_mono-attempt_started)/1e6 if existing is None else None})
+            supporting = result.get("supporting_document", {})
+            if (event["symbol"] == "ACHR" and channel == "official" and supporting.get("recognized") is True
+                    and supporting.get("kind") == "shareholder_letter" and supporting.get("native_text_complete") is True
+                    and supporting.get("financial_table_count") == 0 and supporting.get("rendered_text_complete") is False
+                    and supporting.get("latency_budget_applicable") is False and supporting.get("source_sha256") == rec.get("sha256")):
+                target = self.store.root / "reports" / ("ACHR_official_" + rec["sha256"][:12])
+                target.parent.mkdir(parents=True, exist_ok=True)
+                attachment = {**rec, "form": "Shareholder letter (supporting document)", "inspection_only": True,
+                    "supporting_document": supporting, "supporting_title": result["title"],
+                    "http_response_complete": True, "original_document_path": str(target.with_suffix(".pdf").relative_to(self.store.root)),
+                    "discovered_ns": discovered_ns, "discovered_utc": iso(discovered_ns), "discovered_mono_ns": discovered_mono_ns,
+                    "last_negative_listing_ns": last_negative, "last_negative_listing_mono_ns": last_negative_mono_ns,
+                    "already_present_on_first_poll": bool(item.get("old_document")) or last_negative is None,
+                    "old_document": bool(item.get("old_document")), "retry": attempt > 1,
+                    "validated_ns": validated, "validated_utc": iso(validated), **parse_timing,
+                    "discovery_to_parsed_ms": discovery_to_parsed, "latency_budget_passed": None,
+                    "pdf_pages_total": result["pdf_pages_total"], "pdf_pages_processed": result["pdf_pages_processed"],
+                    "completion_scope": "supporting_original_and_native_text_received",
+                    "inspection_semantics": "Native text preserved; outlined or raster lettering remains in the original PDF; not a financial report"}
+                parsed = {name: result[name] for name in ("text", "tables", "table_spans", "page_diagnostics", "pdf_pages_total",
+                          "pdf_pages_processed", "pdf_pages_text_extracted", "supporting_document")}
+                parsed["pdf_metadata"] = {"title": result["pdf_metadata"]["title"]}
+                def write_support():
+                    target.with_suffix(".pdf").write_bytes(body)
+                    target.with_suffix(".txt").write_text(result["text"], encoding="utf-8")
+                    atomic_json(target.with_suffix(".json"), parsed)
+                archive_task = asyncio.current_task()
+                self.archive_tasks.add(archive_task)
+                try:
+                    await asyncio.to_thread(write_support)
+                    attachment["archived_utc"] = iso(self.clock.stamp()[1])
+                    self.store.add("attachment", attachment)
+                finally:
+                    self.archive_tasks.discard(archive_task)
+                self.inspected_documents.add((event["symbol"], channel, document_url))
+                self.candidate_retry[key] = float("inf")
+                self.summary()
+                return
             duplicate_document = self.args.command == "run" and (event["symbol"], channel, document_url) in self.captured_documents
-            if result.get("accepted") and duplicate_document:
+            if result.get("accepted") and duplicate_document and not scan_inherited_supplements:
                 # A previously archived stream target is terminal for this URL too.
                 self.candidate_retry[key] = float("inf")
             if result.get("accepted") and not duplicate_document:
@@ -661,11 +713,17 @@ class Collector:
                 if channel == "official" and not getattr(self.args, "candidate_url", None) and result.get("document_format") != "xlsx":
                     self.follow_original_wire(session, event, body, rec["body_complete_ns"], rec["body_complete_mono_ns"])
                 self.summary()
-            elif not result.get("accepted") and depth < 2:
-                if not result.get("checks", {}).get("reporting_period", False) or not result.get("checks", {}).get("not_announcement", True):
+            if depth < 2 and (not result.get("accepted") or
+                              event["symbol"] == "ACHR" and channel == "official" and not body.startswith(b"%PDF")):
+                if not result.get("accepted") and (not result.get("checks", {}).get("reporting_period", False)
+                                                   or not result.get("checks", {}).get("not_announcement", True)):
                     self.candidate_retry[key] = time.monotonic() + 120
                 children = ([] if result.get("document_format") == "xlsx" else
                             await asyncio.to_thread(discover, body, rec["final_url"], ctype, event))
+                if result.get("accepted"):
+                    children = [child for child in children if child.get("role") == "report_supplement"]
+                if scan_inherited_supplements and children:
+                    self.candidate_retry[key] = float("inf")
                 if channel == "sec" and item.get("role") == "filing_index" and children:
                     self.store.add("filing_documents", {"symbol": event["symbol"], "channel": channel,
                                                        "run_id": self.run_id, "index_url": url,
@@ -681,9 +739,12 @@ class Collector:
                     if child["url"] != url:
                         child.setdefault("sec_accepted_at", item.get("sec_accepted_at"))
                         child.setdefault("listing_request_id", item.get("listing_request_id"))
+                        if scan_inherited_supplements:
+                            child["old_document"] = True
                         self.launch(self.candidate(session, event, channel, child, discovered_ns, last_negative, depth+1,
                                                    discovered_mono_ns=discovered_mono_ns, last_negative_mono_ns=last_negative_mono_ns))
-                if not children and result.get("checks", {}).get("reporting_period") and result.get("checks", {}).get("identity"):
+                if (not children and (scan_inherited_supplements or not result.get("accepted")
+                        and result.get("checks", {}).get("reporting_period") and result.get("checks", {}).get("identity"))):
                     self.retry_candidate(session, event, channel, item, discovered_ns, last_negative,
                                          depth, discovered_mono_ns, last_negative_mono_ns)
             if rec.get("target_document_complete"):
@@ -722,7 +783,9 @@ class Collector:
         delay = 2 if age <= 300 else 60
         async def retry():
             await asyncio.sleep(delay)
-            if self.stop.is_set() or self.clock.stamp()[1]/1e9 > epoch(event["window_end"])+86400:
+            now = self.clock.stamp()[1]/1e9
+            if (self.stop.is_set() or now >= epoch(self.args.until)
+                    or channel != "sec" and now > epoch(event["window_end"])+86400):
                 return
             await self.candidate(session, event, channel, item, discovered_ns, last_negative, depth,
                                  discovered_mono_ns=discovered_mono_ns, last_negative_mono_ns=last_negative_mono_ns)
@@ -750,6 +813,9 @@ class Collector:
         channel, url = source["channel"], source["url"]
         key = (event["symbol"], channel)
         status_key = event["symbol"] + ":" + channel
+        multiple_entries = sum(entry["channel"] == channel for entry in event.get("sources", [])) > 1
+        if multiple_entries:
+            status_key += ":" + url
         self.status[status_key] = {"state": "waiting_for_source_budget", "url": url}
         last_negative = None
         last_negative_mono = None
@@ -760,12 +826,16 @@ class Collector:
         while not self.stop.is_set():
             now = self.clock.stamp()[1]/1e9
             start, end = epoch(event["window_start"]), epoch(event["window_end"])
+            if not once and now >= epoch(self.args.until):
+                return
             if not once and now < start and preflight_done:
                 self.status[status_key].update(state="scheduled", url=url, window_start=event["window_start"])
                 await asyncio.sleep(min(30, start-now))
                 continue
-            if not once and now > end + 86400:
-                self.status.setdefault(status_key, {}).update({"state": "captured" if key in self.completed else "window_expired_without_capture", "url": url})
+            if not once and channel != "sec" and now > end + 86400 and preflight_done:
+                # A sibling entry's capture proves nothing about this URL.
+                state = "window_expired" if multiple_entries else "captured" if key in self.completed else "window_expired_without_capture"
+                self.status[status_key].update(state=state, url=url)
                 return
             # Forecasts only select density; broad release windows remain monitored.
             target = epoch(event.get("forecast_at") or event["scheduled_at"])

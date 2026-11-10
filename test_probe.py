@@ -259,8 +259,18 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
         from contextlib import asynccontextmanager
         from curl_cffi.const import CurlHttpVersion, CurlOpt
         from io import BytesIO
+        from probe import execution_hardware
         import zipfile
 
+        cpu_output = json.dumps({"lscpu": [{"field":"Model name:","data":"Neoverse fixture"},
+                                           {"field":"Hostname:","data":"SECRET_TEST_HOST"}]})
+        with patch("probe.platform.machine", return_value="aarch64"), \
+                patch("probe.platform.system", return_value="Linux"), \
+                patch("probe.os.cpu_count", return_value=4), \
+                patch("probe.subprocess.run", return_value=MagicMock(stdout=cpu_output)):
+            hardware = execution_hardware()
+        self.assertEqual(hardware, {"machine":"aarch64","logical_cpus":4,"cpu_model":"Neoverse fixture",
+                                    "cpu_model_source":"lscpu Model name"})
         targets = select_targets(json.loads((BASE / "targets.json").read_text(encoding="utf-8")), "skyd-materials")
         self.assertEqual(len(targets), 2)
         self.assertTrue(all(target["purpose"] == "material_download" for target in targets))
@@ -306,6 +316,7 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
             with tempfile.TemporaryDirectory() as directory:
                 args = argparse.Namespace(targets=BASE / "targets.json", output=Path(directory) / "outputs", scope=scope)
                 with patch("browser_transport.browser_session", return_value=session), \
+                        patch("probe.execution_hardware", return_value=hardware), \
                         patch("browser_transport.browser_response", transfer), \
                         patch("browser_transport.browser_timing", return_value=native_timing), \
                         patch("probe.identify_node", new_callable=AsyncMock, return_value={"loc": "US", "colo": "TEST", "is_us": True, "status": 200}), \
@@ -343,6 +354,11 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(warmup["url"], targets[0]["listing_url"])
                 self.assertIsNotNone(warmup["request_total_ms"])
                 summary = json.loads((args.output / "summary.json").read_text())
+                run_metadata = json.loads((args.output / "run.json").read_text())
+                self.assertEqual(run_metadata["execution_environment"], hardware)
+                self.assertEqual(summary["execution_environment"], hardware)
+                self.assertIn("not the runner data-center", run_metadata["node_semantics"])
+                self.assertNotIn("SECRET_TEST_HOST", json.dumps(run_metadata))
                 self.assertEqual(summary["material_downloaded"], len(selected_targets) - int(interrupted))
                 self.assertEqual((summary["complete"], summary["passed"]), (0, 0))
                 self.assertFalse(summary["sla_applicable"])

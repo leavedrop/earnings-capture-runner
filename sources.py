@@ -25,8 +25,8 @@ _ANNOUNCEMENT = re.compile(
     r"(?:earnings|results)\s+(?:conference\s+)?call|webcast\s+to\s+discuss)\b", re.I)
 _FINANCIAL = re.compile(r"\b(?:results|earnings|financial\s+(?:statements|report)|"
                         r"quarterly\s+report|shareholder\s+letter|form\s+10-[qk])\b", re.I)
-_METRICS = re.compile(r"\b(?:revenues?|net\s+(?:income|loss)|earnings\s+per\s+share|"
-                      r"assets|liabilities|cash\s+flows?|operating\s+(?:income|loss)|"
+_METRICS = re.compile(r"\b(?:revenues?|net\s+(?:income|loss|earnings)|earnings\s+per\s+share|"
+                      r"assets|liabilities|cash\s+flows?|operating\s+(?:income|loss|earnings)|"
                       r"diluted|balance\s+sheets?)\b", re.I)
 _ORDINAL = {1: "first", 2: "second", 3: "third", 4: "fourth"}
 _PDF_LOCK = threading.Lock()  # PyMuPDF table extraction mutates module-global CHARS/EDGES.
@@ -60,6 +60,7 @@ def _normal(value):
 
 def _target(text, event):
     """Require quarter and fiscal year in the same short phrase."""
+    text = text.replace("_", " ")  # SEC exhibit titles use separators such as Ex 99_Q3'26.
     q, year = int(event["quarter"]), int(event["fiscal_year"])
     quarter = rf"(?:Q\s*{q}|{q}\s*Q|{_ORDINAL[q]}[\s-]+quarter|quarter\s+{q})"
     yr = rf"(?:FY\s*)?(?:{year}|['’]{str(year)[2:]})"
@@ -424,7 +425,9 @@ def listing_structure(body: bytes, url: str, content_type: str, event: dict) -> 
                     and all(isinstance(row, dict) and isinstance(row.get("boxItems"), list)
                             for row in payload["hydra:member"])):
                 return "Official KKR event document entries with published file paths"
-            if parsed.hostname == "www.barrick.com" and parsed.path == "/Services/PressReleaseService.svc/GetPressReleaseList" and event.get("symbol") == "B":
+            if (event.get("symbol"), parsed.hostname, parsed.path) in (
+                    ("B", "www.barrick.com", "/Services/PressReleaseService.svc/GetPressReleaseList"),
+                    ("FNV", "www.franco-nevada.com", "/feed/PressRelease.svc/GetPressReleaseList")):
                 entries = payload.get("GetPressReleaseListResult") if isinstance(payload, dict) else None
                 if isinstance(entries, list) and all(isinstance(row, dict) and row.get("Headline") and row.get("LinkToDetailPage") for row in entries):
                     return "Official Q4 press release entries with titles and document links"
@@ -459,6 +462,18 @@ def listing_structure(body: bytes, url: str, content_type: str, event: dict) -> 
                     return "Parsed public feed with titled entry links"
             return None
         document = _document(body)
+        if event.get("symbol") == "OKLO" and parsed.hostname == "oklo.com" and parsed.path.rstrip("/") == "/newsroom":
+            for link in document.xpath(".//h2/a[@href]"):
+                target = urlparse(urljoin(url, link.get("href")))
+                if target.hostname == parsed.hostname and target.path.startswith("/newsroom/") and _clean(_text(link)):
+                    return "Official Oklo newsroom with titled release cards"
+        if (event.get("symbol") == "BRK.B" and parsed.hostname == "www.berkshirehathaway.com"
+                and parsed.path == f"/news/{event['fiscal_year']}news.html"):
+            for entry in document.iter("dl"):
+                description = next(entry.iter("dd"), None)
+                if (description is not None and _clean(_text(description))
+                        and any(link.get("href", "").endswith(".pdf") for link in entry.iter("a"))):
+                    return "Official Berkshire dated news entries with PDF documents and release descriptions"
         if (event.get("symbol") == "SKYD" and parsed.hostname == "ir.skydance.com"
                 and parsed.path.rstrip("/") == "/financials/quarterly-results"):
             for link in document.xpath(".//div[contains(concat(' ', normalize-space(@class), ' '), ' qr-doc-list ')]//a[@href]"):
@@ -595,13 +610,20 @@ def discover(body: bytes, url: str, content_type: str, event: dict) -> list[dict
                                                 discovery_route="official_eqs_event_document",
                                                 source_document_date=document.get("date")))
             return found
-        if hostname == "www.barrick.com" and urlparse(url).path == "/Services/PressReleaseService.svc/GetPressReleaseList" and event.get("symbol") == "B":
+        if (event.get("symbol"), hostname, urlparse(url).path) in (
+                ("B", "www.barrick.com", "/Services/PressReleaseService.svc/GetPressReleaseList"),
+                ("FNV", "www.franco-nevada.com", "/feed/PressRelease.svc/GetPressReleaseList")):
             for row in payload.get("GetPressReleaseListResult", []):
                 title = row.get("Headline", "")
                 if not (_target(title, event) and _FINANCIAL.search(title) and _identity(title, event)) or _ANNOUNCEMENT.search(title):
                     continue
-                target = _url(url, row.get("LinkToDetailPage", ""))
-                if not target or urlparse(target).hostname != hostname:
+                target = _url(url, (row.get("DocumentPath") if event.get("symbol") == "FNV" else None)
+                              or row.get("LinkToDetailPage", ""))
+                parsed_target = urlparse(target) if target else None
+                issuer_cdn = (event.get("symbol") == "FNV" and parsed_target is not None
+                              and parsed_target.scheme == "https" and parsed_target.hostname == "s201.q4cdn.com"
+                              and parsed_target.path.startswith("/345177888/files/"))
+                if not parsed_target or not (parsed_target.hostname == hostname or issuer_cdn):
                     continue
                 try:
                     published = datetime.strptime(row.get("PressReleaseDate", ""), "%m/%d/%Y %H:%M:%S").replace(tzinfo=ZoneInfo("America/New_York")).isoformat()
@@ -666,6 +688,27 @@ def discover(body: bytes, url: str, content_type: str, event: dict) -> list[dict
         return found
     tree = _document(body)
     _drop_content(tree, "script", "style")
+    if hostname == "investors.archer.com" and event.get("symbol") == "ACHR":
+        title_node = next(tree.iter("title"), None)
+        headline = _clean(_text(title_node)) if title_node is not None else ""
+        if _target(headline, event) and _FINANCIAL.search(headline) and not _ANNOUNCEMENT.search(headline):
+            letter_path = f"/ShareholderLetter-Q{event['quarter']}{str(event['fiscal_year'])[-2:]}"
+            for anchor in tree.iter("a"):
+                href = anchor.get("href")
+                if not href:
+                    continue
+                target = _url(url, href)
+                parsed = urlparse(target) if target else None
+                if parsed and parsed.hostname == "cts.businesswire.com" and parsed.path == "/ct/CT":
+                    query = parse_qs(parsed.query)
+                    if query.get("id") == ["smartlink"] and len(query.get("url", [])) == 1:
+                        target = _url(url, query["url"][0])
+                        parsed = urlparse(target) if target else None
+                if (parsed and parsed.scheme == "https" and parsed.hostname == hostname
+                        and parsed.path == letter_path and not parsed.query):
+                    found.append(_candidate(target, f"Archer Q{event['quarter']} {event['fiscal_year']} Shareholder Letter",
+                                            role="report_supplement"))
+            return list({item["url"]: item for item in found}.values())
     if (hostname == "ir.skydance.com" and event.get("symbol") == "SKYD"
             and urlparse(url).path.rstrip("/") == "/financials/quarterly-results"):
         for anchor in tree.xpath(".//div[contains(concat(' ', normalize-space(@class), ' '), ' qr-doc-list ')]//a[@href]"):
@@ -679,6 +722,18 @@ def discover(body: bytes, url: str, content_type: str, event: dict) -> list[dict
                 found.append(_candidate(target, title))
         return list({item["url"]: item for item in found}.values())
     if hostname == "www.berkshirehathaway.com" and event.get("symbol") == "BRK.B":
+        if urlparse(url).path == f"/news/{event['fiscal_year']}news.html":
+            for entry in tree.iter("dl"):
+                description = next(entry.iter("dd"), None)
+                title = _clean(_text(description)) if description is not None else ""
+                if (not _target(title, event) or not _FINANCIAL.search(title)
+                        or re.search(r"information regarding", title, re.I) or _ANNOUNCEMENT.search(title)):
+                    continue
+                for anchor in entry.iter("a"):
+                    target = _url(url, anchor.get("href", ""))
+                    if target and urlparse(target).hostname == hostname and urlparse(target).path.endswith(".pdf"):
+                        found.append(_candidate(target, title, _stamp(_clean(_text(anchor)))))
+            return found
         # The official reports grid uses image-only links, then a quarterly
         # index. Match the published link itself; do not guess a PDF URL.
         ordinal = {1: "1st", 2: "2nd", 3: "3rd", 4: "4th"}[int(event["quarter"])]
@@ -976,6 +1031,20 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
                 "checks": {"full_report": False}, "tables_complete": False, "tables_extraction_scope": "not_a_report"}
     if body.startswith(b"PK\x03\x04") or XLSX_CONTENT_TYPE in content_type.lower():
         return _validate_skyd_xlsx(body, url, content_type, event)
+    if (event.get("symbol") == "ACHR" and body.startswith(b"%PDF")
+            and url == "https://s206.q4cdn.com/823642595/files/content_files/Archer-Letter-to-Shareholders-_-Q3-2026.pdf"):
+        from pdf_tables import extract_achr_shareholder_pdf
+        with _PDF_LOCK:
+            supporting = extract_achr_shareholder_pdf(body)
+        title = supporting["pdf_metadata"].get("title", "")
+        identity = supporting["supporting_document"]["recognized"]
+        current = bool(identity and _target(title, event))
+        supporting["supporting_document"]["recognized"] &= current
+        return {**supporting, "accepted": False,
+                "reason": "supporting_shareholder_letter_not_financial_report" if current else "unverified_supporting_document",
+                "title": title, "publisher_timestamp": _stamp(None),
+                "checks": {"identity": identity, "reporting_period": _target(title, event),
+                           "not_announcement": True, "financial_tables": False}}
     tables = []
     table_spans = []
     timestamp = _stamp(None)
@@ -988,7 +1057,8 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
         title = text = ""
         try:
             parsed_url = urlparse(url)
-            if event.get("symbol") == "BRK.B" and parsed_url.hostname in ("berkshirehathaway.com", "www.berkshirehathaway.com") and parsed_url.path.startswith("/qtrly/"):
+            if (event.get("symbol") == "BRK.B" and parsed_url.hostname in ("berkshirehathaway.com", "www.berkshirehathaway.com")
+                    and (parsed_url.path.startswith("/qtrly/") or parsed_url.path == "/news/nov0726.pdf")):
                 from pdf_tables import extract_pdf_tables
                 with _PDF_LOCK:
                     native_pdf = extract_pdf_tables(body)
@@ -1024,6 +1094,14 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
                 pdf_pages_total = native_pdf["pdf_pages_total"]
                 pdf_pages_processed = native_pdf["pdf_pages_processed"]
                 title = native_pdf["pdf_metadata"]["title"] if event.get("symbol") == "SKYD" and url == SKYD_PDF_URL else _pdf_title(text)
+                if event.get("symbol") == "BRK.B" and parsed_url.path == "/news/nov0726.pdf":
+                    current_columns = [[rows[0][1], rows[1][1]] for rows in tables
+                                       if len(rows) >= 2 and len(rows[0]) >= 2 and len(rows[1]) >= 2]
+                    cover = {"identity": _identity(title, event),
+                             "reporting_period": len(current_columns) == 2 and all(
+                                 quarter.lower() == _ORDINAL[int(event["quarter"])] + " quarter"
+                                 and year == str(event["fiscal_year"]) for quarter, year in current_columns),
+                             "facts": {"primary_current_period_columns": current_columns}}
         except Exception as exc:
             return {"accepted": False, "reason": "pdf_parse_error: " + type(exc).__name__,
                     "title": title, "text": "\n".join(pages), "tables": tables, "publisher_timestamp": timestamp,

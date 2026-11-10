@@ -1,25 +1,25 @@
 {
   "watch.py": {
-    "sha256": "fa389938ecd81682e1942a7510452c3efd1a3fe8997cb5a751d017e25dcfca9e",
-    "production_sha256": "804640be9512309d63e3e817ff09daf74f3839a205a4404ca61d222c9c2b5277",
+    "sha256": "62e9c8a1b28ba0ec18ffe4da671740dd1e1126c427632ae11b8b9bcf6d7c6c69",
+    "production_sha256": "307a9bb976d46932b9f5fc719c23a9e2152d2c0df9b6ff8d993e6e56221834d3",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "watch.py"
   },
   "sources.py": {
-    "sha256": "3384bc684ee11bfe70c5dcb76bbb803ab0bbb01ca13959290bb6734685139f37",
-    "production_sha256": "c3049a199ba0306aa3b4e202faa9822e1eb7e92bada1aeb50e5524b1fbfb1995",
+    "sha256": "9e6af8de7f4546996da40139be0efaa41203cf72a9ea10c4a51aa3c81cf23378",
+    "production_sha256": "b408a459ce86f6296d286d7c41d5e52ec3c31e59d9506506a38c56527d1d2794",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "sources.py"
   },
   "pdf_tables.py": {
-    "sha256": "e5f60dbcfbb6bb64b8a8ffd31952fc3bf1d18a387f3ef5369609f3d14692bc3a",
-    "production_sha256": "625e470f96e43a14168903a778695a129507d0286646caec5a3b212e59cf2a61",
+    "sha256": "1fd3c4a95b68765cb3c476d765f6fdf9575228935611e0a17811a6941f8070fa",
+    "production_sha256": "aa572794457f1e16bf02be8a56ce04563152d2d39d0b8dee99784a31dbc862f5",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "pdf_tables.py"
   },
   "progress.py": {
-    "sha256": "aaa5ead82b8dea65b9b1a1d1dfc4fc13c9818d06402f3b378ba288d1f169acda",
-    "production_sha256": "aaa5ead82b8dea65b9b1a1d1dfc4fc13c9818d06402f3b378ba288d1f169acda",
+    "sha256": "14e3d050c97a807ffa87d70228735341c169c370adce817888030658a3f7382d",
+    "production_sha256": "14e3d050c97a807ffa87d70228735341c169c370adce817888030658a3f7382d",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "progress.py"
   },
@@ -42,8 +42,8 @@
     "source": "browser_transport.py"
   },
   "watchlist.json": {
-    "sha256": "74467a0faa00f6e71179d6250022e224aa7699ed893b7d8ef19ddfe0fa11ce41",
-    "production_sha256": "b66c813ee6c52bc224204a6b0f8cd2af1845ab0f7c5063025949c01c2973084f",
+    "sha256": "0c11f5afd05afb8623cbd1cf7c6702368b335144ccfdc0bf0315dce10b0edddf",
+    "production_sha256": "4ab7d67982baab0887d70705c10a1566ea7ddba05769d4bfd9e0508953f5268e",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "watchlist.json"
   },
