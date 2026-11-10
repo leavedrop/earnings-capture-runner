@@ -351,6 +351,8 @@ class Collector:
         body = b""
         exhibit = None
         extractor = None
+        html_parser = None
+        html_feed_ns = 0
         browser = urlsplit(url).hostname in ("investor.msgknicks.com", "www.barrick.com",
                                               "investors.archer.com", "investors.hims.com")
         kkr_api = (event.get("symbol") == "KKR" and urlsplit(url).scheme == "https"
@@ -377,17 +379,32 @@ class Collector:
             async with transfer as response:
                 headers_mono = None if browser else time.perf_counter_ns()
                 headers_at = None if browser else frozen_stamp()[1]
+                if (not browser and not sec_exhibit and purpose == "candidate" and event.get("symbol") == "B"
+                        and channel == "sec" and response.status_code == 200
+                        and "html" in response.headers.get("content-type", "").lower()):
+                    from lxml import etree
+                    html_parser = etree.HTMLParser()
                 if browser:
                     chunks.extend(response.content)
                 else:
                     async for chunk in response.aiter_bytes():
                         receive(chunk)
+                        if html_parser is not None:
+                            feed_start = time.perf_counter_ns()
+                            html_parser.feed(chunk)
+                            html_feed_ns += time.perf_counter_ns() - feed_start
                         if extractor is not None:
                             exhibit = extractor.feed(chunk)
                             if exhibit is not None:
                                 break
             done_mono = time.perf_counter_ns()
             raw_done, done = frozen_stamp()
+            if html_parser is not None:
+                feed_start = time.perf_counter_ns()
+                record["_html_tree"] = html_parser.close()
+                html_feed_ns += time.perf_counter_ns() - feed_start
+                record["html_stream_parse_ms"] = html_feed_ns / 1e6
+                record["download_includes_html_tree_build"] = True
             container_received = len(chunks)
             body = exhibit["body"] if exhibit is not None else bytes(chunks)
             record.update({"status": response.status_code, "final_url": str(response.url),
@@ -474,12 +491,12 @@ class Collector:
             record["evidence_persisted_mono_ns"] = time.perf_counter_ns()
             self.store.add("request", record)
 
-    async def validate_document(self, body, url, content_type, event):
+    async def validate_document(self, body, url, content_type, event, *, prepared_tree=None):
         from sources import validate
         queued = time.perf_counter_ns()
         def parse():
             started = time.perf_counter_ns()
-            result = validate(body, url, content_type, event)
+            result = validate(body, url, content_type, event, **({"prepared_tree": prepared_tree} if prepared_tree is not None else {}))
             finished = time.perf_counter_ns()
             return result, {"validation_queued_mono_ns": queued, "validation_start_mono_ns": started,
                             "validated_mono_ns": finished, "validation_queue_ms": (started-queued)/1e6,
@@ -521,6 +538,8 @@ class Collector:
                     rec, body = await self.fetch(session, url, event, channel, "candidate", conditional=False)
             else:
                 rec, body = existing[0], existing[1]
+            prepared = rec.pop("_html_tree", None)
+            parser_options = {"prepared_tree": prepared} if prepared is not None else {}
             if rec["status"] != 200:
                 self.retry_candidate(session, event, channel, item, discovered_ns, last_negative,
                                      depth, discovered_mono_ns, last_negative_mono_ns)
@@ -530,7 +549,7 @@ class Collector:
             result = None
             parse_timing = None
             if channel == "sec" and not item.get("inspection_only"):
-                result, parse_timing = await self.validate_document(body, document_url, ctype, event) if existing is None else existing[2:]
+                result, parse_timing = await self.validate_document(body, document_url, ctype, event, **parser_options) if existing is None else existing[2:]
                 supporting_title = sec_supporting_title(item.get("form"), item.get("title"),
                                                         body=body, event=event, validation=result)
                 if supporting_title:
@@ -558,7 +577,7 @@ class Collector:
                 self.candidate_retry[key] = float("inf")
                 return
             if result is None:
-                result, parse_timing = await self.validate_document(body, document_url, ctype, event) if existing is None else existing[2:]
+                result, parse_timing = await self.validate_document(body, document_url, ctype, event, **parser_options) if existing is None else existing[2:]
             validated_mono = parse_timing["validated_mono_ns"]
             validated = rec["body_complete_ns"] + (validated_mono-rec["body_complete_mono_ns"])
             discovery_to_parsed = (validated_mono-discovered_mono_ns)/1e6 if discovered_mono_ns is not None else None
@@ -718,6 +737,7 @@ class Collector:
         last_negative = None
         last_negative_mono = None
         last_sha = None
+        found = None
         last_listing_basis = None
         preflight_done = False
         while not self.stop.is_set():
@@ -752,16 +772,18 @@ class Collector:
                     digest = rec.get("sha256") or rec.get("reused_sha256")
                     ctype = rec.get("response_headers", {}).get("content-type") or self.cache.get(url, {}).get("content_type", "")
                     seen_at = rec["body_complete_ns"]
-                    # Revisit unresolved candidates on unchanged lists; a title can precede its body.
-                    found = await asyncio.to_thread(discover, body, rec.get("final_url", url), ctype, event)
-                    if channel == "sec":
-                        # A submissions entry already supplies the quarterly body.
-                        # Its index must not consume the body's reserved request slot.
-                        found.sort(key=lambda item: 0 if item.get("form") in ("10-Q", "10-K") and item.get("role") != "filing_index" else 1)
+                    if found is None or digest is None or digest != last_sha:
+                        found = await asyncio.to_thread(discover, body, rec.get("final_url", url), ctype, event)
+                        if channel == "sec":
+                            # A submissions entry already supplies the quarterly body.
+                            # Its index must not consume the body's reserved request slot.
+                            found.sort(key=lambda item: 0 if item.get("form") in ("10-Q", "10-K") and item.get("role") != "filing_index" else 1)
                     previous_negative = last_negative
                     previous_negative_mono = last_negative_mono
+                    # Retry unchanged candidates without reparsing the listing or
+                    # sharing this request's observation metadata with older tasks.
                     for item in (found if channel == "sec" else found[:20]):
-                        item["listing_request_id"] = rec["id"]
+                        item = {**item, "listing_request_id": rec["id"]}
                         self.launch(self.candidate(session, event, channel, item, seen_at, previous_negative,
                                                    discovered_mono_ns=rec["body_complete_mono_ns"], last_negative_mono_ns=previous_negative_mono))
                     is_report = False
@@ -1026,6 +1048,15 @@ class Collector:
                 event = events[0]
                 channel = self.args.channel
                 seed = next(s["url"] for s in event["sources"] if s["channel"] == channel)
+                warmup_url = getattr(self.args, "sec_warmup_url", None)
+                if warmup_url:
+                    if channel != "sec" or not warmup_url.startswith("https://www.sec.gov/Archives/") or warmup_url == self.args.candidate_url:
+                        raise ValueError("Replay warmup must be a different public SEC archive URL")
+                    warmup_record, warmup_body = await self.fetch(session, warmup_url, event, channel, "warmup", conditional=False, method="HEAD")
+                    await self.persist_request(warmup_record, warmup_body)
+                    # This is before the first listing observation. Let the
+                    # startup request expire from the shared rolling budget.
+                    await asyncio.sleep(1)
                 seed_record, seed_body = await self.fetch(session, seed, event, channel, "discovery")
                 await self.persist_request(seed_record, seed_body)
                 for sample in range(self.args.samples):
@@ -1087,6 +1118,7 @@ def main():
     parser.add_argument("--output", default=str(BASE / "runtime"))
     parser.add_argument("--symbols", default="")
     parser.add_argument("--candidate-url", default=None, help="Replay a known public document through the actual capture pipeline; probe only")
+    parser.add_argument("--sec-warmup-url", default=None, help="HEAD a different SEC archive URL before a replay's first listing observation; no target body prefetch")
     parser.add_argument("--channel", choices=["official", "sec", "newswire"], default="official")
     parser.add_argument("--samples", type=int, default=5, help="Bounded replay samples, including any cold connection")
     parser.add_argument("--sec-rps", type=int, choices=range(1, 9), default=8,

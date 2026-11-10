@@ -608,6 +608,7 @@
       "41267d1b1391558b40fbec1cbf6c4fdbe12f0c345ee298411f9657783b7b5eb4",
       "13c3eda2a954fa7919f4945bec91aa524978cc411832d4059e21e4f04a56b8d5",
       "f78c43f0e821560d7384b6bc54f4297144629a5d6b13524abf8998118857b7f6"
-    ]
+    ],
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/"
   }
 }

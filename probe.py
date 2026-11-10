@@ -90,9 +90,8 @@ def select_targets(targets, scope):
         return [{"target_id": symbol + "_repaired_full_report", "channel": "sec" if symbol == "B" else "newswire" if symbol == "FNV" else "official",
                  "url": references[symbol + "_REPAIR"]["url"], "reference": references[symbol + "_REPAIR"],
                  "event": {**events[symbol], **references[symbol + "_REPAIR"].get("event_override", {})},
-                 "cache_profile": "ordinary",
-                 **({"pipeline": "production_watch_list_seed"} if symbol in ("LCID", "FNV", "B") else
-                    {"transport": "curl_cffi_chrome"})} for symbol in ("LCID", "FNV", "ACHR", "HIMS", "B")]
+                 "cache_profile": "ordinary", "pipeline": "production_watch_list_seed"}
+                for symbol in ("LCID", "FNV", "ACHR", "HIMS", "B")]
     if scope == "all":
         return targets
     if scope == "msgk-production-issuer":
@@ -379,6 +378,8 @@ async def collect_watch_case(target, output, node):
             if target["channel"] == "sec":
                 child_env["SEC_USER_AGENT"] = os.environ.get("SEC_USER_AGENT", "")
                 command.extend(["--sec-rps", "2"])
+                if target["reference"].get("connection_warmup_url"):
+                    command.extend(["--sec-warmup-url", target["reference"]["connection_warmup_url"]])
             result = await asyncio.to_thread(subprocess.run, command, cwd=BASE / "live", env=child_env,
                                              capture_output=True, timeout=180)
             row["collector_exit_code"] = result.returncode
@@ -395,7 +396,8 @@ async def collect_watch_case(target, output, node):
                             "queue_ms", "queue_reasons", "request_total_ms", "response_headers_received_ms", "body_download_ms",
                             "first_body_callback_ms", "connection_reused", "new_tcp_connections", "sha256", "body_bytes",
                             "cooldown_seconds", "cooldown_scope", "transport", "transport_version", "curl_cumulative_ms",
-                            "header_timing_semantics", "body_timing_semantics", "http_response_complete")
+                            "header_timing_semantics", "body_timing_semantics", "http_response_complete",
+                            "html_stream_parse_ms", "download_includes_html_tree_build")
             for index, request in enumerate(requests):
                 safe = {key: request[key] for key in request_keys if key in request}
                 if request.get("error"):
@@ -411,11 +413,14 @@ async def collect_watch_case(target, output, node):
                     row["seed"] = safe
                     row["seed_listing_contains_candidate"] = any(item["url"].rstrip("/") == target["url"].rstrip("/")
                          for item in discover(raw, request.get("final_url", request["url"]), "text/html", discovery_event)) if raw and request.get("status") == 200 else False
+                elif request["purpose"] == "warmup":
+                    row.setdefault("connection_warmups", []).append(safe)
                 else:
                     row.update(status=request.get("status"), queue_ms=request.get("queue_ms"),
                                headers_ms=request.get("response_headers_received_ms"), request_total_ms=request.get("request_total_ms"),
                                http_version=request.get("http_version"), connection_reused=request.get("connection_reused"))
-                    row.update({key: request[key] for key in ("transport", "transport_version", "curl_cumulative_ms", "header_timing_semantics", "body_timing_semantics") if key in request})
+                    row.update({key: request[key] for key in ("transport", "transport_version", "curl_cumulative_ms", "header_timing_semantics", "body_timing_semantics",
+                        "html_stream_parse_ms", "download_includes_html_tree_build") if key in request})
                     if target.get("document_variant"):
                         row["actual_source_url"] = request.get("final_url", target["url"])
                     body_verified = bool(raw) and len(raw) == request.get("body_bytes") and digest(raw) == request.get("sha256")
@@ -461,7 +466,7 @@ async def collect_watch_case(target, output, node):
                            listing_request_id=capture.get("listing_request_id"),
                            discovery_to_archive_ms=None, archive_timing_note="Production archive completion has no recorded continuous timestamp; CLI end is only an upper bound")
                 if requests:
-                    row["seed_request_to_parsed_ms"] = (capture["validated_mono_ns"] - requests[0]["queued_mono_ns"]) / 1e6
+                    row["seed_request_to_parsed_ms"] = (capture["validated_mono_ns"] - row["seed"]["queued_mono_ns"]) / 1e6
                 name = "parsed/" + target["target_id"] + ".json"
                 (output / name).write_text(json.dumps(parsed, ensure_ascii=False), encoding="utf-8")
                 row["artifacts"].append(name)

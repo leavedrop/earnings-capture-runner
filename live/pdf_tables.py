@@ -914,12 +914,14 @@ def _extract_lcid_tagged_batch(body, batch_index, batch_count):
     texts, details, diagnostics, errors = [], [], [], []
     with fitz.open(stream=body, filetype="pdf") as document:
         count = len(document)
-        first, last = batch_index * count // batch_count, (batch_index + 1) * count // batch_count
+        # Financial appendices cluster at the end. Interleave complete pages so
+        # one worker does not own 84% of the cells while the others wait idle.
+        page_indices = list(range(batch_index, count, batch_count))
         recognized = (count == 42 and document.metadata.get("author") == "Lucid Group, Inc."
                       and document.metadata.get("title") == "3Q26 Lucid Group Earnings Presentation")
         root_type, root_value = document.xref_get_key(document.pdf_catalog(), "StructTreeRoot")
         if root_type != "xref":
-            return {"texts": [page.get_text() for page in list(document)[first:last]], "details": [],
+            return {"texts": [document[index].get_text() for index in page_indices], "details": [], "indices": page_indices,
                     "pages": [], "count": count, "recognized": False,
                     "errors": [{"reason": "missing_native_structure"}]}
         root = int(root_value.split()[0])
@@ -950,7 +952,7 @@ def _extract_lcid_tagged_batch(body, batch_index, batch_count):
                 else:
                     yield from table_blocks(block.get("blocks", []), own_path)
 
-        for index in range(first, min(last, count)):
+        for index in page_indices:
             page = document[index]
             if abs(page.rect.width - 959.76) > .01 or abs(page.rect.height - 540) > .01:
                 recognized = False
@@ -1015,7 +1017,7 @@ def _extract_lcid_tagged_batch(body, batch_index, batch_count):
                 page_table_count += 1
             diagnostics.append({"page": index + 1, "text_extracted": True, "text_chars": len(text),
                                 "tables": page_table_count, "method": "native_tagged_textpage"})
-    return {"texts": texts, "details": details, "pages": diagnostics, "count": count,
+    return {"texts": texts, "details": details, "pages": diagnostics, "count": count, "indices": page_indices,
             "recognized": recognized, "errors": errors, "worker_ms": (time.perf_counter_ns() - started) / 1e6}
 
 
@@ -1032,9 +1034,9 @@ def extract_lcid_pdf_tables(body: bytes, event: dict | None = None) -> dict:
     futures = [_POOL.submit(_extract_lcid_tagged_batch, body, i, batches)
                for i in range(batches)]
     chunks = [future.result() for future in futures]
-    texts = [text for chunk in chunks for text in chunk["texts"]]
-    details = [table for chunk in chunks for table in chunk["details"]]
-    pages = [page for chunk in chunks for page in chunk["pages"]]
+    texts = [text for _, text in sorted((index, text) for chunk in chunks for index, text in zip(chunk["indices"], chunk["texts"]))]
+    details = sorted((table for chunk in chunks for table in chunk["details"]), key=lambda table: table["page"])
+    pages = sorted((page for chunk in chunks for page in chunk["pages"]), key=lambda page: page["page"])
     errors = [error for chunk in chunks for error in chunk["errors"]]
     shapes = tuple((table["page"], table["native_rows"]) for table in details)
     checks = {"all_pages_extracted": len(texts) == len(pages) == 42 and all(chunk["count"] == 42 for chunk in chunks),

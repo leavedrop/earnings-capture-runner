@@ -716,10 +716,12 @@ def is_tgtx_announcement_index(url: str) -> bool:
     return parsed.hostname == "ir.tgtherapeutics.com" and parsed.path.rstrip("/") == "/press-releases"
 
 
-def validate(body: bytes, url: str, content_type: str, event: dict) -> dict:
+def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_tree=None) -> dict:
     """Validate identity, current reporting period and financial content together.
 
     Rejected documents remain useful raw evidence and can be reviewed manually.
+    prepared_tree is a fresh HTMLParser.feed/close tree of this complete body;
+    validation consumes that tree. It is never used for PDFs.
     """
     if is_tgtx_announcement_index(url):
         return {"accepted": False, "reason": "announcement_index_not_full_report", "title": "Press Releases",
@@ -776,7 +778,7 @@ def validate(body: bytes, url: str, content_type: str, event: dict) -> dict:
                     "tables_complete": False, "pdf_pages_total": pdf_pages_total,
                     "pdf_pages_processed": pdf_pages_processed, "pdf_pages_text_extracted": len(pages)}
     else:
-        tree = _document(body)
+        tree = prepared_tree if prepared_tree is not None else _document(body)
         cover = _sec_report_facts(tree, url, event)
         timestamp = _native_timestamp(tree)
         root = None
