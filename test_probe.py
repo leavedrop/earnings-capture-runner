@@ -185,6 +185,7 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
 
     async def test_skyd_materials_archive_two_files_without_financial_acceptance_and_keep_failed_eof(self):
         from contextlib import asynccontextmanager
+        from curl_cffi.const import CurlHttpVersion, CurlOpt
         from io import BytesIO
         import zipfile
 
@@ -199,14 +200,25 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
             archive.writestr("[Content_Types].xml", "<Types/>")
             archive.writestr("xl/workbook.xml", "<workbook/>")
         xlsx = zipped.getvalue()
-        for interrupted in (False, True):
+        for scope, interrupted in (("skyd-materials", False), ("skyd-materials", True), ("skyd-http1-material", False)):
+            selected_targets = select_targets(json.loads((BASE / "targets.json").read_text(encoding="utf-8")), scope)
+            if scope == "skyd-http1-material":
+                self.assertEqual(len(selected_targets), 1)
+                self.assertEqual(selected_targets[0]["url"], targets[1]["url"])
+                self.assertEqual(selected_targets[0]["protocol_profile"], "chrome_h1")
             calls = []
             session = MagicMock()
+            session.curl_options = {}
             session.__aenter__ = AsyncMock(return_value=session)
             session.__aexit__ = AsyncMock(return_value=False)
+            native_timing = {"http_version": "HTTP/1.1" if scope == "skyd-http1-material" else "HTTP/2",
+                             "curl_cumulative_ms": {"first_response_byte": 45, "transfer_done": 65},
+                             "new_tcp_connections": 0, "connection_reused": True}
 
             @asynccontextmanager
             async def transfer(client, method, url, headers):
+                if scope == "skyd-http1-material":
+                    self.assertEqual(client.curl_options[CurlOpt.HTTP_VERSION], CurlHttpVersion.V1_1)
                 calls.append((client, method, url))
                 if url == targets[0]["listing_url"]:
                     body, kind = listing, "text/html"
@@ -220,38 +232,46 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
                 yield httpx.Response(200, content=body, headers={"content-type": kind}, request=httpx.Request(method, url))
 
             with tempfile.TemporaryDirectory() as directory:
-                args = argparse.Namespace(targets=BASE / "targets.json", output=Path(directory) / "outputs", scope="skyd-materials")
+                args = argparse.Namespace(targets=BASE / "targets.json", output=Path(directory) / "outputs", scope=scope)
                 with patch("browser_transport.browser_session", return_value=session), \
                         patch("browser_transport.browser_response", transfer), \
-                        patch("browser_transport.browser_timing", return_value={"http_version": "HTTP/2"}), \
+                        patch("browser_transport.browser_timing", return_value=native_timing), \
                         patch("probe.identify_node", new_callable=AsyncMock, return_value={"loc": "US", "colo": "TEST", "is_us": True, "status": 200}), \
                         patch("probe.prewarm_pdf_pool") as warm, patch("probe.validate") as parse:
                     self.assertEqual(await run(args), 1 if interrupted else 0)
                 warm.assert_not_called()
                 parse.assert_not_called()
-                self.assertEqual([call[1:] for call in calls], [("GET", targets[0]["listing_url"]),
-                    ("GET", targets[0]["url"]), ("GET", targets[1]["url"])])
+                self.assertEqual([call[1:] for call in calls], [("GET", targets[0]["listing_url"])] +
+                                 [("GET", target["url"]) for target in selected_targets])
                 self.assertTrue(all(call[0] is session for call in calls))
+                if scope == "skyd-http1-material":
+                    self.assertEqual(session.curl_options[CurlOpt.HTTP_VERSION], CurlHttpVersion.V1_1)
                 self.assertFalse((args.output / "results.ndjson").exists())
                 rows = [json.loads(line) for line in (args.output / "materials.ndjson").read_text().splitlines()]
-                self.assertEqual(len(rows), 2)
-                for row in rows:
+                self.assertEqual(len(rows), len(selected_targets))
+                for row, target in zip(rows, selected_targets):
                     self.assertEqual(row["purpose"], "material_download")
+                    self.assertEqual(row["mode"], "download_only")
                     self.assertFalse(row["complete"] or row["budget_passed"] or row["accepted"] or row["tables_complete"])
                     self.assertIsNone(row["parsed_utc"])
                     self.assertIsNone(row["discovery_to_parsed_ms"])
-                self.assertTrue(rows[0]["material_download_complete"])
-                self.assertEqual(rows[0]["sha256"], hashlib.sha256(pdf).hexdigest())
-                if interrupted:
-                    self.assertFalse(rows[1]["http_response_complete"] or rows[1]["material_download_complete"])
-                    self.assertEqual(rows[1]["error_type"], "ReadError")
-                else:
-                    self.assertTrue(rows[1]["http_response_complete"] and rows[1]["material_download_complete"])
-                    self.assertTrue(rows[1]["raw_document_artifact"].endswith(".xlsx"))
-                    self.assertEqual((args.output / rows[1]["raw_document_artifact"]).read_bytes(), xlsx)
-                    self.assertEqual(rows[1]["sha256"], hashlib.sha256(xlsx).hexdigest())
+                    if interrupted and target["material_format"] == "xlsx":
+                        self.assertFalse(row["http_response_complete"] or row["material_download_complete"])
+                        self.assertEqual(row["error_type"], "ReadError")
+                    else:
+                        expected = xlsx if target["material_format"] == "xlsx" else pdf
+                        self.assertTrue(row["http_response_complete"] and row["material_download_complete"])
+                        self.assertTrue(row["raw_document_artifact"].endswith("." + target["material_format"]))
+                        self.assertEqual((args.output / row["raw_document_artifact"]).read_bytes(), expected)
+                        self.assertEqual(row["sha256"], hashlib.sha256(expected).hexdigest())
+                        self.assertEqual(row["bytes"], len(expected))
+                        for key, value in native_timing.items():
+                            self.assertEqual(row[key], value)
+                warmup = json.loads((args.output / "warmup.ndjson").read_text())
+                self.assertEqual(warmup["url"], targets[0]["listing_url"])
+                self.assertIsNotNone(warmup["request_total_ms"])
                 summary = json.loads((args.output / "summary.json").read_text())
-                self.assertEqual(summary["material_downloaded"], 1 if interrupted else 2)
+                self.assertEqual(summary["material_downloaded"], len(selected_targets) - int(interrupted))
                 self.assertEqual((summary["complete"], summary["passed"]), (0, 0))
                 self.assertFalse(summary["sla_applicable"])
 

@@ -19,12 +19,14 @@ on:
           - msgk-browser-transport
           - msgk-production-issuer
           - repaired-paths
+          - backlog-production
           - sec-quarterly
           - lcid-http-protocols
           - lcid-chrome-protocols
           - b-sec-transports
           - skyd-materials
           - skyd-range
+          - skyd-http1-material
           - skyd-complete
         default: all
 

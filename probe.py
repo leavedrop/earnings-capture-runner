@@ -94,6 +94,9 @@ def select_targets(targets, scope):
                  "require_seed_candidate": True, "require_raw_reference_match": True,
                  "cache_profile": "ordinary", "pipeline": "production_watch_list_seed"}
                 for role, key in (("shareholder_letter", "SKYD_PDF"), ("trending_schedules", "SKYD_XLSX"))]
+    if scope == "skyd-http1-material":
+        return [{**select_targets(targets, "skyd-materials")[1],
+                 "target_id": "SKYD_trending_schedules_http1_material", "protocol_profile": "chrome_h1"}]
     if scope == "skyd-range":
         return [{**select_targets(targets, "skyd-materials")[1],
                  "target_id": "SKYD_trending_schedules_range_material", "reference_bytes": 11841890,
@@ -133,6 +136,13 @@ def select_targets(targets, scope):
                  "url": references[symbol + "_SEC_QUARTERLY"]["url"], "reference": references[symbol + "_SEC_QUARTERLY"],
                  "event": events[symbol], "cache_profile": "ordinary", "pipeline": "production_watch_list_seed"}
                 for symbol in ("TTWO", "XENE", "LCID", "HIMS", "RKLB", "OXY")]
+    if scope == "backlog-production":
+        references = json.loads((BASE / "remaining_references.json").read_text(encoding="utf-8"))
+        events = {event["symbol"]: event for event in json.loads((BASE / "live/watchlist.json").read_text(encoding="utf-8"))}
+        return [{"target_id": symbol + "_backlog_full_report", "channel": "sec" if symbol in ("KKR", "CECO") else "official",
+                 "url": references[symbol + "_BACKLOG_PRODUCTION"]["url"], "reference": references[symbol + "_BACKLOG_PRODUCTION"],
+                 "event": events[symbol], "cache_profile": "ordinary", "pipeline": "production_watch_list_seed"}
+                for symbol in ("TTD", "KKR", "TTWO", "RKLB", "CECO")]
     if scope == "repaired-paths":
         references = json.loads((BASE / "remaining_references.json").read_text(encoding="utf-8"))
         events = {event["symbol"]: event for event in json.loads((BASE / "live/watchlist.json").read_text(encoding="utf-8"))}
@@ -679,7 +689,7 @@ async def run(args):
     args.output.mkdir(parents=True, exist_ok=False)
     for name in ("raw", "parsed"):
         (args.output / name).mkdir()
-    material_scope = args.scope in ("skyd-materials", "skyd-range")
+    material_scope = args.scope in ("skyd-materials", "skyd-range", "skyd-http1-material")
     warmup = {"skipped": "download_only"} if material_scope else await asyncio.to_thread(prewarm_pdf_pool)
     recent, blocked = {}, {}
     async with AsyncExitStack() as stack, httpx.AsyncClient(http2=True, trust_env=False, follow_redirects=True, max_redirects=5,
@@ -692,6 +702,9 @@ async def run(args):
         if any(target.get("transport") == "curl_cffi_chrome" for target in targets):
             from browser_transport import browser_session
             browser_client = await stack.enter_async_context(browser_session())
+            if args.scope == "skyd-http1-material":
+                from curl_cffi.const import CurlHttpVersion, CurlOpt
+                browser_client.curl_options[CurlOpt.HTTP_VERSION] = CurlHttpVersion.V1_1
         try:
             node = await identify_node(browser_client or client)
         except Exception as exc:
@@ -704,9 +717,13 @@ async def run(args):
                     "requests_per_second": {"parent_direct_sec": 2 if args.scope == "b-sec-transports" else 8,
                                              "production_child_sec": 2, "other_hosts_shared": 4},
                     "transport_policy": {"businesswire.com": "HTTP/1.1 persistent client after observed HTTP/2 StreamReset error_code=2", "msgk-issuer-cold": "HTTP/1.1 cold client matching the production official collector", "default": "HTTP/2 enabled"}}
+        if args.scope == "skyd-http1-material":
+            metadata["transport_policy"]["default"] = "Chrome HTTP/1.1 forced before listing warmup"
         if material_scope:
             metadata.update(scope=args.scope.replace("-", "_") + "_download_only_not_financial_capture_or_sla", sla_applicable=False,
-                            success_criterion=("Three US HTTP206 ranges exactly covering the known XLSX through EOF and assembled original SHA256 archive; financial completeness remains false" if args.scope == "skyd-range" else "Two US HTTP200 responses through EOF with expected file magic and SHA256 raw archives; financial completeness remains false"),
+                            success_criterion=("Three US HTTP206 ranges exactly covering the known XLSX through EOF and assembled original SHA256 archive; financial completeness remains false" if args.scope == "skyd-range" else
+                                               "One Chrome HTTP/1.1 US HTTP200 XLSX through EOF and complete raw SHA256 archive after separate verified listing warmup; financial completeness remains false" if args.scope == "skyd-http1-material" else
+                                               "Two US HTTP200 responses through EOF with expected file magic and SHA256 raw archives; financial completeness remains false"),
                             requests_per_second={"parent_direct_sec": 0, "production_child_sec": 0, "other_hosts_shared": 4})
         (args.output / "run.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
         results = []
@@ -814,9 +831,11 @@ async def run(args):
                     failures=sum(bool(row.get("error_type")) for row in results))
     if material_scope:
         metadata["material_downloaded"] = sum(row.get("material_download_complete") is True for row in results)
+        if args.scope == "skyd-http1-material":
+            metadata["actual_target_protocols_match_profiles"] = [row.get("http_version") for row in results] == ["HTTP/1.1"]
     (args.output / "summary.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     if material_scope:
-        return 0 if metadata["material_downloaded"] == (1 if args.scope == "skyd-range" else 2) and node.get("loc") == "US" and node.get("is_us") is True else 1
+        return 0 if metadata["material_downloaded"] == (1 if args.scope in ("skyd-range", "skyd-http1-material") else 2) and node.get("loc") == "US" and node.get("is_us") is True and metadata.get("actual_target_protocols_match_profiles", True) else 1
     return 0 if results and all(row["complete"] and row["archived"] for row in results) and not metadata.get("comparison_stopped") and not metadata.get("skipped_targets_after_warmup") else 1
 
 
@@ -824,7 +843,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports", "skyd-materials", "skyd-range", "skyd-complete"), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "backlog-production", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports", "skyd-materials", "skyd-range", "skyd-http1-material", "skyd-complete"), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 
