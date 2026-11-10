@@ -409,9 +409,12 @@ def read_database(root, output_root, replay=False):
         for (payload,) in connection.execute("SELECT payload FROM log WHERE kind='capture' ORDER BY id DESC"):
             record = json.loads(payload)
             captures.append(capture_row(record, root, output_root, starts.get(record.get("run_id")), replay))
+        # Aggregate the identical group key: a bare JSON expression still reads
+        # payload rows in SQLite 3.45 even when its expression index is selected.
         groups = connection.execute("""
-            SELECT symbol,channel,json_extract(payload,'$.status') AS status,COUNT(*),MAX(at_ns)
-            FROM log WHERE kind='request' GROUP BY symbol,channel,status
+            SELECT symbol,channel,MAX(coalesce(json_extract(payload,'$.status'),NULL)) AS status,COUNT(*),MAX(at_ns)
+            FROM log WHERE kind='request'
+            GROUP BY symbol,channel,coalesce(json_extract(payload,'$.status'),NULL)
         """).fetchall()
     request_total = sum(row[3] for row in groups)
     failed = [row for row in groups if row[2] is None or row[2] >= 400]

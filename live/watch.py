@@ -117,7 +117,7 @@ class Store:
             channel TEXT, at_ns INTEGER, payload TEXT);
           CREATE INDEX IF NOT EXISTS log_kind ON log(kind,symbol,channel);
           CREATE INDEX IF NOT EXISTS log_request_stats
-            ON log(kind,symbol,channel,json_extract(payload,'$.status'),at_ns) WHERE kind='request';
+            ON log(kind,symbol,channel,coalesce(json_extract(payload,'$.status'),NULL),at_ns) WHERE kind='request';
         """)
         self.db.commit()
 
