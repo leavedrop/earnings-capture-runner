@@ -69,6 +69,9 @@ def handoff_sources(runtime, status, connection, metadata):
               GROUP BY symbol,channel,json_extract(payload,'$.url'))"""):
             record = json.loads(payload)
             first[(symbol, channel, record.get("url"))] = record
+        from observation_store import latest_sources
+        for record in latest_sources(connection):
+            latest[(record["symbol"], record["channel"], record["url"])] = record
     now = datetime.now(timezone.utc)
     patrols = {(*key.split(":", 2)[:2], value.get("url")): value
                for key, value in status.get("source_status", {}).items()}
@@ -132,7 +135,7 @@ def handoff_sources(runtime, status, connection, metadata):
 def snapshot(runtime, checkout, metadata, cached):
     """Whitelist projection only: never publish the source DB, headers or metadata."""
     database = runtime / "observations.sqlite3"
-    failures, requests, failed_requests = [], 0, 0
+    failures, requests, failed_requests, assembly_failures = [], 0, 0, 0
     if database.exists():
         with closing(sqlite3.connect(database.as_uri() + "?mode=ro", uri=True)) as connection:
             connection.execute("PRAGMA query_only=ON")
@@ -225,15 +228,26 @@ def snapshot(runtime, checkout, metadata, cached):
                     else '' end,
                     count(*),max(at_ns) from log where kind='request' group by 1,2,3,4
             """).fetchall()
+            ranges = progress.range_request_statistics(connection)
+            from observation_store import poll_statistics
+            requests += sum(row[3] for row in poll_statistics(connection))
+            requests += ranges["request_delta"]
+            failed_requests += ranges["failed_delta"]
+            assembly_failures = ranges["assembly_failures"]
             for symbol, channel, status, error_type, count, at in groups:
                 requests += count
                 if status is not None and status < 400:
                     continue
                 failed_requests += count
+                if (symbol, channel, status, error_type) == ("KKR", "official", None, "RangeAssemblyVerificationError"):
+                    continue  # Replaced by the physical failures and separate assembly evidence below.
                 failures.append({"symbol": symbol, "channel": channel,
                                  "failure_type": "HTTP " + str(status) if status is not None else
                                  error_type if re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,39}", error_type) else "RequestError",
                                  "count": count, "lastseen": datetime.fromtimestamp(at / 1e9, timezone.utc).isoformat()})
+            failures.extend({"symbol": row["symbol"], "channel": row["channel"], "failure_type": row["failure_type"],
+                             "count": row["count"], "lastseen": datetime.fromtimestamp(row["at_ns"] / 1e9, timezone.utc).isoformat()}
+                            for row in ranges["groups"])
     status = progress.read_json(runtime / "status.json")
     if database.exists():
         with closing(sqlite3.connect(database.as_uri() + "?mode=ro", uri=True)) as connection:
@@ -248,7 +262,7 @@ def snapshot(runtime, checkout, metadata, cached):
             "metric_extractions": [row for key, row in cached.items() if isinstance(key, tuple) and key[0] == "metric_extraction"],
             "source_patrols": progress.source_patrols(status, "US live runner"),
             "handoff_sources": readiness,
-            "request_failures": {"requests": requests, "failed_requests": failed_requests},
+            "request_failures": {"requests": requests, "failed_requests": failed_requests, "assembly_failures": assembly_failures},
             "failure_groups": failures,
             "publication_scope": "Public documents and safe fields; no raw database, headers or private identity",
             "timing_scope": "Discovery to full parse; CI startup and evidence publication are outside this duration",

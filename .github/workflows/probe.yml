@@ -49,6 +49,10 @@ on:
           - x64
           - arm64
         default: x64
+      baseline_ref:
+        description: Optional immutable baseline ref for a same-runner before/after replay
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -64,6 +68,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - uses: actions/checkout@v4
+        if: ${{ inputs.baseline_ref != '' }}
+        with:
+          ref: ${{ inputs.baseline_ref }}
+          path: baseline
+          persist-credentials: false
       - name: Install verified parser dependencies
         run: python -m pip install -r requirements.txt
       - name: Install browser diagnostic dependency only for the browser scope
@@ -71,11 +81,24 @@ jobs:
         run: python -m pip install playwright==1.61.0
       - name: Check continuous timing and failure evidence offline
         run: python -m unittest -q test_probe.py
+      - name: Replay immutable baseline on the same runner
+        if: ${{ inputs.baseline_ref != '' }}
+        continue-on-error: true
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+          PROBE_SCOPE: ${{ inputs.scope }}
+        run: python baseline/probe.py --output outputs/before --scope "$PROBE_SCOPE"
       - name: Run selected report replay or material-only download once
         env:
           SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
           PROBE_SCOPE: ${{ inputs.scope }}
-        run: python probe.py --output outputs --scope "$PROBE_SCOPE"
+          BASELINE_REF: ${{ inputs.baseline_ref }}
+        run: |
+          if [ -n "$BASELINE_REF" ]; then
+            python probe.py --output outputs/after --scope "$PROBE_SCOPE"
+          else
+            python probe.py --output outputs --scope "$PROBE_SCOPE"
+          fi
       - name: Preserve all results including failures
         if: always()
         uses: actions/upload-artifact@v4

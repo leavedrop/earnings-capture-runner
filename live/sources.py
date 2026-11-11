@@ -306,12 +306,17 @@ def _native_timestamp(root):
     return _stamp(tag.get("datetime") if tag is not None else None)
 
 
-def uses_native_html_parser(url, event):
-    """Only the SEC exhibit whose complete text, cells and spans were compared."""
+def uses_native_html_parser(url, event, body=None):
+    """Audited Barrick SEC HTML layout; report identity/period remain validation gates."""
     parsed = urlparse(url)
-    return (event.get("symbol") == "B" and parsed.scheme == "https"
+    issuer = (event.get("symbol") == "B" and str(event.get("cik", "")).lstrip("0") == "756894"
+            and parsed.scheme == "https"
             and parsed.hostname == "www.sec.gov"
-            and parsed.path == "/Archives/edgar/data/756894/000119312526453391/d141003dex992.htm")
+            and re.fullmatch(r"/Archives/edgar/data/756894/\d{18}/[^/]+\.html?", parsed.path) is not None)
+    if not issuer or body is None:
+        return issuer
+    lower = body.lower()
+    return body.isascii() and b"<ix:" not in lower and b"<html" in lower and b"<table" in lower
 
 
 def _lexbor_text_fragments(node):
@@ -444,7 +449,7 @@ def sec_supporting_title(form, description, *, body=None, event=None, validation
     return None
 
 
-def listing_structure(body: bytes, url: str, content_type: str, event: dict) -> str | None:
+def listing_structure(body: bytes, url: str, content_type: str, event: dict, *, prepared_document=None) -> str | None:
     """A readable source is required before absence can be a negative observation.
 
     Historical announcement links establish an HTML list, while an application
@@ -454,7 +459,7 @@ def listing_structure(body: bytes, url: str, content_type: str, event: dict) -> 
     parsed = urlparse(url)
     try:
         if "json" in content_type or body.lstrip().startswith((b"{", b"[")):
-            payload = json.loads(body)
+            payload = prepared_document if prepared_document is not None else json.loads(body)
             if (event.get("symbol") == "KKR" and parsed.hostname == "tools.cms-eqs.com"
                     and parsed.path == "/fcf5b4/content/events/eventbox" and isinstance(payload, dict)
                     and payload.get("@type") == "hydra:Collection"
@@ -489,7 +494,7 @@ def listing_structure(body: bytes, url: str, content_type: str, event: dict) -> 
                     return "Official financial resource years and report entries"
             return None
         if any(kind in content_type for kind in ("xml", "rss", "atom")) or body.lstrip().startswith((b"<?xml", b"<rss", b"<feed")):
-            document = ElementTree.fromstring(body)
+            document = prepared_document if prepared_document is not None else ElementTree.fromstring(body)
             for item in document.iter():
                 if item.tag.rsplit("}", 1)[-1] not in ("item", "entry"):
                     continue
@@ -498,7 +503,7 @@ def listing_structure(body: bytes, url: str, content_type: str, event: dict) -> 
                 if title is not None and title.text and link is not None and (link.text or link.get("href")):
                     return "Parsed public feed with titled entry links"
             return None
-        document = _document(body)
+        document = prepared_document if prepared_document is not None else _document(body)
         if event.get("symbol") == "OKLO" and parsed.hostname == "oklo.com" and parsed.path.rstrip("/") == "/newsroom":
             for link in document.xpath(".//h2/a[@href]"):
                 target = urlparse(urljoin(url, link.get("href")))
@@ -581,15 +586,121 @@ def listing_structure(body: bytes, url: str, content_type: str, event: dict) -> 
     return None
 
 
-def discover(body: bytes, url: str, content_type: str, event: dict) -> list[dict]:
+def discover_shared_feed(body: bytes, url: str, content_type: str, events: list[dict]) -> dict:
+    """Parse one public rolling feed for all issuers; missing entries prove no absence.
+
+    Returned candidates still require the existing complete-document validator.
+    SEC Atom updated timestamps are feed metadata, never measured publication times.
+    """
+    host = (urlparse(url).hostname or "").lower()
+    provider = next((name for name in ("businesswire.com", "globenewswire.com", "prnewswire.com")
+                     if host == name or host.endswith("." + name)), None)
+    if host in ("www.sec.gov", "sec.gov") and parse_qs(urlparse(url).query).get("action") == ["getcurrent"]:
+        provider = "sec"
+    result = {"valid": False, "provider": provider, "entry_count": 0, "entries": [], "window_entry_ids": [],
+              "feed_updated_at": None, "absence_proven": False}
+    if provider is None:
+        return result
+    try:
+        root = ElementTree.fromstring(body)
+    except ElementTree.ParseError:
+        return result
+    local = lambda node: node.tag.rsplit("}", 1)[-1]
+    if local(root) not in ("rss", "feed"):
+        return result
+    result["valid"] = True
+    result["feed_updated_at"] = next((node.text for node in root
+                                      if local(node) == "updated"), None)
+    by_cik = {str(int(event["cik"])): event for event in events if event.get("cik")}
+    seen = set()
+    for entry in root.iter():
+        if local(entry) not in ("item", "entry"):
+            continue
+        result["entry_count"] += 1
+        fields = {local(child): child for child in entry}
+        entry_id = next((fields[key].text for key in ("id", "guid") if key in fields), None)
+        if entry_id:
+            result["window_entry_ids"].append(entry_id)
+        title = _clean(fields["title"].text) if "title" in fields else ""
+        links = [child for child in entry if local(child) == "link"
+                 and child.get("rel", "alternate") == "alternate"]
+        if not links:
+            continue
+        target = _url(url, links[0].get("href") or links[0].text or "")
+        if target and not entry_id:
+            entry_id = target
+            result["window_entry_ids"].append(entry_id)
+        if not target or not title:
+            continue
+        updated = next((fields[key].text for key in ("published", "pubDate", "updated") if key in fields), None)
+        if provider == "sec":
+            target_parts = urlparse(target)
+            match = re.fullmatch(r"/Archives/edgar/data/(\d+)/(\d{18})/(\d{10}-\d{2}-\d{6})-index\.html?", target_parts.path)
+            form = next((node.get("term") for node in entry if local(node) == "category"
+                         and node.get("label") == "form type"), None)
+            if (target_parts.hostname not in ("www.sec.gov", "sec.gov") or not match
+                    or match[2] != match[3].replace("-", "")
+                    or form not in ("8-K", "6-K", "8-K/A", "6-K/A", "10-Q", "10-K")):
+                continue
+            event = by_cik.get(str(int(match[1])))
+            if event is None:
+                continue
+            summary = fields["summary"].text or "" if "summary" in fields else ""
+            filed = re.search(r"Filed:\s*</b>\s*(\d{4}-\d{2}-\d{2})", summary)
+            cutoff = (datetime.fromisoformat(event["window_start"]).astimezone(ZoneInfo("America/New_York")).date().isoformat()
+                      if event.get("window_start") else event.get("period_end", ""))
+            if not filed or filed[1] < cutoff:
+                continue
+            candidates = [(event, _candidate(target, form, role="filing_index", form=form,
+                                             identity_verified=True, sec_accepted_at=None,
+                                             accession=match[3]))]
+        else:
+            if not _FINANCIAL.search(title) or _ANNOUNCEMENT.search(title):
+                continue
+            candidates = []
+            stamp = _stamp(updated, "feed")
+            for event in events:
+                # Whole alias words avoid On Holding/Hyliion Holdings and Stem/Systems collisions.
+                aliases = [event.get("company", ""), *event.get("aliases", [])]
+                matched = False
+                for alias in aliases:
+                    words = re.findall(r"[A-Za-z0-9]+", alias)
+                    if not words:
+                        continue
+                    pattern = r"(?<![A-Za-z0-9])" + r"[\W_]*".join(map(re.escape, words)) + r"(?![A-Za-z0-9])"
+                    if len(_normal(alias)) < 4:
+                        pattern = "^" + pattern + r"\s+(?:Limited|Ltd\.?|Inc\.?|Reports|Announces|Releases)\b"
+                    if re.search(pattern, title, re.I):
+                        matched = True
+                        break
+                if not matched:
+                    continue
+                period = _target(title, event)
+                if not period and _quarter_without_year(title, event) and stamp["value"]:
+                    period = _date_in_release_window(datetime.fromisoformat(stamp["value"]).date(), event)
+                if period:
+                    candidates.append((event, _candidate(target, title, stamp)))
+        for event, candidate in candidates:
+            key = (event["symbol"], candidate.get("accession") or candidate["url"])
+            if key in seen:
+                continue
+            seen.add(key)
+            result["entries"].append({**candidate, "symbol": event["symbol"],
+                                      "channel": "sec" if provider == "sec" else "newswire",
+                                      "discovery_feed_url": url, "discovery_entry_id": entry_id,
+                                      "feed_entry_updated_at": updated})
+    return result
+
+
+def discover(body: bytes, url: str, content_type: str, event: dict, *, prepared_document=None) -> list[dict]:
     """Return target-period links, SEC filing indexes, or EX-99 attachments."""
     found = []
     hostname = (urlparse(url).hostname or "").lower()
     newswire = any(hostname == domain or hostname.endswith("." + domain) for domain in
                    ("businesswire.com", "globenewswire.com", "prnewswire.com", "newmediawire.com", "newswire.ca"))
-    if "json" in content_type or body.lstrip().startswith(b"{"):
+    if "json" in content_type or body.lstrip().startswith((b"{", b"[")):
         try:
-            payload = json.loads(body)
+            payload = prepared_document if prepared_document is not None else json.loads(body)
         except (ValueError, UnicodeError):
             return []
         if hostname in ("sea.com", "www.sea.com") and urlparse(url).path.rstrip("/") == "/api/financial/resource":
@@ -649,9 +760,11 @@ def discover(body: bytes, url: str, content_type: str, event: dict) -> list[dict
                         target = direct
                     if target not in seen:
                         seen.add(target)
+                        size = str(document.get("fileSize") or "")
+                        expected_bytes = int(size) if re.fullmatch(r"[0-9]+", size) and int(size) >= 4 else None
                         found.append(_candidate(target, "KKR " + title, identity_verified=True,
                                                 discovery_route="official_eqs_event_document",
-                                                source_document_date=document.get("date")))
+                                                source_document_date=document.get("date"), expected_bytes=expected_bytes))
             return found
         if (event.get("symbol"), hostname, urlparse(url).path) in (
                 ("B", "www.barrick.com", "/Services/PressReleaseService.svc/GetPressReleaseList"),
@@ -711,7 +824,7 @@ def discover(body: bytes, url: str, content_type: str, event: dict) -> list[dict
         return []
     if "xml" in content_type or body.lstrip().startswith((b"<?xml", b"<rss", b"<feed")):
         try:
-            root = ElementTree.fromstring(body)
+            root = prepared_document if prepared_document is not None else ElementTree.fromstring(body)
         except ElementTree.ParseError:
             return []
         for item in root.iter():
@@ -729,7 +842,7 @@ def discover(body: bytes, url: str, content_type: str, event: dict) -> list[dict
             if href and (target := _url(url, href)):
                 found.append(_candidate(target, title, _stamp(date, "feed")))
         return found
-    tree = _document(body)
+    tree = prepared_document if prepared_document is not None else _document(body)
     _drop_content(tree, "script", "style")
     if (event.get("symbol") == "CBRS" and hostname == "investors.cerebras.ai"
             and urlparse(url).path.rstrip("/") == "/news-events/news-releases"):
@@ -840,7 +953,9 @@ def discover(body: bytes, url: str, content_type: str, event: dict) -> list[dict
                     if anchor.get("href") and (target := _url(url, anchor.get("href"))):
                         found.append(_candidate(target, title, discovery_date=published_day.isoformat()))
             return list({item["url"]: item for item in found}.values())
-    sec_index = "sec.gov/Archives/edgar/data/" in url and "-index" in url
+    parsed_source = urlparse(url)
+    sec_index = (parsed_source.hostname in ("sec.gov", "www.sec.gov") and re.fullmatch(
+        r"/Archives/edgar/data/\d+/\d{18}/\d{10}-\d{2}-\d{6}-index\.html?", parsed_source.path) is not None)
     if sec_index:
         for row in tree.xpath(".//table[contains(concat(' ', normalize-space(@class), ' '), ' tableFile ')]//tr"):
             cells = list(row.iter("td"))
@@ -955,6 +1070,33 @@ def discover(body: bytes, url: str, content_type: str, event: dict) -> list[dict
                 _FINANCIAL.search(context) or re.search(r"\bQ[1-4]\b", title, re.I)):
             found.append(_candidate(target, title))
     return list({item["url"]: item for item in found}.values())
+
+
+def analyze_listing(body: bytes, url: str, content_type: str, event: dict, *, include_metric_context=False) -> dict:
+    """Discover links and validate a listing body with one format-specific parse.
+
+    HTML discovery consumes script/style nodes, so retain its original timestamp
+    before sharing the tree with validation. Rolling shared feeds use
+    discover_shared_feed once for the whole event set, never this per-event entry.
+    """
+    result = {"candidates": [], "listing_basis": None, "validation": None}
+    stripped = body.lstrip()
+    json_body = "json" in content_type or stripped.startswith((b"{", b"["))
+    xml_body = any(kind in content_type for kind in ("xml", "rss", "atom")) or stripped.startswith((b"<?xml", b"<rss", b"<feed"))
+    if body.startswith((b"%PDF", b"PK\x03\x04")) or "pdf" in content_type or XLSX_CONTENT_TYPE in content_type:
+        result["validation"] = validate(body, url, content_type, event, include_metric_context=include_metric_context)
+        return result
+    try:
+        document = json.loads(body) if json_body else ElementTree.fromstring(body) if xml_body else _document(body)
+    except (ValueError, UnicodeError, ElementTree.ParseError):
+        return result
+    result["listing_basis"] = listing_structure(body, url, content_type, event, prepared_document=document)
+    timestamp = None if json_body or xml_body else _native_timestamp(document)
+    result["candidates"] = discover(body, url, content_type, event, prepared_document=document)
+    if not json_body and not xml_body:
+        result["validation"] = validate(body, url, content_type, event, prepared_tree=document,
+                                        prepared_timestamp=timestamp, include_metric_context=include_metric_context)
+    return result
 
 
 def _financial_table(rows):
@@ -1090,7 +1232,7 @@ def check_skyd_pdf_archive(body, report):
 
 
 def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_tree=None,
-             include_metric_context=False) -> dict:
+             prepared_timestamp=None, include_metric_context=False) -> dict:
     """Validate identity, current reporting period and financial content together.
 
     Rejected documents remain useful raw evidence and can be reviewed manually.
@@ -1131,10 +1273,9 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
         try:
             parsed_url = urlparse(url)
             if (event.get("symbol") == "BRK.B" and parsed_url.hostname in ("berkshirehathaway.com", "www.berkshirehathaway.com")
-                    and (parsed_url.path.startswith("/qtrly/") or parsed_url.path == "/news/nov0726.pdf")):
+                    and parsed_url.path.startswith(("/qtrly/", "/news/")) and parsed_url.path.lower().endswith(".pdf")):
                 from pdf_tables import extract_pdf_tables
-                with _PDF_LOCK:
-                    native_pdf = extract_pdf_tables(body)
+                native_pdf = extract_pdf_tables(body)
             elif event.get("symbol") == "BAM" and (
                 parsed_url.hostname in ("globenewswire.com", "www.globenewswire.com") and parsed_url.path.startswith("/news-release/")
                 or parsed_url.hostname == "pnr-files.pro1.gus.wdc.dianum.io" and parsed_url.path.startswith("/globenewswire/articles/")):
@@ -1143,8 +1284,7 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
                     native_pdf = extract_bam_pdf_tables(body, event)
             elif event.get("symbol") == "KKR" and is_kkr_report_asset(url):
                 from pdf_tables import extract_kkr_pdf_tables
-                with _PDF_LOCK:
-                    native_pdf = extract_kkr_pdf_tables(body)
+                native_pdf = extract_kkr_pdf_tables(body)
             elif event.get("symbol") == "LCID" and parsed_url.hostname == "ir.lucidmotors.com" and parsed_url.path.startswith("/static-files/"):
                 from pdf_tables import extract_lcid_pdf_tables
                 native_pdf = extract_lcid_pdf_tables(body, event)
@@ -1179,7 +1319,7 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
                 pdf_pages_total = native_pdf["pdf_pages_total"]
                 pdf_pages_processed = native_pdf["pdf_pages_processed"]
                 title = native_pdf["pdf_metadata"]["title"] if event.get("symbol") == "SKYD" and url == SKYD_PDF_URL else _pdf_title(text)
-                if event.get("symbol") == "BRK.B" and parsed_url.path == "/news/nov0726.pdf":
+                if event.get("symbol") == "BRK.B" and parsed_url.path.startswith("/news/"):
                     current_columns = [[rows[0][1], rows[1][1]] for rows in tables
                                        if len(rows) >= 2 and len(rows[0]) >= 2 and len(rows[1]) >= 2]
                     cover = {"identity": _identity(title, event),
@@ -1201,13 +1341,12 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
             "reason": "missing_or_conflicting_cover_facts"}
         title, text, tables, table_spans, timestamp = _extract_barrick_native_html(
             body, document=document, metric_contexts=metric_contexts)
-    elif (prepared_tree is None and uses_native_html_parser(url, event)
-          and body.isascii() and b"<ix:" not in body.lower()):
+    elif prepared_tree is None and uses_native_html_parser(url, event, body):
         title, text, tables, table_spans, timestamp = _extract_barrick_native_html(body, metric_contexts=metric_contexts)
     else:
         tree = prepared_tree if prepared_tree is not None else _document(body)
         cover = _sec_report_facts(tree, url, event)
-        timestamp = _native_timestamp(tree)
+        timestamp = prepared_timestamp if prepared_timestamp is not None else _native_timestamp(tree)
         root = None
         if event.get("symbol") == "MSGK" and urlparse(url).hostname == "investor.msgknicks.com":
             root = next((node for node in tree.iter("div") if
@@ -1291,6 +1430,8 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
             result["_metric_table_contexts"] = metric_contexts
     if native_pdf is not None:
         result.update({key:native_pdf[key] for key in ("table_details", "page_diagnostics", "pdf_structure_checks", "tables_extraction_scope", "tables_complete", "quality_reason")})
+        if include_metric_context and "_metric_table_contexts" in native_pdf:
+            result["_metric_table_contexts"] = native_pdf["_metric_table_contexts"]
         if "table_spans" in native_pdf:
             result["table_spans"] = native_pdf["table_spans"]
         result["pdf_parse_ms"] = native_pdf["parse_ms"]

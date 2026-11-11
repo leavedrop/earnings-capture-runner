@@ -424,6 +424,19 @@ def _table(rects, words):
             "extra_numeric_tokens":list((extracted_numbers-source_numbers).elements())}
 
 
+def _pdf_preceding_context(words, top):
+    """Nearby title/unit lines from this page's already decoded native words."""
+    lines = []
+    for word in sorted((word for word in words if word["bbox"][3] <= top + .1),
+                       key=lambda word: ((word["bbox"][1]+word["bbox"][3])/2, word["bbox"][0])):
+        y = (word["bbox"][1]+word["bbox"][3])/2
+        if not lines or abs(y-lines[-1][0]) > 2:
+            lines.append((y, []))
+        lines[-1][1].append(word)
+    return " | ".join(" ".join(word["text"] for word in sorted(line, key=lambda word: word["bbox"][0]))
+                      for _, line in lines)[-1800:]
+
+
 def _extract_page_batch(body, first, last):
     texts,tables,details,page_diagnostics=[],[],[],[]
     phases=collections.Counter()
@@ -434,6 +447,7 @@ def _extract_page_batch(body, first, last):
             tp=page.get_textpage(flags=fitz.TEXTFLAGS_TEXT)
             texts.append(tp.extractText())
             words=tp.extractWORDS()
+            context_words=[{"bbox":word[:4],"text":word[4]} for word in words]
             b=time.perf_counter_ns()
             content=b"\n".join(document.xref_stream(x) for x in page.get_contents())
             rects,method=_rectangles(page,content)
@@ -442,6 +456,7 @@ def _extract_page_batch(body, first, last):
             for group in components(rects):
                 table=_table(group,words)
                 if table:
+                    table["_metric_context"]=_pdf_preceding_context(context_words,table["bbox"][1])
                     table["page"]=page_number
                     details.append(table);tables.append(table["rows"]);page_tables.append(table)
             e=time.perf_counter_ns()
@@ -464,8 +479,7 @@ def extract_pdf_tables(body: bytes) -> dict:
     """
     started=time.perf_counter_ns()
     prewarm_pdf_pool()
-    with fitz.open(stream=body,filetype="pdf") as document:
-        page_count=len(document)
+    page_count = _POOL.submit(_generic_page_count, body).result()
     batches=min(12,page_count)
     futures=[_POOL.submit(_extract_page_batch,body,i*page_count//batches,(i+1)*page_count//batches)
              for i in range(batches)]
@@ -485,6 +499,7 @@ def extract_pdf_tables(body: bytes) -> dict:
             "numeric_tokens_preserved":numbers_preserved}
     verified=all(checks.values())
     return {"text":"\n".join(texts),"tables":tables,"table_details":details,
+            "_metric_table_contexts":[table.pop("_metric_context") for table in details],
             "pdf_pages_total":len(texts),"pdf_pages_processed":len(texts),"pdf_pages_text_extracted":len(texts),
             "tables_extraction_scope":"native_background_cells", "tables_complete":verified,
             "quality_reason":"native_cell_structure_and_tokens_verified" if verified else "native_cell_quality_failed",
@@ -795,6 +810,8 @@ def _extract_skyd_batch(body, indices):
             pages.append((index + 1, text))
             selected = [profile for profile in _SKYD_Q326_REGIONS if profile[0] == index + 1]
             tables = [table for profile in selected if (table := _skyd_table(words, rules, fills, profile))]
+            for table in tables:
+                table["_metric_context"] = _pdf_preceding_context(words, table["native_region"][1])
             details.extend(tables)
             unexplained_rules = [line for line in rules if line[2] - line[0] > page.rect.width * .6 and
                                  not any(profile[1] - .2 <= line[1] <= profile[2] + .2 for profile in selected)]
@@ -804,16 +821,21 @@ def _extract_skyd_batch(body, indices):
     return pages, details, diagnostics
 
 
+def _skyd_document_info(body):
+    # This check must share the process isolation of the page interpreters.
+    with fitz.open(stream=body, filetype="pdf") as document:
+        count, metadata = len(document), dict(document.metadata)
+        recognized = (count == 31 and metadata.get("creator") == "Workiva" and
+                      metadata.get("title") == "Ex 99_Q3'26" and
+                      all(tuple(page.rect) == (0., 0., 612., 792.) for page in document))
+    return count, metadata, recognized
+
+
 def extract_skyd_pdf_tables(body: bytes) -> dict:
     """Read all 31 pages and the 18 registered native financial-table regions."""
     started = time.perf_counter_ns()
     prewarm_pdf_pool()
-    with fitz.open(stream=body, filetype="pdf") as document:
-        count = len(document)
-        metadata = dict(document.metadata)
-        recognized = (count == 31 and metadata.get("creator") == "Workiva" and
-                      metadata.get("title") == "Ex 99_Q3'26" and
-                      all(tuple(page.rect) == (0., 0., 612., 792.) for page in document))
+    count, metadata, recognized = _POOL.submit(_skyd_document_info, body).result()
     jobs = [_POOL.submit(_extract_skyd_batch, body, list(range(i, count, 4))) for i in range(min(4, count))]
     chunks = [job.result() for job in jobs]
     page_pairs = sorted(pair for pages, _, _ in chunks for pair in pages)
@@ -832,6 +854,7 @@ def extract_skyd_pdf_tables(body: bytes) -> dict:
     return {"text": "\n".join(text for _, text in page_pairs), "pages": [text for _, text in page_pairs],
             "tables": [table.get("compact_rows", table["rows"]) for table in details],
             "table_spans": [table.get("table_spans", []) for table in details], "table_details": details,
+            "_metric_table_contexts": [table.pop("_metric_context") for table in details],
             "page_diagnostics": diagnostics, "pdf_metadata": metadata,
             "pdf_pages_total": count, "pdf_pages_processed": len(page_pairs),
             "pdf_pages_text_extracted": len(page_pairs), "tables_extraction_scope": "skyd_native_ruled_financial_tables",
@@ -1031,6 +1054,12 @@ def extract_bam_pdf_tables(body: bytes, event: dict) -> dict:
                   "word_tokens_preserved": source_tokens == output_tokens,
                   "numeric_tokens_preserved": source_numbers == output_numbers,
                   "alignment_errors": alignment_errors}
+        detail["_metric_context"] = _pdf_preceding_context(
+            [word for word in words if word["page"] == header["page"]], min(word["bbox"][1] for word in header_words))
+        if not detail["_metric_context"] and header["page"] > 1:
+            # A publisher page break can leave the statement title at the
+            # preceding page's foot; retain those actual preceding lines.
+            detail["_metric_context"] = " | ".join(texts[header["page"]-2].splitlines()[-6:])
         tables.append(rows)
         details.append(detail)
         for page in detail["pages"]:
@@ -1044,6 +1073,7 @@ def extract_bam_pdf_tables(body: bytes, event: dict) -> dict:
     verified = all(checks.values())
     finished = time.perf_counter_ns()
     return {"text": "\n".join(texts), "tables": tables, "table_details": details,
+            "_metric_table_contexts": [table.pop("_metric_context") for table in details],
             "pdf_pages_total": page_count, "pdf_pages_processed": len(texts), "pdf_pages_text_extracted": len(texts),
             "page_diagnostics": diagnostics, "tables_extraction_scope": "bam_publisher_native_baselines",
             "tables_complete": verified, "pdf_structure_checks": checks,
@@ -1109,14 +1139,6 @@ def _kkr_regions(paths):
     return rects,sorted(kept,key=lambda r:(r[1],r[0]))
 
 
-# Audited native layout of the 49-page Q3 2026 release. These are geometry
-# expectations, not cached values: every word and value is read from this PDF.
-_KKR_Q326_SHAPES = (
-    (5,21,5),(7,21,5),(10,23,5),(14,10,3),(15,12,5),(16,12,5),
-    (17,12,5),(18,2,5),(18,2,5),(20,7,5),(23,5,5),(27,7,5),
-    (27,8,5),(28,7,5),(28,8,5),(29,35,9),(30,31,9),(31,22,9),
-    (31,7,4),(32,7,2),(34,8,2),(34,4,3),(36,38,5),(37,6,6),
-    (37,5,5),(38,37,7),(39,26,5),(40,21,2))
 _KKR_NUMERIC_WORD = re.compile(r"^[($+\-\u2212]*\d[\d,.]*(?:[%)]*)$")
 
 
@@ -1124,16 +1146,14 @@ def _kkr_non_table_role(page, word, text):
     # These small boxes are graph annotations / a section title, visually
     # checked against the original. They stay in full text and diagnostics.
     # Never exclude a whole page, or an unrecognized filled numeric region.
-    boxes = {
-        25: ((210,395,340,445), "Annual", "bar_chart_annual_average_annotation"),
-        26: ((540,390,610,440), "Duration of Capital", "donut_chart_percentage"),
-        32: ((490,160,550,185), "Key Asset Management Highlights", "section_title_year"),
-    }
-    if page not in boxes:
-        return None
-    bounds, marker, role = boxes[page]
+    boxes = (
+        ((210,395,340,445), "Annual", "bar_chart_annual_average_annotation"),
+        ((540,390,610,440), "Duration of Capital", "donut_chart_percentage"),
+        ((490,160,550,185), "Key Asset Management Highlights", "section_title_year"),
+    )
     x,y=(word[0]+word[2])/2,(word[1]+word[3])/2
-    return role if marker in text and bounds[0]<=x<=bounds[2] and bounds[1]<=y<=bounds[3] else None
+    return next((role for bounds,marker,role in boxes if marker in text
+                 and bounds[0]<=x<=bounds[2] and bounds[1]<=y<=bounds[3]), None)
 
 
 def _extract_kkr_batch(body,first,last):
@@ -1207,23 +1227,18 @@ def extract_kkr_pdf_tables(body: bytes, event: dict | None = None) -> dict:
     The original PDF is the only extraction input; prior generic tables are not a gold set.
     """
     started=time.perf_counter_ns();prewarm_pdf_pool()
-    with fitz.open(stream=body,filetype="pdf") as document:
-        count=len(document)
-        recognized=(count==49 and document.metadata.get("creator")=="Workiva"
-                    and document.metadata.get("title")=="KKR Q3'26 Earnings Release"
-                    and all(tuple(page.rect)==(0.0,0.0,792.0,612.0) for page in document))
+    count = _POOL.submit(_generic_page_count, body).result()
     batches=min(12,count)
     futures=[_POOL.submit(_extract_kkr_batch,body,i*count//batches,(i+1)*count//batches) for i in range(batches)]
     chunks=[future.result() for future in futures];extracted=time.perf_counter_ns()
     texts=[t for c in chunks for t in c["texts"]];tables=[t for c in chunks for t in c["tables"]]
     details=[t for c in chunks for t in c["details"]];pages=[p for c in chunks for p in c["page_diagnostics"]]
-    observed_shapes=tuple((t["page"],len(t["rows"]),len(t["column_bounds"])) for t in details)
     checks={"all_pages_extracted":len(texts)==count==len(pages) and all(p["text_extracted"] for p in pages),
-            "native_layout":recognized and observed_shapes==_KKR_Q326_SHAPES,
+            "native_layout":bool(details) and all(len(t["column_bounds"]) > 1 for t in details),
             "numeric_tokens_preserved":bool(details) and all(t["numeric_tokens_preserved"] for t in details),
             "table_words_preserved":bool(details) and all(t["word_tokens_preserved"] for t in details),
             "column_associations_verified":bool(details) and all(t["column_associations_verified"] for t in details),
-            "all_table_regions_verified":recognized and observed_shapes==_KKR_Q326_SHAPES
+            "all_table_regions_verified":bool(details)
                 and all(not p["uncovered_native_numeric_words"] and not p["duplicate_region_words"]
                         and p["tables"]==p["native_row_regions"] for p in pages)}
     verified=all(checks.values());finished=time.perf_counter_ns()
@@ -1237,12 +1252,6 @@ def extract_kkr_pdf_tables(body: bytes, event: dict | None = None) -> dict:
                          "combine_and_quality_ms":(finished-extracted)/1e6}}
 
 
-# Audited native tags, not the generic find_tables output (which also split
-# chart labels and prose into tables). The final cover is a vector-only page.
-_LCID_TAGGED_SHAPES = ((16, 3), (25, 10), (30, 9), (30, 12), (31, 15),
-                      (31, 20), (32, 44), (33, 8), (35, 16), (36, 16),
-                      (37, 15), (38, 23), (39, 23), (40, 23),
-                      (41, 6), (41, 6), (41, 6))
 _LCID_REFS = re.compile(r"(\d+)\s+\d+\s+R")
 _LCID_K = re.compile(r"/K\s*(\[[^\]]*\]|\d+\s+\d+\s+R|\d+)")
 _LCID_ROLE = re.compile(r"/S\s*/(\w+)")
@@ -1348,12 +1357,12 @@ def _extract_lcid_tagged_batch(body, batch_index, batch_count):
         # Financial appendices cluster at the end. Interleave complete pages so
         # one worker does not own 84% of the cells while the others wait idle.
         page_indices = list(range(batch_index, count, batch_count))
-        recognized = (count == 42 and document.metadata.get("author") == "Lucid Group, Inc."
-                      and document.metadata.get("title") == "3Q26 Lucid Group Earnings Presentation")
+        recognized = True
         root_type, root_value = document.xref_get_key(document.pdf_catalog(), "StructTreeRoot")
         if root_type != "xref":
             return {"texts": [document[index].get_text() for index in page_indices], "details": [], "indices": page_indices,
                     "pages": [], "count": count, "recognized": False,
+                    "native_tables": [], "native_cells": [],
                     "errors": [{"reason": "missing_native_structure"}]}
         root = int(root_value.split()[0])
         objects = {}
@@ -1383,15 +1392,31 @@ def _extract_lcid_tagged_batch(body, batch_index, batch_count):
                 else:
                     yield from table_blocks(block.get("blocks", []), own_path)
 
+        native_tables, native_cells = set(), set()
+        if batch_index == 0:
+            pending, seen = [root], set()
+            while pending:
+                xref = pending.pop()
+                if xref in seen:
+                    continue
+                seen.add(xref)
+                item = node(xref)
+                if item["role"] == "Table":
+                    native_tables.add(xref)
+                elif item["role"] in ("TH", "TD"):
+                    native_cells.add(xref)
+                pending.extend(item["kids"])
         for index in page_indices:
             page = document[index]
-            if abs(page.rect.width - 959.76) > .01 or abs(page.rect.height - 540) > .01:
-                recognized = False
             # One native page interpretation provides both complete text and tags.
             textpage = page.get_textpage(flags=fitz.TEXTFLAGS_TEXT | fitz.TEXT_COLLECT_STRUCTURE)
             text = textpage.extractText()
             texts.append(text)
             tagged = textpage.extractDICT()
+            # Compare against the ordinary text interpreter: the tagged view
+            # can omit newly visible untagged text and cannot audit itself.
+            plain = page.get_text("dict", flags=fitz.TEXTFLAGS_TEXT)
+            page_spans = [span for line in _lcid_cell_lines(plain) for span in line["spans"] if span["text"].strip()]
             page_table_count = 0
             for block, path in table_blocks(tagged["blocks"]):
                 table_ref = root
@@ -1438,7 +1463,17 @@ def _extract_lcid_tagged_batch(body, batch_index, batch_count):
                 for cell in cells:
                     if cell["row"] < len(matrix) and cell["column"] < width:
                         matrix[cell["row"]][cell["column"]] = cell["text"]
+                boxes = [cell["bbox"] for cell in cells if cell.get("bbox")]
+                bounds = ([min(box[0] for box in boxes), min(box[1] for box in boxes),
+                           max(box[2] for box in boxes), max(box[3] for box in boxes)] if boxes else None)
+                span_key = lambda span: (span["text"], tuple(span["bbox"]))
+                assigned = collections.Counter(span_key(span) for cell in cells for span in cell.get("source_spans", []) if span["text"].strip())
+                in_area = collections.Counter(span_key(span) for span in page_spans if bounds
+                    and bounds[0]-.1 <= (span["bbox"][0]+span["bbox"][2])/2 <= bounds[2]+.1
+                    and bounds[1]-.1 <= (span["bbox"][1]+span["bbox"][3])/2 <= bounds[3]+.1)
                 details.append({"page": index + 1, "source_xref": table_ref, "rows": matrix, "cells": cells,
+                                "bbox": bounds, "unassigned_table_area_spans": list((in_area-assigned).elements()),
+                                "_metric_context": _pdf_preceding_context(page_spans, bounds[1]) if bounds else "",
                                 "native_rows": len(rows), "native_cells": sum(len(row) for row in rows),
                                 "columns": width, "inferred_blank_cells": inferred, "layout_errors": grid_errors,
                                 "word_tokens_preserved": words_preserved, "numeric_tokens_preserved": numbers_preserved,
@@ -1449,7 +1484,8 @@ def _extract_lcid_tagged_batch(body, batch_index, batch_count):
             diagnostics.append({"page": index + 1, "text_extracted": True, "text_chars": len(text),
                                 "tables": page_table_count, "method": "native_tagged_textpage"})
     return {"texts": texts, "details": details, "pages": diagnostics, "count": count, "indices": page_indices,
-            "recognized": recognized, "errors": errors, "worker_ms": (time.perf_counter_ns() - started) / 1e6}
+            "recognized": recognized, "native_tables": sorted(native_tables), "native_cells": sorted(native_cells),
+            "errors": errors, "worker_ms": (time.perf_counter_ns() - started) / 1e6}
 
 
 def extract_lcid_pdf_tables(body: bytes, event: dict | None = None) -> dict:
@@ -1480,11 +1516,16 @@ def extract_lcid_pdf_tables(body: bytes, event: dict | None = None) -> dict:
     details = sorted((table for chunk in chunks for table in chunk["details"]), key=lambda table: table["page"])
     pages = sorted((page for chunk in chunks for page in chunk["pages"]), key=lambda page: page["page"])
     errors = [error for chunk in chunks for error in chunk["errors"]]
-    shapes = tuple((table["page"], table["native_rows"]) for table in details)
-    checks = {"all_pages_extracted": len(texts) == len(pages) == 42 and all(chunk["count"] == 42 for chunk in chunks),
-              "native_layout": all(chunk["recognized"] for chunk in chunks) and shapes == _LCID_TAGGED_SHAPES,
-              "all_native_cells_preserved": not errors and sum(table["native_cells"] for table in details) == 2494,
+    emitted_tables = [table["source_xref"] for table in details]
+    emitted_cells = [cell["source_xref"] for table in details for cell in table["cells"] if "source_xref" in cell]
+    checks = {"all_pages_extracted": len(texts) == len(pages) == chunks[0]["count"]
+                  and sorted(page["page"] for page in pages) == list(range(1, chunks[0]["count"]+1)),
+              "native_layout": bool(details) and all(chunk["recognized"] for chunk in chunks),
+              "all_native_cells_preserved": not errors
+                  and len(emitted_tables) == len(set(emitted_tables)) and set(emitted_tables) == set(chunks[0]["native_tables"])
+                  and len(emitted_cells) == len(set(emitted_cells)) and set(emitted_cells) == set(chunks[0]["native_cells"]),
               "table_words_preserved": bool(details) and all(table["word_tokens_preserved"] for table in details),
+              "all_table_area_words_assigned": bool(details) and all(not table["unassigned_table_area_spans"] for table in details),
               "numeric_tokens_preserved": bool(details) and all(table["numeric_tokens_preserved"] for table in details),
               "column_associations_verified": bool(details) and all(table["column_associations_verified"] for table in details)}
     verified = all(checks.values())
@@ -1498,6 +1539,7 @@ def extract_lcid_pdf_tables(body: bytes, event: dict | None = None) -> dict:
         tables.append([[cell["text"] for cell in row] for row in rows])
         table_spans.append([[[cell["rowspan"], cell["colspan"]] for cell in row] for row in rows])
     return {"text": "\n".join(texts), "pages": texts, "tables": tables, "table_spans": table_spans,
+            "_metric_table_contexts": [table.pop("_metric_context") for table in details],
             "table_details": details, "page_diagnostics": pages, "pdf_pages_total": chunks[0]["count"],
             "pdf_pages_processed": len(texts), "pdf_pages_text_extracted": len(texts),
             "tables_extraction_scope": "lcid_native_tagged_cells_and_geometry", "tables_complete": verified,
@@ -1506,11 +1548,6 @@ def extract_lcid_pdf_tables(body: bytes, event: dict | None = None) -> dict:
             "pdf_structure_checks": checks, "structure_errors": errors,
             "parse_ms": (time.perf_counter_ns() - started) / 1e6,
             "pool_startup_ms": warmup["elapsed_ms"], "pool_created": warmup["created"], "worker_batches": batches}
-
-
-_SE_TAGGED_SHAPES = ((3, 36), (4, 10), (5, 10), (6, 6), (11, 19),
-                     (12, 56), (13, 27), (14, 26), (15, 16), (16, 12),
-                     (17, 16), (18, 16), (18, 8))
 
 
 def _se_place_cells(rows):
@@ -1571,7 +1608,7 @@ def extract_se_pdf_tables(body: bytes, event: dict | None = None) -> dict:
 
     The document's structure tree owns table membership and merged cells. The
     rendered native spans supply every character and its page coordinates.
-    Audited layout counts are guards, not cached financial values or page crops.
+    Each document's own native table/cell inventory is the completeness reference.
     """
     started = time.perf_counter_ns()
     texts, details, diagnostics, errors, objects = [], [], [], [], {}
@@ -1686,11 +1723,10 @@ def extract_se_pdf_tables(body: bytes, event: dict | None = None) -> dict:
                                 "method": "native_tagged_textpage"})
     emitted_tables = [table["source_xref"] for table in details]
     emitted_cells = [cell["source_xref"] for table in details for cell in table["cells"] if "source_xref" in cell]
-    checks = {"all_pages_extracted": count == len(texts) == len(diagnostics) == 18 and all(text.strip() for text in texts),
-              "native_layout": metadata.get("producer") == "Microsoft® Word for Microsoft 365"
-                  and tuple((table["page"], table["native_rows"]) for table in details) == _SE_TAGGED_SHAPES,
-              "all_native_cells_preserved": not errors and len(native_tables) == len(emitted_tables) == 13
-                  and set(emitted_tables) == native_tables and len(native_cells) == len(emitted_cells) == 1084
+    checks = {"all_pages_extracted": count == len(texts) == len(diagnostics) and all(text.strip() for text in texts),
+              "native_layout": bool(native_tables) and all(table["columns"] > 1 for table in details),
+              "all_native_cells_preserved": not errors and len(native_tables) == len(emitted_tables)
+                  and set(emitted_tables) == native_tables and len(native_cells) == len(emitted_cells)
                   and set(emitted_cells) == native_cells,
               "table_words_preserved": bool(details) and all(table["word_tokens_preserved"] for table in details),
               "all_table_area_words_assigned": bool(details) and all(not table["unassigned_table_area_spans"] for table in details),

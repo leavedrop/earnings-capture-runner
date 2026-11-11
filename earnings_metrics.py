@@ -32,12 +32,17 @@ _YEAR = re.compile(r"\b20\s?\d\s?\d\b")
 _PER_SHARE = re.compile(r"\bEPS\b|per\s+(?:(?:basic|diluted|common|ordinary|average equivalent|American depositary|Class\s*[AB]|and)\s+)*(?:share|ADS)", re.I)
 _DURATION = re.compile(r"three[ -]months?|thirteen[ -]weeks?|quarter|nine[ -]months?|six[ -]months?|years?\s+ended|fiscal years?|twelve[ -]months?", re.I)
 _MONTHS = "January February March April May June July August September October November December".split()
-_END_DATE = re.compile(r"\b(" + "|".join(_MONTHS + [month[:3] for month in _MONTHS]) + r")\.?\s+(\d{1,2})\b", re.I)
+_END_DATE = re.compile(r"\b(" + "|".join(_MONTHS + [month[:3] for month in _MONTHS] + ["Sept"]) + r")\.?\s+(\d{1,2})\b", re.I)
 _ANNOUNCED_PERIOD = re.compile(
     r"\b(?:announced|reported)\b[^.;]{0,120}\bresults\b[^.;]{0,140}?"
     r"\b(?:quarter|three(?:\s+and\s+(?:six|nine|twelve))?\s+months?)\s+ended\s+"
     r"(" + "|".join(_MONTHS) + r")\s+(\d{1,2})\s*,?\s*(20\d{2})", re.I)
 _CURRENCY_HEADER = re.compile(r"(RMB|CNY|USD|US\$|CHF|CAD)(?:\s*\(\d+\))?", re.I)
+_CURRENCY_EVIDENCE = {currency: re.compile(pattern, re.I) for currency, pattern in {
+    "USD": r"\bUSD\b|US\$|U\.?S\.?\s+dollars|iso4217:USD", "CAD": r"\bCAD\b|Canadian dollars",
+    "CHF": r"\bCHF\b|Swiss Franc", "CNY": r"\bRMB\b|\bCNY\b"}.items()}
+_GUIDANCE_WORD = re.compile(r"\b(?:expect(?:s)?|anticipate(?:s)?|guidance|outlook)\b", re.I)
+_GUIDANCE_END = re.compile(r"[.!?](?=\s+[A-Z\u2022\u25e6]|$)|\n\s*\n|$")
 _TEXT_NODES = etree.XPath(".//text()", smart_strings=False)
 
 
@@ -195,6 +200,11 @@ def _grid(rows, spans):
 
 
 def _label(rows, index):
+    if (index and rows[index] and not _visible(str(rows[index][0] or ""))
+            and not any(_NUMBER.search(str(cell)) for cell in rows[index-1][1:])):
+        previous_label, previous_metric = _label(rows, index-1)
+        if previous_metric == "eps":
+            return previous_label, "eps"
     value = next((_visible(str(cell)) for cell in rows[index] if _visible(str(cell))), "")
     if re.fullmatch(r"[-\u2013\u2014]?\s*(?:basic|diluted|basic and diluted)(?:\s*[-\u2013\u2014]\s*Class\s+[AB]\s+common stock)?", value, re.I):
         for previous in reversed(rows[:index]):
@@ -332,7 +342,7 @@ def _share_basis(label: str, table_text: str):
     return ":".join(parts)
 
 
-def _unit_context(symbol, metric, table_text, full_text, event, headers=()):
+def _unit_context(symbol, metric, table_text, full_text, event, headers=(), *, document_currency_matches=None):
     # A bare $ is not an ISO currency. Callers may supply a separately verified
     # reporting currency; a stock's listing market is never used as a fallback.
     column_currency = next(({"RMB": "CNY", "CNY": "CNY", "USD": "USD", "US$": "USD", "CHF": "CHF", "CAD": "CAD"}[code]
@@ -345,10 +355,14 @@ def _unit_context(symbol, metric, table_text, full_text, event, headers=()):
         currency = "CHF"
     elif re.search(r"\bRMB\b|\bCNY\b", table_text, re.I):
         currency = "CNY" if not re.search(r"US\$|USD", table_text, re.I) else None
-    elif re.search(r"\bUSD\b|US\$|U\.?S\.?\s+dollars|iso4217:USD", table_text + " " + full_text, re.I):
+    elif _CURRENCY_EVIDENCE["USD"].search(table_text):
         currency = "USD"
     else:
-        currency = event.get("reporting_currency")
+        if document_currency_matches is None:
+            document_currency_matches = {}
+        if "USD" not in document_currency_matches:
+            document_currency_matches["USD"] = _CURRENCY_EVIDENCE["USD"].search(full_text)
+        currency = "USD" if document_currency_matches["USD"] else event.get("reporting_currency")
     if metric == "eps":
         scale = 1
     elif re.search(r"in millions|\bmillions\b", table_text, re.I):
@@ -383,13 +397,18 @@ def _acm_summary_groups(anchors, row, event, full_text):
             for cell in header if re.search(r"As Reported|Adjusted.*Non-GAAP|^Adjusted|Metrics Excl\. Const\. Mgmt\. Project Charge", cell["value"], re.I)]
 
 
-def _html_fields(body, event, parsed, common, diagnostics):
-    full_text, tables = _html_tables(body, parsed)
+def _html_fields(body, event, parsed, common, diagnostics, *, table_input=None):
+    # PDF native cells use the same period, currency, scope and share contracts.
+    full_text, tables = table_input if table_input is not None else _html_tables(body, parsed)
+    # One document-owned match retains the exact source text and offset. It is
+    # reused by unit selection, conflict checks and each field's provenance.
+    document_currency_matches = {}
     currency_conflict = None
     if event.get("reporting_currency_source") in {"provided_company_rule", "verified_filing_unit"}:
         # Foreign-currency notes do not override an independently stated USD
         # reporting basis. The company rule only supplies a missing basis.
-        if not re.search(r"\bUSD\b|US\$|U\.?S\.?\s+dollars|iso4217:USD", full_text, re.I):
+        document_currency_matches["USD"] = _CURRENCY_EVIDENCE["USD"].search(full_text)
+        if not document_currency_matches["USD"]:
             currency_conflict = re.search(r"\b(?:CAD|CHF|CNY|RMB|EUR|GBP|JPY|HKD|Canadian dollars|Swiss francs|Chinese yuan|euros|pounds sterling|Japanese yen|Hong Kong dollars)\b", full_text, re.I)
         if currency_conflict:
             diagnostics.append({"reason": "provided_currency_conflicts_with_document", "configured_currency": event["reporting_currency"],
@@ -433,10 +452,22 @@ def _html_fields(body, event, parsed, common, diagnostics):
         # related-party and pro-forma notes contain the same phrase.
         primary_statement = any(re.fullmatch(
             r"(?:kkr&co\.inc\.)?(?:condensed)?(?:consolidated|combined)statementsof(?:operations|income|earnings)"
-            r"(?:andcomprehensive(?:income|loss))?(?:\(unaudited\))?", part) for part in heading_parts)
+            r"(?:(?:and|&)comprehensive(?:income|loss))?(?:\(unaudited\))?", part) for part in heading_parts)
+        if table_input is not None and any(part == "statementsofoperations" for part in heading_parts):
+            primary_statement = any(re.search(r"net.*(?:income|loss).*attributable to.*non[-\s]*controlling", " ".join(row), re.I)
+                                    for row in rows)
         anchors = occupied = None
+        has_rowspans = any(span[0] > 1 for spans in table["spans"] for span in spans)
         for ri, row in enumerate(rows):
             label, metric = _label(rows, ri)
+            if metric is None and ri and has_rowspans:
+                if anchors is None:
+                    anchors, occupied = _grid(rows, table["spans"])
+                inherited = occupied.get((ri, 0))
+                if inherited is not None and inherited["row"] < ri:
+                    inherited_label, inherited_metric = _label(rows, inherited["row"])
+                    if inherited_metric == "eps":
+                        label, metric = inherited_label, inherited_metric
             revenue_definition = None
             skyd_eps_column = (event["symbol"] == "SKYD" and label in {"Reported (GAAP)", "Adjusted (Non-GAAP)"}
                                and any("Diluted EPS" in prior for prior in rows[:ri]))
@@ -509,7 +540,8 @@ def _html_fields(body, event, parsed, common, diagnostics):
                 if value is None:
                     continue
                 unit_text = " ".join(" ".join(row) for row in rows[:3]) if event["symbol"] == "SOHU" else table_text
-                currency, scale = _unit_context(event["symbol"], metric, unit_text, full_text, event, headers)
+                currency, scale = _unit_context(event["symbol"], metric, unit_text, full_text, event, headers,
+                                               document_currency_matches=document_currency_matches)
                 if currency_conflict or (event.get("reporting_currency_source") in {"provided_company_rule", "verified_filing_unit"}
                                          and currency != event["reporting_currency"]):
                     currency = None
@@ -530,7 +562,11 @@ def _html_fields(body, event, parsed, common, diagnostics):
                     adjusted = True
                 definition = ("non_IFRS_adjusted" if standard == "IFRS" else "non_GAAP_adjusted") if adjusted else standard
                 if label.lower().startswith("distributable earnings"):
-                    definition = "non_IFRS_distributable_earnings_before_realizations" if "before realizations" in label.lower() else "non_IFRS_distributable_earnings"
+                    definition = ("non_IFRS" if standard == "IFRS" else "non_GAAP") + "_distributable_earnings"
+                    if "before realizations" in label.lower():
+                        definition += "_before_realizations"
+                if label.lower().startswith("fee-related earnings"):
+                    definition = ("non_IFRS" if standard == "IFRS" else "non_GAAP") + "_fee_related_earnings"
                 if "constant currency" in label.lower():
                     definition += ":constant_currency"
                 if "without the calendar shift" in label.lower():
@@ -563,10 +599,10 @@ def _html_fields(body, event, parsed, common, diagnostics):
                         scope = "continuing_operations"
                         position["business_scope_evidence"] = {"table_index": ti, "rows": [
                             {"row_index": index, "text": text} for index, text in scope_rows]}
-                currency_pattern = {"USD":r"\bUSD\b|US\$|U\.?S\.?\s+dollars|iso4217:USD", "CAD":r"\bCAD\b|Canadian dollars",
-                                    "CHF":r"\bCHF\b|Swiss Franc", "CNY":r"\bRMB\b|\bCNY\b"}.get(currency)
-                if currency_pattern:
-                    unit_match = re.search(currency_pattern, full_text, re.I)
+                if currency in _CURRENCY_EVIDENCE:
+                    if currency not in document_currency_matches:
+                        document_currency_matches[currency] = _CURRENCY_EVIDENCE[currency].search(full_text)
+                    unit_match = document_currency_matches[currency]
                     position["currency_evidence"] = ({"text":unit_match[0], "text_offset":unit_match.start(), "scope":"document"}
                                                      if unit_match else {"scope":"caller_reporting_currency_contract"})
                     if unit_match is None and event.get("reporting_currency_source") == "provided_company_rule":
@@ -822,6 +858,97 @@ def _kkr_pdf_fields(event, parsed, common, diagnostics):
     return output
 
 
+def _native_pdf_fields(event, parsed, common, diagnostics):
+    if (parsed is None or not parsed.get("tables_complete") or not parsed.get("pdf_structure_checks")
+            or not all(parsed["pdf_structure_checks"].values())):
+        diagnostics.append({"reason": "verified_native_pdf_required"})
+        return []
+    contexts = parsed.get("_metric_table_contexts")
+    if contexts is None:
+        diagnostics.append({"reason": "native_table_context_not_supplied"})
+        return []
+    tables = []
+    for index, (rows, context, detail) in enumerate(zip(parsed["tables"], contexts, parsed["table_details"], strict=True)):
+        if "table_spans" in parsed:
+            tables.append({"rows": rows, "spans": parsed["table_spans"][index], "context": context})
+            continue
+        # Older native outputs keep an expanded matrix plus real merged-cell
+        # coordinates. Remove only covered empty placeholders in this view;
+        # the archived matrix and original cells remain unchanged.
+        merges, covered = {}, set()
+        for cell in detail["cells"]:
+            row, column = cell.get("logical_row"), cell.get("logical_column")
+            height, width = cell.get("logical_rowspan", 1), cell.get("logical_colspan", 1)
+            if row is None or not cell["text"] or height == width == 1:
+                continue
+            merges[row, column] = [height, width]
+            for y in range(row, row+height):
+                for x in range(column, column+width):
+                    if (y, x) != (row, column):
+                        if rows[y][x].strip():
+                            diagnostics.append({"reason": "native_span_conflicts_with_visible_value", "table_index": index})
+                            return []
+                        covered.add((y, x))
+        tables.append({"rows": [[value for x, value in enumerate(row) if (y,x) not in covered] for y,row in enumerate(rows)],
+                       "spans": [[merges.get((y,x), [1,1]) for x in range(len(row)) if (y,x) not in covered]
+                                 for y,row in enumerate(rows)], "context": context})
+    records = _html_fields(None, event, parsed, common, diagnostics,
+                          table_input=(" ".join(parsed["text"].split()), tables))
+    for record in records:
+        position = record["source_position"]
+        detail = parsed["table_details"][position["table_index"]]
+        first, last = position["column_range"]
+        cells = [cell for cell in detail["cells"]
+                 if cell.get("logical_row", cell["row"]) == position["row_index"]
+                 and first <= cell.get("logical_column", cell["column"]) < last]
+        boxes = [box for cell in cells for box in cell.get("page_bboxes", [])]
+        boxes.extend({"page": detail["page"], "bbox": cell["bbox"]} for cell in cells if cell.get("bbox"))
+        position.update(cells=cells, page=boxes[0]["page"] if boxes else detail["page"], page_bboxes=boxes)
+        if boxes and len({box["page"] for box in boxes}) == 1:
+            position["bbox"] = [min(box["bbox"][0] for box in boxes), min(box["bbox"][1] for box in boxes),
+                                max(box["bbox"][2] for box in boxes), max(box["bbox"][3] for box in boxes)]
+        if not cells or not boxes:
+            record["status"] = "unsupported_basis"
+            diagnostics.append({"reason": "native_metric_cells_not_located", "metric": record["metric"],
+                                "table_index": position["table_index"], "row_index": position["row_index"]})
+    return records
+
+
+def _guidance_observations(parsed, common):
+    """Keep explicit forward financial prose apart from measured actuals.
+
+    These are source excerpts, not model forecasts or normalized guidance.
+    Character ranges refer to the owning validator's complete ``text``.
+    """
+    if parsed is None:
+        return []
+    observations = []
+    text = parsed["text"]
+    keyword = _GUIDANCE_WORD.search(text)
+    start = 0
+    for boundary in _GUIDANCE_END.finditer(text):
+        if keyword is None:
+            break
+        end = boundary.end()
+        if keyword.start() >= end:
+            start = end
+            continue
+        fragment = text[start:end]
+        position = start + len(fragment) - len(fragment.lstrip())
+        start, keyword = end, _GUIDANCE_WORD.search(text, end)
+        raw = fragment.strip()
+        if not (re.search(r"\b(?:revenue|earnings|EPS|margins?|cash flow|profitability)\b", raw, re.I)
+                and re.search(r"\d", raw)):
+            continue
+        if re.search(r"forward[- ]looking statements|include,? but (?:are )?not limited|no obligation to update", raw, re.I):
+            continue
+        observations.append({"status": "observation_only", "raw_text": raw,
+            "source_url": common["source_url"], "document_hash": common["document_hash"],
+            "source_position": {"text_start": position, "text_end": position + len(raw), "text_basis": "parsed.text"},
+            "used_for_signal": False})
+    return observations
+
+
 def extract_metrics(body: bytes, source_url: str, event: Mapping, *, received_at_utc: str,
                     document_version: str, parsed: Mapping | None = None, rules: Mapping | None = None) -> dict:
     """Extract target-period fields with caller-owned receipt/version provenance.
@@ -869,6 +996,8 @@ def extract_metrics(body: bytes, source_url: str, event: Mapping, *, received_at
         records = _nbis_gib_pdf_fields(body, event, common, diagnostics)
     elif body.startswith(b"%PDF") and event["symbol"] == "KKR":
         records = _kkr_pdf_fields(event, parsed, common, diagnostics)
+    elif body.startswith(b"%PDF") and event["symbol"] in {"LCID", "BAM", "BRK.B", "SKYD"}:
+        records = _native_pdf_fields(event, parsed, common, diagnostics)
     elif body.startswith(b"%PDF"):
         records = []
         diagnostics.append({"reason": "pdf_format_not_yet_verified"})
@@ -915,8 +1044,9 @@ def extract_metrics(body: bytes, source_url: str, event: Mapping, *, received_at
                 missing.append("share_basis")
             diagnostics.append({"metric":record["metric"], "metric_definition":record["metric_definition"],
                                 "raw_label":record["raw_label"], "reason":"basis_not_verified", "unverified_fields":missing})
+    guidance = _guidance_observations(parsed, common)
     finished = time.perf_counter_ns()
-    return {"metrics": output, "diagnostics": diagnostics,
+    return {"metrics": output, "diagnostics": diagnostics, "guidance_observations": guidance,
             "timings_ms": {"location": (located-started)/1e6, "basis_validation": (finished-located)/1e6,
                            "total": (finished-started)/1e6},
             "scope": "document_metric_extraction_not_network_or_trade_latency"}

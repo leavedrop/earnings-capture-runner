@@ -1,20 +1,20 @@
 {
   "sources.py": {
     "source": "earnings_watch/sources.py",
-    "sha256": "c21353d31bdc6c00ecd2992c1596824b9531333fc5a77d6cc57be341bc56d609",
-    "source_sha256": "30a4b695cff35c8c8a4210d1eb826a0c18e79755e0992ca5ab83386c40d8bd6e",
+    "sha256": "bbbcc7baf564e2fdc6d08080a9ee57e7b72caeac491bc50e3d3e47ec84e6dd3e",
+    "source_sha256": "a97ce7959efbe05264ec326fa1a5586cd0fc397766b2672fa22e2692761dd1d0",
     "normalization": "UTF-8 LF; code unchanged"
   },
   "pdf_tables.py": {
     "source": "earnings_watch/pdf_tables.py",
-    "sha256": "c784aa5e3471cd5ebdfb5613f0f5cd2de134caef70c1826139c445ec5a0626bb",
-    "source_sha256": "71bfa3a07beb31d0aeca0b815be53a56ddefeda5b035712dbb4a1c4b30af130c",
+    "sha256": "dac2e1c69c05831edeaeec8900b85ab0c3f7bb56a375ee264b9c7b2a5c5d809e",
+    "source_sha256": "31ce4ecd458807e4f83e76192da4188c638d0b8d486ef58efa98081e957d5d00",
     "normalization": "UTF-8 LF; code unchanged"
   },
   "browser_transport.py": {
     "source": "earnings_watch/browser_transport.py",
-    "sha256": "24441a0806ce95638bf3b79a2a9621d32a98f03fd8d8bb66ec2d096bc43dfd1b",
-    "source_sha256": "24441a0806ce95638bf3b79a2a9621d32a98f03fd8d8bb66ec2d096bc43dfd1b",
+    "sha256": "64977a35dc4a71c3fa89e940f598a1587417930623787f6e7051f7ce690a8885",
+    "source_sha256": "64977a35dc4a71c3fa89e940f598a1587417930623787f6e7051f7ce690a8885",
     "normalization": "UTF-8 LF; code unchanged"
   },
   "spreadsheet_tables.py": {
@@ -26,7 +26,7 @@
   "earnings_metrics.py": {
     "source": "earnings_watch/earnings_metrics.py",
     "normalization": "UTF-8 LF; code unchanged",
-    "sha256": "f21bbf359461ef47945ea02ec590e5edeb24497cb41d884690735954886e0b53",
-    "source_sha256": "f21bbf359461ef47945ea02ec590e5edeb24497cb41d884690735954886e0b53"
+    "sha256": "8e18fe13c870bc899da8bdd79607f10870d309046b149b3a8fc8562a6136ab88",
+    "source_sha256": "8e18fe13c870bc899da8bdd79607f10870d309046b149b3a8fc8562a6136ab88"
   }
 }

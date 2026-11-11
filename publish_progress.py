@@ -29,7 +29,7 @@ ROW_FIELDS = (
     "table_count", "pdf_pages_processed",
     "timing_basis", "timing_note", "quality_note",
     "evidence_id", "run_id", "observer", "node_region", "us_execution_qualified", "bridge_received_at_beijing", "archive_readback_verified",
-) + progress.OBSERVATION_FIELDS
+) + progress.OBSERVATION_FIELDS + progress.RANGE_FIELDS
 CLOUD_FIELDS = (
     "symbol", "case", "sample", "node_region", "url", "metric_scope", "started_at_beijing",
     "context_label", "discovery_to_parsed_ms", "timing_bound", "accepted", "completeness_verified",
@@ -47,7 +47,7 @@ CLOUD_FIELDS = (
     "new_tcp_connections", "response_cache_headers",
     "transport", "transport_version", "curl_cumulative_ms",
     "cache_profile", "prior_target_fetch",
-)
+) + progress.RANGE_FIELDS
 CLOUD_CAPTURE_FIELDS = ROW_FIELDS + (
     "capture_id", "node_region", "bridge_received_at_beijing", "request_to_parsed_upper_ms",
     "discovery_to_archived_ms", "bridge_roundtrip_ms", "attempt_to_parsed_upper_ms",
@@ -127,7 +127,7 @@ def safe_projection(data):
         result["cloud_captures"].append(row)
     result["cloud_heartbeat_at_beijing"] = data.get("cloud_heartbeat_at_beijing")
     result["us_live"] = pick(data.get("us_live", {}), ("run_id", "state", "node_region", "us_execution_qualified",
-        "heartbeat_at_beijing", "updated_at_beijing", "until_at_beijing", "requests", "failed_requests",
+        "heartbeat_at_beijing", "updated_at_beijing", "until_at_beijing", "requests", "failed_requests", "assembly_failures",
         "selected_run_id", "selection_status", "bridge_state", "selection_checked_at_beijing"))
     result["source_patrols"] = [pick(row, PATROL_FIELDS) for row in data.get("source_patrols", [])]
     for row in result["source_patrols"]:
@@ -136,7 +136,7 @@ def safe_projection(data):
     result["cloud_failures"] = pick(cloud_failures, ("failed_records",))
     result["cloud_failures"]["groups"] = [pick(row, FAILURE_FIELDS) for row in cloud_failures["groups"]]
     failures = data["request_failures"]
-    result["request_failures"] = pick(failures, ("requests", "failed_requests"))
+    result["request_failures"] = pick(failures, ("requests", "failed_requests", "assembly_failures"))
     result["request_failures"]["groups"] = [pick(row, FAILURE_FIELDS)
                                                    for row in failures["groups"]]
     result["privacy"] = "私有进展快照；仅白名单进展字段、公开财报提取文本/表格及SEC支持附件原件，不含采集请求元数据。"

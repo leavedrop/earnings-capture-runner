@@ -124,6 +124,11 @@ async def import_snapshot(snapshot, runtime, connection, client, commit):
             if "table_spans" in parsed:
                 from sources import check_table_spans
                 check_table_spans(parsed["tables"], parsed["table_spans"])
+            range_evidence = progress.range_projection(capture)
+            if range_evidence:
+                original = next((runtime / item["path"] for item in local if item["path"].endswith(".pdf")), None)
+                if original is None or not progress.range_assembly_complete(capture, original.read_bytes()):
+                    raise ValueError("unverified_range_assembly")
             if "xlsx" in kinds:
                 from sources import SKYD_XLSX_URL, check_xlsx_archive
                 if capture.get("symbol") != "SKYD" or capture.get("url") != SKYD_XLSX_URL:
@@ -131,6 +136,7 @@ async def import_snapshot(snapshot, runtime, connection, client, commit):
                 original = next(runtime / item["path"] for item in local if item["path"].endswith(".xlsx"))
                 check_xlsx_archive(original.read_bytes(), parsed)
             row = {key: capture[key] for key in ROW_FIELDS if key in capture}
+            row.update(range_evidence)
             for key in progress.OBSERVATION_FIELDS:
                 row.setdefault(key, None)
             row["url"] = progress.public_url(row.get("url"))
@@ -214,7 +220,7 @@ async def import_snapshot(snapshot, runtime, connection, client, commit):
                         "first_request_start_utc", "first_request_end_utc", "valid_discovery", "validity_basis")}
                         for row in snapshot.get("handoff_sources", [])],
                     source_patrols=[{key: row[key] for key in PATROL_FIELDS if key in row} for row in snapshot.get("source_patrols", [])],
-                    request_failures={key: snapshot.get("request_failures", {}).get(key, 0) for key in ("requests", "failed_requests")},
+                    request_failures={key: snapshot.get("request_failures", {}).get(key, 0) for key in ("requests", "failed_requests", "assembly_failures")},
                     failure_groups=[{key: row.get(key) for key in ("symbol", "channel", "failure_type", "count", "lastseen")} for row in snapshot.get("failure_groups", [])])
     for patrol in metadata["source_patrols"]:
         patrol["url"] = progress.public_url(patrol.get("url"))

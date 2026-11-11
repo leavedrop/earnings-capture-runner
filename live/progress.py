@@ -39,6 +39,69 @@ OBSERVATION_FIELDS = (
     "last_negative_listing_utc", "last_negative_listing_at_beijing",
     "listing_observation_gap_ms", "last_negative_to_parsed_ms", "observation_gap_semantics",
 )
+RANGE_FIELDS = (
+    "status", "http_response_complete", "whole_http_response_complete", "range_assembly_verified",
+    "range_expected_bytes", "range_parts", "http_request_count", "http_failed_request_count",
+    "body_bytes", "sha256",
+)
+RANGE_PART_FIELDS = (
+    "part", "requested_range", "expected_bytes", "expected_total_bytes", "status", "content_range",
+    "content_length", "content_encoding", "etag", "http_version", "bytes", "sha256",
+    "http_response_complete", "verified", "error_type", "queued_mono_ns", "request_start_mono_ns",
+    "stream_response_ready_mono_ns", "first_body_chunk_mono_ns", "eof_mono_ns", "request_end_mono_ns",
+    "queue_ms", "request_total_ms",
+)
+
+
+def range_projection(record):
+    """Public byte-range evidence only; never copy arbitrary response headers."""
+    if "range_assembly_verified" not in record and record.get("status") != 206:
+        return {}
+    result = {key: record[key] for key in RANGE_FIELDS if key in record and key != "range_parts"}
+    result["range_parts"] = [{key: part[key] for key in RANGE_PART_FIELDS if key in part}
+                             for part in record.get("range_parts", []) if isinstance(part, dict)]
+    return result
+
+
+def range_assembly_complete(record, body=None):
+    """A partial HTTP response is not a complete document, even when its EOF is valid."""
+    if (record.get("status") != 206 or record.get("range_assembly_verified") is not True
+            or record.get("whole_http_response_complete") is not False
+            or record.get("http_response_complete") is not False
+            or record.get("http_request_count") != 4 or record.get("http_failed_request_count") != 0):
+        return False
+    total, parts = record.get("range_expected_bytes"), record.get("range_parts")
+    if type(total) is not int or total <= 0 or not isinstance(parts, list) or len(parts) != 4:
+        return False
+    if body is not None and (len(body) != total or hashlib.sha256(body).hexdigest() != record.get("sha256")):
+        return False
+    offset, version = 0, None
+    for part in parts:
+        if not isinstance(part, dict):
+            return False
+        content_range = re.fullmatch(r"bytes (\d+)-(\d+)/(\d+)", str(part.get("content_range", "")))
+        if not content_range:
+            return False
+        start, end, size = map(int, content_range.groups())
+        length = end - start + 1
+        etag = part.get("etag")
+        clocks = [part.get(key) for key in ("queued_mono_ns", "request_start_mono_ns", "eof_mono_ns", "request_end_mono_ns")]
+        if (start != offset or end < start or size != total or part.get("status") != 206
+                or part.get("requested_range") != f"bytes={start}-{end}"
+                or part.get("expected_total_bytes") != total or part.get("expected_bytes") != length
+                or part.get("bytes") != length or part.get("http_response_complete") is not True
+                or part.get("verified") is not True or part.get("error_type")
+                or part.get("content_encoding") not in (None, "", "identity")
+                or not isinstance(etag, str) or not etag.startswith('"') or not etag.endswith('"')
+                or version is not None and version != etag
+                or not all(type(value) is int for value in clocks)
+                or not 0 <= clocks[0] <= clocks[1] <= clocks[2] <= clocks[3]
+                or not re.fullmatch(r"[a-f0-9]{64}", str(part.get("sha256", "")))):
+            return False
+        if body is not None and hashlib.sha256(body[start:end + 1]).hexdigest() != part["sha256"]:
+            return False
+        offset, version = end + 1, etag
+    return offset == total
 
 
 def date_value(value):
@@ -85,6 +148,7 @@ def read_json(path):
 
 def cloud_artifacts(values):
     artifacts = []
+    range_original = None
     for value in values or []:
         if not isinstance(value, str):
             continue
@@ -361,6 +425,7 @@ def capture_row(record, root, output_root, run_started, replay=False):
                 if not complete:
                     tables_complete = False
         saved_pdf = artifact_path(root, original or stem + ".pdf", root)
+        range_original = saved_pdf
         if symbol == "LCID" and saved_pdf and saved_pdf.lower().endswith(".pdf"):
             original_pdf = root / saved_pdf
             parsed_file = root / (report_path or stem + ".json")
@@ -404,7 +469,15 @@ def capture_row(record, root, output_root, run_started, replay=False):
     if announcement_index:
         accepted = tables_complete = False
         quality_note = "公告目录不是完整财报；原始记录和耗时保留，不计全文采集或300ms通过。"
+    range_evidence = range_projection(record)
+    if range_evidence:
+        original_body = (root / range_original).read_bytes() if range_original else None
+        if original_body is None or not range_assembly_complete(record, original_body):
+            accepted = tables_complete = False
+            range_evidence["range_assembly_verified"] = False
+            quality_note = "分段响应尚未通过整篇字节覆盖、版本一致及原件哈希核验，不能作为完整财报。"
     return {
+        **range_evidence,
         "symbol": symbol,
         "channel": channel,
         "channel_label": CHANNELS.get(channel, "其他来源"),
@@ -447,6 +520,39 @@ def capture_row(record, root, output_root, run_started, replay=False):
     }
 
 
+def range_request_statistics(connection):
+    """Adjust only KKR range aggregates; keep the covering-index query for ordinary history."""
+    result = {"request_delta": 0, "failed_delta": 0, "replaced_failures": 0, "assembly_failures": 0, "groups": []}
+    grouped = {}
+    for status_clause in ("=206", "IS NULL"):
+        for at_ns, payload in connection.execute("""
+            SELECT at_ns,payload FROM log WHERE kind='request' AND symbol='KKR' AND channel='official'
+            AND coalesce(json_extract(payload,'$.status'),NULL) """ + status_clause + """
+            AND json_extract(payload,'$.range_assembly_verified') IS NOT NULL"""):
+            record = json.loads(payload)
+            result["request_delta"] += record["http_request_count"] - 1
+            result["failed_delta"] += record["http_failed_request_count"] - int(record.get("status") is None)
+            if record.get("status") is None:
+                result["replaced_failures"] += 1
+            failures = []
+            for part in record.get("range_parts", []):
+                status = part.get("status")
+                if status is not None and status < 400:
+                    continue
+                error = part.get("error_type")
+                failures.append(f"HTTP {status}" if status is not None else
+                                error if isinstance(error, str) and re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,39}", error) else "RequestError")
+            if record.get("range_assembly_verified") is not True:
+                result["assembly_failures"] += 1
+                failures.append("RangeAssemblyVerificationError")
+            for failure in failures:
+                count, last = grouped.get(failure, (0, 0))
+                grouped[failure] = count + 1, max(last, at_ns)
+    result["groups"] = [{"symbol": "KKR", "channel": "official", "failure_type": failure,
+                         "count": count, "at_ns": at} for failure, (count, at) in grouped.items()]
+    return result
+
+
 def read_database(root, output_root, replay=False):
     uri = (root / "observations.sqlite3").resolve().as_uri() + "?mode=ro"
     with closing(sqlite3.connect(uri, uri=True)) as connection:
@@ -466,15 +572,26 @@ def read_database(root, output_root, replay=False):
             FROM log WHERE kind='request'
             GROUP BY symbol,channel,coalesce(json_extract(payload,'$.status'),NULL)
         """).fetchall()
-    request_total = sum(row[3] for row in groups)
+        ranges = range_request_statistics(connection)
+        from observation_store import poll_statistics
+        groups.extend(poll_statistics(connection))
+    request_total = sum(row[3] for row in groups) + ranges["request_delta"]
     failed = [row for row in groups if row[2] is None or row[2] >= 400]
+    failed_count = sum(row[3] for row in failed) + ranges["failed_delta"]
+    failed = [(symbol, channel, status, count - (ranges["replaced_failures"] if (symbol, channel, status) == ("KKR", "official", None) else 0), at)
+              for symbol, channel, status, count, at in failed]
     failures = [{"symbol": symbol, "channel_label": CHANNELS.get(channel, "其他来源"),
                  "failure_type": f"HTTP {status}" if status is not None else "网络或请求异常",
                  "count": count,
                  "last_seen_beijing": beijing(datetime.fromtimestamp(at_ns / 1e9, timezone.utc))}
-                for symbol, channel, status, count, at_ns in failed]
+                for symbol, channel, status, count, at_ns in failed if count]
+    failures.extend({"symbol": row["symbol"], "channel_label": CHANNELS[row["channel"]],
+                     "failure_type": row["failure_type"], "count": row["count"],
+                     "last_seen_beijing": beijing(datetime.fromtimestamp(row["at_ns"] / 1e9, timezone.utc))}
+                    for row in ranges["groups"])
     failures.sort(key=lambda item: item["count"], reverse=True)
-    return captures, {"requests": request_total, "failed_requests": sum(row[3] for row in failed), "groups": failures}
+    return captures, {"requests": request_total, "failed_requests": failed_count,
+                      "assembly_failures": ranges["assembly_failures"], "groups": failures}
 
 
 def counts(rows):
@@ -556,6 +673,7 @@ def read_us_runner(root):
             pipeline = record.get("pipeline")
             candidate, seed = {}, {}
             response_complete = record.get("http_response_complete") is True
+            request_complete = response_complete
             if pipeline == "production_watch_list_seed":
                 request_name = f"requests_{target}.ndjson"
                 request_path = artifact_path(path.parent, request_name, path.parent) if request_name in artifacts else None
@@ -565,15 +683,17 @@ def read_us_runner(root):
                 candidate = next((item for item in requests if item.get("purpose") == "candidate"
                     and item.get("symbol") == record.get("symbol") and item.get("channel") == record.get("channel")
                     and item.get("url") == record.get("url") and item.get("final_url") == record.get("url")
-                    and item.get("status") == 200 and item.get("sha256") == record.get("sha256")
+                    and (item.get("status") == 200 or item.get("status") == 206 and item.get("range_assembly_verified") is True)
+                    and item.get("sha256") == record.get("sha256")
                     and item.get("body_bytes") == record.get("bytes")), {})
                 artifact = candidate.get("artifact", "")
                 raw_name = artifact if artifact in artifacts and re.fullmatch(r"raw/" + re.escape(target) + r"_\d+_candidate\.(?:html|pdf|xlsx)", artifact) else None
                 times = [date_value(candidate.get(key)) for key in ("request_start_utc", "body_complete_utc", "request_end_utc")]
                 parsed_at = date_value(record.get("parsed_utc"))
                 monotonic = [candidate.get(key) for key in ("queued_mono_ns", "request_start_mono_ns", "body_complete_mono_ns", "request_end_mono_ns")]
-                response_complete = bool(raw_name and all(times) and parsed_at and times[0] <= times[1] <= times[2] <= parsed_at
+                request_complete = bool(raw_name and all(times) and parsed_at and times[0] <= times[1] <= times[2] <= parsed_at
                     and all(type(value) is int for value in monotonic) and 0 <= monotonic[0] <= monotonic[1] <= monotonic[2] <= monotonic[3])
+                response_complete = request_complete and candidate.get("status") == 200
             parsed_name = f"parsed/{target}.json"
             raw_path = artifact_path(path.parent, raw_name, path.parent) if raw_name else None
             parsed_path = artifact_path(path.parent, parsed_name, path.parent) if parsed_name in artifacts else None
@@ -581,6 +701,10 @@ def read_us_runner(root):
             parsed = read_json(path.parent / parsed_path) if parsed_path else {}
             raw_verified = (raw is not None and hashlib.sha256(raw).hexdigest() == record.get("sha256")
                             and len(raw) == record.get("bytes"))
+            assembled = bool(raw_verified and range_assembly_complete(record, raw)
+                and (pipeline != "production_watch_list_seed" or request_complete and range_assembly_complete(candidate, raw)))
+            if record.get("status") == 206 or "range_assembly_verified" in record:
+                response_complete = False
             tables = parsed.get("tables", [])
             tables_verified = bool(parsed) and hashlib.sha256(json.dumps(tables, ensure_ascii=False,
                 separators=(",", ":")).encode("utf-8")).hexdigest() == record.get("tables_sha256")
@@ -590,7 +714,7 @@ def read_us_runner(root):
                 tables_verified = tables_verified and [hashlib.sha256(json.dumps(table, ensure_ascii=False,
                     separators=(",", ":")).encode("utf-8")).hexdigest() for table in tables] == record.get("table_sha256")
             checks = parsed.get("checks", {})
-            accepted = (record.get("status") == 200 and response_complete
+            accepted = ((record.get("status") == 200 and response_complete or assembled)
                         and parsed.get("accepted") is True and all(checks.get(key) is True for key in
                         ("identity", "reporting_period", "not_announcement", "financial_body", "financial_tables")))
             table_complete = (parsed.get("tables_complete") is True and bool(tables)
@@ -669,6 +793,7 @@ def read_us_runner(root):
                             if pipeline == "production_watch_list_seed" else
                             "美国节点调用已知文档地址起，包含限速排队、真实下载、哈希与全文解析；不含列表发现、归档和传回国内。")
             rows.append({
+                **({**range_projection(record), "range_assembly_verified": assembled} if range_projection(record) else {}),
                 "run_id": path.parent.name.removeprefix("us_runner_"), "target_id": target,
                 "symbol": record.get("symbol"), "channel": record.get("channel"), "case": target, "sample": index,
                 "node_region": cloud_region({"country": node.get("loc"), "colo": node.get("colo")}), "us_node_verified": is_us,
@@ -684,7 +809,7 @@ def read_us_runner(root):
                 "report_url": report_url, "replay_artifacts": replay_artifacts, "parsed_artifact": parsed_artifact,
                 "canonical_url": public_url(record.get("canonical_url")), "canonical_previous_status": record.get("canonical_previous_status"),
                 "canonical_channel": "newswire" if pdf_alternative or issuer_copy else None,
-                "http_response_complete": response_complete, "request_eof_verified": response_complete if pipeline == "production_watch_list_seed" else None,
+                "http_response_complete": response_complete, "request_eof_verified": request_complete if pipeline == "production_watch_list_seed" else None,
                 "seed_status": seed.get("status"), "seed_url": public_url(seed.get("url")),
                 "seed_request_total_ms": milliseconds(seed.get("request_total_ms")),
                 "seed_listing_contains_candidate": record.get("seed_listing_contains_candidate"),
@@ -867,6 +992,9 @@ def read_us_live(root, now=None):
         if row.get("context") == "live" and not has_negative_observation(row):
             row.update(context="unknown", context_label=CONTEXTS["unknown"],
                        context_explanation="缺少此前未见公告的原始观察时间，不能认作首发记录。")
+        if range_projection(row) and not range_assembly_complete(row):
+            row.update(accepted=False, tables_complete=False, latency_budget_passed=False,
+                       range_assembly_verified=False, quality_note="分段响应缺少已验证的完整重组证据。")
         if is_tgtx_announcement_index(row.get("url") or ""):
             row.update(accepted=False, tables_complete=False, latency_budget_passed=False,
                        document_kind="announcement_listing",
@@ -940,7 +1068,8 @@ def read_us_live(root, now=None):
             "heartbeat_at_beijing": beijing(current.get("collector_heartbeat_utc")),
             "updated_at_beijing": beijing(current.get("updated_utc")), "until_at_beijing": beijing(current.get("until_utc")),
             "requests": sum(run.get("request_failures", {}).get("requests", 0) for run in runs),
-            "failed_requests": sum(run.get("request_failures", {}).get("failed_requests", 0) for run in runs)}
+            "failed_requests": sum(run.get("request_failures", {}).get("failed_requests", 0) for run in runs),
+            "assembly_failures": sum(run.get("request_failures", {}).get("assembly_failures", 0) for run in runs)}
     failures = [{"symbol": row.get("symbol"), "channel_label": "美国采集器 / " + CHANNELS.get(row.get("channel"), "其他来源"),
                  "failure_type": row.get("failure_type"), "count": row.get("count", 0),
                  "last_seen_beijing": beijing(row.get("lastseen"))}

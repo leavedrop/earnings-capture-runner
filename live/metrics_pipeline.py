@@ -46,12 +46,13 @@ def public_synthetic_extraction(record):
               "extraction_completed_at_utc", "comparison_completed_mono_ns", "comparison_completed_at_utc",
               "decision_computed_mono_ns", "decision_computed_at_utc",
               "decision_completed_mono_ns", "decision_completed_at_utc", "ended_mono_ns", "ended_at_utc",
+              "archive_completed_mono_ns", "archive_completed_utc",
               "decision_budget_ms", "decision_budget_passed", "whole_document_verified",
               "original_worker_budget_passed", "capture_evidence_id",
               "signal_status", "exchange_submitted", "observer", "node_region", "us_execution_qualified")
     public = {key: record[key] for key in fields if key in record}
     public["source_url"] = public_url(record.get("source_url"))
-    if record.get("error_stage") in ("extraction", "comparison", "decision", "configuration"):
+    if record.get("error_stage") in ("extraction", "comparison", "decision", "configuration", "archive"):
         public["error_stage"] = record["error_stage"]
     error_type = record.get("error_type")
     if isinstance(error_type, str) and re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,79}", error_type):
@@ -147,10 +148,25 @@ class MetricsPipeline:
         # Do not queue this optional work in the full-report parser's executor.
         self.executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="earnings-metrics")
 
-    async def process_capture(self, body, source_url, event, parsed, capture, *, offline_replay=False):
+    async def process_capture(self, body, source_url, event, parsed, capture, *, offline_replay=False,
+                              completion_barrier=None):
         queued = time.perf_counter_ns()
         result = await asyncio.get_running_loop().run_in_executor(self.executor, partial(
             self._process, body, source_url, event, parsed, capture, queued, offline_replay))
+        if completion_barrier is not None:
+            # Archive work overlaps extraction, but cannot fall outside the
+            # continuous completion clock or fail behind a successful verdict.
+            try:
+                await asyncio.shield(completion_barrier)
+            except Exception as exc:
+                result.update(status="error", error_stage="archive", error_type=type(exc).__name__,
+                              simulation_decision=None, decision_budget_passed=None,
+                              discovery_to_decision_ms=None, ended_mono_ns=time.perf_counter_ns(), ended_at_utc=utc())
+                result["timings_ms"]["pipeline"] = (result["ended_mono_ns"]-queued)/1e6
+                await self.store.add_async("metric_extraction", result)
+                raise
+            result["archive_completed_mono_ns"] = capture["archive_completed_mono_ns"]
+            result["archive_completed_utc"] = capture["archive_completed_utc"]
         delivered = time.perf_counter_ns()
         delivered_utc = utc()
         result["timings_ms"]["delivery_queue"] = (delivered-result["ended_mono_ns"])/1e6
@@ -164,9 +180,9 @@ class MetricsPipeline:
                 if (result["simulation_decision"]["eligible"]
                         and capture.get("validation", {}).get("accepted") is True):
                     result["decision_budget_passed"] = result["discovery_to_decision_ms"] <= 500
-        # Store's SQLite connection remains on the collector's event-loop thread.
+        # Evidence commits on the dedicated writer; failures still propagate.
         # This audit write is after delivery; it is not an exchange acknowledgement.
-        self.store.add("metric_extraction", result)
+        await self.store.add_async("metric_extraction", result)
         return result
 
     def _process(self, body, source_url, event, parsed, capture, queued, offline_replay):
@@ -217,6 +233,7 @@ class MetricsPipeline:
                 parsed=parsed, rules=self.rules)
             extracted_at = time.perf_counter_ns()
             result.update(metrics=extracted["metrics"], diagnostics=extracted["diagnostics"],
+                          guidance_observations=extracted.get("guidance_observations", []),
                           extractor_timings_ms=extracted["timings_ms"],
                           extraction_completed_mono_ns=extracted_at, extraction_completed_at_utc=utc())
             result["timings_ms"]["extraction"] = (extracted_at-started)/1e6

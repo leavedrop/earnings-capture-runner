@@ -791,7 +791,13 @@ async def collect_watch_case(target, output, node):
                            candidate_attempt=capture.get("candidate_attempt"), retry=capture.get("retry"),
                            discovered_mono_ns=capture.get("discovered_mono_ns"), validated_mono_ns=capture.get("validated_mono_ns"),
                            listing_request_id=capture.get("listing_request_id"),
-                           discovery_to_archive_ms=None, archive_timing_note="Production archive completion has no recorded continuous timestamp; CLI end is only an upper bound")
+                           archive_completed_mono_ns=capture.get("archive_completed_mono_ns"),
+                           archive_completed_utc=capture.get("archive_completed_utc"),
+                           discovery_to_archive_ms=((capture["archive_completed_mono_ns"]-capture["discovered_mono_ns"])/1e6
+                               if capture.get("archive_completed_mono_ns") is not None and capture.get("discovered_mono_ns") is not None else None),
+                           archive_timing_note=("Same-process clock through full original/text/table file writes; delivered metric decision also waits for capture commit"
+                               if capture.get("archive_completed_mono_ns") is not None else
+                               "This version recorded no continuous archive clock; CLI end is only an upper bound"))
                 if requests:
                     row["seed_request_to_parsed_ms"] = (capture["validated_mono_ns"] - row["seed"]["queued_mono_ns"]) / 1e6
                 name = "parsed/" + target["target_id"] + ".json"
@@ -1187,7 +1193,7 @@ async def run(args):
     if args.scope in METRICS_SCOPES:
         metadata.update(passed_semantics="Legacy full-parse 300ms count; see passed_decision_500 for the current goal",
                         passed_decision_500=sum(row.get("decision_budget_passed") is True for row in results),
-                        decision_endpoint="Same-process discovery through complete parse, metrics, comparison and event-loop delivery; local simulation only")
+                        decision_endpoint="Same-process discovery through complete parse, full archive/capture commit, metrics, comparison and event-loop delivery; local simulation only, no exchange acknowledgement")
     if material_scope:
         metadata["material_downloaded"] = sum(row.get("material_download_complete") is True for row in results)
         if args.scope == "kkr-range-transport":
