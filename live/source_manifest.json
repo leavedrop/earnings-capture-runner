@@ -1,7 +1,7 @@
 {
   "watch.py": {
-    "sha256": "79a1987669f64978df25c0557f5605679ef4f5701f312320194932cf49f54b49",
-    "production_sha256": "1fecda298ababa2119bc5547ac5863356fd06b4c0c98cabe9e0ca858818d801a",
+    "sha256": "10ea5f5b2bee2d38bc3490f760fc06ac9c126fdd4167e4a370b74df45045d3f1",
+    "production_sha256": "31de8d9bc589ca26493e9bdd59fd868db6141a186173da34effe801cdc2801b5",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "watch.py"
   },

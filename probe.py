@@ -104,6 +104,13 @@ async def identify_node(client):
 
 
 def select_targets(targets, scope):
+    if scope == "kkr-range-transport":
+        target = select_targets(targets, "kkr-issuer-chrome-transport")[0]
+        return [{**target, "target_id": "KKR_complete_pdf_four_connection_ranges", "material_format": "pdf",
+                 "url": "https://ir-api.eqs.com/storage/ir/be2d8b/documents/39297093-8255-4c8f-aae0-597950d1d2e8/KKR_Q326_Earnings_Release.pdf",
+                 "warmup_url": "https://ir-api.eqs.com/storage/ir/a7afba/tools/4a1d5dca-7881-4367-a888-c68162e0fe46/index.js",
+                 "range_parts": 4, "reference_bytes": 935929, "size_evidence": "issuer API document.fileSize",
+                 "reference_sha256": target["reference"]["raw_sha256"], "require_strong_etag": True}]
     if scope == "kkr-issuer-chrome-transport":
         reference = json.loads((BASE / "remaining_references.json").read_text(encoding="utf-8"))["KKR_CURRENT_METRICS_PRODUCTION"]
         event = next(event for event in json.loads((BASE / "live/watchlist.json").read_text(encoding="utf-8")) if event["symbol"] == "KKR")
@@ -494,10 +501,11 @@ async def collect_one(client, target, output, node, recent, blocked):
     return row
 
 
-async def collect_material_ranges(client, target, output, node, recent, blocked):
-    """One exact three-part old-file download; financial acceptance stays false."""
+async def collect_material_ranges(client, target, output, node, recent, blocked, *, connections=None):
+    """One bounded old-file range group; never a production financial capture."""
     started = time.perf_counter_ns()
     size = target["reference_bytes"]
+    count, etag = target.get("range_parts", 3), None
     row = {"target_id": target["target_id"], "symbol": target["event"]["symbol"], "channel": target["channel"],
            "url": target["url"], "node": node, "purpose": "material_download", "mode": "download_only",
            "started_utc": utc(), "parsed_utc": None, "discovery_to_parsed_ms": None,
@@ -506,9 +514,14 @@ async def collect_material_ranges(client, target, output, node, recent, blocked)
            "http_response_complete": False, "artifacts": [], "reference_bytes": size,
            "reference_sha256": target["reference_sha256"], "attempts": 1,
            "timing_scope": "Three parallel ranges from group invocation before rate queues through all HTTP EOFs, ordered assembly and complete SHA256; excludes listing and subsequent archives. Old-material download only, not full parsing or 300ms SLA."}
+    if connections is not None:
+        row.update(connection_policy="Four independent curl sessions; one warmed TCP pool per range; no shared H2 multiplexing",
+                   size_evidence=target["size_evidence"], group_started_mono_ns=started,
+                   timing_scope="Group invocation before target rate queues through all four EOFs, assembly, SHA and complete native parsing/reference checks; excludes separately recorded SDK HEAD setup, metrics and archive. Old-material transport experiment, not SLA.")
 
     async def part(index):
-        first, last = index * size // 3, (index + 1) * size // 3 - 1
+        nonlocal etag
+        first, last = index * size // count, (index + 1) * size // count - 1
         queued = time.perf_counter_ns()
         record = {"part": index, "purpose": "material_download", "url": target["url"],
                   "requested_range": f"bytes={first}-{last}", "expected_bytes": last - first + 1,
@@ -520,22 +533,27 @@ async def collect_material_ranges(client, target, output, node, recent, blocked)
             await pace(target["url"], recent, blocked)
             request_started = time.perf_counter_ns()
             record.update(queue_ms=(request_started - queued) / 1e6, request_start_utc=utc())
-            async with client.stream("GET", target["url"], headers={"Range": record["requested_range"], "Accept-Encoding": "identity"}) as response:
+            selected = connections[index] if connections is not None else client
+            async with selected.stream("GET", target["url"], headers={"Range": record["requested_range"], "Accept-Encoding": "identity"}) as response:
                 record.update(status=response.status_code, final_url=str(response.url),
                               content_range=response.headers.get("content-range"),
                               content_length=response.headers.get("content-length"),
                               content_type=response.headers.get("content-type"),
-                              content_encoding=response.headers.get("content-encoding"),
+                               content_encoding=response.headers.get("content-encoding"), etag=response.headers.get("etag"),
                               stream_response_ready_ms=(time.perf_counter_ns() - request_started) / 1e6)
                 expected_range = f"bytes {first}-{last}/{size}"
+                etag_ok = not target.get("require_strong_etag") or bool(
+                    re.fullmatch(r'"[^"\r\n]*"', record["etag"] or "") and (etag is None or etag == record["etag"]))
                 if (response.status_code != 206 or (record["content_range"] or "").strip().lower() != expected_range
+                        or not etag_ok or target.get("require_strong_etag") and record["content_length"] != str(last - first + 1)
                         or (record["content_length"] is not None and record["content_length"] != str(last - first + 1))
                         or (record["content_encoding"] or "identity").lower() != "identity"):
                     # Pinned curl_cffi 0.16.0 ac lose only waits. Its stream qput
                     # aborts the next write when quit_now is set; do not drain a 200 body.
                     response.quit_now.set()
                     record["stopped_on_headers"] = True
-                    raise ValueError("Range response must be 206 with exact unencoded Content-Range and length")
+                    raise ValueError("Range response must be 206 with exact unencoded Content-Range/length and required identical strong ETag")
+                etag = record["etag"]
                 async for chunk in response.aiter_content():
                     body.extend(chunk)
                     if len(body) > last - first + 1:
@@ -553,24 +571,45 @@ async def collect_material_ranges(client, target, output, node, recent, blocked)
                       header_timing_semantics="Stream response returns after the first libcurl body callback; not pure header arrival")
         return record, bytes(body)
 
-    pieces = await asyncio.gather(*(part(index) for index in range(3)))
+    pieces = await asyncio.gather(*(part(index) for index in range(count)))
     row["parts"] = [record for record, _ in pieces]
     raw = b""
     if all(record["http_response_complete"] for record, _ in pieces):
         raw = b"".join(body for _, body in pieces)
-        row.update(http_response_complete=True, bytes=len(raw), sha256=digest(raw), material_format="xlsx")
+        row.update(http_response_complete=True, bytes=len(raw), sha256=digest(raw), material_format=target.get("material_format", "xlsx"))
         row["reference_sha256_matches"] = len(raw) == size and row["sha256"] == target["reference_sha256"]
         row.update(download_hash_completed_utc=utc(), invocation_to_hashed_download_ms=(time.perf_counter_ns() - started) / 1e6)
         if not row["reference_sha256_matches"]:
             row["error_type"] = "ReferenceSha256Mismatch"
     else:
         row["error_type"] = "RangeDownloadIncomplete"
+    parsed = None
+    if connections is not None and row.get("reference_sha256_matches"):
+        try:
+            parse_started = time.perf_counter_ns()
+            # The original byte hash binds this storage URL to the audited issuer PDF.
+            parsed = await asyncio.to_thread(validate, raw, target["reference"]["url"], "application/pdf", target["event"])
+            comparison = reference_match(parsed, target["reference"])
+            row.update(comparison, native_reference_verified=parsed.get("accepted") is True
+                       and parsed.get("tables_complete") is True and all(comparison.get(key) is True for key in
+                       ("reference_text_matches", "reference_tables_match", "reference_pages_match", "reference_structure_matches")),
+                       pdf_pages_total=parsed.get("pdf_pages_total"), table_count=len(parsed["tables"]),
+                       parsed_utc=utc(), parse_and_reference_ms=(time.perf_counter_ns()-parse_started)/1e6,
+                       invocation_to_parsed_ms=(time.perf_counter_ns()-started)/1e6)
+            if not row["native_reference_verified"]:
+                row["error_type"] = "NativeReferenceMismatch"
+        except Exception as exc:
+            row.update(error_type=type(exc).__name__, error_message=safe_error_message(exc))
     row.update(ended_utc=utc(), invocation_to_end_ms=(time.perf_counter_ns() - started) / 1e6)
     try:
         if raw:
-            name = "raw/" + target["target_id"] + ".xlsx"
+            name = "raw/" + target["target_id"] + "." + row["material_format"]
             (output / name).write_bytes(raw)
             row.update(raw_document_artifact=name, archived=True)
+            row["artifacts"].append(name)
+        if parsed is not None:
+            name = "parsed/" + target["target_id"] + ".json"
+            (output / name).write_text(json.dumps(parsed, ensure_ascii=False), encoding="utf-8")
             row["artifacts"].append(name)
         if row.get("error_type"):
             for record, body in pieces:
@@ -980,8 +1019,9 @@ async def run(args):
     args.output.mkdir(parents=True, exist_ok=False)
     for name in ("raw", "parsed"):
         (args.output / name).mkdir()
-    material_scope = args.scope in ("skyd-materials", "skyd-range", "skyd-http1-material")
-    warmup = {"skipped": "download_only"} if material_scope else await asyncio.to_thread(prewarm_pdf_pool)
+    material_scope = args.scope in ("skyd-materials", "skyd-range", "skyd-http1-material", "kkr-range-transport")
+    warmup = ({"skipped": "download_only"} if material_scope and args.scope != "kkr-range-transport"
+              else await asyncio.to_thread(prewarm_pdf_pool))
     recent, blocked = {}, {}
     async with AsyncExitStack() as stack, httpx.AsyncClient(http2=True, trust_env=False, follow_redirects=True, max_redirects=5,
                                 timeout=httpx.Timeout(12, connect=5),
@@ -1023,9 +1063,26 @@ async def run(args):
                                                "One Chrome HTTP/1.1 US HTTP200 XLSX through EOF and complete raw SHA256 archive after separate verified listing warmup; financial completeness remains false" if args.scope == "skyd-http1-material" else
                                                "Two US HTTP200 responses through EOF with expected file magic and SHA256 raw archives; financial completeness remains false"),
                             requests_per_second={"parent_direct_sec": 0, "production_child_sec": 0, "other_hosts_shared": 4})
+        if args.scope == "kkr-range-transport":
+            metadata.update(scope="kkr_four_connection_range_and_native_parse_experiment_not_sla",
+                            success_criterion="Four US independent connections, exact ranges, one strong ETag, full PDF SHA, 49 pages and complete native reference; no metric/decision or SLA credit")
         (args.output / "run.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
         results = []
-        if material_scope:
+        if args.scope == "kkr-range-transport":
+            connections = [browser_client] + [await stack.enter_async_context(browser_session()) for _ in range(3)]
+            metadata["connection_warmups"] = await asyncio.gather(*(collect_one(connection,
+                {**targets[0], "url": targets[0]["warmup_url"], "target_id": f"KKR_sdk_head_{index}",
+                 "method": "HEAD", "purpose": "connection_warmup"}, args.output, node, recent, blocked)
+                for index, connection in enumerate(connections)))
+            if all(row.get("status") == 200 and row.get("http_response_complete") for row in metadata["connection_warmups"]):
+                quiet_started = time.perf_counter()
+                await asyncio.sleep(max(0, recent[host_key(targets[0]["url"])][-1] + 1 - quiet_started))
+                metadata["post_warmup_quiet_ms"] = (time.perf_counter()-quiet_started)*1000
+                results.append(await collect_material_ranges(browser_client, targets[0], args.output, node, recent, blocked, connections=connections))
+            else:
+                metadata["comparison_stopped"] = "SDK_HEAD_failed_no_target_requests"
+            targets = []
+        elif material_scope:
             listing = await collect_one(browser_client,
                 {**targets[0], "url": targets[0]["listing_url"], "target_id": "SKYD_verified_quarterly_listing",
                  "purpose": "connection_warmup"}, args.output, node, recent, blocked)
@@ -1133,11 +1190,13 @@ async def run(args):
                         decision_endpoint="Same-process discovery through complete parse, metrics, comparison and event-loop delivery; local simulation only")
     if material_scope:
         metadata["material_downloaded"] = sum(row.get("material_download_complete") is True for row in results)
+        if args.scope == "kkr-range-transport":
+            metadata["native_reference_verified"] = len(results) == 1 and results[0].get("native_reference_verified") is True
         if args.scope == "skyd-http1-material":
             metadata["actual_target_protocols_match_profiles"] = [row.get("http_version") for row in results] == ["HTTP/1.1"]
     (args.output / "summary.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     if material_scope:
-        return 0 if metadata["material_downloaded"] == (1 if args.scope in ("skyd-range", "skyd-http1-material") else 2) and node.get("loc") == "US" and node.get("is_us") is True and metadata.get("actual_target_protocols_match_profiles", True) else 1
+        return 0 if metadata["material_downloaded"] == (1 if args.scope in ("skyd-range", "skyd-http1-material", "kkr-range-transport") else 2) and node.get("loc") == "US" and node.get("is_us") is True and metadata.get("actual_target_protocols_match_profiles", True) and metadata.get("native_reference_verified", True) else 1
     if args.scope in METRICS_SCOPES and (
             metadata["passed_decision_500"] != len(results) or node.get("is_us") is not True):
         return 1
@@ -1148,7 +1207,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "backlog-production", "kkr-complete", "kkr-issuer-chrome-transport", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports", "skyd-materials", "skyd-range", "skyd-http1-material", "skyd-complete", "bw-browser-access", "bw-browser-http1-access", *METRICS_SCOPES), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "backlog-production", "kkr-complete", "kkr-issuer-chrome-transport", "kkr-range-transport", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports", "skyd-materials", "skyd-range", "skyd-http1-material", "skyd-complete", "bw-browser-access", "bw-browser-http1-access", *METRICS_SCOPES), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 

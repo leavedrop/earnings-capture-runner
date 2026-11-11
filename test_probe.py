@@ -173,15 +173,24 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
         targets = select_targets(json.loads((BASE / "targets.json").read_text(encoding="utf-8")), "skyd-range")
         self.assertEqual(len(targets), 1)
         self.assertEqual(targets[0]["reference_bytes"], 11841890)
+        kkr = select_targets([], "kkr-range-transport")[0]
+        self.assertEqual((kkr["reference_bytes"], kkr["range_parts"]), (935929, 4))
         full = b"PK\x03\x04" + bytes(range(256)) * 8192
         state = {}
 
         class Handler(BaseHTTPRequestHandler):
             protocol_version = "HTTP/1.1"
 
+            def do_HEAD(self):
+                case = state["case"]
+                case["requests"].append((self.path, None))
+                case["connections"].append(("HEAD", self.client_address[1], time.perf_counter()))
+                self.send_response(200); self.send_header("Content-Length", "0"); self.end_headers()
+
             def do_GET(self):
                 case = state["case"]
                 case["requests"].append((self.path, self.headers.get("Range")))
+                case["connections"].append(("GET", self.client_address[1], time.perf_counter()))
                 if self.path == "/quarterly":
                     data = b"<div><a href='/workbook'>Q3 2026 Trending Schedules</a></div>"
                     self.send_response(200)
@@ -196,6 +205,7 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
                 self.send_header("Content-Length", str(len(data)))
                 if not case["ignored"]:
                     self.send_header("Content-Range", f"bytes {start}-{end}/{len(full)}")
+                    self.send_header("ETag", '"different"' if case["wrong_etag"] and start >= len(full)//2 else '"same"')
                 self.end_headers()
                 sent = 0
                 try:
@@ -208,7 +218,7 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
                     pass
                 finally:
                     case["sent"].append(sent)
-                    if len(case["sent"]) == 3:
+                    if len(case["sent"]) == case["parts"]:
                         case["finished"].set()
 
             def log_message(self, *args):
@@ -216,28 +226,40 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
 
         server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
         thread = threading.Thread(target=server.serve_forever, daemon=True); thread.start()
-        target = {**targets[0], "url": f"http://127.0.0.1:{server.server_port}/workbook",
-                  "listing_url": f"http://127.0.0.1:{server.server_port}/quarterly",
-                  "reference_bytes": len(full), "reference_sha256": hashlib.sha256(full).hexdigest()}
         try:
-            for ignored in (False, True):
-                case = {"ignored": ignored, "requests": [], "sent": [], "finished": threading.Event()}
+            for scope, ignored, wrong_etag in (("skyd-range", False, False), ("skyd-range", True, False),
+                                               ("kkr-range-transport", False, False), ("kkr-range-transport", False, True)):
+                is_kkr = scope == "kkr-range-transport"
+                full = (b"%PDF-1.7\n" if is_kkr else b"PK\x03\x04") + bytes(range(256)) * 8192
+                parsed = {"accepted": True, "tables_complete": True, "text": "fixture", "tables": [[["full cell"]]] * 28,
+                          "pdf_pages_total": 49, "pdf_pages_processed": 49}
+                reference = {**content_hashes(parsed), "raw_sha256": hashlib.sha256(full).hexdigest(),
+                             "url": kkr["reference"]["url"], "pdf_pages_total": 49,
+                             "structure_sha256": hashlib.sha256(json.dumps({"table_details": None, "page_diagnostics": None,
+                                 "pdf_metadata": None}, sort_keys=True, separators=(",", ":")).encode()).hexdigest()}
+                target = {**(kkr if is_kkr else targets[0]), "url": f"http://127.0.0.1:{server.server_port}/workbook",
+                          "listing_url": f"http://127.0.0.1:{server.server_port}/quarterly",
+                          "warmup_url": f"http://127.0.0.1:{server.server_port}/sdk.js", "reference": reference,
+                          "reference_bytes": len(full), "reference_sha256": hashlib.sha256(full).hexdigest()}
+                case = {"ignored": ignored, "wrong_etag": wrong_etag, "parts": 4 if is_kkr else 3,
+                        "requests": [], "connections": [], "sent": [], "finished": threading.Event()}
                 state["case"] = case
                 with tempfile.TemporaryDirectory() as directory:
-                    args = argparse.Namespace(targets=BASE / "targets.json", output=Path(directory) / "outputs", scope="skyd-range")
+                    args = argparse.Namespace(targets=BASE / "targets.json", output=Path(directory) / "outputs", scope=scope)
                     with patch("probe.select_targets", return_value=[target]), \
                             patch("probe.identify_node", new_callable=AsyncMock, return_value={"loc": "US", "colo": "TEST", "is_us": True, "status": 200}), \
-                            patch("probe.validate") as parse, patch("probe.prewarm_pdf_pool") as warm:
-                        self.assertEqual(await run(args), 1 if ignored else 0)
-                    parse.assert_not_called(); warm.assert_not_called()
+                            patch("probe.validate", return_value=parsed) as parse, patch("probe.prewarm_pdf_pool", return_value={"fixture": True}) as warm:
+                        self.assertEqual(await run(args), 1 if ignored or wrong_etag else 0)
+                    self.assertEqual(parse.call_count, int(is_kkr and not wrong_etag)); self.assertEqual(warm.call_count, int(is_kkr))
                     self.assertTrue(await asyncio.to_thread(case["finished"].wait, 2))
-                    expected = [f"bytes={i * len(full) // 3}-{(i + 1) * len(full) // 3 - 1}" for i in range(3)]
-                    self.assertEqual(case["requests"][0], ("/quarterly", None))
-                    self.assertEqual(sorted(value for path, value in case["requests"][1:]), sorted(expected))
-                    self.assertEqual(len(case["requests"]), 4)
+                    count, setup = case["parts"], 4 if is_kkr else 1
+                    expected = [f"bytes={i * len(full) // count}-{(i + 1) * len(full) // count - 1}" for i in range(count)]
+                    self.assertEqual(case["requests"][:setup], [("/sdk.js" if is_kkr else "/quarterly", None)] * setup)
+                    self.assertEqual(sorted(value for path, value in case["requests"][setup:]), sorted(expected))
+                    self.assertEqual(len(case["requests"]), setup + count)
                     row = json.loads((args.output / "materials.ndjson").read_text())
                     parts = [json.loads(line) for line in (args.output / "range_parts.ndjson").read_text().splitlines()]
-                    self.assertEqual(len(parts), 3)
+                    self.assertEqual(len(parts), count)
                     self.assertFalse(row["complete"] or row["budget_passed"] or row["tables_complete"])
                     self.assertIsNone(row["discovery_to_parsed_ms"])
                     self.assertFalse((args.output / "results.ndjson").exists())
@@ -245,6 +267,9 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
                         self.assertTrue(all(part["status"] == 200 and part["stopped_on_headers"] and not part["http_response_complete"] for part in parts))
                         self.assertTrue(all(sent < len(full) for sent in case["sent"]))
                         self.assertFalse(row["material_download_complete"])
+                    elif wrong_etag:
+                        self.assertFalse(row["material_download_complete"])
+                        self.assertTrue(any(part["stopped_on_headers"] for part in parts))
                     else:
                         self.assertTrue(all(part["status"] == 206 and part["http_response_complete"] for part in parts))
                         self.assertEqual(sum(part["bytes"] for part in parts), len(full))
@@ -252,6 +277,15 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
                         self.assertEqual(row["sha256"], target["reference_sha256"])
                         self.assertEqual((args.output / row["raw_document_artifact"]).read_bytes(), full)
                         self.assertGreaterEqual(row["invocation_to_hashed_download_ms"], max(part["request_total_ms"] for part in parts))
+                    if is_kkr:
+                        heads = [item for item in case["connections"] if item[0] == "HEAD"]
+                        gets = [item for item in case["connections"] if item[0] == "GET"]
+                        self.assertEqual(len({item[1] for item in heads}), 4)
+                        self.assertEqual({item[1] for item in heads}, {item[1] for item in gets})
+                        self.assertGreaterEqual(min(item[2] for item in gets)-max(item[2] for item in heads), .95)
+                        if not wrong_etag:
+                            self.assertTrue(row["native_reference_verified"])
+                            self.assertGreaterEqual(row["invocation_to_parsed_ms"], row["invocation_to_hashed_download_ms"])
         finally:
             server.shutdown(); server.server_close(); thread.join()
 

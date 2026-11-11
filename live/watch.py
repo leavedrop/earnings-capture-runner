@@ -27,6 +27,8 @@ import uuid
 import httpx
 from sources import is_kkr_report_asset
 
+KKR_ASSET_PRECONNECT = "https://ir-api.eqs.com/storage/ir/a7afba/tools/4a1d5dca-7881-4367-a888-c68162e0fe46/index.js"
+
 BASE = Path(__file__).resolve().parent
 UTC = timezone.utc
 BJ = timezone(timedelta(hours=8))
@@ -393,6 +395,7 @@ class Collector:
             else:
                 parsed_url = urlsplit(url)
                 kkr_asset = (event.get("symbol") == "KKR" and (is_kkr_report_asset(url)
+                             or url == KKR_ASSET_PRECONNECT and purpose == "warmup" and method == "HEAD"
                              or parsed_url.scheme == "https" and parsed_url.netloc == "ir.kkr.com"
                              and purpose == "warmup" and method == "HEAD"
                              and parsed_url.path in ("", "/") and not parsed_url.query))
@@ -1146,6 +1149,14 @@ class Collector:
                     event = next((e for e in events if e["symbol"] == prior["symbol"]), {"symbol": prior["symbol"]})
                     await self.fetch(self.sec_stream_session, directory, event, "sec", "warmup", conditional=False, method="HEAD")
                     break
+            if self.sec_stream_session is not None:
+                for event in events:
+                    if (event["symbol"] == "KKR"
+                            and epoch(event["window_start"]) <= now <= epoch(event["window_end"])):
+                        # The issuer listing uses another origin. Keep the
+                        # provider TLS connection ready without reading a report.
+                        await self.fetch(self.sec_stream_session, KKR_ASSET_PRECONNECT, event,
+                                         "official", "warmup", conditional=False, method="HEAD")
             await asyncio.sleep(20)
 
     async def run(self):

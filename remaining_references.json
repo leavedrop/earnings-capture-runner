@@ -3122,7 +3122,9 @@
     },
     "document_version": "unknown_historical_version",
     "reference_scope": "Current scheduled quarter original with full text, every table cell and merged spans independently retained. Reacquisition is historical replay; not first publication.",
-    "require_raw_reference_match": false
+    "require_raw_reference_match": false,
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "connection_setup_scope": "Steady-state replay matches the live collector SEC connection maintenance; separate HEAD to an already verified non-report archive directory, never a target-report prefetch. Cold-start measurements remain in their original runs."
   },
   "BRK.B_EXTENSION_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526452412/brka-20260930.htm",
@@ -3227,7 +3229,9 @@
     },
     "document_version": "unknown_historical_version",
     "reference_scope": "Current scheduled quarter original with full text, every table cell and merged spans independently retained. Reacquisition is historical replay; not first publication.",
-    "require_raw_reference_match": false
+    "require_raw_reference_match": false,
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "connection_setup_scope": "Steady-state replay matches the live collector SEC connection maintenance; separate HEAD to an already verified non-report archive directory, never a target-report prefetch. Cold-start measurements remain in their original runs."
   },
   "HIMS_EXTENSION_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/1773751/000177375126000242/hims-20260930x8xkearningsr.htm",
@@ -3281,7 +3285,9 @@
         "all_tables_and_spans_exact": true,
         "established_utc": "2026-11-11T07:23:39.733850+00:00"
       }
-    ]
+    ],
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "connection_setup_scope": "Steady-state replay matches the live collector SEC connection maintenance; separate HEAD to an already verified non-report archive directory, never a target-report prefetch. Cold-start measurements remain in their original runs."
   },
   "RKLB_EXTENSION_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/1819994/000181999426000073/rklb-11092026ex991.htm",
@@ -3338,7 +3344,9 @@
         "all_tables_and_spans_exact": true,
         "established_utc": "2026-11-11T07:23:39.733850+00:00"
       }
-    ]
+    ],
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "connection_setup_scope": "Steady-state replay matches the live collector SEC connection maintenance; separate HEAD to an already verified non-report archive directory, never a target-report prefetch. Cold-start measurements remain in their original runs."
   },
   "TTWO_EXTENSION_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/946581/000162828026072175/ttwo2q27earningsrelease.htm",
@@ -3398,7 +3406,9 @@
         "all_tables_and_spans_exact": true,
         "established_utc": "2026-11-11T07:23:39.733850+00:00"
       }
-    ]
+    ],
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "connection_setup_scope": "Steady-state replay matches the live collector SEC connection maintenance; separate HEAD to an already verified non-report archive directory, never a target-report prefetch. Cold-start measurements remain in their original runs."
   },
   "OXY_EXTENSION_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/797468/000162828026072193/oxyex9919-30x26earningsrel.htm",
@@ -3455,7 +3465,9 @@
         "all_tables_and_spans_exact": true,
         "established_utc": "2026-11-11T07:23:39.733850+00:00"
       }
-    ]
+    ],
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "connection_setup_scope": "Steady-state replay matches the live collector SEC connection maintenance; separate HEAD to an already verified non-report archive directory, never a target-report prefetch. Cold-start measurements remain in their original runs."
   },
   "HUM_EXTENSION_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/hum-20260930.htm",
@@ -3517,7 +3529,9 @@
     },
     "document_version": "unknown_historical_version",
     "reference_scope": "Current scheduled quarter original with full text, every table cell and merged spans independently retained. Reacquisition is historical replay; not first publication.",
-    "require_raw_reference_match": false
+    "require_raw_reference_match": false,
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "connection_setup_scope": "Steady-state replay matches the live collector SEC connection maintenance; separate HEAD to an already verified non-report archive directory, never a target-report prefetch. Cold-start measurements remain in their original runs."
   },
   "BAM_EXTENSION_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/1937926/000162828026071827/bam-20260930.htm",
@@ -3698,7 +3712,9 @@
     },
     "document_version": "unknown_historical_version",
     "reference_scope": "Current scheduled quarter original with full text, every table cell and merged spans independently retained. Reacquisition is historical replay; not first publication.",
-    "require_raw_reference_match": false
+    "require_raw_reference_match": false,
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "connection_setup_scope": "Steady-state replay matches the live collector SEC connection maintenance; separate HEAD to an already verified non-report archive directory, never a target-report prefetch. Cold-start measurements remain in their original runs."
   },
   "ENB_EXTENSION_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/895728/000119312526450714/enb-20260930.htm",
@@ -3786,7 +3802,9 @@
     },
     "document_version": "unknown_historical_version",
     "reference_scope": "Current scheduled quarter original with full text, every table cell and merged spans independently retained. Reacquisition is historical replay; not first publication.",
-    "require_raw_reference_match": false
+    "require_raw_reference_match": false,
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "connection_setup_scope": "Steady-state replay matches the live collector SEC connection maintenance; separate HEAD to an already verified non-report archive directory, never a target-report prefetch. Cold-start measurements remain in their original runs."
   },
   "MSGK_EXTENSION_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/1636519/000162828026071322/msgk-20260930.htm",
@@ -3853,7 +3871,9 @@
     },
     "document_version": "unknown_historical_version",
     "reference_scope": "Current scheduled quarter original with full text, every table cell and merged spans independently retained. Reacquisition is historical replay; not first publication.",
-    "require_raw_reference_match": false
+    "require_raw_reference_match": false,
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "connection_setup_scope": "Steady-state replay matches the live collector SEC connection maintenance; separate HEAD to an already verified non-report archive directory, never a target-report prefetch. Cold-start measurements remain in their original runs."
   },
   "MSGR_EXTENSION_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/2132873/000162828026071325/msgr-20260930.htm",
@@ -3906,7 +3926,9 @@
     },
     "document_version": "unknown_historical_version",
     "reference_scope": "Current scheduled quarter original with full text, every table cell and merged spans independently retained. Reacquisition is historical replay; not first publication.",
-    "require_raw_reference_match": false
+    "require_raw_reference_match": false,
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "connection_setup_scope": "Steady-state replay matches the live collector SEC connection maintenance; separate HEAD to an already verified non-report archive directory, never a target-report prefetch. Cold-start measurements remain in their original runs."
   },
   "SOHU_EXTENSION_METRICS_PRODUCTION": {
     "url": "https://investors.sohu.com/news-releases/news-release-details/sohucom-reports-third-quarter-2026-unaudited-financial-results",
@@ -4051,7 +4073,9 @@
         "all_tables_and_spans_exact": true,
         "established_utc": "2026-11-11T07:23:39.733850+00:00"
       }
-    ]
+    ],
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "connection_setup_scope": "Steady-state replay matches the live collector SEC connection maintenance; separate HEAD to an already verified non-report archive directory, never a target-report prefetch. Cold-start measurements remain in their original runs."
   },
   "FERG_EXTENSION_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/2011641/000201164126000044/ferg-20260930.htm",
@@ -4121,7 +4145,9 @@
     },
     "document_version": "unknown_historical_version",
     "reference_scope": "Current scheduled quarter original with full text, every table cell and merged spans independently retained. Reacquisition is historical replay; not first publication.",
-    "require_raw_reference_match": false
+    "require_raw_reference_match": false,
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "connection_setup_scope": "Steady-state replay matches the live collector SEC connection maintenance; separate HEAD to an already verified non-report archive directory, never a target-report prefetch. Cold-start measurements remain in their original runs."
   },
   "KKR_EXTENSION_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/1404912/000140491226000034/kkr-20260930.htm",
@@ -4435,7 +4461,9 @@
     },
     "document_version": "unknown_historical_version",
     "reference_scope": "Current scheduled quarter original with full text, every table cell and merged spans independently retained. Reacquisition is historical replay; not first publication.",
-    "require_raw_reference_match": false
+    "require_raw_reference_match": false,
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "connection_setup_scope": "Steady-state replay matches the live collector SEC connection maintenance; separate HEAD to an already verified non-report archive directory, never a target-report prefetch. Cold-start measurements remain in their original runs."
   },
   "TGTX_EXTENSION_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/1001316/000162828026072257/tgtx-20260930.htm",
@@ -4486,7 +4514,9 @@
     },
     "document_version": "unknown_historical_version",
     "reference_scope": "Current scheduled quarter original with full text, every table cell and merged spans independently retained. Reacquisition is historical replay; not first publication.",
-    "require_raw_reference_match": false
+    "require_raw_reference_match": false,
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "connection_setup_scope": "Steady-state replay matches the live collector SEC connection maintenance; separate HEAD to an already verified non-report archive directory, never a target-report prefetch. Cold-start measurements remain in their original runs."
   },
   "SKYD_EXTENSION_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/2041610/000204161026000067/skyd-20260930.htm",
@@ -4658,7 +4688,9 @@
     },
     "document_version": "unknown_historical_version",
     "reference_scope": "Current scheduled quarter original with full text, every table cell and merged spans independently retained. Reacquisition is historical replay; not first publication.",
-    "require_raw_reference_match": false
+    "require_raw_reference_match": false,
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "connection_setup_scope": "Steady-state replay matches the live collector SEC connection maintenance; separate HEAD to an already verified non-report archive directory, never a target-report prefetch. Cold-start measurements remain in their original runs."
   },
   "XENE_EXTENSION_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/1582313/000119312526453701/xene-20260930.htm",
@@ -4889,7 +4921,9 @@
     },
     "document_version": "unknown_historical_version",
     "reference_scope": "Complete actual target-quarter earnings release; reacquisition is a labelled replay, never evidence of first publication. Independent current-quarter raw/text/tables/spans retained.",
-    "require_raw_reference_match": false
+    "require_raw_reference_match": false,
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "connection_setup_scope": "Steady-state replay matches the live collector SEC connection maintenance; separate HEAD to an already verified non-report archive directory, never a target-report prefetch. Cold-start measurements remain in their original runs."
   },
   "SE_CURRENT_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/1703399/000119312526455420/d17880dex991.htm",
@@ -4964,7 +4998,9 @@
         "all_tables_and_spans_exact": true,
         "established_utc": "2026-11-11T07:23:39.733850+00:00"
       }
-    ]
+    ],
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "connection_setup_scope": "Steady-state replay matches the live collector SEC connection maintenance; separate HEAD to an already verified non-report archive directory, never a target-report prefetch. Cold-start measurements remain in their original runs."
   },
   "QBTS_CURRENT_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/1907982/000190798226000180/qbts-20261110xexx991.htm",
@@ -5013,7 +5049,9 @@
         "all_tables_and_spans_exact": true,
         "established_utc": "2026-11-11T07:23:39.733850+00:00"
       }
-    ]
+    ],
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "connection_setup_scope": "Steady-state replay matches the live collector SEC connection maintenance; separate HEAD to an already verified non-report archive directory, never a target-report prefetch. Cold-start measurements remain in their original runs."
   },
   "TDG_CURRENT_METRICS_PRODUCTION": {
     "url": "https://transdigmgroupinc.gcs-web.com/news-releases/news-release-details/transdigm-group-reports-fiscal-2026-fourth-quarter-and-year-end",
@@ -5100,7 +5138,9 @@
       "body_complete_utc": "2026-11-10T21:09:36.924819+00:00",
       "filing_index_sha256": "e988726e376c4bc799c2a202526b5be912c8a14ac0ae0537454857cd63d0898d",
       "filing_form_verified_from_original_index": true
-    }
+    },
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "connection_setup_scope": "Steady-state replay matches the live collector SEC connection maintenance; separate HEAD to an already verified non-report archive directory, never a target-report prefetch. Cold-start measurements remain in their original runs."
   },
   "RGTI_CURRENT_METRICS_PRODUCTION": {
     "url": "https://investors.rigetti.com/news-releases/news-release-details/rigetti-computing-reports-third-quarter-2026-financial-results",
@@ -5179,7 +5219,9 @@
     },
     "document_version": "unknown_historical_version",
     "reference_scope": "Complete actual-quarter formal earnings release; full text/table/span binding and same-quarter verified filing currency evidence. Replay only.",
-    "require_raw_reference_match": false
+    "require_raw_reference_match": false,
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "connection_setup_scope": "Steady-state replay matches the live collector SEC connection maintenance; separate HEAD to an already verified non-report archive directory, never a target-report prefetch. Cold-start measurements remain in their original runs."
   },
   "ACHR_CURRENT_METRICS_PRODUCTION": {
     "url": "https://investors.archer.com/news/news-details/2026/Archer-Announces-Q3-2026-Results-Receives-FAA-Market-Survey-Certificate-Unlocking-LA-Operations-and-Boeing-Deal-Close-Imminent/default.aspx",
@@ -5291,7 +5333,9 @@
       "body_complete_utc": "2026-11-09T21:09:45.135694+00:00",
       "filing_index_sha256": "39f42f2680610ae577d475ab9a24dd90b4dc0d126a37b9b02fc1ff8d4d2694d2",
       "filing_form_verified_from_original_index": true
-    }
+    },
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "connection_setup_scope": "Steady-state replay matches the live collector SEC connection maintenance; separate HEAD to an already verified non-report archive directory, never a target-report prefetch. Cold-start measurements remain in their original runs."
   },
   "KKR_CURRENT_METRICS_PRODUCTION": {
     "url": "https://ir.kkr.com/media/document/39297093-8255-4c8f-aae0-597950d1d2e8/assets/KKR_Q326_Earnings_Release.pdf",
@@ -5582,6 +5626,8 @@
       "public_provider_storage_base_evidence": "https://ir-api.eqs.com/storage/ir/a7afba/tools/4a1d5dca-7881-4367-a888-c68162e0fe46/index.js",
       "storage_body_prefetched_to_build_reference": false
     },
-    "canonical_issuer_url": "https://ir.kkr.com/media/document/39297093-8255-4c8f-aae0-597950d1d2e8/assets/KKR_Q326_Earnings_Release.pdf"
+    "canonical_issuer_url": "https://ir.kkr.com/media/document/39297093-8255-4c8f-aae0-597950d1d2e8/assets/KKR_Q326_Earnings_Release.pdf",
+    "connection_warmup_url": "https://ir-api.eqs.com/storage/ir/a7afba/tools/4a1d5dca-7881-4367-a888-c68162e0fe46/index.js",
+    "connection_setup_scope": "Steady-state replay matches live provider connection maintenance; only HEAD of the original public non-report SDK, no financial document prefetch. Cold first-download run42994865155 remains unchanged."
   }
 }
