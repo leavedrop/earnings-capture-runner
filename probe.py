@@ -30,7 +30,7 @@ from sources import discover, validate
 BASE = Path(__file__).resolve().parent
 HEADERS = {"User-Agent": "EarningsWatch/1.0 automated-public-filings-research",
            "Accept": "*/*", "Cache-Control": "no-cache"}
-METRICS_SCOPES = ("metrics-production", "metrics-alternate-sources", "metrics-exchange-targets", "metrics-22-coverage", "metrics-unresolved-paths", "metrics-ncmi-issuer", "metrics-all-supported")
+METRICS_SCOPES = ("metrics-production", "metrics-alternate-sources", "metrics-exchange-targets", "metrics-22-coverage", "metrics-unresolved-paths", "metrics-ncmi-issuer", "metrics-all-supported", "metrics-kkr-complete-sources")
 
 
 def utc():
@@ -128,6 +128,9 @@ def select_targets(targets, scope):
                       symbol + "_REPAIRED_COVERAGE_METRICS_PRODUCTION") for symbol in ("SE", "NCMI", "RGTI", "CBRS", "BIDU")]
         if scope == "metrics-ncmi-issuer":
             cases = [("NCMI", "official", "NCMI_ISSUER_METRICS_PRODUCTION")]
+        if scope == "metrics-kkr-complete-sources":
+            cases = [("KKR", references[key]["channel"], key) for key in (
+                "KKR_CURRENT_METRICS_PRODUCTION", "KKR_EXTENSION_METRICS_PRODUCTION")]
         if scope == "metrics-all-supported":
             cases = []
             for symbol in events:

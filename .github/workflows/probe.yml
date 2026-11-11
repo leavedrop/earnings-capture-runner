@@ -28,6 +28,7 @@ on:
           - metrics-unresolved-paths
           - metrics-ncmi-issuer
           - metrics-all-supported
+          - metrics-kkr-complete-sources
           - sec-quarterly
           - lcid-http-protocols
           - lcid-chrome-protocols
