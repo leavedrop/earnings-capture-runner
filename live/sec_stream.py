@@ -1,4 +1,4 @@
-"""Extract a complete HTML EX-99.1 from a streamed SEC submission container."""
+"""Extract a complete HTML EX-99 or EX-99.1 from a streamed SEC submission."""
 import re
 
 
@@ -60,7 +60,7 @@ class IncrementalExhibit:
         header = document[:start.start()]
         kind = re.search(br"(?m)^<TYPE>([^\r\n]+)", header)
         filename = re.search(br"(?m)^<FILENAME>([^\r\n]+)", header)
-        if kind is None or kind.group(1).strip() != b"EX-99.1" or filename is None:
+        if kind is None or kind.group(1).strip() not in (b"EX-99", b"EX-99.1") or filename is None:
             return None
         end = _TEXT_END.search(document, start.end())
         if end is None or document[end.end():].strip():
@@ -71,7 +71,7 @@ class IncrementalExhibit:
         if not re.search(br"</html\s*>\s*\Z", body, re.I):
             return None
         return {"body": body, "filename": filename.group(1).strip().decode("utf-8"),
-                "form": "EX-99.1"}
+                "form": kind.group(1).strip().decode("ascii")}
 
     def close_without_match(self) -> None:
         """Abandon incomplete containers without accepting any partial exhibit."""

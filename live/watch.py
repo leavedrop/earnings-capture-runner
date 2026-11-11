@@ -285,7 +285,11 @@ class Collector:
             config_url = next(source["public_client_config_url"] for source in event["sources"]
                               if source.get("public_client_config_url"))
             started = time.perf_counter_ns()
-            response = await session.get(config_url, follow_redirects=False,
+            config_origin = urlsplit(config_url)
+            config_session = (self.sec_stream_session if self.sec_stream_session is not None
+                              and event.get("symbol") == "KKR" and config_origin.scheme == "https"
+                              and config_origin.netloc == "ir.kkr.com" else session)
+            response = await config_session.get(config_url, follow_redirects=False,
                                          headers={"User-Agent": "EarningsWatch/1.0 automated-public-filings-research"})
             record["public_client_initialization_ms"] = (time.perf_counter_ns()-started)/1e6
             self.store.add("public_client_init", {"symbol": event["symbol"], "channel": "official",
@@ -386,9 +390,15 @@ class Collector:
                 transfer = browser_response(self.browser_session, method, url, headers, request_json=request_json)
                 record["transport"] = "curl_cffi_chrome"
             else:
+                parsed_url = urlsplit(url)
+                kkr_asset = (event.get("symbol") == "KKR" and parsed_url.scheme == "https"
+                             and parsed_url.netloc == "ir.kkr.com" and (
+                                 parsed_url.path.startswith("/media/document/") and parsed_url.path.lower().endswith(".pdf")
+                                 or purpose == "warmup" and method == "HEAD"
+                                 and parsed_url.path in ("", "/") and not parsed_url.query))
                 archive_session = (self.sec_stream_session if self.sec_stream_session is not None
-                                   and urlsplit(url).hostname == "www.sec.gov"
-                                   and urlsplit(url).path.startswith("/Archives/") else session)
+                                   and (parsed_url.hostname == "www.sec.gov"
+                                        and parsed_url.path.startswith("/Archives/") or kkr_asset) else session)
                 transfer = archive_session.stream(method, url, headers=headers, extensions={"trace": trace},
                                           **({"json": request_json} if request_json is not None else {}),
                                           **({"follow_redirects": False} if kkr_api else {}))
@@ -448,7 +458,7 @@ class Collector:
                 record.update({"sec_stream_attempt": True, "target_document_complete": exhibit is not None,
                                "container_decoded_bytes_received": container_received,
                                "http_response_complete": exhibit is None,
-                               "body_complete_semantics": "complete EX-99.1 HTML at SGML closing markers" if exhibit else "full submission without matched HTML EX-99.1"})
+                               "body_complete_semantics": f"complete {exhibit['form']} HTML at SGML closing markers" if exhibit else "full submission without matched HTML financial exhibit"})
                 if exhibit is not None:
                     record["target_document_url"] = urljoin(str(response.url), exhibit["filename"])
                     record["container_bytes_consumed_to_document_end"] = exhibit["container_bytes_consumed"]

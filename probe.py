@@ -132,7 +132,8 @@ def select_targets(targets, scope):
             cases = []
             for symbol in events:
                 key = next(key for key in (
-                    symbol + "_CURRENT_V2_METRICS_PRODUCTION", symbol + "_CURRENT_METRICS_PRODUCTION",
+                    symbol + "_CURRENT_SEC_METRICS_PRODUCTION", symbol + "_CURRENT_V2_METRICS_PRODUCTION",
+                    symbol + "_CURRENT_METRICS_PRODUCTION",
                     symbol + "_ISSUER_METRICS_PRODUCTION",
                     symbol + "_EXTENSION_METRICS_PRODUCTION",
                     symbol + "_REPAIRED_COVERAGE_METRICS_PRODUCTION", symbol + "_COVERAGE_METRICS_PRODUCTION")
