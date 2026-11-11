@@ -1,16 +1,30 @@
 {
   "schema_version": 1,
   "owner": "github_actions",
-  "checked_at_utc": "2026-11-11T11:43:39.611636+00:00",
+  "checked_at_utc": "2026-11-11T11:45:36.694645+00:00",
   "dispatch_until_utc": "2026-11-17T13:03:00+08:00",
   "local_sec_rps_budget": 2,
   "total_sec_rps_limit": 10,
   "raw_report_requests": 0,
-  "active_probe_run_ids": [],
-  "inventory_state": "verified_hashes",
-  "inventory_count": 104,
+  "active_probe_run_ids": [
+    "43014566812"
+  ],
+  "inventory_state": "manifest_mismatch",
+  "inventory_count": 0,
   "inventory_refresh": "retained_existing; new documents may be initially_present on the next run",
   "evidence_observations": [
+    {
+      "run_id": "43014325583-1",
+      "commit": "a30ef408951f1228d6ada615bde10d71bfb86ad1",
+      "node": {
+        "loc": "US",
+        "colo": "SJC"
+      },
+      "state": "running",
+      "updated_utc": "2026-11-11T11:44:14.435+00:00",
+      "collector_heartbeat_utc": "2026-11-11T11:44:06.469706+00:00",
+      "requests": 160
+    },
     {
       "run_id": "43012713725-1",
       "commit": "18837626c050ecb47cb20f8acf87cd23c5eacacf",
@@ -36,47 +50,19 @@
       "requests": 27478
     }
   ],
-  "active_run_ids": [],
-  "selected_run_id": null,
-  "workflow_state": "dispatched",
-  "updated_utc": "2026-11-11T11:43:43.705893+00:00",
-  "control_mode": "bootstrap",
-  "caller_live_run_id": null,
-  "overlap_sec_rps_budget": 4,
+  "active_run_ids": [
+    "43014325583",
+    "43014562717"
+  ],
+  "selected_run_id": "43014325583-1",
+  "workflow_state": "waiting_for_successor_readiness",
+  "updated_utc": "2026-11-11T11:45:40.050633+00:00",
+  "control_mode": "live_supervisor",
+  "caller_live_run_id": "43014325583-1",
+  "overlap_sec_rps_budget": 8,
   "handoff_readiness": {
-    "ready": true,
-    "active_companies": [
-      "ACHR",
-      "B",
-      "BAM",
-      "BRK.B",
-      "CECO",
-      "ENB",
-      "FERG",
-      "GIB",
-      "HIMS",
-      "HUM",
-      "KKR",
-      "LCID",
-      "MRDN",
-      "MSGK",
-      "MSGR",
-      "NCMI",
-      "OKLO",
-      "ONON",
-      "OXY",
-      "QBTS",
-      "RGTI",
-      "RKLB",
-      "SE",
-      "SKYD",
-      "SOHU",
-      "TDG",
-      "TGTX",
-      "TTD",
-      "TTWO",
-      "XENE"
-    ],
+    "ready": false,
+    "active_companies": [],
     "unobserved_sources": [],
     "companies_without_valid_discovery": [],
     "previously_accessible_sources_not_ready": []
@@ -94,8 +80,17 @@
     "monitoring_gap_ms": 0,
     "timing_basis": "Separate run UTC observations; no cross-run monotonic timing"
   },
-  "projected_total_sec_rps": 6,
-  "snapshot_errors": [],
+  "projected_total_sec_rps": 10,
   "last_dispatch_utc": "2026-11-11T11:43:39.611636+00:00",
-  "dispatched_sec_rps": 4
+  "dispatched_sec_rps": 4,
+  "snapshot_errors": [
+    {
+      "run_id": "43014562717-1",
+      "error_type": "evidence_not_yet_published"
+    }
+  ],
+  "dispatch_blockers": [
+    "active_probe:43014566812",
+    "inventory_not_verified"
+  ]
 }
