@@ -1,8 +1,8 @@
 {
   "sources.py": {
     "source": "earnings_watch/sources.py",
-    "sha256": "cfbcc5953f72406fa54e7a2de857d1cb341ba88f0788d83e0fb0e95690150a38",
-    "source_sha256": "78f4b9edfcfa24321d1284d4144842d0af90072657e548b6ea6ee3e28119c5d7",
+    "sha256": "b1f358d62b81337a4004f2320b8611cd582530987ae3fbef0144a1d2fc9d5d38",
+    "source_sha256": "a85b31d7ccbf9e8d6683c9f7ed58600e90fcd209a5f6ca20f9bb74f435ab34fc",
     "normalization": "UTF-8 LF; code unchanged"
   },
   "pdf_tables.py": {

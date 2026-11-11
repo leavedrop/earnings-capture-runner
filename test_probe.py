@@ -658,6 +658,17 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual([target["channel"] for target in browser], ["newswire", "official"])
         self.assertTrue(all(target["transport"] == "curl_cffi_chrome" and "warmup_url" not in target for target in browser))
 
+    def test_exchange_target_replay_uses_actual_channels_and_historical_periods(self):
+        selected = select_targets([], "metrics-exchange-targets")
+        self.assertEqual([(row["event"]["symbol"], row["channel"], row["event"]["quarter"])
+                          for row in selected], [("CSCO", "sec", 4), ("NBIS", "sec", 2), ("CBRS", "official", 2)])
+        for row in selected:
+            self.assertEqual(row["event"]["period_end"], row["reference"]["event_override"]["period_end"])
+            self.assertEqual(row["pipeline"], "production_watch_list_seed")
+            self.assertEqual(row["metrics_mode"], "synthetic")
+            self.assertIn("table_spans_sha256", row["reference"])
+            self.assertTrue(row["reference"]["table_sha256"])
+
     def target(self):
         return {"target_id": "TEST_official", "channel": "official", "url": "https://example.com/report",
                 "event": {"symbol": "TEST", "company": "Example Corporation", "aliases": ["Example Corporation"],

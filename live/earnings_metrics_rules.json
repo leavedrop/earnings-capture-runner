@@ -126,6 +126,8 @@
     },
     {
       "symbol": "CSCO",
+      "currency": "USD",
+      "currency_source": "provided_company_rule",
       "eps_labels": [
         "EPS",
         "GAAP EPS",
@@ -135,6 +137,138 @@
         "Total revenue",
         "Revenue"
       ]
+    },
+    {
+      "symbol": "CBRS",
+      "currency": "USD",
+      "currency_source": "provided_company_rule",
+      "eps_labels": [
+        "Net income (loss) per share",
+        "Net loss per share, basic and diluted"
+      ],
+      "revenue_labels": [
+        "Total revenue",
+        "Core total revenue"
+      ],
+      "currency_and_unit": "美元；财务附表营收为千美元，EPS为美元/股；Core为公司定义的非GAAP口径。",
+      "rule_source": "provided_22_company_reference"
+    },
+    {
+      "symbol": "XPEV",
+      "eps_labels": [
+        "Basic and diluted net loss per American depositary share",
+        "Non-GAAP net (loss) profit per ADS",
+        "Basic and diluted net profit per American depositary share",
+        "Net (loss) profit per ADS attributable to ordinary shareholders",
+        "Non-GAAP net loss per ADS"
+      ],
+      "revenue_labels": [
+        "Total revenues"
+      ],
+      "currency_and_unit": "主币种人民币，另有公司美元折算；每ADS代表2股A类普通股。摘要营收以十亿元，详细表单位须另读。",
+      "rule_source": "provided_22_company_reference"
+    },
+    {
+      "symbol": "BIDU",
+      "eps_labels": [
+        "Diluted earnings per ADS",
+        "Diluted earnings per ADS (non-GAAP)"
+      ],
+      "revenue_labels": [
+        "Revenue"
+      ],
+      "currency_and_unit": "主币种人民币，另有美元折算列；营收为百万元。每ADS代表8股A类普通股，EPS按每ADS单元计。",
+      "rule_source": "provided_22_company_reference"
+    },
+    {
+      "symbol": "BEKE",
+      "eps_labels": [
+        "Net income per ADS",
+        "Adjusted net income per ADS",
+        "Diluted"
+      ],
+      "revenue_labels": [
+        "Total net revenues"
+      ],
+      "currency_and_unit": "主币种人民币RMB，另有公司折算美元列；营收附表为千元。每ADS代表3股A类普通股，EPS不乘千。",
+      "rule_source": "provided_22_company_reference"
+    },
+    {
+      "symbol": "HTHT",
+      "eps_labels": [
+        "Earnings (Losses) per ADS",
+        "Adjusted earnings (losses) per ADS (non-GAAP)"
+      ],
+      "revenue_labels": [
+        "Total revenue"
+      ],
+      "currency_and_unit": "主币种人民币，另列美元折算；收入为百万元。每ADS和每普通股分开，股份比例按当期公司定义核验。",
+      "rule_source": "provided_22_company_reference"
+    },
+    {
+      "symbol": "ARMK",
+      "eps_labels": [
+        "Earnings per share attributable to Aramark stockholders",
+        "Adjusted Earnings Per Share"
+      ],
+      "revenue_labels": [
+        "Revenue"
+      ],
+      "currency_and_unit": "美元；附表营收和利润为千美元，EPS为美元/股。",
+      "rule_source": "provided_22_company_reference"
+    },
+    {
+      "symbol": "TSN",
+      "eps_labels": [
+        "Net Income Per Share Attributable to Tyson",
+        "Adjusted Net Income Per Share Attributable to Tyson"
+      ],
+      "revenue_labels": [
+        "Sales"
+      ],
+      "currency_and_unit": "美元；合并表营收为百万美元，每股数据为美元/股。标签脚注可能插在Adjusted和Net之间。",
+      "rule_source": "provided_22_company_reference"
+    },
+    {
+      "symbol": "ACM",
+      "eps_labels": [
+        "EPS (Fully Diluted)",
+        "Adjusted net (loss) income",
+        "continuing operations per diluted share",
+        "Adjusted net income attributable to AECOM from continuing operations per diluted share"
+      ],
+      "revenue_labels": [
+        "Revenue",
+        "Net Service Revenue (NSR)"
+      ],
+      "currency_and_unit": "美元；摘要百万美元、合并财表千美元，EPS为美元/股；Revenue和NSR是两种收入定义。",
+      "rule_source": "provided_22_company_reference"
+    },
+    {
+      "symbol": "INFQ",
+      "eps_labels": [
+        "Net loss per share attributable to common stockholders",
+        "basic and diluted"
+      ],
+      "revenue_labels": [
+        "Total revenue"
+      ],
+      "currency_and_unit": "美元；附表营收为千美元，每股亏损为美元/股。",
+      "rule_source": "provided_22_company_reference"
+    },
+    {
+      "symbol": "STEM",
+      "eps_labels": [
+        "Net loss per share attributable to common stockholders, diluted",
+        "basic and diluted",
+        "Net loss per share attributable to common stockholders, basic and diluted"
+      ],
+      "revenue_labels": [
+        "Total revenue",
+        "Revenue"
+      ],
+      "currency_and_unit": "美元；摘要收入为百万美元，合并财表为千美元，EPS为美元/股。",
+      "rule_source": "provided_22_company_reference"
     }
   ]
 }

@@ -22,6 +22,8 @@ import xml.etree.ElementTree as ET
 import httpx
 
 BASE = Path(__file__).resolve().parent
+HARD_DEADLINE = max(datetime.fromisoformat(row["window_end"]) for row in
+                    json.loads((BASE / "watchlist.json").read_text(encoding="utf-8"))) + timedelta(minutes=4)
 sys.path.insert(0, str(BASE))
 import progress
 
@@ -77,7 +79,7 @@ def handoff_sources(runtime, status, connection, metadata):
             patrol = patrols.get(key, {})
             completed = patrol.get("state") in ("captured", "captured_monitoring_later_filings")
             deadline = datetime.fromisoformat(metadata.get("hard_stop_utc") or metadata.get("until_utc")
-                                             or "2026-11-13T13:03:00+08:00")
+                                             or HARD_DEADLINE.isoformat())
             required = (datetime.fromisoformat(event["window_start"]) <= now and
                         (now <= deadline if channel == "sec" else
                          not completed and now <= datetime.fromisoformat(event["window_end"])))
@@ -383,8 +385,8 @@ def main():
         except httpx.HTTPError:
             pass
         started = datetime.now(timezone.utc)
-        until = min(started + timedelta(minutes=args.duration_minutes), datetime.fromisoformat("2026-11-13T13:03:00+08:00"))
-        hard_stop = min(until + timedelta(minutes=20), datetime.fromisoformat("2026-11-13T13:03:00+08:00"))
+        until = min(started + timedelta(minutes=args.duration_minutes), HARD_DEADLINE)
+        hard_stop = min(until + timedelta(minutes=20), HARD_DEADLINE)
         metadata = {"run_id": run_id, "node": node, "started_utc": started.isoformat(),
                     "until_utc": until.isoformat(), "hard_stop_utc": hard_stop.isoformat(), "state": "starting", "mode": "live",
                     "handoff_slot": args.handoff_slot, "sec_rps": args.sec_rps, "symbols": args.symbols,

@@ -2346,5 +2346,925 @@
       "period_end_confirmed": true,
       "verification_access": "primary_page_or_issuer_distribution"
     }
+  },
+  {
+    "symbol": "CBRS",
+    "company": "Cerebras Systems",
+    "aliases": [
+      "Cerebras Systems"
+    ],
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_start": "2026-07-01",
+    "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
+    "scheduled_at": "2026-11-13T05:00:00+08:00",
+    "schedule_kind": "after",
+    "window_start": "2026-11-13T04:45:00+08:00",
+    "window_end": "2026-11-13T12:59:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "05:00后 币安预测时间 05:05 美东 11/12 盘后",
+    "forecast_at": "2026-11-13T05:05+08:00",
+    "forecast_is_official": false,
+    "cik": "0002021728",
+    "cik_evidence": "supplied_sec_link",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://www.cerebras.ai/company/press-release",
+        "kind": "html",
+        "original_url": "https://www.cerebras.ai/company/press-release",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "verified_public_discovery_structure",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T02:58:20.390720+00:00",
+          "sha256": "a239d6409a8c09ff3b9cde88ddbf1ac3c7ec412daf8e7f1b1e917945121806b2",
+          "bytes": 272966,
+          "content_type": "text/html; charset=utf-8",
+          "listing_structure": "Public announcement links present; current-quarter candidate may be absent",
+          "discovery_structure_valid": true,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0002021728.json",
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=2021728&owner=exclude",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "verified_public_discovery_structure",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T02:59:15.809979+00:00",
+          "sha256": "dfb81ee3996f0bf6b61518766bcf11439fd50d4ab1aa24f44a0eb0005a51744f",
+          "bytes": 21704,
+          "content_type": "application/json",
+          "listing_structure": "SEC submissions CIK and recent filings structure",
+          "discovery_structure_valid": true,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.globenewswire.com/en/search/organization/Cerebras%2520Systems%2520Inc%C2%A7",
+        "kind": "html",
+        "original_url": "https://www.globenewswire.com/en/search/organization/Cerebras%2520Systems%2520Inc%C2%A7",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "verified_public_discovery_structure",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T02:58:20.219625+00:00",
+          "sha256": "20ed00c86403f22b016b703d41c7e8e2a23b19661fba3fa1bd661606e57cee61",
+          "bytes": 60792,
+          "content_type": "text/html; charset=utf-8",
+          "listing_structure": "Public announcement links present; current-quarter candidate may be absent",
+          "discovery_structure_valid": true,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      }
+    ],
+    "schedule_evidence_url": "https://www.cerebras.ai/press-release/cerebras-systems-announces-date-of-third-quarter-2026-financial-results-3384934",
+    "status": "imported_schedule_unverified_except_HUM",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "original_time_text": "05:00后",
+    "activation_status": "enabled_from_provided_22_company_list",
+    "date_import_evidence": "same_row_explicit_eastern_date_converted_to_beijing; forecast_not_used",
+    "monitoring_group": "metrics_22_extension"
+  },
+  {
+    "symbol": "XPEV",
+    "company": "小鹏汽车",
+    "aliases": [
+      "小鹏汽车",
+      "XPeng"
+    ],
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_start": "2026-07-01",
+    "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 季度： 2026-07-01 — 2026-09-30 按公司财历换算",
+    "scheduled_at": "2026-11-16T22:30:00+08:00",
+    "schedule_kind": "before",
+    "window_start": "2026-11-16T13:00:00+08:00",
+    "window_end": "2026-11-16T23:30:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "22:30前 币安预测时间 17:00 美东 11/16 盘前",
+    "forecast_at": "2026-11-16T17:00+08:00",
+    "forecast_is_official": false,
+    "cik": "0001810997",
+    "cik_evidence": "supplied_sec_link",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://ir.xiaopeng.com/news-events/news-releases",
+        "kind": "html",
+        "original_url": "https://ir.xiaopeng.com/news-events/news-releases",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "verified_public_discovery_structure",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T02:58:21.111629+00:00",
+          "sha256": "7be550238fd3050e8e7355be38dcc77111f5a0d179d8268cda807fc9cf425789",
+          "bytes": 38281,
+          "content_type": "text/html; charset=UTF-8",
+          "listing_structure": "Public announcement links present; current-quarter candidate may be absent",
+          "discovery_structure_valid": true,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001810997.json",
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=1810997&owner=exclude",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "verified_public_discovery_structure",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T02:59:16.103861+00:00",
+          "sha256": "c1d0b0c072805f13194d5509c95d3105ef1a7d506d16bdb5ab6f57fad7b069c8",
+          "bytes": 53864,
+          "content_type": "application/json",
+          "listing_structure": "SEC submissions CIK and recent filings structure",
+          "discovery_structure_valid": true,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.prnewswire.com/search/all/?keyword=XPeng",
+        "kind": "html",
+        "original_url": "https://www.prnewswire.com/news/xpeng-inc/",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "http_ok_public_release_list_parser_verified",
+        "replaced_discovery_url": "https://www.prnewswire.com/news/xpeng-inc/",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T03:03:18.769852+00:00",
+          "sha256": "34f5d470f4b4bbf6f0c6ee522e0398a60cb6dcdff2771ceb981b6d83ecd0d992",
+          "bytes": 161750,
+          "content_type": "text/html",
+          "listing_structure": null,
+          "discovery_structure_valid": false,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      }
+    ],
+    "schedule_evidence_url": "https://www.prnewswire.com/news-releases/xpeng-to-report-third-quarter-2026-financial-results-on-monday-november-16-2026-302926103.html",
+    "status": "imported_schedule_unverified_except_HUM",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "original_time_text": "22:30前",
+    "activation_status": "enabled_from_provided_22_company_list",
+    "date_import_evidence": "same_row_explicit_eastern_date_converted_to_beijing; forecast_not_used",
+    "monitoring_group": "metrics_22_extension"
+  },
+  {
+    "symbol": "BIDU",
+    "company": "百度",
+    "aliases": [
+      "百度",
+      "Baidu"
+    ],
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_start": "2026-07-01",
+    "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 季度： 2026-07-01 — 2026-09-30 按公司财历换算",
+    "scheduled_at": "2026-11-16T22:30:00+08:00",
+    "schedule_kind": "before",
+    "window_start": "2026-11-16T13:00:00+08:00",
+    "window_end": "2026-11-16T23:30:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "22:30前 币安预测时间 18:00 美东 11/16 盘前",
+    "forecast_at": "2026-11-16T18:00+08:00",
+    "forecast_is_official": false,
+    "cik": "0001329099",
+    "cik_evidence": "supplied_sec_link",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://ir.baidu.com/press-releases",
+        "kind": "html",
+        "original_url": "https://ir.baidu.com/press-releases",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "verified_public_discovery_structure",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T02:58:22.403552+00:00",
+          "sha256": "d4c83773096cb043ba20e8d7f2682a8c88ed71ded798a6686b57dcb7f7f159a4",
+          "bytes": 31904,
+          "content_type": "text/html; charset=UTF-8",
+          "listing_structure": "Public announcement links present; current-quarter candidate may be absent",
+          "discovery_structure_valid": true,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001329099.json",
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=1329099&owner=exclude",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "verified_public_discovery_structure",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T02:59:16.646455+00:00",
+          "sha256": "29c886329dd43a701dfd5d9cbca6f5c09fa0a9d873fe4e3470a9e00d2068e601",
+          "bytes": 96088,
+          "content_type": "application/json",
+          "listing_structure": "SEC submissions CIK and recent filings structure",
+          "discovery_structure_valid": true,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.prnewswire.com/search/all/?keyword=Baidu",
+        "kind": "html",
+        "original_url": "https://www.prnewswire.com/news/baidu-inc/",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "http_ok_public_release_list_parser_verified",
+        "replaced_discovery_url": "https://www.prnewswire.com/news/baidu-inc/",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T03:03:19.343687+00:00",
+          "sha256": "5078dca95eaa5e17295f2efb6e5d1ff75e57a4815cc5aa7b2c8bd2699084c280",
+          "bytes": 166160,
+          "content_type": "text/html",
+          "listing_structure": null,
+          "discovery_structure_valid": false,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      }
+    ],
+    "schedule_evidence_url": "https://www.prnewswire.com/news-releases/baidu-to-report-third-quarter-2026-financial-results-on-november-16-2026-302920463.html",
+    "status": "imported_schedule_unverified_except_HUM",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "original_time_text": "22:30前",
+    "activation_status": "enabled_from_provided_22_company_list",
+    "date_import_evidence": "same_row_explicit_eastern_date_converted_to_beijing; forecast_not_used",
+    "monitoring_group": "metrics_22_extension"
+  },
+  {
+    "symbol": "BEKE",
+    "company": "贝壳",
+    "aliases": [
+      "贝壳",
+      "KE Holdings"
+    ],
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_start": "2026-07-01",
+    "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 季度： 2026-07-01 — 2026-09-30 按公司财历换算",
+    "scheduled_at": "2026-11-16T22:30:00+08:00",
+    "schedule_kind": "before",
+    "window_start": "2026-11-16T13:00:00+08:00",
+    "window_end": "2026-11-16T23:30:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "22:30前 币安预测时间 19:00 美东 11/16 盘前",
+    "forecast_at": "2026-11-16T19:00+08:00",
+    "forecast_is_official": false,
+    "cik": "0001809587",
+    "cik_evidence": "supplied_sec_link",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://investors.ke.com/news",
+        "kind": "html",
+        "original_url": "https://investors.ke.com/news",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "verified_public_discovery_structure",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T02:58:23.635347+00:00",
+          "sha256": "ceb0bcca870b2ad307eb17a62a812ed11fd3347dc8217278df255091ac08ff82",
+          "bytes": 47426,
+          "content_type": "text/html; charset=UTF-8",
+          "listing_structure": "Public announcement links present; current-quarter candidate may be absent",
+          "discovery_structure_valid": true,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001809587.json",
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=1809587&owner=exclude",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "verified_public_discovery_structure",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T02:59:17.159429+00:00",
+          "sha256": "54b346b935814f3f10a6fd61d2a63e6d6ac5f4c1d898bc431b35c3ec2224e467",
+          "bytes": 79892,
+          "content_type": "application/json",
+          "listing_structure": "SEC submissions CIK and recent filings structure",
+          "discovery_structure_valid": true,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.globenewswire.com/search/organization/ke%2520holdings%2520inc%C2%A7",
+        "kind": "html",
+        "original_url": "https://www.globenewswire.com/search/organization/ke%2520holdings%2520inc%C2%A7",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "verified_public_discovery_structure",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T02:58:23.585421+00:00",
+          "sha256": "73cd3573e322facf542a80268bad8c1981cbc38893dc1780b00bf71e4d3096fd",
+          "bytes": 56293,
+          "content_type": "text/html; charset=utf-8",
+          "listing_structure": "Public announcement links present; current-quarter candidate may be absent",
+          "discovery_structure_valid": true,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      }
+    ],
+    "schedule_evidence_url": "https://keholdings.gcs-web.com/news-releases/news-release-details/ke-holdings-inc-report-third-quarter-2026-financial-results",
+    "status": "imported_schedule_unverified_except_HUM",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "original_time_text": "22:30前",
+    "activation_status": "enabled_from_provided_22_company_list",
+    "date_import_evidence": "same_row_explicit_eastern_date_converted_to_beijing; forecast_not_used",
+    "monitoring_group": "metrics_22_extension"
+  },
+  {
+    "symbol": "HTHT",
+    "company": "华住集团",
+    "aliases": [
+      "华住集团",
+      "H World Group"
+    ],
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_start": "2026-07-01",
+    "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） · 未审计业绩 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
+    "scheduled_at": "2026-11-16T19:00:00+08:00",
+    "schedule_kind": "approx",
+    "window_start": "2026-11-16T16:00:00+08:00",
+    "window_end": "2026-11-16T19:00:00+08:00",
+    "scheduled_at_semantics": "sheet_explicit_range_upper_boundary_not_release_instant",
+    "schedule_text": "16:00后—19:00前 币安预测时间 19:15 （时段不同） 美东11/16 盘前",
+    "forecast_at": "2026-11-16T19:15+08:00",
+    "forecast_is_official": false,
+    "cik": "0001483994",
+    "cik_evidence": "supplied_sec_link",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://ir.hworld.com/news-and-events/press-releases",
+        "kind": "html",
+        "original_url": "https://ir.hworld.com/news-and-events/press-releases",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "verified_public_discovery_structure",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T02:58:24.714367+00:00",
+          "sha256": "57edf4ef318c8b6c25f95a1fa103d30a018f7c556b8de8095df9b28b5dffbba7",
+          "bytes": 35044,
+          "content_type": "text/html; charset=UTF-8",
+          "listing_structure": "Public announcement links present; current-quarter candidate may be absent",
+          "discovery_structure_valid": true,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001483994.json",
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=1483994&owner=exclude",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "verified_public_discovery_structure",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T02:59:17.781784+00:00",
+          "sha256": "e6031bda863598fe1bf2400bd3b0fc38d55e2421715119ba915f9dab662dc78c",
+          "bytes": 72434,
+          "content_type": "application/json",
+          "listing_structure": "SEC submissions CIK and recent filings structure",
+          "discovery_structure_valid": true,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.globenewswire.com/search/organization/h%2520world%2520group%2520limited",
+        "kind": "html",
+        "original_url": "https://www.globenewswire.com/search/organization/h%2520world%2520group%2520limited",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "verified_public_discovery_structure",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T02:58:24.728386+00:00",
+          "sha256": "c2be03c4102a4688c4ab0ddf3d5080f9d594bbb74319e435039dae9d6a692699",
+          "bytes": 62236,
+          "content_type": "text/html; charset=utf-8",
+          "listing_structure": "Public announcement links present; current-quarter candidate may be absent",
+          "discovery_structure_valid": true,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      }
+    ],
+    "schedule_evidence_url": "https://ir.hworld.com/news-releases/news-release-details/h-world-group-limited-schedules-third-quarter-2026-earnings",
+    "status": "imported_schedule_unverified_except_HUM",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "original_time_text": "16:00后—19:00前",
+    "activation_status": "enabled_from_provided_22_company_list",
+    "date_import_evidence": "same_row_explicit_eastern_date_converted_to_beijing; forecast_not_used",
+    "monitoring_group": "metrics_22_extension"
+  },
+  {
+    "symbol": "ARMK",
+    "company": "Aramark",
+    "aliases": [
+      "Aramark"
+    ],
+    "fiscal_year": 2026,
+    "quarter": 4,
+    "period_start": "2026-07-04",
+    "period_end": "2026-10-02",
+    "report_description": "2026财年第四季度（Q4）及全年 季度： 2026-07-04 — 2026-10-02 全年： 2025-10-04 — 2026-10-02 按公司财历换算",
+    "scheduled_at": "2026-11-16T21:30:00+08:00",
+    "schedule_kind": "before",
+    "window_start": "2026-11-16T13:00:00+08:00",
+    "window_end": "2026-11-16T22:30:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "21:30前 币安预测时间 19:30 美东11/16 盘前",
+    "forecast_at": "2026-11-16T19:30+08:00",
+    "forecast_is_official": false,
+    "cik": "0001584509",
+    "cik_evidence": "supplied_sec_link",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://aramark.gcs-web.com/news-releases",
+        "kind": "html",
+        "original_url": "https://aramark.gcs-web.com/news-releases",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "verified_public_discovery_structure",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T02:58:26.085908+00:00",
+          "sha256": "586ab88147f6dccd1bfbb89a268b842713314b923f5c59e73a1457053094b795",
+          "bytes": 704378,
+          "content_type": "text/html; charset=UTF-8",
+          "listing_structure": "Public announcement links present; current-quarter candidate may be absent",
+          "discovery_structure_valid": true,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001584509.json",
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=1584509&owner=exclude",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "verified_public_discovery_structure",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T02:59:18.584674+00:00",
+          "sha256": "09ab03e7baf582294888e90888c5d16257dbaf78a34e3cb39a7ac10fff07a5bc",
+          "bytes": 163104,
+          "content_type": "application/json",
+          "listing_structure": "SEC submissions CIK and recent filings structure",
+          "discovery_structure_valid": true,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.businesswire.com/newsroom?keywords=ARMK",
+        "kind": "html",
+        "original_url": "https://www.businesswire.com/newsroom?keywords=ARMK",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "http_403_unavailable",
+        "last_status_code": 403,
+        "verification_evidence": {
+          "status": 403,
+          "completed_utc": "2026-11-11T02:58:25.647896+00:00",
+          "sha256": "81938104ef7c95077cff86acf8a75d3618d40a6aec716d717ec98d124a99e6ce",
+          "bytes": 872,
+          "content_type": "text/html",
+          "listing_structure": null,
+          "discovery_structure_valid": null,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      }
+    ],
+    "schedule_evidence_url": "https://aramark.gcs-web.com/node/24656/pdf",
+    "status": "imported_schedule_unverified_except_HUM",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "original_time_text": "21:30前",
+    "activation_status": "enabled_from_provided_22_company_list",
+    "date_import_evidence": "same_row_explicit_eastern_date_converted_to_beijing; forecast_not_used",
+    "monitoring_group": "metrics_22_extension"
+  },
+  {
+    "symbol": "TSN",
+    "company": "泰森食品",
+    "aliases": [
+      "泰森食品",
+      "Tyson Foods"
+    ],
+    "fiscal_year": 2026,
+    "quarter": 4,
+    "period_start": "2026-06-28",
+    "period_end": "2026-10-03",
+    "report_description": "2026财年第四季度（Q4）及全年 季度： 2026-06-28 — 2026-10-03 全年： 2025-09-28 — 2026-10-03 按公司财历换算",
+    "scheduled_at": "2026-11-16T22:30:00+08:00",
+    "schedule_kind": "before",
+    "window_start": "2026-11-16T13:00:00+08:00",
+    "window_end": "2026-11-16T23:30:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "22:30前 币安预测时间 20:00 美东 11/16 盘前",
+    "forecast_at": "2026-11-16T20:00+08:00",
+    "forecast_is_official": false,
+    "cik": "0000100493",
+    "cik_evidence": "supplied_sec_link",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://ir.tyson.com/news/default.aspx",
+        "kind": "html",
+        "original_url": "https://ir.tyson.com/news/default.aspx",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "http_403_unavailable",
+        "last_status_code": 403,
+        "verification_evidence": {
+          "status": 403,
+          "completed_utc": "2026-11-11T02:58:26.597255+00:00",
+          "sha256": "3cb53f51aae369326af6186ad239f2cc3092a4bc189e8b33ae31ba750b24f814",
+          "bytes": 5528,
+          "content_type": "text/html; charset=UTF-8",
+          "listing_structure": null,
+          "discovery_structure_valid": null,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0000100493.json",
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=100493&owner=exclude",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "verified_public_discovery_structure",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T02:59:19.058083+00:00",
+          "sha256": "757dc33205dfd349244034648cd2be03a7150b78139886a90025d6cdd2c01913",
+          "bytes": 165117,
+          "content_type": "application/json",
+          "listing_structure": "SEC submissions CIK and recent filings structure",
+          "discovery_structure_valid": true,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.globenewswire.com/en/search/organization/Tyson%2520Foods%CE%B4%2520Inc%C2%A7",
+        "kind": "html",
+        "original_url": "https://www.globenewswire.com/en/search/organization/Tyson%2520Foods%CE%B4%2520Inc%C2%A7",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "verified_public_discovery_structure",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T02:58:28.235456+00:00",
+          "sha256": "8e05b58192d402b16d0890bfa441255c77a74b3169132998276b0bedaade2590",
+          "bytes": 75081,
+          "content_type": "text/html; charset=utf-8",
+          "listing_structure": "Public announcement links present; current-quarter candidate may be absent",
+          "discovery_structure_valid": true,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      }
+    ],
+    "schedule_evidence_url": "https://www.globenewswire.com/news-release/2026/09/24/3368769/0/en/tyson-foods-announces-fourth-quarter-earnings-conference-call-and-webcast.html",
+    "status": "imported_schedule_unverified_except_HUM",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "original_time_text": "22:30前",
+    "activation_status": "enabled_from_provided_22_company_list",
+    "date_import_evidence": "same_row_explicit_eastern_date_converted_to_beijing; forecast_not_used",
+    "monitoring_group": "metrics_22_extension"
+  },
+  {
+    "symbol": "ACM",
+    "company": "AECOM",
+    "aliases": [
+      "AECOM"
+    ],
+    "fiscal_year": 2026,
+    "quarter": 4,
+    "period_start": "2026-07-04",
+    "period_end": "2026-10-02",
+    "report_description": "2026财年第四季度（Q4）及全年 季度： 2026-07-04 — 2026-10-02 全年： 2025-10-04 — 2026-10-02 按公司财历换算",
+    "scheduled_at": "2026-11-17T05:00:00+08:00",
+    "schedule_kind": "after",
+    "window_start": "2026-11-17T04:45:00+08:00",
+    "window_end": "2026-11-17T12:59:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "05:00后 币安预测时间 05:05 美东11/16 盘后 发布时段跨本轮截止，准确时刻未定",
+    "forecast_at": "2026-11-17T05:05+08:00",
+    "forecast_is_official": false,
+    "cik": "0000868857",
+    "cik_evidence": "supplied_sec_link",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://aecom.gcs-web.com/rss/news-releases.xml?items=15",
+        "kind": "rss",
+        "original_url": "https://investors.aecom.com/news-releases",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "verified_public_discovery_structure",
+        "replaced_discovery_url": "https://investors.aecom.com/news-releases",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T03:06:54.816799+00:00",
+          "sha256": "c3b015bd8c6c7c929149d3156442d291405408583d46765eef04c158acff62d3",
+          "bytes": 7263,
+          "content_type": "application/rss+xml; charset=utf-8",
+          "listing_structure": "Parsed public feed with titled entry links",
+          "discovery_structure_valid": true,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0000868857.json",
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=868857&owner=exclude",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "verified_public_discovery_structure",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T02:59:19.476311+00:00",
+          "sha256": "d332130b498a6bb37e0cf232f7c137e9d7d5b045b7a43e20cd9e04f07a0d9f7e",
+          "bytes": 156094,
+          "content_type": "application/json",
+          "listing_structure": "SEC submissions CIK and recent filings structure",
+          "discovery_structure_valid": true,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.businesswire.com/newsroom?keywords=ACM",
+        "kind": "html",
+        "original_url": "https://www.businesswire.com/newsroom?keywords=ACM",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "http_403_unavailable",
+        "last_status_code": 403,
+        "verification_evidence": {
+          "status": 403,
+          "completed_utc": "2026-11-11T02:58:29.064424+00:00",
+          "sha256": "67bd128eb0ff6b2cccf2b13f382df1437b5b0b6158cb613e59d532fefe81cf0b",
+          "bytes": 872,
+          "content_type": "text/html",
+          "listing_structure": null,
+          "discovery_structure_valid": null,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      }
+    ],
+    "schedule_evidence_url": "https://aecom.gcs-web.com/news-releases/news-release-details/aecom-announces-planned-dates-fourth-quarter-and-full-year-0",
+    "status": "imported_schedule_unverified_except_HUM",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "original_time_text": "05:00后",
+    "activation_status": "enabled_from_provided_22_company_list",
+    "date_import_evidence": "same_row_explicit_eastern_date_converted_to_beijing; forecast_not_used",
+    "monitoring_group": "metrics_22_extension"
+  },
+  {
+    "symbol": "INFQ",
+    "company": "Infleqtion",
+    "aliases": [
+      "Infleqtion"
+    ],
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_start": "2026-07-01",
+    "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
+    "scheduled_at": "2026-11-17T05:00:00+08:00",
+    "schedule_kind": "after",
+    "window_start": "2026-11-17T04:45:00+08:00",
+    "window_end": "2026-11-17T12:59:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "05:00后 币安预测时间 05:05 美东11/16 盘后 发布时段跨本轮截止，准确时刻未定",
+    "forecast_at": "2026-11-17T05:05+08:00",
+    "forecast_is_official": false,
+    "cik": "0002007825",
+    "cik_evidence": "supplied_sec_link",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://ir.infleqtion.com/news-events/press-releases/rss",
+        "kind": "rss",
+        "original_url": "https://ir.infleqtion.com/news-events/press-releases",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "verified_public_discovery_structure",
+        "replaced_discovery_url": "https://ir.infleqtion.com/news-events/press-releases",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T03:03:16.888143+00:00",
+          "sha256": "3230d9c235ca40d044f5da58029ea42788daa5fb84896e783048472f9377d795",
+          "bytes": 8351,
+          "content_type": "text/xml;charset=UTF-8",
+          "listing_structure": "Parsed public feed with titled entry links",
+          "discovery_structure_valid": true,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0002007825.json",
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=2007825&owner=exclude",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "verified_public_discovery_structure",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T02:59:19.905913+00:00",
+          "sha256": "73a5e7e09fe2bb8cf68a10a12dce1291bf5665fe71f7e05c7a34a65fc9c810d1",
+          "bytes": 30010,
+          "content_type": "application/json",
+          "listing_structure": "SEC submissions CIK and recent filings structure",
+          "discovery_structure_valid": true,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.businesswire.com/newsroom?keywords=INFQ",
+        "kind": "html",
+        "original_url": "https://www.businesswire.com/newsroom?keywords=INFQ",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "http_403_unavailable",
+        "last_status_code": 403,
+        "verification_evidence": {
+          "status": 403,
+          "completed_utc": "2026-11-11T02:58:29.968562+00:00",
+          "sha256": "77b601293ab0fb1744da7b0d35616a30f70853047c5beedf3931324ca18e3ae0",
+          "bytes": 872,
+          "content_type": "text/html",
+          "listing_structure": null,
+          "discovery_structure_valid": null,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      }
+    ],
+    "schedule_evidence_url": "https://ir.infleqtion.com/news-events/press-releases/detail/217/infleqtion-to-report-third-quarter-2026-financial-results-on-november-16-2026",
+    "status": "imported_schedule_unverified_except_HUM",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "original_time_text": "05:00后",
+    "activation_status": "enabled_from_provided_22_company_list",
+    "date_import_evidence": "same_row_explicit_eastern_date_converted_to_beijing; forecast_not_used",
+    "monitoring_group": "metrics_22_extension"
+  },
+  {
+    "symbol": "STEM",
+    "company": "Stem",
+    "aliases": [
+      "Stem"
+    ],
+    "fiscal_year": 2026,
+    "quarter": 3,
+    "period_start": "2026-07-01",
+    "period_end": "2026-09-30",
+    "report_description": "2026年第三季度（Q3） 涵盖： 2026-07-01 — 2026-09-30 按公司财历换算",
+    "scheduled_at": "2026-11-17T05:05:00+08:00",
+    "schedule_kind": "approx",
+    "window_start": "2026-11-17T04:35:00+08:00",
+    "window_end": "2026-11-17T07:05:00+08:00",
+    "scheduled_at_semantics": "sheet_window_boundary_or_approximation",
+    "schedule_text": "约05:05 币安预测时间 05:05 美东11/16 约16:05",
+    "forecast_at": "2026-11-17T05:05+08:00",
+    "forecast_is_official": false,
+    "cik": "0001758766",
+    "cik_evidence": "supplied_sec_link",
+    "sources": [
+      {
+        "channel": "official",
+        "url": "https://investors.stem.com/news-events/press-releases/rss",
+        "kind": "rss",
+        "original_url": "https://investors.stem.com/news-events/press-releases",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "verified_public_discovery_structure",
+        "replaced_discovery_url": "https://investors.stem.com/news-events/press-releases",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T03:03:16.973174+00:00",
+          "sha256": "7298c13713349fb2e06cff5fd99b05d6a23dbd575d918c2ca2f7886aeaa2bafb",
+          "bytes": 7768,
+          "content_type": "text/xml;charset=UTF-8",
+          "listing_structure": "Parsed public feed with titled entry links",
+          "discovery_structure_valid": true,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      },
+      {
+        "channel": "sec",
+        "url": "https://data.sec.gov/submissions/CIK0001758766.json",
+        "kind": "sec_json",
+        "original_url": "https://www.sec.gov/edgar/browse/?CIK=1758766&owner=exclude",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "verified_public_discovery_structure",
+        "last_status_code": 200,
+        "verification_evidence": {
+          "status": 200,
+          "completed_utc": "2026-11-11T02:59:20.508642+00:00",
+          "sha256": "36adfc611788f1ad0367477ea08d8b7b3dc4e7471e8e59cee4c624f7b60237b8",
+          "bytes": 130587,
+          "content_type": "application/json",
+          "listing_structure": "SEC submissions CIK and recent filings structure",
+          "discovery_structure_valid": true,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      },
+      {
+        "channel": "newswire",
+        "url": "https://www.businesswire.com/newsroom?keywords=STEM",
+        "kind": "html",
+        "original_url": "https://www.businesswire.com/newsroom?keywords=STEM",
+        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "verification": "http_403_unavailable",
+        "last_status_code": 403,
+        "verification_evidence": {
+          "status": 403,
+          "completed_utc": "2026-11-11T02:58:30.890305+00:00",
+          "sha256": "94ad3a826b1099611b2767259ed61e7261061f625bded18918f5801583d0d0bc",
+          "bytes": 872,
+          "content_type": "text/html",
+          "listing_structure": null,
+          "discovery_structure_valid": null,
+          "scope": "discovery_entry_only_not_full_report_or_first_release",
+          "execution": "local_machine_via_existing_task_proxy"
+        }
+      }
+    ],
+    "schedule_evidence_url": "https://investors.stem.com/news-events/press-releases/detail/220/stem-reschedules-third-quarter-2026-earnings-results-conference-call-to-monday-november-16-2026",
+    "status": "imported_schedule_unverified_except_HUM",
+    "source_priority": "parallel_no_verified_historical_winner",
+    "original_time_text": "约05:05",
+    "activation_status": "enabled_from_provided_22_company_list",
+    "date_import_evidence": "same_row_explicit_eastern_date_converted_to_beijing; forecast_not_used",
+    "monitoring_group": "metrics_22_extension"
   }
 ]

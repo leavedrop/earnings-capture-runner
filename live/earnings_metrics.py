@@ -26,7 +26,7 @@ SUPPORTED_SYMBOLS = frozenset({"ONON", "TDG", "MRDN", "SE", "QBTS", "NCMI", "RGT
                                "NBIS", "CBRS", "CSCO", "XPEV", "BIDU", "BEKE", "HTHT", "ARMK", "TSN", "ACM", "INFQ", "STEM"})
 _NUMBER = re.compile(r"[+-]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?|[+-]?\.\d+")
 _YEAR = re.compile(r"\b20\s?\d\s?\d\b")
-_PER_SHARE = re.compile(r"\bEPS\b|per\s+(?:(?:basic|diluted|common|ordinary|American depositary|Class\s+[AB]|and)\s+)*(?:share|ADS)", re.I)
+_PER_SHARE = re.compile(r"\bEPS\b|per\s+(?:(?:basic|diluted|common|ordinary|American depositary|Class\s*[AB]|and)\s+)*(?:share|ADS)", re.I)
 _DURATION = re.compile(r"three[ -]months?|thirteen[ -]weeks?|quarter|nine[ -]months?|six[ -]months?|years?\s+ended|fiscal years?|twelve[ -]months?", re.I)
 _MONTHS = "January February March April May June July August September October November December".split()
 _END_DATE = re.compile(r"\b(" + "|".join(_MONTHS) + r")\s+(\d{1,2})\b", re.I)
@@ -234,7 +234,7 @@ def _share_basis(label: str, table_text: str):
         dilution = "basic"
     else:
         return None
-    classes = list(dict.fromkeys(re.findall(r"Class\s+([AB])", label, re.I)))
+    classes = list(dict.fromkeys(re.findall(r"Class\s*([AB])\b", label, re.I)))
     instrument = "ADS" if re.search(r"\bADS\b|depositary", label, re.I) else (
         "ordinary" if "ordinary" in low or classes else "common")
     parts = [dilution, instrument]
@@ -304,7 +304,10 @@ def _html_fields(body, event, parsed, common, diagnostics):
     full_text, tables = _html_tables(body, parsed)
     currency_conflict = None
     if event.get("reporting_currency_source") == "provided_company_rule":
-        currency_conflict = re.search(r"\b(?:CAD|CHF|CNY|RMB|EUR|GBP|JPY|HKD)\b|Canadian dollars|Swiss francs|Chinese yuan|euros|pounds sterling|Japanese yen|Hong Kong dollars", full_text, re.I)
+        # Foreign-currency notes do not override an independently stated USD
+        # reporting basis. The company rule only supplies a missing basis.
+        if not re.search(r"\bUSD\b|US\$|U\.?S\.?\s+dollars|iso4217:USD", full_text, re.I):
+            currency_conflict = re.search(r"\b(?:CAD|CHF|CNY|RMB|EUR|GBP|JPY|HKD)\b|Canadian dollars|Swiss francs|Chinese yuan|euros|pounds sterling|Japanese yen|Hong Kong dollars", full_text, re.I)
         if currency_conflict:
             diagnostics.append({"reason": "provided_currency_conflicts_with_document", "configured_currency": event["reporting_currency"],
                                 "text": currency_conflict[0], "text_offset": currency_conflict.start()})
@@ -368,7 +371,8 @@ def _html_fields(body, event, parsed, common, diagnostics):
                 if value is None:
                     continue
                 currency, scale = _unit_context(event["symbol"], metric, table_text, full_text, event, headers)
-                if currency_conflict:
+                if currency_conflict or (event.get("reporting_currency_source") == "provided_company_rule"
+                                         and currency != event["reporting_currency"]):
                     currency = None
                 share_label = label + " " + " ".join(header for header in headers if re.fullmatch(r"Class\s+[AB]", header, re.I))
                 if event["symbol"] == "FNV" and label.lower() == "adjusted net income per share" and ri and "Basic weighted average" in " ".join(rows[ri-1]):
@@ -599,7 +603,7 @@ def extract_metrics(body: bytes, source_url: str, event: Mapping, *, received_at
         company_rule = next((row for row in rules["companies"] if row["symbol"] == event["symbol"]), None) if "companies" in rules else rules
         if "companies" not in rules and company_rule.get("symbol") != event["symbol"]:
             raise ValueError("rules_do_not_describe_this_company")
-    if (event["symbol"] in {"TDG", "MRDN"} and company_rule is not None
+    if (event["symbol"] in {"TDG", "MRDN", "CSCO", "CBRS"} and company_rule is not None
             and company_rule.get("currency") == "USD" and company_rule.get("currency_source") == "provided_company_rule"):
         event = {**event, "reporting_currency": "USD", "reporting_currency_source": "provided_company_rule"}
         diagnostics.append({"reason": "currency_from_provided_company_rule", "symbol": event["symbol"], "currency": "USD"})

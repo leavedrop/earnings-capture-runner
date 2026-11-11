@@ -23,6 +23,7 @@ on:
           - kkr-complete
           - metrics-production
           - metrics-alternate-sources
+          - metrics-exchange-targets
           - sec-quarterly
           - lcid-http-protocols
           - lcid-chrome-protocols

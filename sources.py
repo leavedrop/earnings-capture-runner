@@ -21,7 +21,7 @@ from selectolax.lexbor import LexborHTMLParser
 _ANNOUNCEMENT = re.compile(
     r"\b(?:to\s+(?:report|release|announce|host)|will\s+(?:report|release|announce|host)|"
     r"sets?\s+(?:date|earnings)|schedules?\s+(?:earnings|conference)|"
-    r"announces?\s+(?:the\s+)?date\b|"
+    r"announces?\s+(?:the\s+)?(?:planned\s+)?dates?\b|"
     r"(?:earnings|results)\s+(?:conference\s+)?call|webcast\s+to\s+discuss)\b", re.I)
 _FINANCIAL = re.compile(r"\b(?:results|earnings|financial\s+(?:statements|report)|"
                         r"quarterly\s+report|shareholder\s+letter|form\s+10-[qk])\b", re.I)
@@ -519,6 +519,7 @@ def listing_structure(body: bytes, url: str, content_type: str, event: dict) -> 
                     return "Cision issuer page with titled Franco-Nevada release links"
         if (parsed.hostname == "www.prnewswire.com"
                 and (event.get("symbol") in ("TDG", "GIB") and parsed.path.rstrip("/") == "/search/news"
+                     or event.get("symbol") in ("XPEV", "BIDU") and parsed.path.rstrip("/") == "/search/all"
                      or event.get("symbol") == "CSCO" and unquote(parsed.path).rstrip("/") == "/news/cisco-systems,-inc.")):
             for link in document.xpath(".//div[contains(concat(' ', normalize-space(@class), ' '), ' newsCards ')]//a[@href]"):
                 target = urlparse(urljoin(url, link.get("href")))
@@ -1181,7 +1182,8 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
         checks["tables_complete"] = native_pdf["tables_complete"]
     publisher_pdf_needs_review = (pdf and native_pdf is None and (
         event.get("symbol") == "BAM" and parsed_url.hostname in ("globenewswire.com", "www.globenewswire.com", "pnr-files.pro1.gus.wdc.dianum.io")
-        or event.get("symbol") == "KKR" and parsed_url.hostname == "ir.kkr.com" and parsed_url.path.startswith("/media/document/")))
+        or event.get("symbol") == "KKR" and parsed_url.hostname == "ir.kkr.com" and parsed_url.path.startswith("/media/document/")
+        or event.get("symbol") == "NBIS" and parsed_url.hostname == "assets.nebius.com"))
     if publisher_pdf_needs_review:
         # This publisher's untagged PDF has no native cell rectangles. The
         # text-alignment fallback clips prose and splits financial amounts.

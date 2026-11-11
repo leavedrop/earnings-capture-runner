@@ -130,6 +130,10 @@ class MetricsPipeline:
             if not isinstance(self.rules, dict):
                 raise ValueError("Metric rules must be a JSON object")
             self.rules_sha256 = hashlib.sha256(rules_body).hexdigest()
+        # Load executable code while the optional pipeline is initialized,
+        # before any report is discovered. No report bytes or values are read.
+        import earnings_metrics
+        self.extractor = earnings_metrics
         # Do not queue this optional work in the full-report parser's executor.
         self.executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="earnings-metrics")
 
@@ -197,8 +201,7 @@ class MetricsPipeline:
             received = capture.get("body_complete_utc") or capture.get("received_at_utc")
             if received is None:
                 raise ValueError("original_receipt_time_required")
-            from earnings_metrics import extract_metrics
-            extracted = extract_metrics(body, source_url, event, received_at_utc=received,
+            extracted = self.extractor.extract_metrics(body, source_url, event, received_at_utc=received,
                 document_version=version,
                 parsed=parsed, rules=self.rules)
             extracted_at = time.perf_counter_ns()

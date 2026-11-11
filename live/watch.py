@@ -43,9 +43,10 @@ def epoch(value: str) -> float:
     return datetime.fromisoformat(value.replace("Z", "+00:00")).timestamp()
 
 
-def atomic_json(path: Path, value):
+def atomic_json(path: Path, value, *, indent=2):
     temp = path.with_suffix(path.suffix + ".tmp")
-    temp.write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding="utf-8")
+    temp.write_text(json.dumps(value, ensure_ascii=False, indent=indent,
+                              separators=(",", ":") if indent is None else None), encoding="utf-8")
     temp.replace(path)
 
 
@@ -141,7 +142,7 @@ class Store:
         digest = hashlib.sha256(body).hexdigest()
         dest = self.root / "raw" / (digest + ".gz")
         if not dest.exists():
-            with gzip.open(dest, "wb") as fh:
+            with gzip.open(dest, "wb", compresslevel=1) as fh:
                 fh.write(body)
         return digest, str(dest.relative_to(self.root))
 
@@ -712,7 +713,7 @@ class Collector:
                     original.write_bytes(body)
                     target.with_suffix(".txt").write_text(result.get("text", ""), encoding="utf-8")
                     atomic_json(target.with_suffix(".json"), {"metadata": captured, "tables": result.get("tables", []),
-                                **{key: result[key] for key in ("table_spans", "table_details", "page_diagnostics", "spreadsheet") if key in result}})
+                                **{key: result[key] for key in ("table_spans", "table_details", "page_diagnostics", "spreadsheet") if key in result}}, indent=None)
                 # run() already preserves archive_tasks during shutdown. Keep
                 # this candidate alive through its files and success record;
                 # the SQLite connection stays on its owning event-loop thread.
@@ -1275,7 +1276,7 @@ def main():
                         help="Shared SEC rolling budget for all discovery, documents and retries")
     parser.add_argument("--proxy", default=None)
     parser.add_argument("--node", default="windows-workstation-via-user-US-proxy")
-    parser.add_argument("--until", default="2026-11-13T13:03:00+08:00")
+    parser.add_argument("--until", default="2026-11-17T13:03:00+08:00")
     parser.add_argument("--user-agent", default=os.environ.get("SEC_USER_AGENT", "EarningsWatch/1.0 automated-public-filings-research"))
     parser.add_argument("--metrics-mode", choices=["off", "synthetic", "forecasts"], default="off",
                         help="Optional local post-capture comparison; never places exchange orders")
