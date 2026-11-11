@@ -510,7 +510,19 @@
       ],
       "revenue_labels": [
         "Revenues"
-      ]
+      ],
+      "currency": "USD",
+      "currency_source": "verified_filing_unit",
+      "currency_evidence": {
+        "source_url": "https://www.sec.gov/Archives/edgar/data/2041610/000204161026000067/skyd-20260930.htm",
+        "document_hash": "4adfbbb4e78e35034017b4fc2c5f0b5b62d5d7f0890bd00f282fbe26e1d2483d",
+        "cik": "2041610",
+        "context_id": "c-6",
+        "period_start": "2026-07-01",
+        "period_end": "2026-09-30",
+        "unit_id": "usd",
+        "measure": "iso4217:USD"
+      }
     },
     {
       "symbol": "TTD",
@@ -538,7 +550,19 @@
       ],
       "revenue_labels": [
         "Revenue"
-      ]
+      ],
+      "currency": "USD",
+      "currency_source": "verified_filing_unit",
+      "currency_evidence": {
+        "source_url": "https://www.sec.gov/Archives/edgar/data/1824502/000182450226000089/achr-20260930.htm",
+        "document_hash": "2fe1daeb4993b10d04e2924605a85a530aa660d4cf4f6619849c7b1887e785c9",
+        "cik": "1824502",
+        "context_id": "c-5",
+        "period_start": "2026-07-01",
+        "period_end": "2026-09-30",
+        "unit_id": "usd",
+        "measure": "iso4217:USD"
+      }
     },
     {
       "symbol": "LCID",

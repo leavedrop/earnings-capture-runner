@@ -4943,5 +4943,88 @@
     "document_version": "unknown_historical_version",
     "reference_scope": "Complete actual target-quarter earnings release; reacquisition is a labelled replay, never evidence of first publication. Independent current-quarter raw/text/tables/spans retained.",
     "require_raw_reference_match": false
+  },
+  "XENE_CURRENT_METRICS_PRODUCTION": {
+    "url": "https://investor.xenon-pharma.com/news-releases/news-release-details/xenon-reports-q3-2026-financial-results-and-provides-business",
+    "channel": "official",
+    "raw_sha256": "a198e2d7e91e1e5053e2dd92b7a3184ea8c4502a06eae30b1eb2cfb368990bde",
+    "text_sha256": "ca508ea7d9b565e4c1099c4047871d7c0885a99da75da192dace1360734ae16f",
+    "table_sha256": [
+      "3f4fdce2a52e56180fca40dc03fc865753b5fd3166e03fc64554fc4ff9d70397",
+      "f96e1b7033c1a7fbc0424128f23df15bcc849165c0cd5dd5ef0ade17a7226acd"
+    ],
+    "table_spans_sha256": "29b95a5b50263e312935347bc78e96789df8a76c3c503402b00f4e68c94102b2",
+    "event_override": {
+      "fiscal_year": 2026,
+      "quarter": 3,
+      "period_start": "2026-07-01",
+      "period_end": "2026-09-30"
+    },
+    "document_version": "unknown_historical_version",
+    "reference_scope": "Complete formal current-quarter earnings release, including every table and span. Preferred over a larger separately archived quarterly filing. Replay only; missing disclosed fields remain missing.",
+    "require_raw_reference_match": false
+  },
+  "SKYD_CURRENT_METRICS_PRODUCTION": {
+    "url": "https://www.sec.gov/Archives/edgar/data/2041610/000204161026000062/ex99_q326.htm",
+    "channel": "sec",
+    "raw_sha256": "89634970c1a207358831c96d917711d0b04c507071caf4ec394543ef72aa6b8d",
+    "text_sha256": "715394273f6116773ef81de9730e2a248233bf5a94b7c78a8a64c89c980a6c52",
+    "table_sha256": [
+      "9a96c54831c969e52739908367d74938a0c8475e8e7ef834429c907637dca0c4",
+      "3fb9c2917b8089aa66b4e6227eebc0e8cca5fa830fc0d4138a9a1faed2d7657e",
+      "51b9f4f15fcfcedb5137a400633a07fcf1b11c51f35cc70a761c9948e34826cd",
+      "0230536b3d26620788093db14e24ea1e226f6c8ecc94e40e685b03e4e441c9d5",
+      "1f0de91d89616f625cc24fbd1e45448edf6c57df1faf2b6a8cacfbc73012c8a9",
+      "f46213e1a6b3290b84c9d82f0999839ba512563850c33c14391af5d3ffc1d56b",
+      "cf9a56bd14fe63525fa69bc01ccef3b7868972863ab524fb59160f0a9c73344b",
+      "171744caa12ba32254930609913af033d8594bb0bf6669cd5dda03d427634f6c",
+      "c3adf2efeeaec2523398786c2d3f2fe2c276acc5748beb5f5022d695df17dd83",
+      "8053a7107d431c7070a032984be79b4a975753796be4999706c6f19d71446695",
+      "0fee9d779741e5aee944751184ed08ac9e1f2a3ac312a21daed17b377583a548",
+      "c3adf2efeeaec2523398786c2d3f2fe2c276acc5748beb5f5022d695df17dd83",
+      "2469630aba0135652f1abf7529dff0a48c32f72faaf42f37261135b48a8a1f1d",
+      "0ad4d20b4c7a50181d74a804d7ffaef22b631326fdfef2dac304b47e30f9db0d",
+      "006bc65d7984b8f76ba73471f2474cbb73b40873d3375e8de21c93febc94d225",
+      "29bfaf8a1e6d8324f5c5a30cf2187252dd904ec6e752770cb6c00b374d8f5116",
+      "4eb2a00d7cb560fea4c8b7f4b7e186a7a8a060ba6ce90ee0a4c7bd0c355fb45b",
+      "b594dc51b368d424cb833bc49271ff5ee022abba4f659922fd1118e732fba21a",
+      "79da445e8b02ebafc2d4711c367c7fab1fc607db6b109f9f81f6e57e6fa88fa5"
+    ],
+    "table_spans_sha256": "1337d74ee9f5bb51da72bf6dd2da0d47846ca02fdf966abff65a5686bbc3277a",
+    "event_override": {
+      "fiscal_year": 2026,
+      "quarter": 3,
+      "period_start": "2026-07-01",
+      "period_end": "2026-09-30"
+    },
+    "document_version": "unknown_historical_version",
+    "reference_scope": "Complete actual-quarter formal earnings release; full text/table/span binding and same-quarter verified filing currency evidence. Replay only.",
+    "require_raw_reference_match": false
+  },
+  "ACHR_CURRENT_METRICS_PRODUCTION": {
+    "url": "https://investors.archer.com/news/news-details/2026/Archer-Announces-Q3-2026-Results-Receives-FAA-Market-Survey-Certificate-Unlocking-LA-Operations-and-Boeing-Deal-Close-Imminent/default.aspx",
+    "channel": "official",
+    "raw_sha256": "39d025659cc265f1565e34f91ededffa0e5ae34e131362113691b6e6a842c337",
+    "text_sha256": "024dca5a94caeb05a115d6bd90879e1175ce257359aace487d40a6a036ad33d1",
+    "table_sha256": [
+      "17966d041ea1d0b00986a40475b91b0b9b3b1721f6ba9f93f3250b65a0400a0c",
+      "6a306d9d7b24e6b11bee0ed45852cbfb6c0943daa817e884b0f7960f52c7b986",
+      "c46096504d609287f0475a2209e83101869afb6642ad9d6ca937e858b89cdf6b",
+      "efceff3714d2a26079c28282d98519def65b36caf310159aebc0ee1324f0cdd8",
+      "63daffe2e4fd09e7606dc6555f3a916c51a7584869d9488f9056c3646675ad57",
+      "37934945ee640aa682e562c7e39d2ec43235ed4a66a0cac2991b8c42513228d2",
+      "058af95c477ea4956026007d0d61a78eb33c566ad0f12f57e8b9caf277fae4d4",
+      "76fe74aa1e3da45bb15e9bdacb32f513ec424896d465aa773a473a3dab157087"
+    ],
+    "table_spans_sha256": "8aa76f02846aca4e576a4be7478598d0dd2440003dfb9e70dd7e6917fb43fb19",
+    "event_override": {
+      "fiscal_year": 2026,
+      "quarter": 3,
+      "period_start": "2026-07-01",
+      "period_end": "2026-09-30"
+    },
+    "document_version": "unknown_historical_version",
+    "reference_scope": "Complete actual-quarter formal earnings release; full text/table/span binding and same-quarter verified filing currency evidence. Replay only.",
+    "require_raw_reference_match": false
   }
 }

@@ -342,7 +342,7 @@ def _html_fields(body, event, parsed, common, diagnostics):
         # Foreign-currency notes do not override an independently stated USD
         # reporting basis. The company rule only supplies a missing basis.
         if not re.search(r"\bUSD\b|US\$|U\.?S\.?\s+dollars|iso4217:USD", full_text, re.I):
-            currency_conflict = re.search(r"\b(?:CAD|CHF|CNY|RMB|EUR|GBP|JPY|HKD)\b|Canadian dollars|Swiss francs|Chinese yuan|euros|pounds sterling|Japanese yen|Hong Kong dollars", full_text, re.I)
+            currency_conflict = re.search(r"\b(?:CAD|CHF|CNY|RMB|EUR|GBP|JPY|HKD|Canadian dollars|Swiss francs|Chinese yuan|euros|pounds sterling|Japanese yen|Hong Kong dollars)\b", full_text, re.I)
         if currency_conflict:
             diagnostics.append({"reason": "provided_currency_conflicts_with_document", "configured_currency": event["reporting_currency"],
                                 "text": currency_conflict[0], "text_offset": currency_conflict.start()})
@@ -390,6 +390,10 @@ def _html_fields(body, event, parsed, common, diagnostics):
         for ri, row in enumerate(rows):
             label, metric = _label(rows, ri)
             revenue_definition = None
+            skyd_eps_column = (event["symbol"] == "SKYD" and label in {"Reported (GAAP)", "Adjusted (Non-GAAP)"}
+                               and any("Diluted EPS" in prior for prior in rows[:ri]))
+            if skyd_eps_column:
+                label, metric = label + " / Diluted EPS", "eps"
             if event["symbol"] == "LCID" and primary_statement and label.startswith("Revenue (including "):
                 metric, revenue_definition = "revenue", "revenue"
             if (event["symbol"] == "OXY" and label == "Total"
@@ -430,6 +434,13 @@ def _html_fields(body, event, parsed, common, diagnostics):
             if anchors is None:
                 anchors, occupied = _grid(rows, table["spans"])
             groups = _period_groups(anchors, occupied, ri, event, table["context"])
+            if skyd_eps_column:
+                target_header = (f"Three Months Ended {_MONTHS[int(event['period_end'][5:7])-1]} "
+                                 f"{int(event['period_end'][8:])}, {event['period_end'][:4]}")
+                dated = next((cell for prior in anchors[:ri] for cell in prior if cell["value"] == target_header), None)
+                groups = [(cell, [dated["value"], cell["value"]]) for prior in anchors[:ri] for cell in prior
+                          if dated is not None and cell["value"] == "Diluted EPS"
+                          and dated["row"] < cell["row"] and dated["column"] <= cell["column"] < cell["end"] <= dated["end"]]
             if not groups and acm_summary:
                 groups = _acm_summary_groups(anchors, ri, event, full_text)
             for year_cell, headers in groups:

@@ -26,7 +26,7 @@
   "earnings_metrics.py": {
     "source": "earnings_watch/earnings_metrics.py",
     "normalization": "UTF-8 LF; code unchanged",
-    "sha256": "d5731ba69f562b62ba548aa45239f352ad6ee424eb449f2213f9246885aababd",
-    "source_sha256": "d5731ba69f562b62ba548aa45239f352ad6ee424eb449f2213f9246885aababd"
+    "sha256": "c511b7b012e9ca91cb834adee0294c309da70b8b400e30664fd13752989706eb",
+    "source_sha256": "c511b7b012e9ca91cb834adee0294c309da70b8b400e30664fd13752989706eb"
   }
 }
