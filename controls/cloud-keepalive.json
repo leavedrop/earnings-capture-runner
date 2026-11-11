@@ -1,27 +1,27 @@
 {
   "schema_version": 1,
   "owner": "github_actions",
-  "checked_at_utc": "2026-11-11T11:34:03.527377+00:00",
+  "checked_at_utc": "2026-11-11T11:34:46.022591+00:00",
   "dispatch_until_utc": "2026-11-17T13:03:00+08:00",
   "local_sec_rps_budget": 2,
   "total_sec_rps_limit": 10,
   "raw_report_requests": 0,
   "active_probe_run_ids": [],
-  "inventory_state": "manifest_mismatch",
-  "inventory_count": 0,
+  "inventory_state": "verified_hashes",
+  "inventory_count": 104,
   "inventory_refresh": "retained_existing; new documents may be initially_present on the next run",
   "evidence_observations": [
     {
       "run_id": "43012713725-1",
-      "commit": "c52f5c36210c618ebe4a7c673f33e1b3fe56563b",
+      "commit": "a48ad58d0d84c235e647227aecbef19744d21208",
       "node": {
         "loc": "US",
         "colo": "LAX"
       },
       "state": "running",
-      "updated_utc": "2026-11-11T11:32:31.492+00:00",
-      "collector_heartbeat_utc": "2026-11-11T11:32:23.449362+00:00",
-      "requests": 154
+      "updated_utc": "2026-11-11T11:34:34.689+00:00",
+      "collector_heartbeat_utc": "2026-11-11T11:34:19.988541+00:00",
+      "requests": 1146
     },
     {
       "run_id": "42990797977-1",
@@ -66,9 +66,9 @@
   ],
   "selected_run_id": "42990797977-1",
   "workflow_state": "waiting_for_successor_readiness",
-  "updated_utc": "2026-11-11T11:34:06.704685+00:00",
+  "updated_utc": "2026-11-11T11:34:50.036023+00:00",
   "control_mode": "live_supervisor",
-  "caller_live_run_id": "42990797977-1",
+  "caller_live_run_id": "43012713725-1",
   "overlap_sec_rps_budget": 8,
   "handoff_readiness": {
     "ready": false,
@@ -104,76 +104,10 @@
       "TTWO",
       "XENE"
     ],
-    "unobserved_sources": [
-      "HUM:sec:https://data.sec.gov/submissions/CIK0000049071.json",
-      "BAM:sec:https://data.sec.gov/submissions/CIK0001937926.json",
-      "ENB:sec:https://data.sec.gov/submissions/CIK0000895728.json",
-      "OKLO:sec:https://data.sec.gov/submissions/CIK0001849056.json",
-      "MSGK:sec:https://data.sec.gov/submissions/CIK0001636519.json",
-      "MSGR:sec:https://data.sec.gov/submissions/CIK0002132873.json",
-      "BRK.B:sec:https://data.sec.gov/submissions/CIK0001067983.json",
-      "SOHU:sec:https://data.sec.gov/submissions/CIK0001734107.json",
-      "B:sec:https://data.sec.gov/submissions/CIK0000756894.json",
-      "FERG:sec:https://data.sec.gov/submissions/CIK0002011641.json",
-      "KKR:sec:https://data.sec.gov/submissions/CIK0001404912.json",
-      "CECO:sec:https://data.sec.gov/submissions/CIK0000003197.json",
-      "TGTX:sec:https://data.sec.gov/submissions/CIK0001001316.json",
-      "SKYD:sec:https://data.sec.gov/submissions/CIK0002041610.json",
-      "TTD:sec:https://data.sec.gov/submissions/CIK0001671933.json",
-      "XENE:sec:https://data.sec.gov/submissions/CIK0001582313.json",
-      "ACHR:sec:https://data.sec.gov/submissions/CIK0001824502.json",
-      "HIMS:sec:https://data.sec.gov/submissions/CIK0001773751.json",
-      "LCID:sec:https://data.sec.gov/submissions/CIK0001811210.json",
-      "RKLB:sec:https://data.sec.gov/submissions/CIK0001819994.json",
-      "TTWO:sec:https://data.sec.gov/submissions/CIK0000946581.json",
-      "OXY:sec:https://data.sec.gov/submissions/CIK0000797468.json",
-      "ONON:sec:https://data.sec.gov/submissions/CIK0001858985.json",
-      "SE:sec:https://data.sec.gov/submissions/CIK0001703399.json",
-      "QBTS:sec:https://data.sec.gov/submissions/CIK0001907982.json",
-      "TDG:sec:https://data.sec.gov/submissions/CIK0001260221.json",
-      "MRDN:sec:https://data.sec.gov/submissions/CIK0001437925.json",
-      "NCMI:sec:https://data.sec.gov/submissions/CIK0001377630.json",
-      "RGTI:sec:https://data.sec.gov/submissions/CIK0001838359.json"
-    ],
-    "companies_without_valid_discovery": [
-      "CECO",
-      "HUM",
-      "NCMI",
-      "RGTI",
-      "RKLB",
-      "TGTX",
-      "XENE"
-    ],
+    "unobserved_sources": [],
+    "companies_without_valid_discovery": [],
     "previously_accessible_sources_not_ready": [
-      "HUM:sec:https://data.sec.gov/submissions/CIK0000049071.json",
-      "BAM:sec:https://data.sec.gov/submissions/CIK0001937926.json",
-      "ENB:sec:https://data.sec.gov/submissions/CIK0000895728.json",
-      "OKLO:sec:https://data.sec.gov/submissions/CIK0001849056.json",
-      "MSGK:sec:https://data.sec.gov/submissions/CIK0001636519.json",
-      "MSGR:sec:https://data.sec.gov/submissions/CIK0002132873.json",
-      "BRK.B:sec:https://data.sec.gov/submissions/CIK0001067983.json",
-      "SOHU:sec:https://data.sec.gov/submissions/CIK0001734107.json",
-      "B:sec:https://data.sec.gov/submissions/CIK0000756894.json",
-      "FERG:sec:https://data.sec.gov/submissions/CIK0002011641.json",
-      "KKR:sec:https://data.sec.gov/submissions/CIK0001404912.json",
-      "CECO:sec:https://data.sec.gov/submissions/CIK0000003197.json",
-      "TGTX:sec:https://data.sec.gov/submissions/CIK0001001316.json",
-      "SKYD:sec:https://data.sec.gov/submissions/CIK0002041610.json",
-      "TTD:sec:https://data.sec.gov/submissions/CIK0001671933.json",
-      "XENE:sec:https://data.sec.gov/submissions/CIK0001582313.json",
-      "ACHR:sec:https://data.sec.gov/submissions/CIK0001824502.json",
-      "HIMS:sec:https://data.sec.gov/submissions/CIK0001773751.json",
-      "LCID:sec:https://data.sec.gov/submissions/CIK0001811210.json",
-      "RKLB:sec:https://data.sec.gov/submissions/CIK0001819994.json",
-      "TTWO:sec:https://data.sec.gov/submissions/CIK0000946581.json",
-      "OXY:sec:https://data.sec.gov/submissions/CIK0000797468.json",
-      "ONON:sec:https://data.sec.gov/submissions/CIK0001858985.json",
-      "SE:sec:https://data.sec.gov/submissions/CIK0001703399.json",
-      "QBTS:sec:https://data.sec.gov/submissions/CIK0001907982.json",
-      "TDG:sec:https://data.sec.gov/submissions/CIK0001260221.json",
-      "MRDN:sec:https://data.sec.gov/submissions/CIK0001437925.json",
-      "NCMI:sec:https://data.sec.gov/submissions/CIK0001377630.json",
-      "RGTI:sec:https://data.sec.gov/submissions/CIK0001838359.json"
+      "GIB:newswire:https://www.prnewswire.com/search/news/?keyword=CGI"
     ]
   },
   "retirement_requested_run_id": "42987705945",
@@ -190,8 +124,5 @@
     "timing_basis": "Separate run UTC observations; no cross-run monotonic timing"
   },
   "projected_total_sec_rps": 10,
-  "snapshot_errors": [],
-  "dispatch_blockers": [
-    "inventory_not_verified"
-  ]
+  "snapshot_errors": []
 }
