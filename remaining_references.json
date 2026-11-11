@@ -3034,9 +3034,24 @@
   "NCMI_ISSUER_METRICS_PRODUCTION": {
     "url": "https://nationalcinemedia.gcs-web.com/news-releases/news-release-details/national-cinemedia-inc-reports-results-fiscal-second-quarter-15",
     "channel": "official",
-    "raw_sha256": null,
-    "text_sha256": null,
-    "table_sha256": null,
+    "raw_sha256": "9e464cef1436430bcd3a26f78ab447d8239fdf0e7af10ec5677e32fff3eaf18c",
+    "text_sha256": "692a7fc24f892ba7389933e201dfba34f0d81547c344e56da3828e3ff934e6c3",
+    "table_sha256": [
+      "0200d354dc6ecebc9653a843e70af63839fd3507ab35972a9200381fe2abcba9",
+      "77cc4cfea6c3093cff91aeb8129cac8661cacab2ea0786da7b0bc61889b3c5f5",
+      "0e86f28ba1684c793d17b1477b3f04763688dfb8432b969d97da36ec23c0a74d",
+      "52c1fa012bede44eb870eb04cc179e419e2f7df47c3d8d17052b354fdd4c6986",
+      "31120d244311516418b352879b69fd7df7177d4bf1529eeecba14f209f687951",
+      "49db5cbc23ea148d1b3726b70b62c2df76f3284e8840dcade11b793e7967a834",
+      "1d3c2c9073c267831bfd8883307c7890d8e602a927a4482ab1fbe50369ab439c",
+      "4b8b90a0a42e2e5f06953ad6f41a671fdccbea71349414d2f62a4baf3de1130e",
+      "4e8ea813112c2469ec4140bcaf0354a3c177e2381a9d01af6bf9ac631e050f32",
+      "5663f93a87aff4e7824cffa6b163510624f9fd1fabd35433d00778a4abc3319d",
+      "33f089bb90fcbb59a2497e1dd52fd36c748f52dea1fdd5476176b5358512ec0e",
+      "715c1ec98ed0e1cb1bd43f3e226d2d3bc00cf8303df6def4bc5b9c76162b6a04",
+      "535538e34cddcd0985776d8a3c69d7d100f05fe169aa6bd287209b736acf8d36"
+    ],
+    "table_spans_sha256": "abccb052d26083c615d2784dbb41fc9af6eda6ca131860db79359eae0e49117e",
     "event_override": {
       "fiscal_year": 2026,
       "quarter": 2,
@@ -3045,8 +3060,8 @@
     },
     "original_reference_id": "NCMI_01_FY2026_Q2",
     "document_version": "unknown_historical_version",
-    "reference_status": "pending_independent_dom_audit",
-    "reference_scope": "First US issuer retrieval only; no complete or latency pass until an independent full DOM and same-quarter SEC financial-row audit establishes this issuer reference.",
+    "reference_status": "independent_dom_and_sec_financial_rows_verified",
+    "reference_scope": "Independent Python html.parser DOM audit: entire issuer article text, all 13 tables/1519 retained cells and every rowspan/colspan agree. All 101 financial/header rows in 8 SEC Q2 tables agree in label/value/order after whitespace and typographic quote normalization only. The 5 issuer footnote tables and all issuer title rows are retained. Known old URL replay, not new-release evidence.",
     "require_raw_reference_match": false
   }
 }
