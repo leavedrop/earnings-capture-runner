@@ -716,6 +716,22 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
         coverage = {row["event"]["symbol"]: row for row in selected}
         assert all(coverage[symbol]["reference"] == row["reference"] for symbol, row in repaired.items())
 
+    def test_ncmi_issuer_scope_is_single_historical_official_target_and_requires_reference(self):
+        selected = select_targets([], "metrics-ncmi-issuer")
+        self.assertEqual(len(selected), 1)
+        target = selected[0]
+        self.assertEqual((target["event"]["symbol"], target["channel"], target["event"]["quarter"]), ("NCMI", "official", 2))
+        self.assertEqual(target["event"]["period_end"], "2026-07-02")
+        self.assertEqual(target["url"], "https://nationalcinemedia.gcs-web.com/news-releases/news-release-details/national-cinemedia-inc-reports-results-fiscal-second-quarter-15")
+        self.assertEqual(target["pipeline"], "production_watch_list_seed")
+        self.assertEqual(target["metrics_mode"], "synthetic")
+        self.assertNotIn("filing_index_url", target)
+        self.assertNotIn("connection_warmup_url", target["reference"])
+        pending = {**target["reference"], "raw_sha256": None, "text_sha256": None, "table_sha256": None}
+        comparison = reference_match({"text": "Untested report", "tables": [[['Revenue', '100']]], "table_spans": []}, pending)
+        self.assertFalse(comparison["reference_text_matches"])
+        self.assertFalse(comparison["reference_tables_match"])
+
     def target(self):
         return {"target_id": "TEST_official", "channel": "official", "url": "https://example.com/report",
                 "event": {"symbol": "TEST", "company": "Example Corporation", "aliases": ["Example Corporation"],

@@ -3030,5 +3030,23 @@
       "reference_scope": "Complete historical original with all nonempty tables and spans, independently audited against raw source; synthetic decision only.",
       "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/"
     }
+  },
+  "NCMI_ISSUER_METRICS_PRODUCTION": {
+    "url": "https://nationalcinemedia.gcs-web.com/news-releases/news-release-details/national-cinemedia-inc-reports-results-fiscal-second-quarter-15",
+    "channel": "official",
+    "raw_sha256": null,
+    "text_sha256": null,
+    "table_sha256": null,
+    "event_override": {
+      "fiscal_year": 2026,
+      "quarter": 2,
+      "period_start": "2026-04-03",
+      "period_end": "2026-07-02"
+    },
+    "original_reference_id": "NCMI_01_FY2026_Q2",
+    "document_version": "unknown_historical_version",
+    "reference_status": "pending_independent_dom_audit",
+    "reference_scope": "First US issuer retrieval only; no complete or latency pass until an independent full DOM and same-quarter SEC financial-row audit establishes this issuer reference.",
+    "require_raw_reference_match": false
   }
 }
