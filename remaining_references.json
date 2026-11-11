@@ -1655,8 +1655,8 @@
   },
   "SE_SEC_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/1703399/000119312526455420/d17880dex991.htm",
-    "raw_sha256": "8d123bab7d0c0cda09c395a52622779bcb6f66ba401a148f3bff6046f32973cb",
-    "text_sha256": "ca939205938d4e4d9c6e3a845f74e36978070165ac3d0bc86f630e7830269c84",
+    "raw_sha256": "533a720da8c65ae8895cdbf375266f828f2f89211e282b207a53e01e19335ac2",
+    "text_sha256": "5245dec3cf31786afebad9b73f7753381a2f5b5132feb2a965c875f950b66f3c",
     "table_sha256": [
       "98ed52a02bdad8f33cc7857f46c7d0cce0af6a1bc47c9d81ba52e1a1c613693d",
       "fecfa9e2877e1e793b942e7e57056d9b7d38fa00077667947a2c5a540559444d",
@@ -1694,7 +1694,9 @@
     "table_spans_sha256": "023350e93c6d0117f586f11fda5767420978ccae6888111ceb17b9142eb779c6",
     "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
     "source_evidence_id": "42895623736-1:17333",
-    "reference_scope": "Entire current-quarter SEC earnings exhibit, all 32 original HTML tables and complete body; independent of slower official PDF."
+    "reference_scope": "Complete direct SEC exhibit including its additional SEC document identification header. Entire submission-extracted financial text is an exact suffix; all 32 tables and spans identical. Not a summary.",
+    "submission_exhibit_raw_sha256": "8d123bab7d0c0cda09c395a52622779bcb6f66ba401a148f3bff6046f32973cb",
+    "submission_exhibit_text_sha256": "ca939205938d4e4d9c6e3a845f74e36978070165ac3d0bc86f630e7830269c84"
   },
   "MRDN_RELEASE_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/1437925/000147793226006816/meridian_ex991.htm",
