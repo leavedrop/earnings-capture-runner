@@ -17,6 +17,7 @@ CONTRACT_FIELDS = (
     "company_id", "symbol", "report_period", "period_start", "period_end",
     "metric", "metric_definition", "business_scope", "currency",
 )
+JOINT_FIELDS = ("company_id", "symbol", "report_period", "period_start", "period_end", "currency", "business_scope")
 FORECAST_ORIGINS = {"synthetic_test", "model"}
 FORMULA = "100 * (actual - forecast) / abs(forecast)"
 
@@ -101,7 +102,9 @@ def synthetic_forecasts(metrics, *, generated_at_utc, offset="0.10"):
     eps = [row for row in records if row["metric"] == "eps"]
     diluted = [row for row in eps if "diluted" in row["share_basis"].lower()]
     revenue = [row for row in records if row["metric"] == "revenue"]
-    selected = {row["forecast_id"] for row in (diluted or eps)[:1] + revenue[:1]}
+    pair = next(((e, r) for e in diluted + [row for row in eps if row not in diluted]
+                 for r in revenue if all(e[key] == r[key] for key in JOINT_FIELDS)), ())
+    selected = {row["forecast_id"] for row in (pair or (diluted or eps)[:1] + revenue[:1])}
     for row in records:
         row["use_for_decision"] = row["forecast_id"] in selected
     return {"schema_version": 1, "forecasts": records,
@@ -178,8 +181,7 @@ def simulate_joint_signal(comparisons):
     elif all(len(rows) == 1 for rows in by_metric.values()):
         eps, revenue = by_metric["eps"][0], by_metric["revenue"][0]
         result["forecast_ids"] = {"eps": eps["forecast_id"], "revenue": revenue["forecast_id"]}
-        same_period = all(eps["contract"][key] == revenue["contract"][key] for key in
-            ("company_id", "symbol", "report_period", "period_start", "period_end", "currency", "business_scope"))
+        same_period = all(eps["contract"][key] == revenue["contract"][key] for key in JOINT_FIELDS)
         versions = {(evidence["document_hash"], evidence["document_version"])
                     for row in (eps, revenue) for evidence in row["source_evidence"]}
         if not same_period:
