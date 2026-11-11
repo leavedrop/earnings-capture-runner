@@ -115,10 +115,14 @@ def select_targets(targets, scope):
             cases = [(symbol, references[symbol + "_EXCHANGE_METRICS_PRODUCTION"]["channel"],
                       symbol + "_EXCHANGE_METRICS_PRODUCTION") for symbol in ("CSCO", "NBIS", "CBRS")]
         if scope == "metrics-22-coverage":
-            cases = [(key.removesuffix("_COVERAGE_METRICS_PRODUCTION"), reference["channel"], key)
-                     for key, reference in references.items()
+            coverage_symbols = [key.removesuffix("_COVERAGE_METRICS_PRODUCTION")
+                     for key in references
                      if key.endswith("_COVERAGE_METRICS_PRODUCTION")
                      and not key.endswith("_REPAIRED_COVERAGE_METRICS_PRODUCTION")]
+            keys = [(symbol, symbol + ("_REPAIRED_COVERAGE_METRICS_PRODUCTION"
+                     if symbol + "_REPAIRED_COVERAGE_METRICS_PRODUCTION" in references
+                     else "_COVERAGE_METRICS_PRODUCTION")) for symbol in coverage_symbols]
+            cases = [(symbol, references[key]["channel"], key) for symbol, key in keys]
         if scope == "metrics-unresolved-paths":
             cases = [(symbol, references[symbol + "_REPAIRED_COVERAGE_METRICS_PRODUCTION"]["channel"],
                       symbol + "_REPAIRED_COVERAGE_METRICS_PRODUCTION") for symbol in ("SE", "NCMI", "RGTI", "CBRS", "BIDU")]

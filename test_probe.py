@@ -713,6 +713,8 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
         assert set(repaired) == {"SE", "NCMI", "RGTI", "CBRS", "BIDU"}
         assert repaired["SE"]["filing_form"] == "6-K" and repaired["NCMI"]["filing_form"] == "8-K"
         assert repaired["RGTI"]["channel"] == "official"
+        coverage = {row["event"]["symbol"]: row for row in selected}
+        assert all(coverage[symbol]["reference"] == row["reference"] for symbol, row in repaired.items())
 
     def target(self):
         return {"target_id": "TEST_official", "channel": "official", "url": "https://example.com/report",
