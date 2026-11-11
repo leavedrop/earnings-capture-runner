@@ -49,7 +49,7 @@ RANGE_PART_FIELDS = (
     "content_length", "content_encoding", "etag", "http_version", "bytes", "sha256",
     "http_response_complete", "verified", "error_type", "queued_mono_ns", "request_start_mono_ns",
     "stream_response_ready_mono_ns", "first_body_chunk_mono_ns", "eof_mono_ns", "request_end_mono_ns",
-    "queue_ms", "request_total_ms",
+    "queue_ms", "request_total_ms", "new_tcp_connections", "connection_reused",
 )
 
 

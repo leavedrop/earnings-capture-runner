@@ -66,14 +66,20 @@ async def download_kkr_ranges(connections, url, size, wait):
                   "http_response_complete": False, "stopped_on_headers": False,
                   "error_type": None, "queued_mono_ns": queued,
                   "request_start_mono_ns": None, "stream_response_ready_mono_ns": None,
-                  "first_body_chunk_mono_ns": None, "eof_mono_ns": None}
+                  "first_body_chunk_mono_ns": None, "eof_mono_ns": None,
+                  "new_tcp_connections": None, "connection_reused": None}
         body = bytearray()
         try:
             await wait()
             record["request_start_mono_ns"] = time.perf_counter_ns()
             async with connections[index].stream("GET", url, allow_redirects=False,
                     headers={"Range": record["requested_range"], "Accept-Encoding": "identity"}) as response:
+                # curl_cffi snapshots configured infos when the stream becomes
+                # readable. Read that snapshot, not a reset/released curl handle.
+                connects = response.infos.get(CurlInfo.NUM_CONNECTS)
                 record.update(status=response.status_code, final_url=str(response.url),
+                    new_tcp_connections=connects,
+                    connection_reused=connects == 0 if connects is not None else None,
                     http_version=versions.get(response.http_version, str(response.http_version)),
                     content_type=response.headers.get("content-type"),
                     content_range=response.headers.get("content-range"),

@@ -307,14 +307,20 @@ def _native_timestamp(root):
 
 
 def uses_native_html_parser(url, event, body=None):
-    """Audited Barrick SEC HTML layout; report identity/period remain validation gates."""
+    """Audited SEC HTML layouts; report identity/period remain validation gates."""
     parsed = urlparse(url)
-    issuer = (event.get("symbol") == "B" and str(event.get("cik", "")).lstrip("0") == "756894"
+    cik = {"B": "756894", "KKR": "1404912"}.get(event.get("symbol"))
+    issuer = (cik is not None and str(event.get("cik", "")).lstrip("0") == cik
             and parsed.scheme == "https"
             and parsed.hostname == "www.sec.gov"
-            and re.fullmatch(r"/Archives/edgar/data/756894/\d{18}/[^/]+\.html?", parsed.path) is not None)
+            and re.fullmatch(rf"/Archives/edgar/data/{cik}/\d{{18}}/[^/]+\.html?", parsed.path) is not None)
     if not issuer or body is None:
         return issuer
+    if event.get("symbol") == "KKR":
+        # The inline-XBRL cover is read from this same native DOM below. Missing,
+        # conflicting or wrong-period DEI facts must still reject the document.
+        return body.isascii() and all(re.search(tag, body, re.I) is not None for tag in (
+            rb"<html\b", rb"<table\b", rb"<ix:nonnumeric\b"))
     lower = body.lower()
     return body.isascii() and b"<ix:" not in lower and b"<html" in lower and b"<table" in lower
 
@@ -1333,8 +1339,8 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
                     "checks": {"parse": False, "tables_complete": False}, "tables_extraction_scope": "partial",
                     "tables_complete": False, "pdf_pages_total": pdf_pages_total,
                     "pdf_pages_processed": pdf_pages_processed, "pdf_pages_text_extracted": len(pages)}
-    elif (prepared_tree is None and event.get("symbol") == "KKR" and body.isascii()
-          and url == "https://www.sec.gov/Archives/edgar/data/1404912/000140491226000034/kkr-20260930.htm"):
+    elif (prepared_tree is None and event.get("symbol") == "KKR"
+          and uses_native_html_parser(url, event, body)):
         document = LexborHTMLParser(body, encoding=False)
         cover = _sec_report_facts(document, url, event) or {
             "identity": False, "reporting_period": False, "facts": {},
