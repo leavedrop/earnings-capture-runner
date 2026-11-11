@@ -2372,23 +2372,42 @@
     "sources": [
       {
         "channel": "official",
-        "url": "https://www.cerebras.ai/company/press-release",
+        "url": "https://investors.cerebras.ai/news-events/news-releases",
         "kind": "html",
         "original_url": "https://www.cerebras.ai/company/press-release",
-        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
+        "note": "Same-origin issuer news list; real Q2 headline plus its own GAAP/revenue teaser is discoverable. Local HTTP success does not establish US first-release or 500ms performance.",
         "verification": "verified_public_discovery_structure",
         "last_status_code": 200,
         "verification_evidence": {
           "status": 200,
-          "completed_utc": "2026-11-11T02:58:20.390720+00:00",
-          "sha256": "a239d6409a8c09ff3b9cde88ddbf1ac3c7ec412daf8e7f1b1e917945121806b2",
-          "bytes": 272966,
-          "content_type": "text/html; charset=utf-8",
+          "completed_at_utc": "2026-11-11T04:57:52.674259+00:00",
+          "sha256": "236775a113f240cf3cb22af12e61200609e8c5d0a0ea3e6ad8165ab1f480cce7",
+          "bytes": 91877,
+          "content_type": "text/html; charset=UTF-8",
           "listing_structure": "Public announcement links present; current-quarter candidate may be absent",
           "discovery_structure_valid": true,
+          "reference_quarter": "FY2026 Q2",
+          "reference_candidate_url": "https://investors.cerebras.ai/news-releases/news-release-details/cerebras-systems-fast-inference-cloud-business-nearly-quadruples",
+          "current_quarter_release_found": false,
           "scope": "discovery_entry_only_not_full_report_or_first_release",
-          "execution": "local_machine_via_existing_task_proxy"
-        }
+          "execution": "local_machine_via_existing_task_proxy_17821"
+        },
+        "previous_discovery_evidence": {
+          "url": "https://www.cerebras.ai/company/press-release",
+          "verification": "verified_public_discovery_structure",
+          "verification_evidence": {
+            "status": 200,
+            "completed_utc": "2026-11-11T02:58:20.390720+00:00",
+            "sha256": "a239d6409a8c09ff3b9cde88ddbf1ac3c7ec412daf8e7f1b1e917945121806b2",
+            "bytes": 272966,
+            "content_type": "text/html; charset=utf-8",
+            "listing_structure": "Public announcement links present; current-quarter candidate may be absent",
+            "discovery_structure_valid": true,
+            "scope": "discovery_entry_only_not_full_report_or_first_release",
+            "execution": "local_machine_via_existing_task_proxy"
+          }
+        },
+        "verification_status": 200
       },
       {
         "channel": "sec",

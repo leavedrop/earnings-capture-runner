@@ -1,19 +1,19 @@
 {
   "watch.py": {
-    "sha256": "5c88cff981bc99a8ce310b55f26d52a81cf52b3101156434e5234b2d34c765b6",
-    "production_sha256": "7b56c02810bacdfa0373b05d2666578f5e33a8dd8d58162a448afbbbf7b665dc",
+    "sha256": "0ee10a83ed574baa2a0f481521b2f424a7638720b3dc76997ef358a94facf52f",
+    "production_sha256": "b91d531cce07a23f4504e3e564e227736d22ddd4b822e7f95e6e5b409cf4af3b",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "watch.py"
   },
   "sources.py": {
-    "sha256": "f6d7ab296d4505584a68367ff343afd88cc35ae40801859561ab8833a4ac08e1",
-    "production_sha256": "c2803ffc78a8c51397a576aa2db5be9118b129f434e9c9d00e115501e6236be9",
+    "sha256": "604d6584c20643a0ff27ce461c02430840e6da1db2a6b08d78f811ab2d17b897",
+    "production_sha256": "e411c03dfdbf7c8fcec991440bbbc97f1c0eb88ab7761430ee79dfda56e01c70",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "sources.py"
   },
   "pdf_tables.py": {
-    "sha256": "7b13593714364f05e5703231e065d498f4375334dc4a3d7610f1d017875a48a6",
-    "production_sha256": "1cbc2cd3362953791b0ce0304e831dde7ad09adec1f82527f93297cc61affe01",
+    "sha256": "9b030dda1f8dccc21d4171957a0105449c29a7dcf164cb9721595ef72281ff39",
+    "production_sha256": "dd3bbe7d6c1773d27260917d6a3b1b89671e0b2bca03d7aa4fcd14243272c0bd",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "pdf_tables.py"
   },
@@ -42,8 +42,8 @@
     "source": "browser_transport.py"
   },
   "watchlist.json": {
-    "sha256": "e2f8cbfc51a00e21fa2a906c8641bf69a44eeebf70574b9d0b5e9bed54b8cab4",
-    "production_sha256": "107b2bce16ff825e72a200e081a2b8a7727cfa2c0ab84a10a5fb58517ca32ef4",
+    "sha256": "e0baf8fb6de4daed097953af69cfa139d0fe378875e855c969db8d20fcd60ebc",
+    "production_sha256": "b0b4b19ba8a88876e908a802492a6e95dc5eddd78e77717545354e94eb9a6550",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "watchlist.json"
   },

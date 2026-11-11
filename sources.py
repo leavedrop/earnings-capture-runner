@@ -712,6 +712,31 @@ def discover(body: bytes, url: str, content_type: str, event: dict) -> list[dict
         return found
     tree = _document(body)
     _drop_content(tree, "script", "style")
+    if (event.get("symbol") == "CBRS" and hostname == "investors.cerebras.ai"
+            and urlparse(url).path.rstrip("/") == "/news-events/news-releases"):
+        # This issuer's actual financial headline describes cloud growth rather
+        # than saying "Results". Only its own Title field may supply the teaser.
+        for field in tree.xpath(".//div[@data-label='Title']"):
+            headline = next((node for node in field
+                             if "nir-widget--news--headline" in node.get("class", "").split()), None)
+            teaser = next((node for node in field
+                           if "nir-widget--news--teaser" in node.get("class", "").split()), None)
+            if headline is None:
+                continue
+            anchor = next(headline.iter("a"), None)
+            if anchor is None or not anchor.get("href"):
+                continue
+            title = _clean(_text(anchor))
+            context = _clean(_text(teaser)) if teaser is not None else ""
+            if (not _target(title, event) or not _identity(title, event)
+                    or _ANNOUNCEMENT.search(title) or not (_FINANCIAL.search(title) or (
+                        re.search(r"\bGAAP\b", context, re.I) and re.search(r"\brevenues?\b", context, re.I)))):
+                continue
+            target = _url(url, anchor.get("href"))
+            if (target and urlparse(target).hostname == hostname
+                    and urlparse(target).path.startswith("/news-releases/news-release-details/")):
+                found.append(_candidate(target, title, identity_verified=True))
+        return list({item["url"]: item for item in found}.values())
     if hostname == "investors.archer.com" and event.get("symbol") == "ACHR":
         title_node = next(tree.iter("title"), None)
         headline = _clean(_text(title_node)) if title_node is not None else ""
@@ -1110,6 +1135,10 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
                 from pdf_tables import extract_gib_pdf_tables
                 with _PDF_LOCK:
                     native_pdf = extract_gib_pdf_tables(body, event)
+            elif event.get("symbol") == "NBIS" and parsed_url.hostname == "assets.nebius.com":
+                from pdf_tables import extract_nbis_pdf_tables
+                with _PDF_LOCK:
+                    native_pdf = extract_nbis_pdf_tables(body, event)
             elif event.get("symbol") == "SKYD" and url == SKYD_PDF_URL:
                 from pdf_tables import extract_skyd_pdf_tables
                 native_pdf = extract_skyd_pdf_tables(body)

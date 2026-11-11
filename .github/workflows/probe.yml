@@ -25,6 +25,7 @@ on:
           - metrics-alternate-sources
           - metrics-exchange-targets
           - metrics-22-coverage
+          - metrics-unresolved-paths
           - sec-quarterly
           - lcid-http-protocols
           - lcid-chrome-protocols

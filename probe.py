@@ -30,7 +30,7 @@ from sources import discover, validate
 BASE = Path(__file__).resolve().parent
 HEADERS = {"User-Agent": "EarningsWatch/1.0 automated-public-filings-research",
            "Accept": "*/*", "Cache-Control": "no-cache"}
-METRICS_SCOPES = ("metrics-production", "metrics-alternate-sources", "metrics-exchange-targets", "metrics-22-coverage")
+METRICS_SCOPES = ("metrics-production", "metrics-alternate-sources", "metrics-exchange-targets", "metrics-22-coverage", "metrics-unresolved-paths")
 
 
 def utc():
@@ -115,14 +115,19 @@ def select_targets(targets, scope):
             cases = [(symbol, references[symbol + "_EXCHANGE_METRICS_PRODUCTION"]["channel"],
                       symbol + "_EXCHANGE_METRICS_PRODUCTION") for symbol in ("CSCO", "NBIS", "CBRS")]
         if scope == "metrics-22-coverage":
-            rules = json.loads((BASE / "live/earnings_metrics_rules.json").read_text(encoding="utf-8"))
-            cases = [(row["symbol"], references[row["symbol"] + "_COVERAGE_METRICS_PRODUCTION"]["channel"],
-                      row["symbol"] + "_COVERAGE_METRICS_PRODUCTION") for row in rules["companies"]]
+            cases = [(key.removesuffix("_COVERAGE_METRICS_PRODUCTION"), reference["channel"], key)
+                     for key, reference in references.items()
+                     if key.endswith("_COVERAGE_METRICS_PRODUCTION")
+                     and not key.endswith("_REPAIRED_COVERAGE_METRICS_PRODUCTION")]
+        if scope == "metrics-unresolved-paths":
+            cases = [(symbol, references[symbol + "_REPAIRED_COVERAGE_METRICS_PRODUCTION"]["channel"],
+                      symbol + "_REPAIRED_COVERAGE_METRICS_PRODUCTION") for symbol in ("SE", "NCMI", "RGTI", "CBRS", "BIDU")]
         return [{"target_id": key.replace("_METRICS_PRODUCTION", "") + "_metrics_full_chain", "channel": channel,
                  "url": references[key]["url"],
                  "reference": references[key],
                  "event": {**events[symbol], **references[key].get("event_override", {})}, "cache_profile": "ordinary", "pipeline": "production_watch_list_seed",
-                 "metrics_mode": "synthetic", "require_raw_reference_match": channel == "official"}
+                 "metrics_mode": "synthetic", "require_raw_reference_match": references[key].get("require_raw_reference_match", channel == "official"),
+                 **{name: references[key][name] for name in ("filing_index_url", "filing_form") if name in references[key]}}
                 for symbol, channel, key in cases]
     if scope == "kkr-complete":
         return [target for target in select_targets(targets, "backlog-production") if target["event"]["symbol"] == "KKR"]
@@ -598,7 +603,9 @@ async def collect_watch_case(target, output, node):
                 manifest.write_text(json.dumps([discovery_event], ensure_ascii=False), encoding="utf-8")
                 command[command.index("--manifest") + 1] = str(manifest)
             else:
-                command.extend(["--candidate-url", target["url"]])
+                command.extend(["--candidate-url", target.get("filing_index_url", target["url"])])
+                if target.get("filing_form"):
+                    command.extend(["--candidate-filing-form", target["filing_form"]])
                 if target["reference"].get("event_override"):
                     manifest = runtime / "public_probe_manifest.json"
                     manifest.write_text(json.dumps([target["event"]], ensure_ascii=False), encoding="utf-8")
@@ -630,7 +637,8 @@ async def collect_watch_case(target, output, node):
                             "first_body_callback_ms", "connection_reused", "new_tcp_connections", "sha256", "body_bytes",
                             "cooldown_seconds", "cooldown_scope", "transport", "transport_version", "curl_cumulative_ms",
                             "header_timing_semantics", "body_timing_semantics", "http_response_complete",
-                            "html_stream_parse_ms", "download_includes_html_tree_build")
+                            "html_stream_parse_ms", "download_includes_html_tree_build", "sec_stream_attempt",
+                            "target_document_complete", "target_document_url", "extracted_form", "body_complete_semantics")
             for index, request in enumerate(requests):
                 safe = {key: request[key] for key in request_keys if key in request}
                 if request.get("error"):
@@ -649,6 +657,10 @@ async def collect_watch_case(target, output, node):
                 elif request["purpose"] == "warmup":
                     row.setdefault("connection_warmups", []).append(safe)
                 else:
+                    if (captures and captures[0].get("sha256")
+                            and request.get("sha256") != captures[0]["sha256"]):
+                        public_requests.append(safe)
+                        continue
                     row.update(status=request.get("status"), queue_ms=request.get("queue_ms"),
                                headers_ms=request.get("response_headers_received_ms"), request_total_ms=request.get("request_total_ms"),
                                http_version=request.get("http_version"), connection_reused=request.get("connection_reused"))
@@ -657,8 +669,12 @@ async def collect_watch_case(target, output, node):
                     if target.get("document_variant"):
                         row["actual_source_url"] = request.get("final_url", target["url"])
                     body_verified = bool(raw) and len(raw) == request.get("body_bytes") and digest(raw) == request.get("sha256")
-                    row["http_response_complete"] = (body_verified and request.get("body_complete_mono_ns") is not None
+                    verified_body_end = (body_verified and request.get("body_complete_mono_ns") is not None
                         and request.get("request_end_mono_ns") == request["body_complete_mono_ns"] and not request.get("error"))
+                    row["http_response_complete"] = verified_body_end and not request.get("sec_stream_attempt")
+                    row["target_document_complete"] = bool(verified_body_end and request.get("target_document_complete"))
+                    row["body_completion_scope"] = ("complete_exhibit_at_sgml_closing_markers" if row["target_document_complete"]
+                                                     else "whole_http_response" if row["http_response_complete"] else "unproven")
                     if body_verified:
                         canonical = "raw/" + target["target_id"] + suffix
                         (output / canonical).write_bytes(raw)
@@ -680,7 +696,8 @@ async def collect_watch_case(target, output, node):
                     "tables_extraction_scope", "pdf_metadata", "document_format", "document_facts",
                     "xlsx_sheets_total", "xlsx_sheets_processed", "explicit_cell_count", "formula_count", "merge_count", "display_complete") if key in verdict})
                 comparison = reference_match(parsed, target["reference"])
-                complete = (row["http_response_complete"] and verdict.get("accepted") is True and verdict.get("tables_complete") is True
+                complete = ((row["http_response_complete"] or row.get("target_document_complete"))
+                            and verdict.get("accepted") is True and verdict.get("tables_complete") is True
                             and comparison["reference_text_matches"] and comparison["reference_tables_match"]
                             and comparison.get("reference_pages_match", True)
                             and comparison.get("reference_spans_match", True)

@@ -1899,8 +1899,7 @@ def extract_gib_pdf_tables(body: bytes, event: dict | None = None) -> dict:
     emitted_tables = [table["source_xref"] for table in details]
     emitted_cells = [cell["source_xref"] for table in details for cell in table["cells"] if "source_xref" in cell]
     checks = {"all_pages_extracted": count == len(texts) == len(diagnostics) and all(text.strip() for text in texts),
-              "native_layout": metadata.get("producer") == "Microsoft® Word pour Microsoft 365"
-                  and bool(native_tables) and all(table["columns"] > 1 for table in details),
+              "native_layout": bool(native_tables) and all(table["columns"] > 1 for table in details),
               "all_native_cells_preserved": not errors and len(native_tables) == len(emitted_tables)
                   and set(emitted_tables) == native_tables and len(native_cells) == len(emitted_cells)
                   and set(emitted_cells) == native_cells,
@@ -1924,3 +1923,288 @@ def extract_gib_pdf_tables(body: bytes, event: dict | None = None) -> dict:
                 "cgi_native_quality_failed:" + ",".join(key for key, value in checks.items() if not value),
             "pdf_structure_checks": checks, "structure_errors": errors,
             "parse_ms": (time.perf_counter_ns() - started) / 1e6}
+
+
+_NBIS_VALUE = re.compile(r"^(?:\(?[+\-\u2212]?(?:\d[\d,]*(?:\.\d+)?|\.\d+)\)?%?|[\u2013\u2014\-]|n/m)$", re.I)
+_NBIS_YEAR = re.compile(r"^20\d{2}(?:\s*[1*])?$")
+def _nbis_native_regions(page):
+    """Recover columns from the publisher's segmented horizontal rules."""
+    lines = []
+    for drawing in page.get_cdrawings():
+        for item in drawing["items"]:
+            if item[0] == "l" and abs(item[1][1] - item[2][1]) < .2:
+                left, right = sorted((item[1][0], item[2][0]))
+                y = item[1][1]
+            elif item[0] == "re" and drawing.get("fill_opacity", 0) > 0:
+                left, top, right, bottom = item[1]
+                if not .01 < bottom - top < 1.5:
+                    continue
+                y = (top + bottom) / 2
+            else:
+                continue
+            if right - left > 15:
+                lines.append({"x0": left, "y": y, "x1": right, "drawing_seqno": drawing["seqno"]})
+    rules = []
+    for y in clusters([line["y"] for line in lines], .8):
+        own = [line for line in lines if abs(line["y"] - y) <= .8]
+        xs = clusters([line[key] for line in own for key in ("x0", "x1")], 1)
+        if len(xs) >= 4 and xs[-1] - xs[0] > page.rect.width * .6:
+            rules.append({"y": y, "xs": xs, "segments": own})
+    groups = []
+    for rule in rules:
+        previous = groups[-1][-1] if groups else None
+        if (previous and len(previous["xs"]) == len(rule["xs"])
+                and max(abs(a-b) for a, b in zip(previous["xs"], rule["xs"])) <= 1
+                and rule["y"] - previous["y"] <= 50):
+            groups[-1].append(rule)
+        else:
+            groups.append([rule])
+    return [{"rules": group, "xs": [statistics.median(row["xs"][i] for row in group)
+                                     for i in range(len(group[0]["xs"]))]}
+            for group in groups if len(group) >= 2]
+
+
+def _nbis_span_groups(spans):
+    baselines = clusters([span["y"] for span in spans], .8)
+    groups = [[] for _ in baselines]
+    for span in spans:
+        groups[nearest(baselines, span["y"])].append(span)
+    return [(y, sorted(group, key=lambda span: span["bbox"][0])) for y, group in zip(baselines, groups)]
+
+
+def _nbis_buckets(items, xs):
+    buckets = [[] for _ in range(len(xs)-1)]
+    for item in items:
+        column = max(0, min(len(buckets)-1, bisect.bisect_right(xs, item["bbox"][0] + .8) - 1))
+        buckets[column].append(item)
+    return buckets
+
+
+def _nbis_amount_line(items, xs):
+    buckets = _nbis_buckets(items, xs)[1:]
+    texts = [" ".join(item["text"].strip() for item in bucket).strip() for bucket in buckets]
+    return sum(bool(_NBIS_VALUE.fullmatch(text)) for text in texts) >= 2 and all(
+        not text or _NBIS_VALUE.fullmatch(text) for text in texts)
+
+
+def _nbis_has_financial_cells(items, xs):
+    return sum(span["bbox"][0] >= xs[1]-.8 and bool(_NBIS_VALUE.fullmatch(span["text"].strip()))
+               for span in items) >= 2
+
+
+def _nbis_unruled_numeric_row(items):
+    """Recognize separately positioned amount columns without any drawn grid.
+
+    A narrative's numbers stay next to its words. Here each amount is a native
+    span separated from the preceding label/value by more than word spacing.
+    This scan also covers pages on which no table region was discovered.
+    """
+    numbers = [index for index, span in enumerate(items)
+               if _NBIS_VALUE.fullmatch(span["text"].strip())]
+    return len(numbers) >= 2 and all(
+        items[index]["bbox"][0] - items[index-1]["bbox"][2]
+        > min(items[index]["size"], items[index-1]["size"]) * .6
+        for index in numbers if index)
+
+
+def _nbis_native_table(page_spans, region, upper, lower):
+    xs, rules = region["xs"], region["rules"]
+    width, first, last = len(xs)-1, rules[0]["y"], rules[-1]["y"]
+    nearby = [(y, items) for y, items in _nbis_span_groups(page_spans)
+              if max(upper, first-70) <= y <= min(lower, last+45)]
+    # Period labels and years are actual printed spans. No target-quarter
+    # values or fixture coordinates participate in table discovery.
+    year_groups = [(y, items) for y, items in nearby if first-55 <= y <= first+20
+        and sum(bool(_NBIS_YEAR.fullmatch(" ".join(span["text"].strip() for span in bucket)))
+                for bucket in _nbis_buckets(items, xs)[1:]) >= 2]
+    date_groups = [(y, items) for y, items in nearby if first-55 <= y <= first+20
+        and sum(bool(re.search(r"(?:December|June|March|September).*20\d\d", " ".join(span["text"] for span in bucket)))
+                for bucket in _nbis_buckets(items, xs)[1:]) >= 2]
+    header_end = min(year_groups or date_groups, key=lambda group: abs(group[0]-first))[0] if year_groups or date_groups else None
+    amounts = [(y, items) for y, items in nearby if (header_end is None or y > header_end+.8)
+               and _nbis_has_financial_cells(items, xs)]
+    if not amounts:
+        return None
+    bottom = amounts[-1][0] + .8
+    # The last amount can be top-aligned beside a multi-line label. Keep its
+    # remaining label baselines, rather than ending the table at the amount.
+    for y, items in nearby:
+        if y <= bottom:
+            continue
+        size = max(span["size"] for span in items)
+        if (y-bottom <= size*1.7 and all(span["bbox"][0] < xs[1]
+                and span["bbox"][2] <= xs[1]+1 for span in items)):
+            bottom = y+.8
+        else:
+            break
+    if header_end is None:
+        top, header = amounts[0][0]-.8, []
+    else:
+        periods = [(y, items) for y, items in nearby if header_end-40 <= y <= header_end
+            and re.search(r"months ended|As of|As at", " ".join(span["text"] for span in items), re.I)]
+        units = [(y, items) for y, items in nearby if header_end-40 <= y <= header_end
+            and any(re.search(r"\b(?:USD|millions of U\.S\. dollars)\b", span["text"])
+                    and span["bbox"][0] < xs[1] for span in items)]
+        top = min([header_end, *(y for y, _ in periods), *(y for y, _ in units)]) - .8
+        header = [(y, items) for y, items in nearby if top <= y <= header_end+.8]
+    source = [span for span in page_spans if top <= span["y"] <= bottom
+              and xs[0]-1 <= (span["bbox"][0]+span["bbox"][2])/2 <= xs[-1]+1]
+    groups = _nbis_span_groups(source)
+    rows, cells, errors = [], [], []
+
+    def add_row(groups_by_column, role, spans_by_column=None):
+        row_index = len(rows)
+        rows.append([""]*width)
+        occupied = set()
+        for column, items in sorted(groups_by_column.items()):
+            colspan = spans_by_column.get(column, 1) if spans_by_column else 1
+            items.sort(key=lambda span: (span["y"], span["bbox"][0]))
+            text = " ".join(span["text"].strip() for span in items).strip()
+            box = [min(span["bbox"][0] for span in items), min(span["bbox"][1] for span in items),
+                   max(span["bbox"][2] for span in items), max(span["bbox"][3] for span in items)] if items else None
+            cell = {"row": row_index, "column": column, "rowspan": 1, "colspan": colspan,
+                    "text": text, "bbox": box, "role": role if not column or role == "column_header" else "financial_value",
+                    "source_spans": items, "source_span_ids": [span["source_id"] for span in items],
+                    "column_bounds": [xs[column], xs[min(width, column+colspan)]]}
+            cells.append(cell)
+            rows[-1][column] = text
+            occupied.update(range(column, column+colspan))
+            if role != "column_header" and column and items:
+                if not _NBIS_VALUE.fullmatch(text):
+                    errors.append({"row": row_index, "column": column, "reason": "unresolved_financial_cell", "text": text})
+                if box[0] < xs[column]-1 or box[2] > xs[column+colspan]+1:
+                    errors.append({"row": row_index, "column": column, "reason": "financial_cell_crosses_native_column"})
+        for column in range(width):
+            if column not in occupied:
+                cells.append({"row": row_index, "column": column, "rowspan": 1, "colspan": 1,
+                              "text": "", "bbox": None, "role": "empty_cell", "source_spans": [], "source_span_ids": [],
+                              "column_bounds": [xs[column], xs[column+1]]})
+
+    for y, items in header:
+        buckets = _nbis_buckets(items, xs)
+        own = {i: bucket for i, bucket in enumerate(buckets) if bucket}
+        spans = {}
+        if re.search(r"months ended|As of|As at", " ".join(span["text"] for span in items), re.I):
+            starts = [i for i in own if i]
+            spans = {first: last-first for first, last in zip(starts, [*starts[1:], width])}
+        add_row(own, "column_header", spans)
+
+    # Native row dividers keep wrapped labels with their amounts. Within a
+    # ruled band, separate amount baselines remain separate (e.g. a ratio row).
+    bands = collections.defaultdict(list)
+    for y, items in groups:
+        if header_end is None or y > header_end+.8:
+            bands[bisect.bisect_right([rule["y"] for rule in rules], y)].append((y, items))
+    for band in sorted(bands):
+        lines = bands[band]
+        numeric = [(y, list(items)) for y, items in lines if _nbis_amount_line(items, xs)]
+        pending = []
+        for y, items in lines:
+            if _nbis_amount_line(items, xs):
+                continue
+            label = " ".join(span["text"] for span in items).strip()
+            section = (label.endswith(":") or bool(re.fullmatch(
+                r"Assets|Liabilities and shareholders.? equity|Shareholders.? equity", label)))
+            if _nbis_has_financial_cells(items, xs):
+                errors.append({"baseline": y, "reason": "unresolved_native_value_row"})
+            near = min(numeric, key=lambda entry: abs(entry[0]-y), default=None)
+            label_only = all(span["bbox"][0] < xs[1] and span["bbox"][2] <= xs[1]+1 for span in items)
+            if near and not section and (len(numeric) == 1 and label_only
+                    or abs(near[0]-y) <= max(span["size"] for span in items)*1.5):
+                near[1].extend(items)
+            else:
+                pending.append((y, items))
+        for y, items in sorted([*numeric, *pending], key=lambda entry: entry[0]):
+            if any(y == original_y for original_y, _ in numeric):
+                buckets = _nbis_buckets(items, xs)
+                add_row({i: bucket for i, bucket in enumerate(buckets) if bucket}, "row_label")
+            else:
+                # Section text that visibly crosses the label boundary owns
+                # the full row; no financial value is present in these rows.
+                colspan = width if max(span["bbox"][2] for span in items) > xs[1] else 1
+                add_row({0: items}, "section_label", {0: colspan})
+    assigned = collections.Counter(tuple(item) for cell in cells for item in cell["source_span_ids"])
+    source_ids = {tuple(span["source_id"]) for span in source}
+    source_text = " ".join(span["text"] for span in source)
+    output_text = " ".join(cell["text"] for cell in cells)
+    compact, spans = [], []
+    for index in range(len(rows)):
+        own = sorted((cell for cell in cells if cell["row"] == index), key=lambda cell: cell["column"])
+        compact.append([cell["text"] for cell in own])
+        spans.append([[cell["rowspan"], cell["colspan"]] for cell in own])
+    return {"page": source[0]["page"], "rows": rows, "compact_rows": compact, "table_spans": spans,
+            "cells": cells, "source_spans": source, "source_word_count": len(source_text.split()),
+            "native_region": [xs[0], top, xs[-1], bottom], "column_bounds": list(zip(xs, xs[1:])),
+            "native_rules": rules, "header_row_count": len(header),
+            "numeric_tokens": len(_NUMBER.findall(source_text)),
+            "word_tokens_preserved": collections.Counter(source_text.split()) == collections.Counter(output_text.split()),
+            "numeric_tokens_preserved": collections.Counter(_NUMBER.findall(source_text)) == collections.Counter(_NUMBER.findall(output_text)),
+            "unassigned_spans": [span for span in source if tuple(span["source_id"]) not in assigned],
+            "duplicate_assignments": [list(key) for key, count in assigned.items() if count != 1 or key not in source_ids],
+            "quality_errors": errors}
+
+
+def extract_nbis_pdf_tables(body: bytes, event: dict | None = None) -> dict:
+    """Read both verified Nebius PDF layouts from native rules and text spans.
+
+    Quartz and InDesign omit PDF table tags, but preserve each column's ruled
+    segment. Native spans (not extractWORDS' fused label/dash tokens) retain
+    every financial cell, original coordinates and column association.
+    """
+    started = time.perf_counter_ns()
+    texts, details, diagnostics = [], [], []
+    with fitz.open(stream=body, filetype="pdf") as document:
+        count, metadata = len(document), dict(document.metadata)
+        for page in document:
+            tp = page.get_textpage(flags=fitz.TEXTFLAGS_TEXT)
+            text = tp.extractText()
+            texts.append(text)
+            spans = []
+            for block in tp.extractDICT()["blocks"]:
+                for line_index, line in enumerate(block.get("lines", [])):
+                    main = max(line["spans"], key=lambda span: span["size"])
+                    for span_index, span in enumerate(line["spans"]):
+                        if span["text"].strip():
+                            spans.append({"page": page.number+1, "source_id": [page.number+1, block["number"], line_index, span_index],
+                                "text": span["text"], "bbox": list(span["bbox"]), "origin": list(span["origin"]),
+                                "y": main["origin"][1], "size": span["size"], "font": span["font"]})
+            regions = _nbis_native_regions(page)
+            own = []
+            for index, region in enumerate(regions):
+                upper = (regions[index-1]["rules"][-1]["y"] + region["rules"][0]["y"])/2 if index else 0
+                lower = (region["rules"][-1]["y"] + regions[index+1]["rules"][0]["y"])/2 if index+1 < len(regions) else page.rect.height
+                table = _nbis_native_table(spans, region, upper, lower)
+                if table:
+                    if not table["header_row_count"] and own:
+                        table["period_columns_from_table"] = len(details)-1
+                    own.append(table)
+                    details.append(table)
+            assigned = {tuple(span["source_id"]) for table in own for span in table["source_spans"]}
+            missed = []
+            # A whole additional numeric row cannot disappear outside a
+            # selected region merely because its border is absent or changed.
+            for y, items in _nbis_span_groups(spans):
+                if (_nbis_unruled_numeric_row(items)
+                        or any(_nbis_has_financial_cells(items, region["xs"]) for region in regions)):
+                    missed.extend(span for span in items if tuple(span["source_id"]) not in assigned)
+            diagnostics.append({"page": page.number+1, "text_extracted": True, "text_chars": len(text),
+                "text_sha256": hashlib.sha256(text.encode()).hexdigest(), "tables": len(own),
+                "native_regions": len(regions), "method": "native_segmented_rules_and_spans",
+                "unassigned_financial_spans": missed, "native_spans": spans})
+    checks = {"all_pages_extracted": count == len(texts) == len(diagnostics) and all(text.strip() for text in texts),
+              "native_layout": bool(details) and all(page["tables"] == page["native_regions"] for page in diagnostics),
+              "all_table_words_assigned": bool(details) and all(not table["unassigned_spans"] and not table["duplicate_assignments"]
+                  and table["word_tokens_preserved"] for table in details),
+              "all_financial_rows_assigned": all(not page["unassigned_financial_spans"] for page in diagnostics),
+              "numeric_tokens_preserved": bool(details) and all(table["numeric_tokens_preserved"] for table in details),
+              "column_associations_verified": bool(details) and all(not table["quality_errors"] for table in details)}
+    verified = all(checks.values())
+    return {"text": "\n".join(texts), "pages": texts, "tables": [table["compact_rows"] for table in details],
+            "table_spans": [table["table_spans"] for table in details], "table_details": details,
+            "page_diagnostics": diagnostics, "pdf_metadata": metadata,
+            "pdf_pages_total": count, "pdf_pages_processed": len(texts), "pdf_pages_text_extracted": len(texts),
+            "tables_extraction_scope": "nebius_native_segmented_rules_and_spans", "tables_complete": verified,
+            "pdf_structure_checks": checks,
+            "quality_reason": "nebius_native_rules_cells_and_columns_verified" if verified else
+                "nebius_native_quality_failed:"+",".join(key for key, value in checks.items() if not value),
+            "parse_ms": (time.perf_counter_ns()-started)/1e6}

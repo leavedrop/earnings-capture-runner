@@ -503,8 +503,11 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(len(manifest[0]["sources"]), 1)
                 self.assertEqual(manifest[0]["sources"][0]["url"], "https://investor.msgknicks.com/rss/pressrelease.aspx")
             else:
-                self.assertEqual(command[command.index("--candidate-url") + 1], target["url"])
-            self.assertNotIn("SEC_USER_AGENT", kwargs["env"])
+                self.assertEqual(command[command.index("--candidate-url") + 1], target.get("filing_index_url", target["url"]))
+                if target.get("filing_form"):
+                    self.assertEqual(command[command.index("--candidate-filing-form") + 1], target["filing_form"])
+            if target["channel"] != "sec":
+                self.assertNotIn("SEC_USER_AGENT", kwargs["env"])
             runtime = Path(command[command.index("--output") + 1])
             (runtime / "reports").mkdir(); (runtime / "raw").mkdir()
             stem = "reports/MSGK_" + target["channel"] + "_" + sha[:12]
@@ -530,6 +533,15 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
                        "discovered_mono_ns": 100000000 if actual else 140000000, "listing_request_id": "discovery" if actual else None,
                        "validated_utc": "2026-11-09T00:00:00.200Z", "validated_mono_ns": 200000000,
                        "parse_ms": 10, "sha256": sha, "body_bytes": len(raw), "candidate_attempt": 1, "retry": False}
+            if target.get("filing_index_url"):
+                requests[-1].update(sec_stream_attempt=True, target_document_complete=True,
+                                    target_document_url=target["url"], http_response_complete=False)
+                audit = b"<html>Later filing index audit, not the financial document</html>"
+                with gzip.open(runtime / "raw/audit.gz", "wb") as stream:
+                    stream.write(audit)
+                requests.append({**requests[-1], "id": "audit", "url": target["filing_index_url"],
+                                 "raw_path": "raw/audit.gz", "sha256": hashlib.sha256(audit).hexdigest(),
+                                 "body_bytes": len(audit), "sec_stream_attempt": False, "target_document_complete": False})
             with sqlite3.connect(runtime / "observations.sqlite3") as connection:
                 connection.execute("create table log(id integer primary key,kind text,payload text)")
                 for request in requests: connection.execute("insert into log(kind,payload) values('request',?)", (json.dumps(request),))
@@ -568,6 +580,16 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(actual["seed_request_to_parsed_ms"], 200)
             self.assertEqual(actual["channel"], "official")
             self.assertEqual(actual["document_variant"], "issuer_copy")
+            target = {**targets[1], "channel": "sec", "reference": target["reference"],
+                      "filing_index_url": "https://www.sec.gov/Archives/edgar/data/1636519/000163651927000001/0001636519-27-000001-index.html",
+                      "filing_form": "8-K"}
+            with patch("probe.subprocess.run", side_effect=collector):
+                streamed = await collect_watch_case(target, output, {"loc": "US", "colo": "TEST"})
+            self.assertTrue(streamed["complete"])
+            self.assertFalse(streamed["http_response_complete"])
+            self.assertTrue(streamed["target_document_complete"])
+            self.assertEqual(streamed["body_completion_scope"], "complete_exhibit_at_sgml_closing_markers")
+            self.assertEqual((output / streamed["raw_document_artifact"]).read_bytes(), raw)
 
     async def test_cache_profiles_keep_download_trace_and_stop_after_rejection(self):
         targets = select_targets(json.loads((BASE / "targets.json").read_text(encoding="utf-8")), "msgk-cache-control")
@@ -672,20 +694,25 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
     def test_coverage_replay_includes_every_configured_metric_company(self):
         from probe import main
 
-        with patch("sys.argv", ["probe.py", "--scope", "metrics-22-coverage"]), \
-                patch("probe.run", new_callable=AsyncMock, return_value=0) as execute:
-            with self.assertRaises(SystemExit) as exit_result:
-                main()
-        self.assertEqual(exit_result.exception.code, 0)
-        self.assertEqual(execute.call_args.args[0].scope, "metrics-22-coverage")
-        rules = json.loads((BASE / "live/earnings_metrics_rules.json").read_text(encoding="utf-8"))
+        for scope in ("metrics-22-coverage", "metrics-unresolved-paths"):
+            with patch("sys.argv", ["probe.py", "--scope", scope]), \
+                    patch("probe.run", new_callable=AsyncMock, return_value=0) as execute:
+                with self.assertRaises(SystemExit) as exit_result:
+                    main()
+            self.assertEqual(exit_result.exception.code, 0)
+            self.assertEqual(execute.call_args.args[0].scope, scope)
+        expected = set("ONON SE QBTS TDG MRDN NCMI RGTI GIB FNV BN NBIS CBRS CSCO XPEV BIDU BEKE HTHT ARMK TSN ACM INFQ STEM".split())
         selected = select_targets([], "metrics-22-coverage")
-        assert len(selected) == len(rules["companies"]) == 22
-        assert {row["event"]["symbol"] for row in selected} == {row["symbol"] for row in rules["companies"]}
+        assert len(selected) == 22
+        assert {row["event"]["symbol"] for row in selected} == expected
         assert all(row["metrics_mode"] == "synthetic" and row["pipeline"] == "production_watch_list_seed" for row in selected)
         nbis = next(row for row in selected if row["event"]["symbol"] == "NBIS")
         assert nbis["channel"] == "sec" and nbis["reference"]["uses_same_quarter_alternate"]
         assert all(row["reference"].get("table_spans_sha256") for row in selected)
+        repaired = {row["event"]["symbol"]: row for row in select_targets([], "metrics-unresolved-paths")}
+        assert set(repaired) == {"SE", "NCMI", "RGTI", "CBRS", "BIDU"}
+        assert repaired["SE"]["filing_form"] == "6-K" and repaired["NCMI"]["filing_form"] == "8-K"
+        assert repaired["RGTI"]["channel"] == "official"
 
     def target(self):
         return {"target_id": "TEST_official", "channel": "official", "url": "https://example.com/report",

@@ -1206,9 +1206,14 @@ class Collector:
                     self.first_discovered.clear()
                     self.candidate_retry.clear()
                     observed_ns = self.clock.stamp()[1]
-                    await self.candidate(session, event, channel,
-                                         {"url": self.args.candidate_url, "discovery_route": "replay_existing_public_report_not_new_release",
-                                          "discovery_timestamp_semantics": "replay_invocation_not_live_discovery"},
+                    candidate = {"url": self.args.candidate_url, "discovery_route": "replay_existing_public_report_not_new_release",
+                                 "discovery_timestamp_semantics": "replay_invocation_not_live_discovery"}
+                    filing_form = getattr(self.args, "candidate_filing_form", None)
+                    if filing_form:
+                        if channel != "sec" or not self.args.candidate_url.endswith("-index.html"):
+                            raise ValueError("Filing replay requires the public SEC filing index")
+                        candidate.update(role="filing_index", title=filing_form)
+                    await self.candidate(session, event, channel, candidate,
                                          observed_ns, None, discovered_mono_ns=time.perf_counter_ns())
                     await asyncio.sleep(1)
                 self.summary()
@@ -1264,6 +1269,8 @@ def publication_lag(pub, received_ns, clock):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=["run", "probe", "report"])
+    parser.add_argument("--candidate-filing-form", choices=("8-K", "6-K", "8-K/A", "6-K/A"),
+                        help="Replay the production SEC filing-index/complete-submission path")
     parser.add_argument("--manifest", default=str(BASE / "watchlist.json"))
     parser.add_argument("--output", default=str(BASE / "runtime"))
     parser.add_argument("--symbols", default="")
