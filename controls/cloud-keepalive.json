@@ -1,29 +1,27 @@
 {
   "schema_version": 1,
   "owner": "github_actions",
-  "checked_at_utc": "2026-11-11T09:00:14.158717+00:00",
+  "checked_at_utc": "2026-11-11T09:03:19.437398+00:00",
   "dispatch_until_utc": "2026-11-17T13:03:00+08:00",
   "local_sec_rps_budget": 2,
   "total_sec_rps_limit": 10,
   "raw_report_requests": 0,
-  "active_probe_run_ids": [
-    "42991214444"
-  ],
+  "active_probe_run_ids": [],
   "inventory_state": "verified_hashes",
   "inventory_count": 104,
   "inventory_refresh": "retained_existing; new documents may be initially_present on the next run",
   "evidence_observations": [
     {
       "run_id": "42990797977-1",
-      "commit": "17d7ee3a6b38fb4423f99fe697f36f85a6cd958d",
+      "commit": "9c6d067e71b43fa4bd36e39a1b5c2b6595e6b55c",
       "node": {
         "loc": "US",
         "colo": "IAD"
       },
       "state": "running",
-      "updated_utc": "2026-11-11T08:59:12.595+00:00",
-      "collector_heartbeat_utc": "2026-11-11T08:59:07.169309+00:00",
-      "requests": 972
+      "updated_utc": "2026-11-11T09:03:18.221+00:00",
+      "collector_heartbeat_utc": "2026-11-11T09:03:07.296623+00:00",
+      "requests": 1562
     },
     {
       "run_id": "42987705945-1",
@@ -55,7 +53,7 @@
   ],
   "selected_run_id": "42990797977-1",
   "workflow_state": "healthy",
-  "updated_utc": "2026-11-11T09:00:17.174439+00:00",
+  "updated_utc": "2026-11-11T09:03:22.446034+00:00",
   "control_mode": "live_supervisor",
   "caller_live_run_id": "42990797977-1",
   "overlap_sec_rps_budget": 8,
@@ -111,8 +109,5 @@
     "timing_basis": "Separate run UTC observations; no cross-run monotonic timing"
   },
   "projected_total_sec_rps": 10,
-  "snapshot_errors": [],
-  "dispatch_blockers": [
-    "active_probe:42991214444"
-  ]
+  "snapshot_errors": []
 }
