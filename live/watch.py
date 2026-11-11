@@ -120,6 +120,8 @@ class RateLimit:
         self.recent = {}
         self.waiters = {}
         self.changed = {}
+        self.shared_feed_hosts = set()
+        self.last_company_listing = {}
 
     @staticmethod
     def key(url):
@@ -136,6 +138,10 @@ class RateLimit:
         path_key = (key, urlsplit(url).path or "/")
         listing_purposes = ("discovery", "feed_discovery")
         pacing_key = (key, "feed") if purpose == "feed_discovery" else key
+        if purpose == "feed_discovery":
+            self.shared_feed_hosts.add(key)
+            if key in self.last_company_listing:
+                self.next[key] = max(self.next.get(key, 0), self.last_company_listing[key] + 1)
         pacing = max(0.25, 1/max(1, self.sec_rps-1)) if key == "sec.gov" else (max(1/3, discovery_interval) if discovery_interval is not None else 1.0)
         reasons = set()
         # Listing probes retain their pacing. Newly discovered documents can use
@@ -171,7 +177,13 @@ class RateLimit:
                         if first is waiter:
                             recent.append(now)
                             if purpose in listing_purposes:
-                                self.next[pacing_key] = now + pacing
+                                # A CIK request cannot consume the next feed's
+                                # slot merely by arriving just before that feed.
+                                # Both lanes still share this same rolling cap.
+                                company_backup = purpose == "discovery" and key in self.shared_feed_hosts
+                                self.next[pacing_key] = now + (max(1, pacing) if company_backup else pacing)
+                                if purpose == "discovery":
+                                    self.last_company_listing[key] = now
                             return {"queue_reasons": sorted(reasons)}
                         reasons.add("fair_queue")
                         changed = self.changed.setdefault(key, asyncio.Event())
