@@ -68,9 +68,12 @@ async def check_once(client, token, *, now=None):
             state.update(self_disabled=True, disabled_at_utc=now.isoformat(), selected_run_id=None)
         else:
             jobs = await bridge.workflow_runs(client)
-            response = await client.get(API + "/actions/workflows/probe.yml/runs", params={"per_page": 10})
-            response.raise_for_status()
-            probes = [str(row["id"]) for row in response.json().get("workflow_runs", []) if row["status"] != "completed"]
+            probes = []
+            for workflow in ("probe.yml", "history-probe.yml"):
+                response = await client.get(API + f"/actions/workflows/{workflow}/runs", params={"per_page": 10})
+                response.raise_for_status()
+                probes.extend(str(row["id"]) for row in response.json().get("workflow_runs", [])
+                              if row["status"] != "completed")
             state["active_probe_run_ids"] = probes
             inventory = await retained_inventory(client)
             state.update(inventory)
