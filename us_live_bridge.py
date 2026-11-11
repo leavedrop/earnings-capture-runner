@@ -326,6 +326,8 @@ def continuity_observation(previous, successor):
 
 
 async def retire_run(client, previous, successor, now):
+    if not handoff_ready(successor, previous, now)["ready"]:
+        raise ValueError("verified_healthy_successor_required_before_retirement")
     if previous.get("handoff_control_version") != 1:
         response = await client.post(f"https://api.github.com/repos/{REPOSITORY}/actions/runs/{previous['run_id'].split('-')[0]}/cancel")
         response.raise_for_status()
