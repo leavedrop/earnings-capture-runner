@@ -911,7 +911,10 @@ def _financial_table(rows):
 
 def is_tgtx_announcement_index(url: str) -> bool:
     parsed = urlparse(url)
-    return parsed.hostname == "ir.tgtherapeutics.com" and parsed.path.rstrip("/") == "/press-releases"
+    return (parsed.hostname, parsed.path.rstrip("/")) in {
+        ("ir.tgtherapeutics.com", "/press-releases"),
+        ("aramark.gcs-web.com", "/news-releases"),
+    }
 
 
 SKYD_XLSX_URL = "https://ir.skydance.com/static-files/ce71d9f0-8c13-4a67-9259-576b602305da"
