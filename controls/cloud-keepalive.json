@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "owner": "github_actions",
-  "checked_at_utc": "2026-11-11T11:40:50.458365+00:00",
+  "checked_at_utc": "2026-11-11T11:43:39.611636+00:00",
   "dispatch_until_utc": "2026-11-17T13:03:00+08:00",
   "local_sec_rps_budget": 2,
   "total_sec_rps_limit": 10,
@@ -13,15 +13,15 @@
   "evidence_observations": [
     {
       "run_id": "43012713725-1",
-      "commit": "68ec5c5dc6f95c348c19ce6756f0e026eea1f4f7",
+      "commit": "18837626c050ecb47cb20f8acf87cd23c5eacacf",
       "node": {
         "loc": "US",
         "colo": "LAX"
       },
-      "state": "running",
-      "updated_utc": "2026-11-11T11:40:44.001+00:00",
-      "collector_heartbeat_utc": "2026-11-11T11:40:40.238354+00:00",
-      "requests": 4052
+      "state": "finished",
+      "updated_utc": "2026-11-11T11:43:21.129+00:00",
+      "collector_heartbeat_utc": "2026-11-11T11:43:20.353429+00:00",
+      "requests": 5306
     },
     {
       "run_id": "42990797977-1",
@@ -34,29 +34,15 @@
       "updated_utc": "2026-11-11T11:37:55.818+00:00",
       "collector_heartbeat_utc": "2026-11-11T11:37:53.936084+00:00",
       "requests": 27478
-    },
-    {
-      "run_id": "42987705945-1",
-      "commit": "097c30bf2f162201180929cc9b608b738137606d",
-      "node": {
-        "loc": "US",
-        "colo": "LAX"
-      },
-      "state": "finished",
-      "updated_utc": "2026-11-11T08:57:21.384+00:00",
-      "collector_heartbeat_utc": "2026-11-11T08:57:20.637279+00:00",
-      "requests": 3635
     }
   ],
-  "active_run_ids": [
-    "43012713725"
-  ],
-  "selected_run_id": "43012713725-1",
-  "workflow_state": "healthy",
-  "updated_utc": "2026-11-11T11:40:53.961554+00:00",
-  "control_mode": "live_supervisor",
-  "caller_live_run_id": "43012713725-1",
-  "overlap_sec_rps_budget": 8,
+  "active_run_ids": [],
+  "selected_run_id": null,
+  "workflow_state": "dispatched",
+  "updated_utc": "2026-11-11T11:43:43.705893+00:00",
+  "control_mode": "bootstrap",
+  "caller_live_run_id": null,
+  "overlap_sec_rps_budget": 4,
   "handoff_readiness": {
     "ready": true,
     "active_companies": [
@@ -108,6 +94,8 @@
     "monitoring_gap_ms": 0,
     "timing_basis": "Separate run UTC observations; no cross-run monotonic timing"
   },
-  "projected_total_sec_rps": 10,
-  "snapshot_errors": []
+  "projected_total_sec_rps": 6,
+  "snapshot_errors": [],
+  "last_dispatch_utc": "2026-11-11T11:43:39.611636+00:00",
+  "dispatched_sec_rps": 4
 }
