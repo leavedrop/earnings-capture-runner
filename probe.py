@@ -110,7 +110,7 @@ def select_targets(targets, scope):
                  "url": references[symbol + "_METRICS_PRODUCTION"]["url"],
                  "reference": references[symbol + "_METRICS_PRODUCTION"],
                  "event": events[symbol], "cache_profile": "ordinary", "pipeline": "production_watch_list_seed",
-                 "metrics_mode": "synthetic", "require_raw_reference_match": True}
+                 "metrics_mode": "synthetic", "require_raw_reference_match": symbol == "SE"}
                 for symbol in ("ONON", "SE", "TDG", "MRDN")]
     if scope == "kkr-complete":
         return [target for target in select_targets(targets, "backlog-production") if target["event"]["symbol"] == "KKR"]
@@ -598,6 +598,8 @@ async def collect_watch_case(target, output, node):
                 command.extend(["--sec-rps", "2"])
                 if target["reference"].get("connection_warmup_url"):
                     command.extend(["--sec-warmup-url", target["reference"]["connection_warmup_url"]])
+            elif target["reference"].get("connection_warmup_url"):
+                command.extend(["--origin-warmup-url", target["reference"]["connection_warmup_url"]])
             result = await asyncio.to_thread(subprocess.run, command, cwd=BASE / "live", env=child_env,
                                              capture_output=True, timeout=180)
             row["collector_exit_code"] = result.returncode
@@ -671,8 +673,9 @@ async def collect_watch_case(target, output, node):
                             and comparison.get("reference_pages_match", True)
                             and comparison.get("reference_spans_match", True)
                             and comparison.get("reference_structure_matches", True))
-                if target.get("require_raw_reference_match"):
+                if target["reference"].get("raw_sha256"):
                     row["reference_raw_matches"] = row.get("sha256") == target["reference"]["raw_sha256"]
+                if target.get("require_raw_reference_match"):
                     complete = complete and row["reference_raw_matches"]
                 if target.get("require_seed_candidate"):
                     complete = (complete and row.get("seed_listing_contains_candidate") is True
@@ -712,7 +715,8 @@ async def collect_watch_case(target, output, node):
                     if not row["metrics_pipeline_completed"]:
                         row["error_type"] = "metrics_pipeline_not_completed"
             else:
-                row["error_type"] = "HTTP_" + str(row["status"]) if row["status"] is not None else "production_capture_missing"
+                row["error_type"] = ("HTTP_" + str(row["status"]) if row["status"] is not None and row["status"] != 200
+                                     else "production_capture_missing")
     except Exception as exc:
         row.update(error_type=type(exc).__name__)
     row.update(ended_utc=utc(), cli_start_to_archived_upper_ms=(time.perf_counter_ns()-started)/1e6)

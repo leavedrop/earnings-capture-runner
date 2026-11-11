@@ -1,7 +1,7 @@
 {
   "watch.py": {
-    "sha256": "91144f8e2f326c2a8da60b4d27b934fbbf86e0ebbae293d6dc88a1a4695150f2",
-    "production_sha256": "e22367999c433c1957c008a6c9ced1a1bf5827f798cf55ef1d3764062014658d",
+    "sha256": "6f010336d3a50e237172e914642459c6ebd341915b3f0aa83d16e533b19fdea6",
+    "production_sha256": "5e5e5699158fa1e022771f15ea4485f4a7ab646aa7d559e0faf859617375fe74",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "watch.py"
   },
@@ -54,8 +54,8 @@
     "source": "spreadsheet_tables.py"
   },
   "metrics_pipeline.py": {
-    "sha256": "575e1881b30e4e562597230d0df5911deac84eb4d03be07648bb839a37a7919d",
-    "production_sha256": "575e1881b30e4e562597230d0df5911deac84eb4d03be07648bb839a37a7919d",
+    "sha256": "14b2f840ede22ad4f31bf46337462583de085b76fc2b31af9770959d159d6654",
+    "production_sha256": "14b2f840ede22ad4f31bf46337462583de085b76fc2b31af9770959d159d6654",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "metrics_pipeline.py"
   },
@@ -66,14 +66,14 @@
     "source": "metric_comparison.py"
   },
   "earnings_metrics.py": {
-    "sha256": "e9907886dd92a285378c3408a3b5302c2c699560e340909868b80545989702a9",
-    "production_sha256": "e9907886dd92a285378c3408a3b5302c2c699560e340909868b80545989702a9",
+    "sha256": "356c65cf51789c51179481af1c371d4c77bbd1ceb939f0e3ac9f57d5fc496b81",
+    "production_sha256": "356c65cf51789c51179481af1c371d4c77bbd1ceb939f0e3ac9f57d5fc496b81",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "earnings_metrics.py"
   },
   "earnings_metrics_rules.json": {
-    "sha256": "28480866d0ae5198a124869e463ebb3c034c5460fa20d44e6b2c691bee9d84e5",
-    "production_sha256": "fe514ee832e4a7521fe1a7b8b47dd4ad8a276a0883e78f5e25703527bffe5c5d",
+    "sha256": "05461595e53e6b243584eac74556df4d3442e8adfb976a241646e5bea4b2ad7f",
+    "production_sha256": "be67553e92bfb67700475988c2dc6b230e577f3dd24cadfc5d789048917d1276",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "earnings_metrics_rules.json"
   }

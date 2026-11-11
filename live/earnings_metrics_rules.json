@@ -32,6 +32,8 @@
     },
     {
       "symbol": "TDG",
+      "currency": "USD",
+      "currency_source": "provided_company_rule",
       "eps_labels": [
         "Earnings per share—Basic and diluted",
         "Adjusted diluted earnings per share under the two-class method"

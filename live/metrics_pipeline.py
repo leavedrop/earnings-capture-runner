@@ -41,6 +41,7 @@ def public_synthetic_extraction(record):
               "discovery_to_parsed_ms", "discovery_to_comparison_ms", "discovery_to_decision_ms", "timing_basis",
               "queued_mono_ns", "extraction_started_mono_ns", "started_at_utc", "extraction_completed_mono_ns",
               "extraction_completed_at_utc", "comparison_completed_mono_ns", "comparison_completed_at_utc",
+              "decision_computed_mono_ns", "decision_computed_at_utc",
               "decision_completed_mono_ns", "decision_completed_at_utc", "ended_mono_ns", "ended_at_utc",
               "decision_budget_ms", "decision_budget_passed",
               "signal_status", "exchange_submitted", "observer", "node_region", "us_execution_qualified")
@@ -52,7 +53,7 @@ def public_synthetic_extraction(record):
     if isinstance(error_type, str) and re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,79}", error_type):
         public["error_type"] = error_type
     public["timings_ms"] = {key: value for key, value in record.get("timings_ms", {}).items()
-                            if key in ("queue", "extraction", "comparison", "decision", "pipeline")}
+                            if key in ("queue", "extraction", "comparison", "decision", "delivery_queue", "pipeline")}
     public["extractor_timings_ms"] = {key: value for key, value in record.get("extractor_timings_ms", {}).items()
                                      if key in ("location", "basis_validation", "total")}
     metric_fields = CONTRACT_FIELDS + ("share_basis", "scale", "raw_label", "raw_value", "normalized_value",
@@ -67,6 +68,12 @@ def public_synthetic_extraction(record):
         for key in ("column_range", "bbox", "label_bbox"):
             if isinstance(position.get(key), list) and all(type(x) in (int, float) for x in position[key]):
                 row["source_position"][key] = position[key]
+        currency_evidence = position.get("currency_evidence") or {}
+        if currency_evidence.get("scope") in ("document", "provided_company_rule"):
+            row["source_position"]["currency_evidence"] = {"scope": currency_evidence["scope"]}
+            currency = currency_evidence.get("currency")
+            if isinstance(currency, str) and re.fullmatch(r"[A-Z]{3}", currency):
+                row["source_position"]["currency_evidence"]["currency"] = currency
         public["metrics"].append(row)
     forecast_fields = CONTRACT_FIELDS + ("share_basis", "forecast_id", "origin", "generated_at_utc", "normalized_value",
                                           "not_a_model_prediction", "uses_actual_for_test_setup", "use_for_decision")
@@ -130,7 +137,20 @@ class MetricsPipeline:
         queued = time.perf_counter_ns()
         result = await asyncio.get_running_loop().run_in_executor(self.executor, partial(
             self._process, body, source_url, event, parsed, capture, queued, offline_replay))
+        delivered = time.perf_counter_ns()
+        delivered_utc = utc()
+        result["timings_ms"]["delivery_queue"] = (delivered-result["ended_mono_ns"])/1e6
+        result.update(ended_mono_ns=delivered, ended_at_utc=delivered_utc)
+        result["timings_ms"]["pipeline"] = (delivered-queued)/1e6
+        if result.get("decision_computed_mono_ns") is not None:
+            result.update(decision_completed_mono_ns=delivered, decision_completed_at_utc=delivered_utc)
+            if result["discovered_mono_ns"] is not None:
+                result["discovery_to_decision_ms"] = (delivered-result["discovered_mono_ns"])/1e6
+                if (result["simulation_decision"]["eligible"]
+                        and capture.get("validation", {}).get("accepted") is True):
+                    result["decision_budget_passed"] = result["discovery_to_decision_ms"] <= 500
         # Store's SQLite connection remains on the collector's event-loop thread.
+        # This audit write is after delivery; it is not an exchange acknowledgement.
         self.store.add("metric_extraction", result)
         return result
 
@@ -205,14 +225,9 @@ class MetricsPipeline:
             stage = "decision"
             result["simulation_decision"] = simulate_joint_signal(result["comparison"]["comparisons"])
             decided_at = time.perf_counter_ns()
-            result.update(status="completed", decision_completed_mono_ns=decided_at,
-                          decision_completed_at_utc=utc())
+            result.update(status="completed", decision_computed_mono_ns=decided_at,
+                          decision_computed_at_utc=utc())
             result["timings_ms"]["decision"] = (decided_at-compared_at)/1e6
-            result["discovery_to_decision_ms"] = ((decided_at-capture["discovered_mono_ns"])/1e6
-                                                    if continuous else None)
-            if (continuous and result["simulation_decision"]["eligible"]
-                    and capture.get("validation", {}).get("accepted") is True):
-                result["decision_budget_passed"] = result["discovery_to_decision_ms"] <= 500
         except Exception as exc:
             result.update(error_stage=stage, error_type=type(exc).__name__, error_reason=str(exc),
                           discovery_to_comparison_ms=None)

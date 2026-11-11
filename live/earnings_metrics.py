@@ -80,18 +80,27 @@ def _html_tables(body: bytes, parsed: Mapping | None) -> tuple[str, list[dict]]:
     # preceding-axis XPath for every financial table rescans the whole report.
     table_nodes = list(root.iter("table"))
     enclosing_tables = {ancestor for table in table_nodes for ancestor in table.iterancestors()}
-    contexts, recent, depth = {}, deque(maxlen=4), 0
-    for action, node in etree.iterwalk(root, events=("start", "end")):
-        if node.tag == "table":
-            if action == "start":
-                contexts[node] = " | ".join(recent)[-1800:]
-                depth += 1
-            else:
-                depth -= 1
-        elif action == "end" and depth == 0 and node.tag in {"p", "div"} and node not in enclosing_tables:
+    contexts, recent = {}, deque(maxlen=4)
+    walker = etree.iterwalk(root, events=("start", "end"), tag=("table", "p", "div"))
+    for action, node in walker:
+        if node.tag == "table" and action == "start":
+            context = " | ".join(recent)[-1800:]
+            for nested in node.iter("table"):
+                contexts[nested] = context
+            walker.skip_subtree()  # Text inside tables never changes preceding context.
+        elif action == "end" and node.tag in {"p", "div"} and node not in enclosing_tables:
             context_text = _text(node)
             if context_text:
                 recent.append(context_text)
+    if parsed is not None:
+        # The owning full-document validator supplied these exact cells/spans.
+        # Keep DOM only for their surrounding headings, without re-extracting
+        # every cell and then comparing the duplicate to the same parsed data.
+        visible_tables = [table for table in table_nodes if any(_text(cell)
+            for row in table.iter("tr") for cell in row.iterchildren("td", "th"))]
+        tables = [{"rows": rows, "spans": spans, "context": contexts[table]}
+                  for table, rows, spans in zip(visible_tables, parsed["tables"], parsed["table_spans"], strict=True)]
+        return " ".join(parsed["text"].split()), tables
     tables = []
     for table in table_nodes:
         rows, spans = [], []
@@ -104,9 +113,6 @@ def _html_tables(body: bytes, parsed: Mapping | None) -> tuple[str, list[dict]]:
             spans.append([[int(cell.get("rowspan", "1")), int(cell.get("colspan", "1"))] for cell in cells])
         if rows:
             tables.append({"rows": rows, "spans": spans, "context": contexts[table]})
-    if parsed is not None and (parsed.get("tables") != [table["rows"] for table in tables]
-                               or parsed.get("table_spans") != [table["spans"] for table in tables]):
-        raise ValueError("parsed_tables_do_not_match_this_original_body")
     return _text(root), tables
 
 
@@ -296,6 +302,12 @@ def _acm_summary_groups(anchors, row, event, full_text):
 
 def _html_fields(body, event, parsed, common, diagnostics):
     full_text, tables = _html_tables(body, parsed)
+    currency_conflict = None
+    if event.get("reporting_currency_source") == "provided_company_rule":
+        currency_conflict = re.search(r"\b(?:CAD|CHF|CNY|RMB|EUR|GBP|JPY|HKD)\b|Canadian dollars|Swiss francs|Chinese yuan|euros|pounds sterling|Japanese yen|Hong Kong dollars", full_text, re.I)
+        if currency_conflict:
+            diagnostics.append({"reason": "provided_currency_conflicts_with_document", "configured_currency": event["reporting_currency"],
+                                "text": currency_conflict[0], "text_offset": currency_conflict.start()})
     announcement = _ANNOUNCED_PERIOD.search(full_text[:5000])
     if announcement:
         announced_end = f"{announcement[3]}-{_MONTHS.index(announcement[1].capitalize())+1:02}-{int(announcement[2]):02}"
@@ -309,7 +321,7 @@ def _html_fields(body, event, parsed, common, diagnostics):
     for ti, table in enumerate(tables):
         rows = table["rows"]
         table_text = table["context"] + " " + " ".join(" ".join(row) for row in rows)
-        anchors, occupied = _grid(rows, table["spans"])
+        anchors = occupied = None
         for ri, row in enumerate(rows):
             label, metric = _label(rows, ri)
             if event["symbol"] == "ACM" and re.match(r"Net Service Revenue \(NSR\)", label, re.I):
@@ -333,6 +345,8 @@ def _html_fields(body, event, parsed, common, diagnostics):
             if (metric == "revenue" and event["symbol"] == "ACM" and label.lower() == "revenue"
                     and not re.search(r"Consolidated Statements? of (?:Income|Operations)", table["context"], re.I)):
                 continue
+            if anchors is None:
+                anchors, occupied = _grid(rows, table["spans"])
             groups = _period_groups(anchors, occupied, ri, event, table["context"])
             if not groups and acm_summary:
                 groups = _acm_summary_groups(anchors, ri, event, full_text)
@@ -354,6 +368,8 @@ def _html_fields(body, event, parsed, common, diagnostics):
                 if value is None:
                     continue
                 currency, scale = _unit_context(event["symbol"], metric, table_text, full_text, event, headers)
+                if currency_conflict:
+                    currency = None
                 share_label = label + " " + " ".join(header for header in headers if re.fullmatch(r"Class\s+[AB]", header, re.I))
                 if event["symbol"] == "FNV" and label.lower() == "adjusted net income per share" and ri and "Basic weighted average" in " ".join(rows[ri-1]):
                     share_label += " basic"
@@ -388,6 +404,8 @@ def _html_fields(body, event, parsed, common, diagnostics):
                     unit_match = re.search(currency_pattern, full_text, re.I)
                     position["currency_evidence"] = ({"text":unit_match[0], "text_offset":unit_match.start(), "scope":"document"}
                                                      if unit_match else {"scope":"caller_reporting_currency_contract"})
+                    if unit_match is None and event.get("reporting_currency_source") == "provided_company_rule":
+                        position["currency_evidence"] = {"scope": "provided_company_rule", "currency": currency}
                 matched = currency is not None and scale is not None and (metric != "eps" or share is not None)
                 output.append(_record(event, common, metric, label, metric_definition=definition,
                     share_basis=share, currency=currency, scale=scale, raw_value=raw, business_scope=scope,
@@ -568,6 +586,8 @@ def extract_metrics(body: bytes, source_url: str, event: Mapping, *, received_at
     ``event`` supplies a verified company identity and accounting-period contract.
     A separately verified ``reporting_currency`` is optional for reports stating
     only '$'. Missing currency remains unsupported; no FX conversion is applied.
+    ``parsed``, when supplied, is the owning validator's complete result for
+    these same body bytes, including text, tables and table_spans.
     All normalized values are decimal strings in their original currency unit.
     """
     started = time.perf_counter_ns()
@@ -579,6 +599,10 @@ def extract_metrics(body: bytes, source_url: str, event: Mapping, *, received_at
         company_rule = next((row for row in rules["companies"] if row["symbol"] == event["symbol"]), None) if "companies" in rules else rules
         if "companies" not in rules and company_rule.get("symbol") != event["symbol"]:
             raise ValueError("rules_do_not_describe_this_company")
+    if (event["symbol"] == "TDG" and company_rule is not None
+            and company_rule.get("currency") == "USD" and company_rule.get("currency_source") == "provided_company_rule"):
+        event = {**event, "reporting_currency": "USD", "reporting_currency_source": "provided_company_rule"}
+        diagnostics.append({"reason": "currency_from_provided_company_rule", "symbol": "TDG", "currency": "USD"})
     if rules is not None and company_rule is None:
         records = [_record(event, common, metric, status="unsupported_basis") for metric in ("eps", "revenue")]
         diagnostics.append({"reason":"company_not_configured"})

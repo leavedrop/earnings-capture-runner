@@ -1434,7 +1434,9 @@
       "94256667cffdecd5990e4708f70a5a101d27001dd94972f0fe7b5829e765e4a1",
       "f871a5a90fb25df79daa5afb5412e8d7947b8a0a49741c30a0012df2b6af0709"
     ],
-    "table_spans_sha256": "0a035fbfa550c337f58b4a11ddf3f055adbf33d64897ef70b833ab307496a5c3"
+    "table_spans_sha256": "0a035fbfa550c337f58b4a11ddf3f055adbf33d64897ef70b833ab307496a5c3",
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "raw_reference_note": "SEC injected scripts may change bytes; compare every financial text, table and span and retain actual raw SHA256 independently."
   },
   "SE_METRICS_PRODUCTION": {
     "url": "https://cdn.sea.com/investor/3Q2026/VZJl6wXWX76O8otphvf6/2026.11.10%20Sea%20Third%20Quarter%202026%20Results.pdf",
@@ -1457,10 +1459,12 @@
     ],
     "pdf_pages_total": 18,
     "table_spans_sha256": "d9770240b87dc28bdace524a2721dbdac65adbf7ad9cf7682bb92714cb02bdf1",
-    "tables_extraction_scope": "sea_native_tagged_cells_and_geometry"
+    "tables_extraction_scope": "sea_native_tagged_cells_and_geometry",
+    "connection_warmup_url": "https://cdn.sea.com/investor/2Q2026/wFBC39MbqnfLb3MGY6LP/2026.08.11%20Sea%20Second%20Quarter%202026%20Results.pdf",
+    "warmup_scope": "Diagnostic HEAD of an older quarter on the same CDN; target PDF not prefetched. This alone does not prove production connection readiness."
   },
   "TDG_METRICS_PRODUCTION": {
-    "url": "https://www.sec.gov/Archives/edgar/data/1260221/000126022126000073/0001260221-26-000073.txt",
+    "url": "https://www.sec.gov/Archives/edgar/data/1260221/000126022126000073/exhibit991tdg2026q4earning.htm",
     "raw_sha256": "49304a6d6cb002c0bea8b428cd525061ea2431613a063968204384f5cf7ebd7d",
     "text_sha256": "80c2a0cbd0ce46f210fa3150a2afb4b9a911eb46431f3060850417d7ea3818ab",
     "table_sha256": [
@@ -1481,7 +1485,9 @@
       "d22c9690da3c6f3be189fbb4e7e398d7129b8f67fdbfc84562beb297ed139062",
       "f725b8295b3e2ed39272b01c17a5d897f076942313f446538e0671aa1a4f7c21"
     ],
-    "table_spans_sha256": "6f2267b8724cbb795a7794d1488b37bded89a54873a87fde3fe6b6ab5c0b96e3"
+    "table_spans_sha256": "6f2267b8724cbb795a7794d1488b37bded89a54873a87fde3fe6b6ab5c0b96e3",
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "raw_reference_note": "SEC injected scripts may change bytes; compare every financial text, table and span and retain actual raw SHA256 independently."
   },
   "MRDN_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/1437925/000147793226006791/mrdn_10q.htm",
@@ -1640,6 +1646,8 @@
       "61081915000c6afc6f6cba04fc7e8e3c4468c1f20e44670a0e13bf03d532350d",
       "3a31148634405d986ecf01e26544b85928ebd102285113de9667c81721b0c629"
     ],
-    "table_spans_sha256": "7682f93b060d332f1798c1c31a75421f4d2a2aab732323f091e9c91877d81fd0"
+    "table_spans_sha256": "7682f93b060d332f1798c1c31a75421f4d2a2aab732323f091e9c91877d81fd0",
+    "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
+    "raw_reference_note": "SEC injected scripts may change bytes; compare every financial text, table and span and retain actual raw SHA256 independently."
   }
 }

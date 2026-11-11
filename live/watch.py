@@ -1181,10 +1181,18 @@ class Collector:
                 event = events[0]
                 channel = self.args.channel
                 seed = next(s for s in event["sources"] if s["channel"] == channel)
-                warmup_url = getattr(self.args, "sec_warmup_url", None)
+                sec_warmup = getattr(self.args, "sec_warmup_url", None)
+                origin_warmup = getattr(self.args, "origin_warmup_url", None)
+                warmup_url = sec_warmup or origin_warmup
                 if warmup_url:
-                    if channel != "sec" or not warmup_url.startswith("https://www.sec.gov/Archives/") or warmup_url == self.args.candidate_url:
-                        raise ValueError("Replay warmup must be a different public SEC archive URL")
+                    if sec_warmup:
+                        if channel != "sec" or not warmup_url.startswith("https://www.sec.gov/Archives/"):
+                            raise ValueError("SEC replay warmup must be a public SEC archive URL")
+                    elif (urlsplit(warmup_url).scheme != "https"
+                          or urlsplit(warmup_url).netloc != urlsplit(self.args.candidate_url).netloc):
+                        raise ValueError("Origin replay warmup must use the candidate's HTTPS origin")
+                    if warmup_url == self.args.candidate_url:
+                        raise ValueError("Replay warmup cannot prefetch the target document")
                     warmup_record, warmup_body = await self.fetch(session, warmup_url, event, channel, "warmup", conditional=False, method="HEAD")
                     await self.persist_request(warmup_record, warmup_body)
                     # This is before the first listing observation. Let the
@@ -1260,6 +1268,7 @@ def main():
     parser.add_argument("--symbols", default="")
     parser.add_argument("--candidate-url", default=None, help="Replay a known public document through the actual capture pipeline; probe only")
     parser.add_argument("--sec-warmup-url", default=None, help="HEAD a different SEC archive URL before a replay's first listing observation; no target body prefetch")
+    parser.add_argument("--origin-warmup-url", default=None, help="Probe only: HEAD a different HTTPS document on the candidate origin before the listing observation")
     parser.add_argument("--channel", choices=["official", "sec", "newswire"], default="official")
     parser.add_argument("--samples", type=int, default=5, help="Bounded replay samples, including any cold connection")
     parser.add_argument("--sec-rps", type=int, choices=range(1, 9), default=8,
