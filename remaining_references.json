@@ -5387,7 +5387,8 @@
       "capture_id": "b9194843-5750-47dd-b9f6-36e1481d4b2d",
       "body_complete_utc": "2026-11-09T13:17:39.607941+00:00",
       "full_49_page_image_exhibit_crosscheck": true
-    }
+    },
+    "listing_url": "https://tools.cms-eqs.com/fcf5b4/content/events/eventbox?dateOrder=DESC&timeOrder=DESC&localId.languageCode=en&page=1&limit=20&timeline=past"
   },
   "MRDN_CURRENT_SEC_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/1437925/000147793226006816/meridian_ex991.htm",
@@ -5628,6 +5629,7 @@
     },
     "canonical_issuer_url": "https://ir.kkr.com/media/document/39297093-8255-4c8f-aae0-597950d1d2e8/assets/KKR_Q326_Earnings_Release.pdf",
     "connection_warmup_url": "https://ir-api.eqs.com/storage/ir/a7afba/tools/4a1d5dca-7881-4367-a888-c68162e0fe46/index.js",
-    "connection_setup_scope": "Steady-state replay matches live provider connection maintenance; only HEAD of the original public non-report SDK, no financial document prefetch. Cold first-download run42994865155 remains unchanged."
+    "connection_setup_scope": "Steady-state replay matches live provider connection maintenance; only HEAD of the original public non-report SDK, no financial document prefetch. Cold first-download run42994865155 remains unchanged.",
+    "listing_url": "https://tools.cms-eqs.com/fcf5b4/content/events/eventbox?dateOrder=DESC&timeOrder=DESC&localId.languageCode=en&page=1&limit=20&timeline=past"
   }
 }

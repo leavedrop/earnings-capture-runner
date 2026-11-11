@@ -52,7 +52,7 @@ def public_synthetic_extraction(record):
               "signal_status", "exchange_submitted", "observer", "node_region", "us_execution_qualified")
     public = {key: record[key] for key in fields if key in record}
     public["source_url"] = public_url(record.get("source_url"))
-    if record.get("error_stage") in ("extraction", "comparison", "decision", "configuration", "archive"):
+    if record.get("error_stage") in ("extraction", "comparison", "decision", "configuration", "archive", "acquisition"):
         public["error_stage"] = record["error_stage"]
     error_type = record.get("error_type")
     if isinstance(error_type, str) and re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,79}", error_type):

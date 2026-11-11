@@ -161,7 +161,7 @@ def select_targets(targets, scope):
                  "reference": references[key],
                  "event": {**events[symbol], **references[key].get("event_override", {})}, "cache_profile": "ordinary", "pipeline": "production_watch_list_seed",
                  "metrics_mode": "synthetic", "require_raw_reference_match": references[key].get("require_raw_reference_match", channel == "official"),
-                 **{name: references[key][name] for name in ("filing_index_url", "filing_form") if name in references[key]}}
+                 **{name: references[key][name] for name in ("filing_index_url", "filing_form", "listing_url") if name in references[key]}}
                 for symbol, channel, key in cases]
     if scope == "kkr-complete":
         return [target for target in select_targets(targets, "backlog-production") if target["event"]["symbol"] == "KKR"]
@@ -633,11 +633,13 @@ async def collect_material_ranges(client, target, output, node, recent, blocked,
 
 async def collect_watch_case(target, output, node):
     """One production probe; the listing request is real, the supplied URL is a replay."""
+    from live.progress import public_url, range_assembly_complete, range_projection
+
     row = {"target_id": target["target_id"], "symbol": target["event"]["symbol"],
            "channel": target["channel"], "url": target["url"], "mode": "replay", "node": node,
            "started_utc": utc(), "parsed_utc": None, "status": None, "attempts": 1,
            "discovery_to_parsed_ms": None, "budget_passed": False, "complete": False,
-           "http_response_complete": False,
+            "http_response_complete": False, "whole_http_response_complete": False,
            "archived": False, "artifacts": [], "new_release_evidence": False,
            "pipeline": "production_watch_list_seed",
            "timing_scope": "Known old URL invocation after one real listing request; production queue/download/full parse. Listing request and CLI startup reported separately. Reference hash comparison is a post-capture audit.",
@@ -672,9 +674,15 @@ async def collect_watch_case(target, output, node):
                 command.extend(["--candidate-url", target.get("filing_index_url", target["url"])])
                 if target.get("filing_form"):
                     command.extend(["--candidate-filing-form", target["filing_form"]])
-                if target["reference"].get("event_override"):
+                if target.get("listing_url"):
+                    live_event = next(event for event in json.loads((BASE / "live/watchlist.json").read_text(encoding="utf-8"))
+                                      if event["symbol"] == target["event"]["symbol"])
+                    discovery_event = {**live_event, **discovery_event, "sources": [
+                        {**source, "url": target["listing_url"]} if source["channel"] == target["channel"] else dict(source)
+                        for source in live_event["sources"]]}
+                if target["reference"].get("event_override") or target.get("listing_url"):
                     manifest = runtime / "public_probe_manifest.json"
-                    manifest.write_text(json.dumps([target["event"]], ensure_ascii=False), encoding="utf-8")
+                    manifest.write_text(json.dumps([discovery_event], ensure_ascii=False), encoding="utf-8")
                     command[command.index("--manifest") + 1] = str(manifest)
             child_env = {key: value for key, value in os.environ.items()
                          if key not in ("GITHUB_TOKEN", "GH_TOKEN", "SEC_USER_AGENT", "HTTPS_PROXY", "HTTP_PROXY", "ALL_PROXY", "https_proxy", "http_proxy", "all_proxy")}
@@ -702,14 +710,23 @@ async def collect_watch_case(target, output, node):
                             "queue_ms", "queue_reasons", "request_total_ms", "response_headers_received_ms", "body_download_ms",
                             "first_body_callback_ms", "connection_reused", "new_tcp_connections", "sha256", "body_bytes",
                             "cooldown_seconds", "cooldown_scope", "transport", "transport_version", "curl_cumulative_ms",
-                            "header_timing_semantics", "body_timing_semantics", "http_response_complete",
+                            "header_timing_semantics", "body_timing_semantics", "http_response_complete", "whole_http_response_complete",
                             "html_stream_parse_ms", "download_includes_html_tree_build", "sec_stream_attempt",
                             "target_document_complete", "target_document_url", "extracted_form", "body_complete_semantics")
             for index, request in enumerate(requests):
                 safe = {key: request[key] for key in request_keys if key in request}
+                for field in ("url", "final_url", "target_document_url"):
+                    if field in safe:
+                        safe[field] = public_url(safe[field])
                 if request.get("error"):
                     safe["error"] = safe_error_message(request["error"])
                 raw = gzip.open(runtime / request["raw_path"], "rb").read() if request.get("raw_path") else b""
+                body_verified = bool(raw) and len(raw) == request.get("body_bytes") and digest(raw) == request.get("sha256")
+                range_evidence = range_projection(request)
+                if range_evidence:
+                    safe.update(range_evidence, range_assembly_verified=bool(body_verified and range_assembly_complete(request, raw)))
+                    if request.get("status") == 206:
+                        safe.update(http_response_complete=False, whole_http_response_complete=False)
                 if raw:
                     suffix = ".xlsx" if raw.startswith(b"PK\x03\x04") else ".pdf" if raw.startswith(b"%PDF") else ".html"
                     name = "raw/" + target["target_id"] + "_" + str(index) + "_" + request["purpose"] + suffix
@@ -718,6 +735,8 @@ async def collect_watch_case(target, output, node):
                     row["artifacts"].append(name)
                 if request["purpose"] == "discovery":
                     row["seed"] = safe
+                    if target.get("listing_url"):
+                        row["seed_listing_url_matches"] = request["url"] == target["listing_url"]
                     row["seed_listing_contains_candidate"] = any(item["url"].rstrip("/") == target["url"].rstrip("/")
                          for item in discover(raw, request.get("final_url", request["url"]), "text/html", discovery_event)) if raw and request.get("status") == 200 else False
                 elif request["purpose"] == "warmup":
@@ -734,12 +753,14 @@ async def collect_watch_case(target, output, node):
                         "html_stream_parse_ms", "download_includes_html_tree_build") if key in request})
                     if target.get("document_variant"):
                         row["actual_source_url"] = request.get("final_url", target["url"])
-                    body_verified = bool(raw) and len(raw) == request.get("body_bytes") and digest(raw) == request.get("sha256")
+                    row.update(range_projection(safe))
                     verified_body_end = (body_verified and request.get("body_complete_mono_ns") is not None
                         and request.get("request_end_mono_ns") == request["body_complete_mono_ns"] and not request.get("error"))
-                    row["http_response_complete"] = verified_body_end and not request.get("sec_stream_attempt")
-                    row["target_document_complete"] = bool(verified_body_end and request.get("target_document_complete"))
-                    row["body_completion_scope"] = ("complete_exhibit_at_sgml_closing_markers" if row["target_document_complete"]
+                    row["http_response_complete"] = bool(verified_body_end and request.get("status") != 206 and not request.get("sec_stream_attempt"))
+                    row["whole_http_response_complete"] = row["http_response_complete"]
+                    row["target_document_complete"] = bool(verified_body_end and request.get("status") == 200 and request.get("target_document_complete"))
+                    row["body_completion_scope"] = ("verified_four_part_range_assembly" if row.get("range_assembly_verified") is True else
+                                                     "complete_exhibit_at_sgml_closing_markers" if row["target_document_complete"]
                                                      else "whole_http_response" if row["http_response_complete"] else "unproven")
                     if body_verified:
                         canonical = "raw/" + target["target_id"] + suffix
@@ -762,7 +783,7 @@ async def collect_watch_case(target, output, node):
                     "tables_extraction_scope", "pdf_metadata", "document_format", "document_facts",
                     "xlsx_sheets_total", "xlsx_sheets_processed", "explicit_cell_count", "formula_count", "merge_count", "display_complete") if key in verdict})
                 comparison = reference_match(parsed, target["reference"])
-                complete = ((row["http_response_complete"] or row.get("target_document_complete"))
+                complete = ((row["http_response_complete"] or row.get("target_document_complete") or row.get("range_assembly_verified") is True)
                             and verdict.get("accepted") is True and verdict.get("tables_complete") is True
                             and comparison["reference_text_matches"] and comparison["reference_tables_match"]
                             and comparison.get("reference_pages_match", True)
@@ -775,7 +796,7 @@ async def collect_watch_case(target, output, node):
                 if target.get("require_seed_candidate"):
                     complete = (complete and row.get("seed_listing_contains_candidate") is True
                                 and row.get("seed", {}).get("status") == 200
-                                and row.get("seed", {}).get("url") == target["listing_url"])
+                                and row.get("seed_listing_url_matches") is True)
                 if actual_discovery:
                     row["discovery_clock_preserved"] = (capture.get("listing_request_id") == row.get("seed", {}).get("id")
                         and capture.get("discovered_mono_ns") is not None

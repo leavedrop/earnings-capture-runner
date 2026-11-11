@@ -1,7 +1,7 @@
 {
   "watch.py": {
-    "sha256": "975ff93d357fd0572c3a2eb61f6aad829d7756b8075fe5e775a3df1bcfeb2223",
-    "production_sha256": "975ff93d357fd0572c3a2eb61f6aad829d7756b8075fe5e775a3df1bcfeb2223",
+    "sha256": "d789cabf57a906123f68b9a4916dcd2e3e0b376411f2e605d31015b430ef2edf",
+    "production_sha256": "d789cabf57a906123f68b9a4916dcd2e3e0b376411f2e605d31015b430ef2edf",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "watch.py"
   },
@@ -36,8 +36,8 @@
     "source": "sec_stream.py"
   },
   "browser_transport.py": {
-    "sha256": "64977a35dc4a71c3fa89e940f598a1587417930623787f6e7051f7ce690a8885",
-    "production_sha256": "64977a35dc4a71c3fa89e940f598a1587417930623787f6e7051f7ce690a8885",
+    "sha256": "d8a194fbffc8fa821ae6db02df35569991732bf02d1e3e0d3cea6145f5bdfb50",
+    "production_sha256": "d8a194fbffc8fa821ae6db02df35569991732bf02d1e3e0d3cea6145f5bdfb50",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "browser_transport.py"
   },
@@ -54,8 +54,8 @@
     "source": "spreadsheet_tables.py"
   },
   "metrics_pipeline.py": {
-    "sha256": "a661e96a309576aca5a28bd1f2a1f458d1f9d121195d133b333ed9ec8420c7a9",
-    "production_sha256": "a661e96a309576aca5a28bd1f2a1f458d1f9d121195d133b333ed9ec8420c7a9",
+    "sha256": "d1f82ccf357472f60d9657205e037b5c8a37515cad02234aaee329166b96ebbd",
+    "production_sha256": "d1f82ccf357472f60d9657205e037b5c8a37515cad02234aaee329166b96ebbd",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "metrics_pipeline.py"
   },

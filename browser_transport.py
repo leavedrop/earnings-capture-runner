@@ -79,6 +79,7 @@ async def download_kkr_ranges(connections, url, size, wait):
                     content_range=response.headers.get("content-range"),
                     content_length=response.headers.get("content-length"),
                     content_encoding=response.headers.get("content-encoding"),
+                    retry_after=response.headers.get("retry-after"),
                     etag=response.headers.get("etag"), stream_response_ready_mono_ns=time.perf_counter_ns())
                 if (record["status"] != 206
                         or (record["content_range"] or "").strip().lower() != f"bytes {first}-{last}/{size}"

@@ -5,6 +5,7 @@ import argparse
 import asyncio
 import base64
 from collections import deque
+from contextlib import AsyncExitStack
 import copy
 import csv
 import gzip
@@ -246,6 +247,10 @@ class Collector:
         self.http1_session = None
         self.browser_session = None
         self.kkr_public_client = None
+        self.kkr_range_sessions = []
+        self.kkr_range_failures = {}
+        self.kkr_range_last_warm = 0.0
+        self.kkr_range_warm_index = 0
         self.metric_tasks = set()
         self.metrics_pipeline = None
         if getattr(args, "metrics_mode", "off") != "off":
@@ -354,7 +359,9 @@ class Collector:
         extractor = None
         html_parser = None
         html_feed_ns = 0
-        browser = urlsplit(url).hostname in ("investor.msgknicks.com", "www.barrick.com",
+        kkr_range_warmup = (event.get("symbol") == "KKR" and url == KKR_ASSET_PRECONNECT
+                            and purpose == "warmup" and method == "HEAD" and session in self.kkr_range_sessions)
+        browser = kkr_range_warmup or urlsplit(url).hostname in ("investor.msgknicks.com", "www.barrick.com",
                                               "investors.archer.com", "investors.hims.com", "ir.lucidmotors.com", "ir.skydance.com",
                                               "www.franco-nevada.com")
         kkr_api = (event.get("symbol") == "KKR" and urlsplit(url).scheme == "https"
@@ -369,8 +376,11 @@ class Collector:
                                 "Content-Type": "application/json"})
             if browser:
                 from browser_transport import browser_response, browser_timing
-                transfer = browser_response(self.browser_session, method, url, headers, request_json=request_json)
+                transfer = browser_response(session if kkr_range_warmup else self.browser_session,
+                                            method, url, headers, request_json=request_json)
                 record["transport"] = "curl_cffi_chrome"
+                if kkr_range_warmup:
+                    record["kkr_range_connection"] = self.kkr_range_sessions.index(session)
             else:
                 parsed_url = urlsplit(url)
                 kkr_asset = (event.get("symbol") == "KKR" and (is_kkr_report_asset(url)
@@ -495,6 +505,78 @@ class Collector:
             await self.store.add_async("request", record)
         return record, body
 
+    async def fetch_kkr_ranges(self, url, event, channel, expected_bytes):
+        from browser_transport import download_kkr_ranges
+        from progress import range_assembly_complete
+        queued = time.perf_counter_ns()
+        raw_queued, queued_at = self.clock.stamp()
+        clock = self.clock.state.copy()
+        assembled = await download_kkr_ranges(self.kkr_range_sessions, url, expected_bytes,
+            lambda: self.rate.wait(url, "candidate"))
+        parts, body = assembled["parts"], assembled["body"]
+        started = min((part["request_start_mono_ns"] for part in parts
+                       if part["request_start_mono_ns"] is not None), default=queued)
+        first = min((part["first_body_chunk_mono_ns"] for part in parts
+                     if part["first_body_chunk_mono_ns"] is not None), default=None)
+        status = next((part["status"] for part in parts if part["status"] != 206), 206)
+        record = {"id": str(uuid.uuid4()), "run_id": self.run_id, "mode": self.args.command,
+            "symbol": event["symbol"], "channel": channel, "purpose": "candidate", "method": "GET",
+            "url": url, "final_url": url, "node": self.args.node,
+            "route": "configured_proxy" if self.proxy else "direct", "clock": clock,
+            "transport": "curl_cffi_chrome_four_independent_connections", "status": status,
+            "queued_mono_ns": queued, "request_start_mono_ns": started,
+            "request_start_raw_ns": raw_queued + started - queued,
+            "request_start_ns": queued_at + started - queued,
+            "request_start_utc": iso(queued_at + started - queued), "queue_ms": (started-queued)/1e6,
+            "queue_semantics": "until first part starts; later part queues remain inside request_total_ms and range_group_total_ms",
+            "response_headers": {"content-type": parts[0].get("content_type") or "application/pdf",
+                                 "etag": assembled["etag"]},
+            "response_headers_semantics": "selected fields from part 0; no single whole-response header block",
+            "http_version": parts[0].get("http_version"),
+            "http_response_complete": False, "whole_http_response_complete": False,
+            "range_assembly_verified": assembled["verified"], "range_expected_bytes": expected_bytes,
+            "range_parts": parts, "http_request_count": len(parts),
+            "http_failed_request_count": sum(not part["verified"] for part in parts),
+            "body_bytes": len(body), "sha256": hashlib.sha256(body).hexdigest() if body else None,
+            "first_body_byte_mono_ns": first,
+            "first_body_byte_ns": queued_at + first - queued if first is not None else None,
+            "first_body_byte_utc": iso(queued_at + first - queued) if first is not None else None,
+            "first_body_callback_ms": (first-started)/1e6 if first is not None else None,
+            "first_byte_semantics": "earliest application body chunk across four independent HTTP ranges",
+            "body_complete_semantics": "four EOFs, exact contiguous ranges, one strong ETag, ordered assembly and SHA256; not a single whole HTTP response",
+            "timing_basis": "perf_counter_ns durations; UTC mapped from group-start clock snapshot",
+            "_deferred_evidence": True}
+        record["range_assembly_verified"] = range_assembly_complete(record, body)
+        done_mono = time.perf_counter_ns()
+        done = queued_at + done_mono - queued
+        record.update(request_end_mono_ns=done_mono, request_end_ns=done, request_end_utc=iso(done),
+            request_total_ms=(done_mono-started)/1e6, range_group_total_ms=(done_mono-queued)/1e6,
+            body_download_ms=(done_mono-first)/1e6 if first is not None else None,
+            body_complete_mono_ns=done_mono if record["range_assembly_verified"] else None,
+            body_complete_ns=done if record["range_assembly_verified"] else None,
+            body_complete_raw_ns=raw_queued + done_mono - queued if record["range_assembly_verified"] else None,
+            body_complete_utc=iso(done) if record["range_assembly_verified"] else None)
+        if record["range_assembly_verified"]:
+            record["raw_path"] = str(Path("raw") / (record["sha256"] + ".gz"))
+        else:
+            body = b""
+            record.update(error="RangeAssemblyIncomplete", body_bytes=0)
+        for part in parts:
+            if part["status"] in (403, 429):
+                retry = part.get("retry_after") or ""
+                seconds = 120
+                if retry.isdigit():
+                    seconds = max(120, int(retry))
+                else:
+                    try:
+                        from email.utils import parsedate_to_datetime
+                        seconds = max(120, parsedate_to_datetime(retry).timestamp()-time.time())
+                    except (ValueError, TypeError):
+                        pass
+                self.rate.cooldown(url, seconds, path_only=part["status"] == 403)
+                part.update(cooldown_seconds=seconds, cooldown_scope="path" if part["status"] == 403 else "host")
+        return record, body
+
     async def persist_request(self, record, body):
         if record.pop("_deferred_evidence", False):
             await self.store.archive_request_async(record, body)
@@ -519,6 +601,7 @@ class Collector:
     async def candidate(self, session, event, channel, item, discovered_ns, last_negative, depth=0, existing=None,
                         discovered_mono_ns=None, last_negative_mono_ns=None):
         from sources import discover, sec_supporting_title
+        from progress import range_assembly_complete
         url = item["url"]
         document_key = (event["symbol"], channel, url)
         key = (*document_key, bool(item.get("skip_sec_stream")))
@@ -543,7 +626,19 @@ class Collector:
                 stream_index = (self.sec_stream_session is not None and channel == "sec" and not item.get("skip_sec_stream")
                                 and item.get("role") == "filing_index" and item.get("title") in ("8-K", "6-K", "8-K/A", "6-K/A")
                                 and url.endswith(("-index.html", "-index.htm")))
-                if stream_index:
+                range_target = (event["symbol"] == "KKR" and channel == "official"
+                    and item.get("discovery_route") == "official_eqs_event_document"
+                    and is_kkr_report_asset(url) and urlsplit(url).netloc == "ir-api.eqs.com"
+                    and type(item.get("expected_bytes")) is int and item["expected_bytes"] >= 4
+                    and len(self.kkr_range_sessions) == 4 and url not in self.kkr_range_failures)
+                if range_target:
+                    rec, body = await self.fetch_kkr_ranges(url, event, channel, item["expected_bytes"])
+                    rec.update(discovered_ns=discovered_ns, discovered_mono_ns=discovered_mono_ns)
+                    if not rec["range_assembly_verified"]:
+                        self.kkr_range_failures[url] = rec["id"]
+                        await self.persist_request(rec, body)
+                        rec, body = await self.fetch(session, url, event, channel, "candidate", conditional=False)
+                elif stream_index:
                     container_url = url.rsplit("-index.", 1)[0] + ".txt"
                     rec, body = await self.fetch(self.sec_stream_session, container_url, event, channel,
                                                  "candidate", conditional=False, sec_exhibit=True)
@@ -552,11 +647,13 @@ class Collector:
                         rec, body = await self.fetch(session, url, event, channel, "candidate", conditional=False)
                 else:
                     rec, body = await self.fetch(session, url, event, channel, "candidate", conditional=False)
+                if url in self.kkr_range_failures:
+                    rec["range_fallback_request_id"] = self.kkr_range_failures[url]
             else:
                 rec, body = existing[0], existing[1]
             prepared = rec.pop("_html_tree", None)
             parser_options = {"prepared_tree": prepared} if prepared is not None else {}
-            if rec["status"] != 200:
+            if rec["status"] != 200 and not range_assembly_complete(rec, body):
                 self.retry_candidate(session, event, channel, item, discovered_ns, last_negative,
                                      depth, discovered_mono_ns, last_negative_mono_ns)
                 return
@@ -1212,8 +1309,20 @@ class Collector:
                             and epoch(event["window_start"]) <= now <= epoch(event["window_end"])):
                         # The issuer listing uses another origin. Keep the
                         # provider TLS connection ready without reading a report.
-                        await self.fetch(self.sec_stream_session, KKR_ASSET_PRECONNECT, event,
-                                         "official", "warmup", conditional=False, method="HEAD")
+                        if self.kkr_range_sessions:
+                            if (time.monotonic()-self.kkr_range_last_warm >= 20
+                                    and not any(key[0] == "KKR" for key in self.active_candidates)):
+                                # Rotate one connection, never a four-HEAD burst
+                                # while discovery is running. This still shares
+                                # the host budget with any newly arriving report.
+                                connection = self.kkr_range_sessions[self.kkr_range_warm_index]
+                                await self.fetch(connection, KKR_ASSET_PRECONNECT, event,
+                                                 "official", "warmup", conditional=False, method="HEAD")
+                                self.kkr_range_warm_index = (self.kkr_range_warm_index + 1) % 4
+                                self.kkr_range_last_warm = time.monotonic()
+                        else:
+                            await self.fetch(self.sec_stream_session, KKR_ASSET_PRECONNECT, event,
+                                             "official", "warmup", conditional=False, method="HEAD")
             await asyncio.sleep(20)
 
     async def run(self):
@@ -1250,12 +1359,23 @@ class Collector:
                    httpx.AsyncClient(proxy=self.proxy, trust_env=False, follow_redirects=True, http2=False,
                                      max_redirects=5, timeout=httpx.Timeout(12, connect=5),
                                      limits=httpx.Limits(max_connections=16, max_keepalive_connections=16, keepalive_expiry=60)) as http1_session, \
-                   browser_session(proxy=self.proxy) as browser_client:
+                   browser_session(proxy=self.proxy) as browser_client, AsyncExitStack() as range_connections:
             self.sec_stream_session = session
             # Same-runner A/B showed issuer H2 403s and BusinessWire H2 resets.
             # Other origins retain the shared H2 pool.
             self.http1_session = http1_session
             self.browser_session = browser_client
+            kkr = next((event for event in events if event["symbol"] == "KKR"), None)
+            if kkr is not None:
+                self.kkr_range_sessions = [await range_connections.enter_async_context(browser_session(proxy=self.proxy))
+                                           for _ in range(4)]
+                warmups = await asyncio.gather(*(self.fetch(connection, KKR_ASSET_PRECONNECT, kkr,
+                    "official", "warmup", conditional=False, method="HEAD") for connection in self.kkr_range_sessions))
+                self.kkr_range_last_warm = time.monotonic()
+                # Only startup, before any discovery. Post-discovery queues are
+                # never moved outside the candidate's original timing window.
+                latest_start = max(record["request_start_mono_ns"] for record, _ in warmups)
+                await asyncio.sleep(max(0, (latest_start + 1_000_000_000 - time.perf_counter_ns()) / 1e9))
             if self.args.command == "run":
                 from shared_discovery import run_shared_discovery
                 self.launch(run_shared_discovery(self, session, events))
@@ -1292,11 +1412,17 @@ class Collector:
                 seed_record, seed_body = await self.fetch(session, seed["url"], event, channel, "discovery",
                     **({"method": seed["method"], "request_json": seed["request_json"]} if seed.get("method") == "POST" else {}))
                 await self.persist_request(seed_record, seed_body)
+                from sources import discover
+                seed_candidates = (discover(seed_body, seed_record["final_url"],
+                    seed_record["response_headers"].get("content-type", ""), event)
+                    if event["symbol"] == "KKR" and channel == "official" and seed_record["status"] == 200 else [])
+                seed_candidate = next((item for item in seed_candidates if item["url"] == self.args.candidate_url), {})
                 for sample in range(self.args.samples):
                     self.first_discovered.clear()
                     self.candidate_retry.clear()
                     observed_ns = self.clock.stamp()[1]
                     candidate = {"url": self.args.candidate_url, "discovery_route": "replay_existing_public_report_not_new_release",
+                                 **seed_candidate, "listing_request_id": seed_record["id"],
                                  "discovery_timestamp_semantics": "replay_invocation_not_live_discovery"}
                     filing_form = getattr(self.args, "candidate_filing_form", None)
                     if filing_form:
