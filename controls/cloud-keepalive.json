@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
   "owner": "github_actions",
-  "checked_at_utc": "2026-11-11T11:37:07.365866+00:00",
+  "checked_at_utc": "2026-11-11T11:37:49.683746+00:00",
   "dispatch_until_utc": "2026-11-17T13:03:00+08:00",
   "local_sec_rps_budget": 2,
   "total_sec_rps_limit": 10,
   "raw_report_requests": 0,
   "active_probe_run_ids": [],
-  "inventory_state": "manifest_mismatch",
-  "inventory_count": 0,
+  "inventory_state": "verified_hashes",
+  "inventory_count": 104,
   "inventory_refresh": "retained_existing; new documents may be initially_present on the next run",
   "evidence_observations": [
     {
@@ -25,15 +25,15 @@
     },
     {
       "run_id": "42990797977-1",
-      "commit": "77af2c6376e7a44bc1b12df0b753edbf5b80246f",
+      "commit": "34ce381c7f76b792222a648a4723ce0f49a7d3d0",
       "node": {
         "loc": "US",
         "colo": "IAD"
       },
       "state": "running",
-      "updated_utc": "2026-11-11T11:35:25.522+00:00",
-      "collector_heartbeat_utc": "2026-11-11T11:35:13.841837+00:00",
-      "requests": 26602
+      "updated_utc": "2026-11-11T11:37:28.926+00:00",
+      "collector_heartbeat_utc": "2026-11-11T11:37:13.907763+00:00",
+      "requests": 27335
     },
     {
       "run_id": "42987705945-1",
@@ -66,9 +66,9 @@
   ],
   "selected_run_id": "43012713725-1",
   "workflow_state": "healthy_successor_retiring_previous",
-  "updated_utc": "2026-11-11T11:37:11.945233+00:00",
+  "updated_utc": "2026-11-11T11:37:53.654928+00:00",
   "control_mode": "live_supervisor",
-  "caller_live_run_id": "42990797977-1",
+  "caller_live_run_id": "43012713725-1",
   "overlap_sec_rps_budget": 8,
   "handoff_readiness": {
     "ready": true,
@@ -115,15 +115,12 @@
     "previous_run_id": "42990797977-1",
     "successor_run_id": "43012713725-1",
     "successor_first_request_utc": "2026-11-11T11:32:19.865493+00:00",
-    "previous_last_alive_utc": "2026-11-11T11:35:23.898+00:00",
-    "previous_last_heartbeat_utc": "2026-11-11T11:35:13.841837+00:00",
-    "readiness_confirmed_utc": "2026-11-11T11:37:07.365866+00:00",
+    "previous_last_alive_utc": "2026-11-11T11:37:27.350+00:00",
+    "previous_last_heartbeat_utc": "2026-11-11T11:37:13.907763+00:00",
+    "readiness_confirmed_utc": "2026-11-11T11:37:49.683746+00:00",
     "monitoring_gap_ms": 0,
     "timing_basis": "Separate run UTC observations; no cross-run monotonic timing"
   },
   "projected_total_sec_rps": 10,
-  "snapshot_errors": [],
-  "dispatch_blockers": [
-    "inventory_not_verified"
-  ]
+  "snapshot_errors": []
 }
