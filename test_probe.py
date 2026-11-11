@@ -670,6 +670,14 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
             self.assertTrue(row["reference"]["table_sha256"])
 
     def test_coverage_replay_includes_every_configured_metric_company(self):
+        from probe import main
+
+        with patch("sys.argv", ["probe.py", "--scope", "metrics-22-coverage"]), \
+                patch("probe.run", new_callable=AsyncMock, return_value=0) as execute:
+            with self.assertRaises(SystemExit) as exit_result:
+                main()
+        self.assertEqual(exit_result.exception.code, 0)
+        self.assertEqual(execute.call_args.args[0].scope, "metrics-22-coverage")
         rules = json.loads((BASE / "live/earnings_metrics_rules.json").read_text(encoding="utf-8"))
         selected = select_targets([], "metrics-22-coverage")
         assert len(selected) == len(rules["companies"]) == 22
