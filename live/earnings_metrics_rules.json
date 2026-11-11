@@ -1,0 +1,136 @@
+{
+  "companies": [
+    {
+      "symbol": "ONON",
+      "eps_labels": [
+        "Diluted EPS Class A (CHF)",
+        "Adjusted diluted EPS (CHF)"
+      ],
+      "revenue_labels": [
+        "Net sales"
+      ]
+    },
+    {
+      "symbol": "SE",
+      "eps_labels": [
+        "Earnings per share attributable to Sea Limited",
+        "Diluted"
+      ],
+      "revenue_labels": [
+        "Total revenue"
+      ]
+    },
+    {
+      "symbol": "QBTS",
+      "eps_labels": [
+        "Net loss per share, basic and diluted",
+        "Adjusted net loss per share (basic and diluted)"
+      ],
+      "revenue_labels": [
+        "Revenue"
+      ]
+    },
+    {
+      "symbol": "TDG",
+      "eps_labels": [
+        "Earnings per share—Basic and diluted",
+        "Adjusted diluted earnings per share under the two-class method"
+      ],
+      "revenue_labels": [
+        "NET SALES"
+      ]
+    },
+    {
+      "symbol": "MRDN",
+      "eps_labels": [
+        "Net income (loss) per ordinary share",
+        "Net earnings (losses) per ordinary share",
+        "Diluted"
+      ],
+      "revenue_labels": [
+        "Revenues",
+        "Revenue"
+      ]
+    },
+    {
+      "symbol": "NCMI",
+      "eps_labels": [
+        "Loss per share - diluted",
+        "Income (loss) per share - diluted",
+        "Adjusted loss per share - diluted",
+        "Adjusted net loss per share - diluted",
+        "Adjusted income (loss) per share - diluted"
+      ],
+      "revenue_labels": [
+        "REVENUE"
+      ]
+    },
+    {
+      "symbol": "RGTI",
+      "eps_labels": [
+        "GAAP diluted net loss per share",
+        "non-GAAP diluted net loss per share",
+        "GAAP net loss per share",
+        "non-GAAP net loss per share",
+        "Net loss per share attributable to common stockholders – basic and diluted"
+      ],
+      "revenue_labels": [
+        "Revenue"
+      ]
+    },
+    {
+      "symbol": "GIB",
+      "eps_labels": [
+        "Diluted EPS",
+        "Adjusted diluted EPS"
+      ],
+      "revenue_labels": [
+        "Revenue"
+      ]
+    },
+    {
+      "symbol": "FNV",
+      "eps_labels": [
+        "Earnings per share",
+        "Adjusted Net Income per share"
+      ],
+      "revenue_labels": [
+        "Total revenue"
+      ]
+    },
+    {
+      "symbol": "BN",
+      "eps_labels": [
+        "Diluted earnings per share",
+        "Distributable earnings",
+        "Per Brookfield share"
+      ],
+      "revenue_labels": [
+        "Revenues"
+      ]
+    },
+    {
+      "symbol": "NBIS",
+      "eps_labels": [
+        "Net income / (loss) from continuing operations",
+        "per Class A and Class B share",
+        "Diluted"
+      ],
+      "revenue_labels": [
+        "Revenues"
+      ]
+    },
+    {
+      "symbol": "CSCO",
+      "eps_labels": [
+        "EPS",
+        "GAAP EPS",
+        "Non-GAAP EPS"
+      ],
+      "revenue_labels": [
+        "Total revenue",
+        "Revenue"
+      ]
+    }
+  ]
+}

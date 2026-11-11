@@ -265,6 +265,18 @@ class Collector:
         self.sec_stream_session = None
         self.browser_session = None
         self.kkr_public_client = None
+        self.metric_tasks = set()
+        self.metrics_pipeline = None
+        if getattr(args, "metrics_mode", "off") != "off":
+            try:
+                from metrics_pipeline import MetricsPipeline
+                self.metrics_pipeline = MetricsPipeline(self.store, self.run_id, mode=args.metrics_mode,
+                    rules_path=getattr(args, "metrics_rules", None),
+                    forecasts_path=getattr(args, "metrics_forecasts", None))
+            except Exception as exc:
+                self.store.add("metric_extraction", {"run_id": self.run_id, "mode": args.command,
+                    "status": "configuration_error", "error_type": type(exc).__name__,
+                    "error_reason": str(exc), "exchange_submitted": False})
 
     async def kkr_authorization(self, session, event, record):
         """Reproduce the issuer's public browser client; retain keys only in memory."""
@@ -711,6 +723,11 @@ class Collector:
                     self.store.add("capture", captured)
                 finally:
                     self.archive_tasks.discard(archive_task)
+                if self.metrics_pipeline is not None:
+                    metric_task = self.launch(self.metrics_pipeline.process_capture(
+                        body, document_url, event, result, captured))
+                    self.metric_tasks.add(metric_task)
+                    metric_task.add_done_callback(self.metric_tasks.discard)
                 self.candidate_retry[key] = float("inf")
                 self.captured_documents.add((event["symbol"], channel, document_url))
                 self.completed.add((event["symbol"], channel))
@@ -782,6 +799,12 @@ class Collector:
         task.add_done_callback(self.child_tasks.discard)
         return task
 
+    async def finish_metrics(self):
+        while self.metric_tasks:
+            await asyncio.gather(*list(self.metric_tasks))
+        if self.metrics_pipeline is not None:
+            self.metrics_pipeline.close()
+
     def retry_candidate(self, session, event, channel, item, discovered_ns, last_negative, depth,
                         discovered_mono_ns, last_negative_mono_ns):
         if self.args.command != "run":
@@ -829,6 +852,7 @@ class Collector:
         last_sha = None
         found = None
         last_listing_basis = None
+        last_complete_listing = None
         preflight_done = False
         while not self.stop.is_set():
             now = self.clock.stamp()[1]/1e9
@@ -862,7 +886,8 @@ class Collector:
                                           "status": rec["status"], "error": rec.get("error"), "url": url,
                                           "last_request_utc": rec["request_start_utc"], "total_ms": rec["request_total_ms"],
                                           "configured_poll_interval_seconds": interval}
-                if rec["status"] in (200, 304):
+                if (rec["status"] == 200 and rec.get("http_response_complete") is not False
+                        or rec["status"] == 304 and rec.get("reused_sha256")):
                     digest = rec.get("sha256") or rec.get("reused_sha256")
                     ctype = rec.get("response_headers", {}).get("content-type") or self.cache.get(url, {}).get("content_type", "")
                     seen_at = rec["body_complete_ns"]
@@ -878,8 +903,11 @@ class Collector:
                     # sharing this request's observation metadata with older tasks.
                     for item in (found if channel == "sec" else found[:20]):
                         item = {**item, "listing_request_id": rec["id"]}
-                        self.launch(self.candidate(session, event, channel, item, seen_at, previous_negative,
-                                                   discovered_mono_ns=rec["body_complete_mono_ns"], last_negative_mono_ns=previous_negative_mono))
+                        item_negative, item_negative_mono = previous_negative, previous_negative_mono
+                        if last_complete_listing is not None and item["url"] not in last_complete_listing[0]:
+                            item_negative, item_negative_mono = last_complete_listing[1:3]
+                        self.launch(self.candidate(session, event, channel, item, seen_at, item_negative,
+                                                   discovered_mono_ns=rec["body_complete_mono_ns"], last_negative_mono_ns=item_negative_mono))
                     is_report = False
                     if digest != last_sha:
                         last_sha = digest
@@ -907,6 +935,15 @@ class Collector:
                         last_negative_mono = rec["body_complete_mono_ns"]
                     elif basis is None:
                         self.status[status_key].update(state="source_error", error="unreadable_listing")
+                    if (last_listing_basis is not None and last_listing_basis != "Validated permanent financial report"
+                            and (rec["status"] == 200 or last_complete_listing is not None
+                                 and digest == last_complete_listing[3])):
+                        # Existing EX-99 links do not prevent this complete list
+                        # from proving a later 10-Q URL was still absent. Commit
+                        # only after dispatch, never using this positive response
+                        # as its own prior absence evidence.
+                        last_complete_listing = ({item["url"] for item in found}, seen_at,
+                                                 rec["body_complete_mono_ns"], digest)
                     if not once and now < start:
                         self.status[status_key].update(state="scheduled", window_start=event["window_start"])
             except Exception as exc:
@@ -1108,6 +1145,8 @@ class Collector:
         await asyncio.to_thread(self.clock.calibrate)
         self.store.add("clock", self.clock.state)
         self.store.add("run_start", {"run_id": self.run_id, "node": self.args.node,
+                                    "metrics_pipeline_mode": self.metrics_pipeline.mode if self.metrics_pipeline else "off",
+                                    "metrics_rules_sha256": self.metrics_pipeline.rules_sha256 if self.metrics_pipeline else None,
                                     "proxy_endpoint": urlsplit(self.proxy).netloc if self.proxy else None,
                                     "pid": os.getpid(), "until": self.args.until,
                                     "code_sha256": {name: hashlib.sha256((BASE/name).read_bytes()).hexdigest()
@@ -1164,6 +1203,7 @@ class Collector:
                                          observed_ns, None, discovered_mono_ns=time.perf_counter_ns())
                     await asyncio.sleep(1)
                 self.summary()
+                await self.finish_metrics()
                 self.store.add("run_end", {"run_id": self.run_id, "replay_only": True})
                 return
             if self.args.command == "run":
@@ -1180,13 +1220,15 @@ class Collector:
             else:
                 maintain = asyncio.create_task(self.maintenance())
                 await self.stop.wait()
-                cancellable = [task for task in self.child_tasks if task not in self.archive_tasks]
+                cancellable = [task for task in self.child_tasks
+                               if task not in self.archive_tasks and task not in self.metric_tasks]
                 for task in tasks + cancellable + [maintain]:
                     task.cancel()
                 await asyncio.gather(*tasks, *cancellable, maintain, return_exceptions=True)
                 while self.archive_tasks:
                     await asyncio.gather(*list(self.archive_tasks))
                 self.summary()
+        await self.finish_metrics()
         self.store.add("run_end", {"run_id": self.run_id})
 
 
@@ -1226,6 +1268,10 @@ def main():
     parser.add_argument("--node", default="windows-workstation-via-user-US-proxy")
     parser.add_argument("--until", default="2026-11-13T13:03:00+08:00")
     parser.add_argument("--user-agent", default=os.environ.get("SEC_USER_AGENT", "EarningsWatch/1.0 automated-public-filings-research"))
+    parser.add_argument("--metrics-mode", choices=["off", "synthetic", "forecasts"], default="off",
+                        help="Optional local post-capture comparison; never places exchange orders")
+    parser.add_argument("--metrics-rules", type=Path, help="Explicit local metric-rule JSON; no example forecasts are loaded")
+    parser.add_argument("--metrics-forecasts", type=Path, help="Explicit forecast contract JSON for forecasts mode")
     args = parser.parse_args()
     Path(args.output).mkdir(parents=True, exist_ok=True)
     logging.basicConfig(handlers=[RotatingFileHandler(Path(args.output)/"service.log", maxBytes=5_000_000,

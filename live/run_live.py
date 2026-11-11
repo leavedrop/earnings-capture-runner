@@ -133,6 +133,11 @@ def snapshot(runtime, checkout, metadata, cached):
             connection.execute("PRAGMA query_only=ON")
             starts = {json.loads(payload)["run_id"]: datetime.fromtimestamp(at / 1e9, timezone.utc)
                       for at, payload in connection.execute("select at_ns,payload from log where kind='run_start'")}
+            initialized = connection.execute("select payload from log where kind='run_start' order by id desc limit 1").fetchone()
+            if initialized:
+                initialization = json.loads(initialized[0])
+                metadata["metrics_pipeline_mode"] = initialization.get("metrics_pipeline_mode", "off")
+                metadata["metrics_rules_sha256"] = initialization.get("metrics_rules_sha256")
             for ident, payload in connection.execute("select id,payload from log where kind='capture' order by id"):
                 if ident in cached:
                     continue
@@ -197,6 +202,15 @@ def snapshot(runtime, checkout, metadata, cached):
                                       "bytes": len(body), "kind": source.suffix[1:]})
                 row.update(evidence_id=metadata["run_id"] + ":" + str(ident), artifacts=artifacts)
                 cached[cache_key] = row
+            from metrics_pipeline import public_synthetic_extraction
+            for ident, payload in connection.execute("select id,payload from log where kind='metric_extraction' order by id"):
+                cache_key = ("metric_extraction", ident)
+                if cache_key in cached:
+                    continue
+                row = public_synthetic_extraction(json.loads(payload))
+                if row is not None:
+                    row["evidence_id"] = metadata["run_id"] + ":" + str(ident)
+                    cached[cache_key] = row
             groups = connection.execute("""
                 select symbol,channel,json_extract(payload,'$.status'),
                     case when json_extract(payload,'$.status') is null then
@@ -226,12 +240,14 @@ def snapshot(runtime, checkout, metadata, cached):
             "captures": [row for key, row in cached.items() if isinstance(key, int)],
             "capture_count": sum(isinstance(key, int) for key in cached),
             "attachments": [row for key, row in cached.items() if isinstance(key, tuple) and key[0] == "attachment"],
+            "metric_extractions": [row for key, row in cached.items() if isinstance(key, tuple) and key[0] == "metric_extraction"],
             "source_patrols": progress.source_patrols(status, "US live runner"),
             "handoff_sources": readiness,
             "request_failures": {"requests": requests, "failed_requests": failed_requests},
             "failure_groups": failures,
             "publication_scope": "Public documents and safe fields; no raw database, headers or private identity",
-            "timing_scope": "Discovery to full parse; CI startup and evidence publication are outside this duration"}
+            "timing_scope": "Discovery to full parse; CI startup and evidence publication are outside this duration",
+            "metrics_timing_scope": "Same-process discovery through full parse and joint EPS/revenue simulation decision; no exchange submission"}
     write_public(checkout / "latest.json", data)
     write_public(checkout / "runs" / metadata["run_id"] / "latest.json", data)
     return data
@@ -330,6 +346,7 @@ def main():
     parser.add_argument("--symbols", default="")
     parser.add_argument("--handoff-slot", type=int, choices=(0, 1), default=0)
     parser.add_argument("--sec-rps", type=int, choices=(2, 4), default=2)
+    parser.add_argument("--metrics-mode", choices=("off", "synthetic"), default="off")
     parser.add_argument("--output", type=Path, default=BASE / "outputs")
     args = parser.parse_args()
     if not 1 <= args.duration_minutes <= 300:
@@ -371,6 +388,7 @@ def main():
         metadata = {"run_id": run_id, "node": node, "started_utc": started.isoformat(),
                     "until_utc": until.isoformat(), "hard_stop_utc": hard_stop.isoformat(), "state": "starting", "mode": "live",
                     "handoff_slot": args.handoff_slot, "sec_rps": args.sec_rps, "symbols": args.symbols,
+                    "metrics_mode": args.metrics_mode,
                     "handoff_control_version": 1,
                     "evidence_branch": "evidence-" + run_id,
                     "source_sha256": hashes, "startup_gap_semantics": "Monitoring starts only after the collector's first actual source request"}
@@ -392,7 +410,10 @@ def main():
         command = [sys.executable, str(BASE / "watch.py"), "run", "--manifest", str(BASE / "watchlist.json"),
                    "--output", str(runtime), "--symbols", args.symbols,
                    "--node", "github-actions-" + node["loc"] + "-" + node["colo"] + "-" + run_id,
-                   "--sec-rps", str(args.sec_rps), "--until", hard_stop.isoformat()]
+                   "--sec-rps", str(args.sec_rps), "--until", hard_stop.isoformat(),
+                   "--metrics-mode", args.metrics_mode]
+        if args.metrics_mode == "synthetic":
+            command.extend(["--metrics-rules", str(BASE / "earnings_metrics_rules.json")])
         with (runtime / "launcher.log").open("w", encoding="utf-8") as log:
             process = subprocess.Popen(command, env=child_env, cwd=BASE, stdout=log, stderr=log)
             last_publish, last_count, last_control = 0., -1, 0.

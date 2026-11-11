@@ -1075,6 +1075,10 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
             elif event.get("symbol") == "LCID" and parsed_url.hostname == "ir.lucidmotors.com" and parsed_url.path.startswith("/static-files/"):
                 from pdf_tables import extract_lcid_pdf_tables
                 native_pdf = extract_lcid_pdf_tables(body, event)
+            elif event.get("symbol") == "SE" and parsed_url.hostname == "cdn.sea.com" and parsed_url.path.startswith("/investor/"):
+                from pdf_tables import extract_se_pdf_tables
+                with _PDF_LOCK:
+                    native_pdf = extract_se_pdf_tables(body, event)
             elif event.get("symbol") == "SKYD" and url == SKYD_PDF_URL:
                 from pdf_tables import extract_skyd_pdf_tables
                 native_pdf = extract_skyd_pdf_tables(body)

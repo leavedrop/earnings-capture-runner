@@ -22,6 +22,11 @@ on:
         default: '2'
         type: choice
         options: ['2', '4']
+      metrics_mode:
+        description: Extract and compare with labelled synthetic forecasts; no exchange orders
+        default: synthetic
+        type: choice
+        options: ['off', 'synthetic']
 
 permissions:
   contents: write
@@ -53,8 +58,9 @@ jobs:
           WATCH_SYMBOLS: ${{ inputs.symbols }}
           HANDOFF_SLOT: ${{ inputs.handoff_slot }}
           SEC_RPS: ${{ inputs.sec_rps }}
+          METRICS_MODE: ${{ inputs.metrics_mode }}
           PYTHONUNBUFFERED: '1'
-        run: python live/run_live.py --duration-minutes "$DURATION_MINUTES" --symbols "$WATCH_SYMBOLS" --handoff-slot "$HANDOFF_SLOT" --sec-rps "$SEC_RPS" --output live/outputs
+        run: python live/run_live.py --duration-minutes "$DURATION_MINUTES" --symbols "$WATCH_SYMBOLS" --handoff-slot "$HANDOFF_SLOT" --sec-rps "$SEC_RPS" --metrics-mode "$METRICS_MODE" --output live/outputs
       - name: Preserve the final safe snapshot
         if: always()
         uses: actions/upload-artifact@v4

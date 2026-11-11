@@ -610,6 +610,10 @@ def read_us_runner(root):
                     if record.get("symbol") == "LCID" and parsed.get("tables_extraction_scope") == "lcid_native_tagged_cells_and_geometry":
                         structure_keys = ("all_pages_extracted", "native_layout", "all_native_cells_preserved",
                                           "table_words_preserved", "numeric_tokens_preserved", "column_associations_verified")
+                    if record.get("symbol") == "SE" and parsed.get("tables_extraction_scope") == "sea_native_tagged_cells_and_geometry":
+                        structure_keys = ("all_pages_extracted", "native_layout", "all_native_cells_preserved",
+                                          "table_words_preserved", "all_table_area_words_assigned",
+                                          "numeric_tokens_preserved", "column_associations_verified")
                     if record.get("symbol") == "SKYD":
                         structure_keys = ("all_pages_extracted", "native_layout", "table_words_preserved",
                                           "numeric_tokens_preserved", "column_associations_verified")

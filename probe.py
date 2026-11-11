@@ -103,6 +103,15 @@ async def identify_node(client):
 
 
 def select_targets(targets, scope):
+    if scope == "metrics-production":
+        references = json.loads((BASE / "remaining_references.json").read_text(encoding="utf-8"))
+        events = {event["symbol"]: event for event in json.loads((BASE / "live/watchlist.json").read_text(encoding="utf-8"))}
+        return [{"target_id": symbol + "_metrics_full_chain", "channel": "official" if symbol == "SE" else "sec",
+                 "url": references[symbol + "_METRICS_PRODUCTION"]["url"],
+                 "reference": references[symbol + "_METRICS_PRODUCTION"],
+                 "event": events[symbol], "cache_profile": "ordinary", "pipeline": "production_watch_list_seed",
+                 "metrics_mode": "synthetic", "require_raw_reference_match": True}
+                for symbol in ("ONON", "SE", "TDG", "MRDN")]
     if scope == "kkr-complete":
         return [target for target in select_targets(targets, "backlog-production") if target["event"]["symbol"] == "KKR"]
     if scope == "skyd-complete":
@@ -565,6 +574,9 @@ async def collect_watch_case(target, output, node):
                        "--output", str(runtime), "--symbols", target["event"]["symbol"], "--channel", target["channel"],
                        "--samples", "1",
                        "--node", "github-actions-" + str(node.get("loc")) + "-" + str(node.get("colo"))]
+            if target.get("metrics_mode") == "synthetic":
+                command.extend(["--metrics-mode", "synthetic", "--metrics-rules",
+                                str(BASE / "live/earnings_metrics_rules.json")])
             discovery_event = target["event"]
             if actual_discovery:
                 discovery_event = next(event for event in json.loads((BASE / "live/watchlist.json").read_text(encoding="utf-8"))
@@ -593,6 +605,7 @@ async def collect_watch_case(target, output, node):
             try:
                 requests = [json.loads(payload) for (payload,) in connection.execute("select payload from log where kind='request' order by id")]
                 captures = [json.loads(payload) for (payload,) in connection.execute("select payload from log where kind='capture' order by id")]
+                metric_records = [json.loads(payload) for (payload,) in connection.execute("select payload from log where kind='metric_extraction' order by id")]
             finally:
                 connection.close()
             public_requests = []
@@ -687,6 +700,17 @@ async def collect_watch_case(target, output, node):
                 (output / name).write_text(json.dumps(parsed, ensure_ascii=False), encoding="utf-8")
                 row["artifacts"].append(name)
                 row["archived"] = True
+                if target.get("metrics_mode") == "synthetic":
+                    sys.path.insert(0, str(BASE / "live"))
+                    from metrics_pipeline import public_synthetic_extraction
+                    public_metrics = [safe for record in metric_records
+                        if record.get("document_hash") == capture["sha256"]
+                        and (safe := public_synthetic_extraction(record)) is not None]
+                    row["metric_extractions"] = public_metrics
+                    row["metrics_pipeline_completed"] = bool(public_metrics) and all(
+                        record.get("status") == "completed" for record in public_metrics)
+                    if not row["metrics_pipeline_completed"]:
+                        row["error_type"] = "metrics_pipeline_not_completed"
             else:
                 row["error_type"] = "HTTP_" + str(row["status"]) if row["status"] is not None else "production_capture_missing"
     except Exception as exc:
@@ -884,6 +908,12 @@ async def run(args):
     for name, entry in source_manifest.items():
         if digest((BASE / name).read_bytes()) != entry["sha256"]:
             raise ValueError("Parser source hash mismatch: " + name)
+    collector_sources = None
+    if any(target.get("pipeline") == "production_watch_list_seed" for target in targets):
+        collector_sources = json.loads((BASE / "live/source_manifest.json").read_text(encoding="utf-8"))
+        for name, entry in collector_sources.items():
+            if digest((BASE / "live" / name).read_bytes()) != entry["sha256"]:
+                raise ValueError("Collector source hash mismatch: " + name)
     args.output.mkdir(parents=True, exist_ok=False)
     for name in ("raw", "parsed"):
         (args.output / name).mkdir()
@@ -913,10 +943,15 @@ async def run(args):
                     "execution_environment": execution_hardware(),
                     "node_semantics": "Cloudflare loc/colo identify observed egress country/responding edge, not the runner data-center",
                     "started_utc": utc(), "parser_sources": source_manifest,
+                    "collector_sources": collector_sources,
                     "pdf_pool": warmup, "target_document_preparsed": False, "targets": len(targets),
                     "requests_per_second": {"parent_direct_sec": 2 if args.scope == "b-sec-transports" else 8,
                                              "production_child_sec": 2, "other_hosts_shared": 4},
                     "transport_policy": {"businesswire.com": "HTTP/1.1 persistent client after observed HTTP/2 StreamReset error_code=2", "msgk-issuer-cold": "HTTP/1.1 cold client matching the production official collector", "default": "HTTP/2 enabled"}}
+        if args.scope == "metrics-production":
+            metadata["requests_per_second"]["parent_direct_sec"] = 0
+            metadata["metrics_mode"] = "synthetic"
+            metadata["decision_budget_ms"] = 500
         if args.scope == "skyd-http1-material":
             metadata["transport_policy"]["default"] = "Chrome HTTP/1.1 forced before listing warmup"
         if material_scope:
@@ -1036,14 +1071,14 @@ async def run(args):
     (args.output / "summary.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     if material_scope:
         return 0 if metadata["material_downloaded"] == (1 if args.scope in ("skyd-range", "skyd-http1-material") else 2) and node.get("loc") == "US" and node.get("is_us") is True and metadata.get("actual_target_protocols_match_profiles", True) else 1
-    return 0 if results and all(row["complete"] and row["archived"] for row in results) and not metadata.get("comparison_stopped") and not metadata.get("skipped_targets_after_warmup") else 1
+    return 0 if results and all(row["complete"] and row["archived"] and not row.get("error_type") for row in results) and not metadata.get("comparison_stopped") and not metadata.get("skipped_targets_after_warmup") else 1
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "backlog-production", "kkr-complete", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports", "skyd-materials", "skyd-range", "skyd-http1-material", "skyd-complete", "bw-browser-access", "bw-browser-http1-access"), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "backlog-production", "kkr-complete", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports", "skyd-materials", "skyd-range", "skyd-http1-material", "skyd-complete", "bw-browser-access", "bw-browser-http1-access", "metrics-production"), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 

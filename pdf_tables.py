@@ -1504,3 +1504,209 @@ def extract_lcid_pdf_tables(body: bytes, event: dict | None = None) -> dict:
             "pdf_structure_checks": checks, "structure_errors": errors,
             "parse_ms": (time.perf_counter_ns() - started) / 1e6,
             "pool_startup_ms": warmup["elapsed_ms"], "pool_created": warmup["created"], "worker_batches": batches}
+
+
+_SE_TAGGED_SHAPES = ((3, 36), (4, 10), (5, 10), (6, 6), (11, 19),
+                     (12, 56), (13, 27), (14, 26), (15, 16), (16, 12),
+                     (17, 16), (18, 16), (18, 8))
+
+
+def _se_place_cells(rows):
+    # Word omits ColSpan on these centered period headings. Currency headings
+    # independently identify the centers of the underlying numeric columns.
+    width = max((sum(cell["colspan"] for cell in row) for row in rows), default=0)
+    centers = collections.defaultdict(list)
+    currency_rows = []
+    for row_index, row in enumerate(rows):
+        if sum(cell["colspan"] for cell in row) != width:
+            continue
+        column = 0
+        for cell in row:
+            if cell["text"] == "$" and cell["bbox"] and cell["colspan"] == 1:
+                centers[column].append((cell["bbox"][0] + cell["bbox"][2]) / 2)
+                currency_rows.append(row_index)
+            column += cell["colspan"]
+    anchors = {column: statistics.median(values) for column, values in centers.items()}
+    for row in rows:
+        missing = width - sum(cell["colspan"] for cell in row)
+        if not missing:
+            continue
+        column, candidates = 0, []
+        for cell in row:
+            last = column + cell["colspan"] + missing - 1
+            if cell["text"] and cell["bbox"] and column in anchors and last in anchors:
+                observed = (cell["bbox"][0] + cell["bbox"][2]) / 2
+                expected = (anchors[column] + anchors[last]) / 2
+                if abs(observed - expected) <= 2.5:
+                    candidates.append((cell, column, last, observed, expected))
+            column += cell["colspan"]
+        if len(candidates) == 1:
+            cell, first, last, observed, expected = candidates[0]
+            cell["native_colspan"] = cell["colspan"]
+            cell["colspan"] += missing
+            cell["span_inference"] = {"reason": "centered_header_over_native_currency_columns",
+                                      "first_column": first, "last_column": last,
+                                      "header_center": observed, "column_group_center": expected}
+    cells, width, inferred, errors = _lcid_place_cells(rows)
+    amounts = collections.defaultdict(list)
+    first_currency_row = min(currency_rows, default=len(rows))
+    for cell in cells:
+        if (cell["column"] and cell["row"] > first_currency_row and cell.get("bbox")
+                and _SKYD_VALUE.fullmatch(cell["text"])):
+            amounts[cell["column"]].append(cell)
+    for column, column_cells in amounts.items():
+        edge = statistics.median(cell["bbox"][2] for cell in column_cells)
+        for cell in column_cells:
+            tolerance = (cell["bbox"][3] - cell["bbox"][1]) / 2
+            if abs(cell["bbox"][2] - edge) > tolerance:
+                errors.append({"row": cell["row"], "column": column, "source_xref": cell["source_xref"],
+                               "reason": "numeric_cell_disagrees_with_native_column_right_edge"})
+    return cells, width, inferred, errors
+
+
+def extract_se_pdf_tables(body: bytes, event: dict | None = None) -> dict:
+    """Read Sea's native table cells, never cut paragraphs into guessed grids.
+
+    The document's structure tree owns table membership and merged cells. The
+    rendered native spans supply every character and its page coordinates.
+    Audited layout counts are guards, not cached financial values or page crops.
+    """
+    started = time.perf_counter_ns()
+    texts, details, diagnostics, errors, objects = [], [], [], [], {}
+    with fitz.open(stream=body, filetype="pdf") as document:
+        count, metadata = len(document), dict(document.metadata)
+        root_type, root_value = document.xref_get_key(document.pdf_catalog(), "StructTreeRoot")
+        root = int(root_value.split()[0]) if root_type == "xref" else None
+
+        def node(xref):
+            if xref not in objects:
+                raw = document.xref_object(xref, compressed=True)
+                role, kids, attr = _LCID_ROLE.search(raw), _LCID_K.search(raw), _LCID_ATTR.search(raw)
+                attrs = attr[1] if attr else ""
+                if _LCID_REFS.fullmatch(attrs):
+                    attrs = document.xref_object(int(attrs.split()[0]), compressed=True)
+                row_span, col_span = re.search(r"/RowSpan\s+(\d+)", attrs), re.search(r"/ColSpan\s+(\d+)", attrs)
+                objects[xref] = {"role": role[1] if role else "", "kids": [int(x) for x in _LCID_REFS.findall(kids[1])] if kids else [],
+                                 "has_content": bool(kids and kids[1] != "[]"),
+                                 "rowspan": int(row_span[1]) if row_span else 1,
+                                 "colspan": int(col_span[1]) if col_span else 1}
+            return objects[xref]
+
+        def structure(xref):
+            current = node(xref)
+            yield xref, current["role"]
+            for child in current["kids"]:
+                yield from structure(child)
+
+        def table_blocks(blocks, path=()):
+            for block in blocks:
+                if block["type"] == 2:
+                    own_path = (*path, block["index"])
+                    if block["raw"] == "Table":
+                        yield block, own_path
+                    else:
+                        yield from table_blocks(block.get("blocks", []), own_path)
+
+        native_roles = dict(structure(root)) if root is not None else {}
+        native_tables = {xref for xref, role in native_roles.items() if role == "Table"}
+        native_cells = {xref for xref, role in native_roles.items() if role in ("TH", "TD")}
+        for page in document:
+            # Tagged reading order splits list bullets into separate blocks.
+            # Keep the complete ordinary page text exactly as originally read.
+            text = page.get_text()
+            textpage = page.get_textpage(flags=fitz.TEXTFLAGS_TEXT | fitz.TEXT_COLLECT_STRUCTURE)
+            texts.append(text)
+            tagged = textpage.extractDICT()
+            page_spans = [span for line in _lcid_cell_lines(tagged) for span in line["spans"] if span["text"].strip()]
+            page_tables = 0
+            for block, path in table_blocks(tagged["blocks"]):
+                table_ref = root
+                for child_index in path:
+                    table_ref = node(table_ref)["kids"][child_index]
+                if node(table_ref)["role"] != "Table":
+                    errors.append({"page": page.number + 1, "reason": "native_table_role_mismatch"})
+                sections = {child["index"]: child for child in block.get("blocks", []) if child["type"] == 2}
+                rows = []
+                source_text = [span["text"] for line in _lcid_cell_lines(block) for span in line["spans"]]
+                for section_index, section_ref in enumerate(node(table_ref)["kids"]):
+                    section = node(section_ref)
+                    if section["role"] not in ("THead", "TBody", "TFoot"):
+                        errors.append({"page": page.number + 1, "reason": "unknown_table_section"})
+                    rendered_rows = {child["index"]: child for child in sections.get(section_index, {}).get("blocks", []) if child["type"] == 2}
+                    for row_index, row_ref in enumerate(section["kids"]):
+                        row_node = node(row_ref)
+                        if row_node["role"] != "TR":
+                            errors.append({"source_xref": row_ref, "reason": "unknown_table_row"})
+                        rendered_cells = {child["index"]: child for child in rendered_rows.get(row_index, {}).get("blocks", []) if child["type"] == 2}
+                        row = []
+                        for cell_index, cell_ref in enumerate(row_node["kids"]):
+                            cell_node, rendered = node(cell_ref), rendered_cells.get(cell_index)
+                            if cell_node["role"] not in ("TH", "TD") or rendered and rendered["raw"] != cell_node["role"]:
+                                errors.append({"source_xref": cell_ref, "reason": "native_cell_role_mismatch"})
+                            lines = _lcid_cell_lines(rendered) if rendered else []
+                            if cell_node["has_content"] and not rendered:
+                                errors.append({"source_xref": cell_ref, "reason": "unresolved_native_cell_content"})
+                            bbox = ([min(line["bbox"][0] for line in lines), min(line["bbox"][1] for line in lines),
+                                     max(line["bbox"][2] for line in lines), max(line["bbox"][3] for line in lines)] if lines else None)
+                            row.append({"page": page.number + 1, "source_xref": cell_ref, "native_index": cell_index,
+                                        "role": cell_node["role"], "text": "\n".join("".join(span["text"] for span in line["spans"]) for line in lines).strip(),
+                                        "bbox": bbox, "rowspan": cell_node["rowspan"], "colspan": cell_node["colspan"],
+                                        "source_spans": [{"text": span["text"], "origin": span["origin"], "bbox": span["bbox"]}
+                                                         for line in lines for span in line["spans"]]})
+                        rows.append(row)
+                cells, width, inferred, grid_errors = _se_place_cells(rows)
+                output_text = [span["text"] for row in rows for cell in row for span in cell["source_spans"]]
+                matrix = [[""] * width for _ in rows]
+                for cell in cells:
+                    if cell["row"] < len(matrix) and cell["column"] < width:
+                        matrix[cell["row"]][cell["column"]] = cell["text"]
+                boxes = [cell["bbox"] for cell in cells if cell.get("bbox")]
+                bounds = ([min(box[0] for box in boxes), min(box[1] for box in boxes),
+                           max(box[2] for box in boxes), max(box[3] for box in boxes)] if boxes else None)
+                span_key = lambda span: (span["text"], tuple(span["bbox"]))
+                assigned_spans = collections.Counter(span_key(span) for cell in cells
+                    for span in cell.get("source_spans", []) if span["text"].strip())
+                area_spans = collections.Counter(span_key(span) for span in page_spans if bounds
+                    and bounds[0] - .1 <= (span["bbox"][0] + span["bbox"][2]) / 2 <= bounds[2] + .1
+                    and bounds[1] - .1 <= (span["bbox"][1] + span["bbox"][3]) / 2 <= bounds[3] + .1)
+                details.append({"page": page.number + 1, "source_xref": table_ref, "rows": matrix, "cells": cells,
+                                "bbox": bounds, "unassigned_table_area_spans": list((area_spans - assigned_spans).elements()),
+                                "native_rows": len(rows), "native_cells": sum(len(row) for row in rows), "columns": width,
+                                "inferred_blank_cells": inferred, "layout_errors": grid_errors,
+                                "word_tokens_preserved": source_text == output_text,
+                                "numeric_tokens_preserved": _NUMBER.findall(" ".join(source_text)) == _NUMBER.findall(" ".join(output_text)),
+                                "source_word_count": len(" ".join(source_text).split()),
+                                "numeric_tokens": len(_NUMBER.findall(" ".join(source_text))),
+                                "column_associations_verified": not grid_errors})
+                page_tables += 1
+            diagnostics.append({"page": page.number + 1, "text_extracted": True, "text_chars": len(text),
+                                "text_sha256": hashlib.sha256(text.encode()).hexdigest(), "tables": page_tables,
+                                "method": "native_tagged_textpage"})
+    emitted_tables = [table["source_xref"] for table in details]
+    emitted_cells = [cell["source_xref"] for table in details for cell in table["cells"] if "source_xref" in cell]
+    checks = {"all_pages_extracted": count == len(texts) == len(diagnostics) == 18 and all(text.strip() for text in texts),
+              "native_layout": metadata.get("producer") == "Microsoft® Word for Microsoft 365"
+                  and tuple((table["page"], table["native_rows"]) for table in details) == _SE_TAGGED_SHAPES,
+              "all_native_cells_preserved": not errors and len(native_tables) == len(emitted_tables) == 13
+                  and set(emitted_tables) == native_tables and len(native_cells) == len(emitted_cells) == 1084
+                  and set(emitted_cells) == native_cells,
+              "table_words_preserved": bool(details) and all(table["word_tokens_preserved"] for table in details),
+              "all_table_area_words_assigned": bool(details) and all(not table["unassigned_table_area_spans"] for table in details),
+              "numeric_tokens_preserved": bool(details) and all(table["numeric_tokens_preserved"] for table in details),
+              "column_associations_verified": bool(details) and all(table["column_associations_verified"] for table in details)}
+    tables, spans = [], []
+    for table in details:
+        rows = [[] for _ in range(table["native_rows"])]
+        for cell in sorted(table["cells"], key=lambda item: (item["row"], item["column"])):
+            rows[cell["row"]].append(cell)
+        tables.append([[cell["text"] for cell in row] for row in rows])
+        spans.append([[[cell["rowspan"], cell["colspan"]] for cell in row] for row in rows])
+    verified = all(checks.values())
+    return {"text": "\n".join(texts), "pages": texts, "tables": tables, "table_spans": spans,
+            "table_details": details, "page_diagnostics": diagnostics, "pdf_metadata": metadata,
+            "pdf_pages_total": count, "pdf_pages_processed": len(texts), "pdf_pages_text_extracted": len(texts),
+            "tables_extraction_scope": "sea_native_tagged_cells_and_geometry", "tables_complete": verified,
+            "quality_reason": "sea_native_cells_spans_and_columns_verified" if verified else
+                "sea_native_quality_failed:" + ",".join(key for key, value in checks.items() if not value),
+            "pdf_structure_checks": checks, "structure_errors": errors,
+            "parse_ms": (time.perf_counter_ns() - started) / 1e6}

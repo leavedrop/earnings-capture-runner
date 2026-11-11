@@ -21,6 +21,7 @@ on:
           - repaired-paths
           - backlog-production
           - kkr-complete
+          - metrics-production
           - sec-quarterly
           - lcid-http-protocols
           - lcid-chrome-protocols
