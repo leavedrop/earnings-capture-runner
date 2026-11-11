@@ -133,6 +133,14 @@ def _trusted_issuer_url(url, event):
                for source in event.get("sources", []))
 
 
+def is_kkr_report_asset(url):
+    parsed = urlparse(url)
+    return parsed.scheme == "https" and (
+        parsed.netloc == "ir.kkr.com" and parsed.path.startswith("/media/document/")
+        or parsed.netloc == "ir-api.eqs.com" and re.fullmatch(
+            r"/storage/ir/be2d8b/documents/[0-9a-f-]{36}/[A-Za-z0-9_.-]+\.pdf", parsed.path, re.I) is not None)
+
+
 def _identity(text, event, url=None):
     normal = _normal(text)
     aliases = [event.get("company", ""), *event.get("aliases", [])]
@@ -634,6 +642,11 @@ def discover(body: bytes, url: str, content_type: str, event: dict) -> list[dict
                             or _ANNOUNCEMENT.search(title)):
                         continue
                     target = "https://ir.kkr.com" + path
+                    storage = document.get("storageUrl") or ""
+                    direct = "https://ir-api.eqs.com/storage" + storage
+                    if (document.get("fileName") == storage.lstrip("/")
+                            and is_kkr_report_asset(direct)):
+                        target = direct
                     if target not in seen:
                         seen.add(target)
                         found.append(_candidate(target, "KKR " + title, identity_verified=True,
@@ -1128,7 +1141,7 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
                 from pdf_tables import extract_bam_pdf_tables
                 with _PDF_LOCK:
                     native_pdf = extract_bam_pdf_tables(body, event)
-            elif event.get("symbol") == "KKR" and parsed_url.hostname == "ir.kkr.com" and parsed_url.path.startswith("/media/document/"):
+            elif event.get("symbol") == "KKR" and is_kkr_report_asset(url):
                 from pdf_tables import extract_kkr_pdf_tables
                 with _PDF_LOCK:
                     native_pdf = extract_kkr_pdf_tables(body)
@@ -1259,7 +1272,7 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
         checks["tables_complete"] = native_pdf["tables_complete"]
     publisher_pdf_needs_review = (pdf and native_pdf is None and (
         event.get("symbol") == "BAM" and parsed_url.hostname in ("globenewswire.com", "www.globenewswire.com", "pnr-files.pro1.gus.wdc.dianum.io")
-        or event.get("symbol") == "KKR" and parsed_url.hostname == "ir.kkr.com" and parsed_url.path.startswith("/media/document/")
+        or event.get("symbol") == "KKR" and is_kkr_report_asset(url)
         or event.get("symbol") == "NBIS" and parsed_url.hostname == "assets.nebius.com"))
     if publisher_pdf_needs_review:
         # This publisher's untagged PDF has no native cell rectangles. The

@@ -1,14 +1,14 @@
 {
   "sources.py": {
     "source": "earnings_watch/sources.py",
-    "sha256": "d0534cd52eefe5d404c144fa242b380ab2ed4769d5814665cc3a89c85df71e85",
-    "source_sha256": "a45bdda986b5dd96f7daf387b3fe8116f80a96500f8045b6505893b19931647b",
+    "sha256": "c21353d31bdc6c00ecd2992c1596824b9531333fc5a77d6cc57be341bc56d609",
+    "source_sha256": "30a4b695cff35c8c8a4210d1eb826a0c18e79755e0992ca5ab83386c40d8bd6e",
     "normalization": "UTF-8 LF; code unchanged"
   },
   "pdf_tables.py": {
     "source": "earnings_watch/pdf_tables.py",
-    "sha256": "9b030dda1f8dccc21d4171957a0105449c29a7dcf164cb9721595ef72281ff39",
-    "source_sha256": "dd3bbe7d6c1773d27260917d6a3b1b89671e0b2bca03d7aa4fcd14243272c0bd",
+    "sha256": "c784aa5e3471cd5ebdfb5613f0f5cd2de134caef70c1826139c445ec5a0626bb",
+    "source_sha256": "71bfa3a07beb31d0aeca0b815be53a56ddefeda5b035712dbb4a1c4b30af130c",
     "normalization": "UTF-8 LF; code unchanged"
   },
   "browser_transport.py": {

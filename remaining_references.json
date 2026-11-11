@@ -5527,5 +5527,61 @@
       "all_tables_and_spans_exact": true,
       "established_before_next_measurement": true
     }
+  },
+  "KKR_CURRENT_STORAGE_METRICS_PRODUCTION": {
+    "url": "https://ir-api.eqs.com/storage/ir/be2d8b/documents/39297093-8255-4c8f-aae0-597950d1d2e8/KKR_Q326_Earnings_Release.pdf",
+    "channel": "official",
+    "raw_sha256": "eabec44a62861ce8e4f75f3a62b7b2b0ec48cb7cf808449acbedec66a2617e52",
+    "text_sha256": "95d1ef1713b51cb798c6a874be9e0b31e46998f007dd3c6e8aecce86fa7e0afb",
+    "table_sha256": [
+      "f889c1d114ca7d81d582ce7a787bcf26569c7bd21eb8de6c664bae259539369f",
+      "371f3f8540ae5990a1520141eb694133496603cf1e40aee9e74a4e5398b215e7",
+      "8a8d48cce101d87499c6a898244ff8483a9bbaa7390dc475045dbabc101c0f33",
+      "b43002247e9c602199f1b57a73d74a3821a3a059ca3b1be504349ea43cd132d6",
+      "8e9a88310aa33cb35bb4000620c8027fe5895e6bfc1341614e5898a00a4bcf8c",
+      "a62e46cbd4a00db4af7ebc2ce2095291c67631ef8ed2109e2216fc3ecb740c40",
+      "f9c19e69290bb8d3450d61cd9f95b5fd1f460c0b498ac16e5b3584ffe8913a44",
+      "8b6ddd3a5a7799314cbbb66fd3733c896413121e1854a682d08d5660a18eb009",
+      "c60395c2a44385733b022c4a30be33dad20b72704eba672e4effb6e048c6e642",
+      "9bc4dd1ab29ddb95566b6c1589f4415e720f08d728150c94fb482a5b1ce52b2d",
+      "4f5366bf185ede9c9125b272966741ee44ebd1262af519fac8d1ceecd4759352",
+      "b376bb05f2ce88b55e5791733c824ef1d09c3c3b07d27688f3e7cb1c3bf8e62b",
+      "5b44dc396656eba98e292d4e6e178267c9a956dbffa23a5aeba7e43c0a715b80",
+      "b1a17a1f71fc838938d8e9b03722f39a610de1030e1db74d38bac34e0d0d5aeb",
+      "dbdde45ac3c3a010d8db79fe409094f0e8f269cbf53cc4a0958c62040e3e75c3",
+      "7245fa05ba2f2c2ca111e7ece76ef87f01d9161397c1c9b546cae354c54cf599",
+      "83ba6e0a23e9dbeb7e9f48c4bda5b5bef2fd919e6992e41567a29c9d6a49b5bd",
+      "9e7e9f16c372aa406034dce020f60476af8a18d8e3e8bb8baacadf49bdd66d5e",
+      "f2876840e5133365cff4b3af26fd4d7be68b75731528aa2902dab1b5000fed16",
+      "a359198e421f95fa4ca39e9546fd83bb395f038a0d4f835ba4a351c808008763",
+      "a367d74e62901ae00c0f4777225acf24ddb21da1a2a8ba776a6f9b5d24e20326",
+      "74212bb4dd195d0cbc1a6c66f4963d4850ea3469c8d2bd8ea08e575e7ed251b6",
+      "c8b0399801b0276cd2ef3c2152f5c2e89baf19370d80431f15748880a44367d0",
+      "df0b513b2bc26745347a294a2fa6c01f5b75acba44ab8229e44cf68f057c7107",
+      "c32e7bc93f570cbe818ffdb93204bb0663f36eded05fe54915d0549617f4d36b",
+      "747181521d5c9180cf6c43143933d751633f8b1d48fef701033891f6d8422376",
+      "ac8502e3a720330a65331ea353bf34328c486b2d51e3c2c33d4cc768b111fb3e",
+      "6bb7ca18e61be9e16103ce326ec9489974c9442f7599b78bbc266ae5da2af556"
+    ],
+    "structure_sha256": "2c6b150e143fac5443eaf898a3fd017c60726aa379dd967520961e0f5f41472f",
+    "pdf_pages_total": 49,
+    "event_override": {
+      "fiscal_year": 2026,
+      "quarter": 3,
+      "period_start": "2026-07-01",
+      "period_end": "2026-09-30"
+    },
+    "document_version": "current_original_issuer_pdf",
+    "require_raw_reference_match": true,
+    "reference_scope": "Complete original 49-page PDF through the official EQS storage alias. All raw/text/table/page/native-geometry references remain bound to the independently archived original issuer PDF. Full SHA256 must match; no excerpt or precomputed metric result.",
+    "reference_provenance": {
+      "capture_id": "b9194843-5750-47dd-b9f6-36e1481d4b2d",
+      "body_complete_utc": "2026-11-09T13:17:39.607941+00:00",
+      "full_49_page_image_exhibit_crosscheck": true,
+      "official_api_storageUrl": "/ir/be2d8b/documents/39297093-8255-4c8f-aae0-597950d1d2e8/KKR_Q326_Earnings_Release.pdf",
+      "public_provider_storage_base_evidence": "https://ir-api.eqs.com/storage/ir/a7afba/tools/4a1d5dca-7881-4367-a888-c68162e0fe46/index.js",
+      "storage_body_prefetched_to_build_reference": false
+    },
+    "canonical_issuer_url": "https://ir.kkr.com/media/document/39297093-8255-4c8f-aae0-597950d1d2e8/assets/KKR_Q326_Earnings_Release.pdf"
   }
 }

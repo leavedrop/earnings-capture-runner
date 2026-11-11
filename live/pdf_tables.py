@@ -337,6 +337,8 @@ def _compact_rows(rows, xs, cells):
     width = len(xs)-1
     owners = list(range(width))
     for col in range(1, width-1):
+        if xs[col+1]-xs[col] >= 12:
+            continue
         values = [str(row[col] or "").strip() for row in rows]
         has_currency = "$" in values
         spanning_header = any(c["column"] == col and c["colspan"] > 1 and c["text"] for c in cells)

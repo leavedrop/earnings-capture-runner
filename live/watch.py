@@ -25,6 +25,7 @@ from urllib.parse import urlsplit, urljoin
 import uuid
 
 import httpx
+from sources import is_kkr_report_asset
 
 BASE = Path(__file__).resolve().parent
 UTC = timezone.utc
@@ -391,11 +392,10 @@ class Collector:
                 record["transport"] = "curl_cffi_chrome"
             else:
                 parsed_url = urlsplit(url)
-                kkr_asset = (event.get("symbol") == "KKR" and parsed_url.scheme == "https"
-                             and parsed_url.netloc == "ir.kkr.com" and (
-                                 parsed_url.path.startswith("/media/document/") and parsed_url.path.lower().endswith(".pdf")
-                                 or purpose == "warmup" and method == "HEAD"
-                                 and parsed_url.path in ("", "/") and not parsed_url.query))
+                kkr_asset = (event.get("symbol") == "KKR" and (is_kkr_report_asset(url)
+                             or parsed_url.scheme == "https" and parsed_url.netloc == "ir.kkr.com"
+                             and purpose == "warmup" and method == "HEAD"
+                             and parsed_url.path in ("", "/") and not parsed_url.query))
                 archive_session = (self.sec_stream_session if self.sec_stream_session is not None
                                    and (parsed_url.hostname == "www.sec.gov"
                                         and parsed_url.path.startswith("/Archives/") or kkr_asset) else session)
