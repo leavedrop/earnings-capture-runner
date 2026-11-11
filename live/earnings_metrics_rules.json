@@ -58,6 +58,8 @@
     },
     {
       "symbol": "NCMI",
+      "currency": "USD",
+      "currency_source": "provided_company_rule",
       "eps_labels": [
         "Loss per share - diluted",
         "Income (loss) per share - diluted",
@@ -71,6 +73,8 @@
     },
     {
       "symbol": "RGTI",
+      "currency": "USD",
+      "currency_source": "provided_company_rule",
       "eps_labels": [
         "GAAP diluted net loss per share",
         "non-GAAP diluted net loss per share",
@@ -207,6 +211,8 @@
     },
     {
       "symbol": "ARMK",
+      "currency": "USD",
+      "currency_source": "provided_company_rule",
       "eps_labels": [
         "Earnings per share attributable to Aramark stockholders",
         "Adjusted Earnings Per Share"
@@ -219,6 +225,8 @@
     },
     {
       "symbol": "TSN",
+      "currency": "USD",
+      "currency_source": "provided_company_rule",
       "eps_labels": [
         "Net Income Per Share Attributable to Tyson",
         "Adjusted Net Income Per Share Attributable to Tyson"
@@ -231,6 +239,8 @@
     },
     {
       "symbol": "ACM",
+      "currency": "USD",
+      "currency_source": "provided_company_rule",
       "eps_labels": [
         "EPS (Fully Diluted)",
         "Adjusted net (loss) income",
@@ -246,6 +256,8 @@
     },
     {
       "symbol": "INFQ",
+      "currency": "USD",
+      "currency_source": "provided_company_rule",
       "eps_labels": [
         "Net loss per share attributable to common stockholders",
         "basic and diluted"
@@ -258,6 +270,8 @@
     },
     {
       "symbol": "STEM",
+      "currency": "USD",
+      "currency_source": "provided_company_rule",
       "eps_labels": [
         "Net loss per share attributable to common stockholders, diluted",
         "basic and diluted",

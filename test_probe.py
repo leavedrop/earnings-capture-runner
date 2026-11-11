@@ -669,6 +669,16 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
             self.assertIn("table_spans_sha256", row["reference"])
             self.assertTrue(row["reference"]["table_sha256"])
 
+    def test_coverage_replay_includes_every_configured_metric_company(self):
+        rules = json.loads((BASE / "live/earnings_metrics_rules.json").read_text(encoding="utf-8"))
+        selected = select_targets([], "metrics-22-coverage")
+        assert len(selected) == len(rules["companies"]) == 22
+        assert {row["event"]["symbol"] for row in selected} == {row["symbol"] for row in rules["companies"]}
+        assert all(row["metrics_mode"] == "synthetic" and row["pipeline"] == "production_watch_list_seed" for row in selected)
+        nbis = next(row for row in selected if row["event"]["symbol"] == "NBIS")
+        assert nbis["channel"] == "sec" and nbis["reference"]["uses_same_quarter_alternate"]
+        assert all(row["reference"].get("table_spans_sha256") for row in selected)
+
     def target(self):
         return {"target_id": "TEST_official", "channel": "official", "url": "https://example.com/report",
                 "event": {"symbol": "TEST", "company": "Example Corporation", "aliases": ["Example Corporation"],

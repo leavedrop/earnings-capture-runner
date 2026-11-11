@@ -16,6 +16,9 @@ import uuid
 from metric_comparison import compare_metrics, load_forecasts, simulate_joint_signal, synthetic_forecasts
 
 
+PROCESS_CLOCK_ID = str(uuid.uuid4())
+
+
 def utc():
     return datetime.now(timezone.utc).isoformat(timespec="microseconds")
 
@@ -144,7 +147,8 @@ class MetricsPipeline:
         delivered = time.perf_counter_ns()
         delivered_utc = utc()
         result["timings_ms"]["delivery_queue"] = (delivered-result["ended_mono_ns"])/1e6
-        result.update(ended_mono_ns=delivered, ended_at_utc=delivered_utc)
+        result.update(ended_mono_ns=delivered, ended_at_utc=delivered_utc,
+                      producer_clock_id=PROCESS_CLOCK_ID)
         result["timings_ms"]["pipeline"] = (delivered-queued)/1e6
         if result.get("decision_computed_mono_ns") is not None:
             result.update(decision_completed_mono_ns=delivered, decision_completed_at_utc=delivered_utc)

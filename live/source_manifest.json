@@ -6,14 +6,14 @@
     "source": "watch.py"
   },
   "sources.py": {
-    "sha256": "577bb0b92e2277e591687363c6e2e2100e99b657595329eee6ed806d98dd0755",
-    "production_sha256": "2e38c4369f991a9c4f5facf3e7fdffc896b15e53e93af102f30eb6f44f1d3966",
+    "sha256": "f6d7ab296d4505584a68367ff343afd88cc35ae40801859561ab8833a4ac08e1",
+    "production_sha256": "c2803ffc78a8c51397a576aa2db5be9118b129f434e9c9d00e115501e6236be9",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "sources.py"
   },
   "pdf_tables.py": {
-    "sha256": "877c26f797055fe6df6381ecf57e8946af5b4e0aaedcc8e768ae4e05ba46b3f3",
-    "production_sha256": "6df9f2f965ee388eca476adfefcf112af17b446c7273412cfb7d9a6f8287e973",
+    "sha256": "7b13593714364f05e5703231e065d498f4375334dc4a3d7610f1d017875a48a6",
+    "production_sha256": "1cbc2cd3362953791b0ce0304e831dde7ad09adec1f82527f93297cc61affe01",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "pdf_tables.py"
   },
@@ -42,8 +42,8 @@
     "source": "browser_transport.py"
   },
   "watchlist.json": {
-    "sha256": "df385e504d0ea7cd4159764e287a243bcc55c01ecac8afa1959de5f207550af8",
-    "production_sha256": "073b81233c82bab39a08b5492efab149a5f942190410ae21d4dd356fe1c1b899",
+    "sha256": "e2f8cbfc51a00e21fa2a906c8641bf69a44eeebf70574b9d0b5e9bed54b8cab4",
+    "production_sha256": "107b2bce16ff825e72a200e081a2b8a7727cfa2c0ab84a10a5fb58517ca32ef4",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "watchlist.json"
   },
@@ -54,8 +54,8 @@
     "source": "spreadsheet_tables.py"
   },
   "metrics_pipeline.py": {
-    "sha256": "bd3eb93a22af227ad1974cd58edd1c5fa2472939b90501956561f3f4dd9456e0",
-    "production_sha256": "bd3eb93a22af227ad1974cd58edd1c5fa2472939b90501956561f3f4dd9456e0",
+    "sha256": "51f38f9be336b630caea7b2c5018659dd49ecfd4b03a659eaec37b3cd23f8911",
+    "production_sha256": "51f38f9be336b630caea7b2c5018659dd49ecfd4b03a659eaec37b3cd23f8911",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "metrics_pipeline.py"
   },
@@ -66,14 +66,14 @@
     "source": "metric_comparison.py"
   },
   "earnings_metrics.py": {
-    "sha256": "5f11ef10f4fa4583011e2e3e61ff91ec63c65e7edfea8c3c5d08f5e38d96d35c",
-    "production_sha256": "5f11ef10f4fa4583011e2e3e61ff91ec63c65e7edfea8c3c5d08f5e38d96d35c",
+    "sha256": "8b0ae9c7f2e3b7ed004c0a1df8bcf2d6168b06a1f513673c7130648add74e920",
+    "production_sha256": "8b0ae9c7f2e3b7ed004c0a1df8bcf2d6168b06a1f513673c7130648add74e920",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "earnings_metrics.py"
   },
   "earnings_metrics_rules.json": {
-    "sha256": "66bf01c916758bd99816937e7dddd5918637069a5b14d4625a365d89a6707154",
-    "production_sha256": "c60221d32ae9b1e5f3b1bc5a33fb6909c93653109637e2851b7ec3f5265458b3",
+    "sha256": "f6ead662d27475ece7c3c43f1e8080110d04d9ee3cc6b0e46a9e7ac22c2a34f9",
+    "production_sha256": "689c9cff227d4f4672b6a7dc315b5db09abd4102adc99beab1d3ee2cb18d10e5",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "earnings_metrics_rules.json"
   }

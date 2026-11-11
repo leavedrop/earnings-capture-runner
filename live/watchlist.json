@@ -1517,7 +1517,8 @@
     "symbol": "ONON",
     "company": "On Holding",
     "aliases": [
-      "On Holding"
+      "On Holding",
+      "On"
     ],
     "fiscal_year": 2026,
     "quarter": 3,
@@ -2924,22 +2925,42 @@
     "sources": [
       {
         "channel": "official",
-        "url": "https://ir.tyson.com/news/default.aspx",
-        "kind": "html",
+        "url": "https://ir.tyson.com/rss/pressrelease.aspx",
+        "kind": "rss",
         "original_url": "https://ir.tyson.com/news/default.aspx",
-        "note": "Public discovery entry checked once; request failures and unproven parsing are retained. Full report and first-release latency are not established by this check.",
-        "verification": "http_403_unavailable",
-        "last_status_code": 403,
+        "note": "Issuer RSS directory publicly links this press-release feed. The replaced HTML listing returned 403; that failure remains in prior_discovery_evidence. Local reachability and parser verification do not establish US live availability or release latency.",
+        "verification": "verified_public_discovery_structure",
+        "last_status_code": 200,
         "verification_evidence": {
-          "status": 403,
-          "completed_utc": "2026-11-11T02:58:26.597255+00:00",
-          "sha256": "3cb53f51aae369326af6186ad239f2cc3092a4bc189e8b33ae31ba750b24f814",
-          "bytes": 5528,
-          "content_type": "text/html; charset=UTF-8",
-          "listing_structure": null,
-          "discovery_structure_valid": null,
+          "status": 200,
+          "completed_utc": "2026-11-11T04:02:50.253081+00:00",
+          "sha256": "cf67e9a70e3817a014b9d54b17215b4ecbed86350fe47e2febc2fb51e27987d6",
+          "bytes": 3635,
+          "content_type": "text/xml; charset=utf-8",
+          "listing_structure": "Parsed public feed with titled entry links",
+          "discovery_structure_valid": true,
           "scope": "discovery_entry_only_not_full_report_or_first_release",
-          "execution": "local_machine_via_existing_task_proxy"
+          "execution": "local_machine_existing_task_proxy_17821",
+          "public_navigation_url": "https://ir.tyson.com/resources/rss-feeds/default.aspx",
+          "current_quarter_candidate_present": false,
+          "previous_quarter_candidate_parsed": true
+        },
+        "replaced_discovery_url": "https://ir.tyson.com/news/default.aspx",
+        "prior_discovery_evidence": {
+          "url": "https://ir.tyson.com/news/default.aspx",
+          "verification": "http_403_unavailable",
+          "last_status_code": 403,
+          "verification_evidence": {
+            "status": 403,
+            "completed_utc": "2026-11-11T02:58:26.597255+00:00",
+            "sha256": "3cb53f51aae369326af6186ad239f2cc3092a4bc189e8b33ae31ba750b24f814",
+            "bytes": 5528,
+            "content_type": "text/html; charset=UTF-8",
+            "listing_structure": null,
+            "discovery_structure_valid": null,
+            "scope": "discovery_entry_only_not_full_report_or_first_release",
+            "execution": "local_machine_via_existing_task_proxy"
+          }
         }
       },
       {

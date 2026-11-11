@@ -24,6 +24,7 @@ on:
           - metrics-production
           - metrics-alternate-sources
           - metrics-exchange-targets
+          - metrics-22-coverage
           - sec-quarterly
           - lcid-http-protocols
           - lcid-chrome-protocols

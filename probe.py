@@ -30,7 +30,7 @@ from sources import discover, validate
 BASE = Path(__file__).resolve().parent
 HEADERS = {"User-Agent": "EarningsWatch/1.0 automated-public-filings-research",
            "Accept": "*/*", "Cache-Control": "no-cache"}
-METRICS_SCOPES = ("metrics-production", "metrics-alternate-sources", "metrics-exchange-targets")
+METRICS_SCOPES = ("metrics-production", "metrics-alternate-sources", "metrics-exchange-targets", "metrics-22-coverage")
 
 
 def utc():
@@ -114,6 +114,10 @@ def select_targets(targets, scope):
         if scope == "metrics-exchange-targets":
             cases = [(symbol, references[symbol + "_EXCHANGE_METRICS_PRODUCTION"]["channel"],
                       symbol + "_EXCHANGE_METRICS_PRODUCTION") for symbol in ("CSCO", "NBIS", "CBRS")]
+        if scope == "metrics-22-coverage":
+            rules = json.loads((BASE / "live/earnings_metrics_rules.json").read_text(encoding="utf-8"))
+            cases = [(row["symbol"], references[row["symbol"] + "_COVERAGE_METRICS_PRODUCTION"]["channel"],
+                      row["symbol"] + "_COVERAGE_METRICS_PRODUCTION") for row in rules["companies"]]
         return [{"target_id": key.replace("_METRICS_PRODUCTION", "") + "_metrics_full_chain", "channel": channel,
                  "url": references[key]["url"],
                  "reference": references[key],

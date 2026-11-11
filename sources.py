@@ -89,6 +89,29 @@ def _quarter_without_year(title, event):
     return quarter == int(event["quarter"])
 
 
+def _current_quarter_table(tables, table_spans, event):
+    from earnings_metrics import _grid, _label, _period_groups, _YEAR
+
+    for rows, spans in zip(tables, table_spans):
+        if not _financial_table(rows):
+            continue
+        anchors, occupied = _grid(rows, spans)
+        for index in range(len(rows)):
+            if not _label(rows, index)[1] or not _period_groups(anchors, occupied, index, event):
+                continue
+            for header in reversed(anchors[:index]):
+                years = [int(found[0].replace(" ", "")) for cell in header
+                         if len(found := _YEAR.findall(cell["value"])) == 1]
+                if len(years) < 2:
+                    continue
+                fiscal = any(re.fullmatch(r"Q[1-4](?:-F|\s+(?:FY\s*)?)20\d{2}", cell["value"], re.I)
+                             for cell in header)
+                if max(years) == (int(event["fiscal_year"]) if fiscal else int(event["period_end"][:4])):
+                    return True
+                break
+    return False
+
+
 def _date_in_release_window(day, event):
     if not event.get("window_start") or not event.get("window_end"):
         return False
@@ -101,7 +124,7 @@ def _date_in_release_window(day, event):
 def _trusted_issuer_url(url, event):
     parsed = urlparse(url or "")
     hostname = (parsed.hostname or "").lower()
-    if hostname.endswith("sec.gov") and event.get("cik"):
+    if (hostname == "sec.gov" or hostname.endswith(".sec.gov")) and event.get("cik"):
         match = re.search(r"/Archives/edgar/data/(\d+)/", parsed.path)
         if match and int(match[1]) == int(event["cik"]):
             return True
@@ -134,7 +157,7 @@ def _url(base, href):
     parsed = urlparse(result)
     if parsed.scheme not in ("https", "http"):
         return None
-    if parsed.hostname and parsed.hostname.endswith("sec.gov"):
+    if parsed.hostname and (parsed.hostname == "sec.gov" or parsed.hostname.endswith(".sec.gov")):
         doc = parse_qs(parsed.query).get("doc")
         if doc:
             result = urljoin("https://www.sec.gov", doc[0])
@@ -363,7 +386,7 @@ def _sec_report_facts(tree, url, event):
     period_end = None
     for pattern in ("%B %d, %Y", "%Y-%m-%d"):
         try:
-            period_end = datetime.strptime(facts["DocumentPeriodEndDate"], pattern).date().isoformat()
+            period_end = datetime.strptime(facts["DocumentPeriodEndDate"].replace(" ,", ","), pattern).date().isoformat()
             break
         except ValueError:
             pass
@@ -1083,6 +1106,10 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
                 from pdf_tables import extract_se_pdf_tables
                 with _PDF_LOCK:
                     native_pdf = extract_se_pdf_tables(body, event)
+            elif event.get("symbol") == "GIB" and _trusted_issuer_url(url, event):
+                from pdf_tables import extract_gib_pdf_tables
+                with _PDF_LOCK:
+                    native_pdf = extract_gib_pdf_tables(body, event)
             elif event.get("symbol") == "SKYD" and url == SKYD_PDF_URL:
                 from pdf_tables import extract_skyd_pdf_tables
                 native_pdf = extract_skyd_pdf_tables(body)
@@ -1171,6 +1198,10 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
     if period_date and (not explicit_quarter or _target(title, event) or _quarter_without_year(title, event)) and (
             not title_years or str(event["fiscal_year"]) in title_years):
         current_period = True
+    if (not current_period and not pdf and cover is None and _trusted_issuer_url(url, event)
+            and (not explicit_quarter or _target(title, event) or _quarter_without_year(title, event))
+            and (not title_years or str(event["fiscal_year"]) in title_years)):
+        current_period = _current_quarter_table(tables, table_spans, event)
     announcement = bool(_ANNOUNCEMENT.search(title or lead[:400]))
     body_metrics = _METRICS.finditer(text)
     checks = {
