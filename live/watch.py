@@ -30,6 +30,8 @@ from sources import is_kkr_report_asset
 from observation_store import Store
 
 KKR_ASSET_PRECONNECT = "https://ir-api.eqs.com/storage/ir/a7afba/tools/4a1d5dca-7881-4367-a888-c68162e0fe46/index.js"
+HTTP1_ISSUER_HOSTS = frozenset({"investors.sohu.com", "investor.xenon-pharma.com",
+    "transdigmgroupinc.gcs-web.com", "investors.rigetti.com", "investors.cerebras.ai", "humana.gcs-web.com"})
 
 BASE = Path(__file__).resolve().parent
 UTC = timezone.utc
@@ -153,7 +155,7 @@ class RateLimit:
         try:
             while True:
                 async with self.locks.setdefault(key, asyncio.Lock()):
-                    now = time.monotonic()
+                    now = time.perf_counter()
                     recent = self.recent.setdefault(key, deque())
                     while recent and recent[0] <= now-1:
                         recent.popleft()
@@ -209,7 +211,7 @@ class RateLimit:
         blocks = self.blocked_paths if path_only else self.blocked
         if path_only:
             key = (key, urlsplit(url).path or "/")
-        blocks[key] = max(blocks.get(key, 0), time.monotonic() + seconds)
+        blocks[key] = max(blocks.get(key, 0), time.perf_counter() + seconds)
         self._notify(self.key(url))
 
 
@@ -241,7 +243,7 @@ class Collector:
         self.archive_tasks = set()
         self.stop = asyncio.Event()
         self.sec_stream_session = None
-        self.businesswire_session = None
+        self.http1_session = None
         self.browser_session = None
         self.kkr_public_client = None
         self.metric_tasks = set()
@@ -379,8 +381,9 @@ class Collector:
                 archive_session = (self.sec_stream_session if self.sec_stream_session is not None
                                    and (parsed_url.hostname == "www.sec.gov"
                                         and parsed_url.path.startswith("/Archives/") or kkr_asset) else session)
-                if self.businesswire_session is not None and RateLimit.key(url) == "businesswire.com":
-                    archive_session = self.businesswire_session
+                if self.http1_session is not None and (RateLimit.key(url) == "businesswire.com"
+                                                       or parsed_url.hostname in HTTP1_ISSUER_HOSTS):
+                    archive_session = self.http1_session
                 transfer = archive_session.stream(method, url, headers=headers, extensions={"trace": trace},
                                           **({"json": request_json} if request_json is not None else {}),
                                           **({"follow_redirects": False} if kkr_api else {}))
@@ -1223,7 +1226,8 @@ class Collector:
                                                 "proxy_tls_leak_fix": "httpcore_1.0.9_process_local_cleanup",
                                                 "http2_enabled": True, "max_connections": 128,
                                                 "max_keepalive_connections": 128,
-                                                "businesswire_transport": "persistent_HTTP_1_1_after_observed_H2_resets"})
+                                                "businesswire_transport": "persistent_HTTP_1_1_after_observed_H2_resets",
+                                                "http1_issuer_hosts_after_observed_H2_403": sorted(HTTP1_ISSUER_HOSTS)})
         await asyncio.to_thread(self.clock.calibrate)
         await self.store.add_async("clock", self.clock.state)
         await self.store.add_async("run_start", {"run_id": self.run_id, "node": self.args.node,
@@ -1245,12 +1249,12 @@ class Collector:
                                      limits=httpx.Limits(max_connections=128, max_keepalive_connections=128, keepalive_expiry=60)) as session, \
                    httpx.AsyncClient(proxy=self.proxy, trust_env=False, follow_redirects=True, http2=False,
                                      max_redirects=5, timeout=httpx.Timeout(12, connect=5),
-                                     limits=httpx.Limits(max_connections=4, max_keepalive_connections=4, keepalive_expiry=60)) as businesswire_session, \
+                                     limits=httpx.Limits(max_connections=16, max_keepalive_connections=16, keepalive_expiry=60)) as http1_session, \
                    browser_session(proxy=self.proxy) as browser_client:
             self.sec_stream_session = session
-            # This host previously reset negotiated H2 streams. Other origins
-            # use the shared H2 pool; the known host retains persistent H1.
-            self.businesswire_session = businesswire_session
+            # Same-runner A/B showed issuer H2 403s and BusinessWire H2 resets.
+            # Other origins retain the shared H2 pool.
+            self.http1_session = http1_session
             self.browser_session = browser_client
             if self.args.command == "run":
                 from shared_discovery import run_shared_discovery

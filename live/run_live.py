@@ -262,6 +262,14 @@ def snapshot(runtime, checkout, metadata, cached):
             "metric_extractions": [row for key, row in cached.items() if isinstance(key, tuple) and key[0] == "metric_extraction"],
             "source_patrols": progress.source_patrols(status, "US live runner"),
             "handoff_sources": readiness,
+            "shared_discovery": {key: {
+                **{field: state[field] for field in ("provider", "ready", "gap", "gap_count", "status",
+                    "last_success_utc", "interval_seconds", "entry_count", "overlap_count", "fallback_required",
+                    "last_request_id") if field in state},
+                "key": key, "url": progress.public_url(state.get("url")), "generation": state.get("fallback_generation")}
+                for key, state in status.get("shared_discovery", {}).items()},
+            "background_errors": [{key: error[key] for key in ("error_type", "observed_utc") if key in error}
+                                  for error in status.get("background_errors", [])],
             "request_failures": {"requests": requests, "failed_requests": failed_requests, "assembly_failures": assembly_failures},
             "failure_groups": failures,
             "publication_scope": "Public documents and safe fields; no raw database, headers or private identity",
