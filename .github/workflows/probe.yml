@@ -27,6 +27,7 @@ on:
           - metrics-22-coverage
           - metrics-unresolved-paths
           - metrics-ncmi-issuer
+          - metrics-all-supported
           - sec-quarterly
           - lcid-http-protocols
           - lcid-chrome-protocols

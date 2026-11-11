@@ -694,7 +694,7 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
     def test_coverage_replay_includes_every_configured_metric_company(self):
         from probe import main
 
-        for scope in ("metrics-22-coverage", "metrics-unresolved-paths"):
+        for scope in ("metrics-22-coverage", "metrics-unresolved-paths", "metrics-ncmi-issuer", "metrics-all-supported"):
             with patch("sys.argv", ["probe.py", "--scope", scope]), \
                     patch("probe.run", new_callable=AsyncMock, return_value=0) as execute:
                 with self.assertRaises(SystemExit) as exit_result:
@@ -713,6 +713,12 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
         assert set(repaired) == {"SE", "NCMI", "RGTI", "CBRS", "BIDU"}
         assert repaired["SE"]["filing_form"] == "6-K" and repaired["NCMI"]["filing_form"] == "8-K"
         assert repaired["RGTI"]["channel"] == "official"
+        all_supported = select_targets([], "metrics-all-supported")
+        assert len(all_supported) == 44
+        assert {row["event"]["symbol"] for row in all_supported} == {event["symbol"] for event in json.loads((BASE / "live/watchlist.json").read_text(encoding="utf-8"))}
+        scheduled = {event["symbol"]: event for event in json.loads((BASE / "live/watchlist.json").read_text(encoding="utf-8"))}
+        assert sum(all(row["event"][key] == scheduled[row["event"]["symbol"]][key]
+                       for key in ("period_start", "period_end")) for row in all_supported) == 29
         coverage = {row["event"]["symbol"]: row for row in selected}
         assert all(coverage[symbol]["reference"] == row["reference"] for symbol, row in repaired.items())
 

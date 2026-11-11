@@ -46,7 +46,8 @@ def public_synthetic_extraction(record):
               "extraction_completed_at_utc", "comparison_completed_mono_ns", "comparison_completed_at_utc",
               "decision_computed_mono_ns", "decision_computed_at_utc",
               "decision_completed_mono_ns", "decision_completed_at_utc", "ended_mono_ns", "ended_at_utc",
-              "decision_budget_ms", "decision_budget_passed",
+              "decision_budget_ms", "decision_budget_passed", "whole_document_verified",
+              "original_worker_budget_passed", "capture_evidence_id",
               "signal_status", "exchange_submitted", "observer", "node_region", "us_execution_qualified")
     public = {key: record[key] for key in fields if key in record}
     public["source_url"] = public_url(record.get("source_url"))
@@ -72,11 +73,17 @@ def public_synthetic_extraction(record):
             if isinstance(position.get(key), list) and all(type(x) in (int, float) for x in position[key]):
                 row["source_position"][key] = position[key]
         currency_evidence = position.get("currency_evidence") or {}
-        if currency_evidence.get("scope") in ("document", "provided_company_rule"):
+        if currency_evidence.get("scope") in ("document", "provided_company_rule", "verified_filing_unit"):
             row["source_position"]["currency_evidence"] = {"scope": currency_evidence["scope"]}
             currency = currency_evidence.get("currency")
             if isinstance(currency, str) and re.fullmatch(r"[A-Z]{3}", currency):
                 row["source_position"]["currency_evidence"]["currency"] = currency
+            if currency_evidence["scope"] == "verified_filing_unit":
+                proof = row["source_position"]["currency_evidence"]
+                proof.update({key: currency_evidence[key] for key in (
+                    "document_hash", "cik", "context_id", "period_start", "period_end", "unit_id", "measure")
+                    if isinstance(currency_evidence.get(key), str)})
+                proof["source_url"] = public_url(currency_evidence.get("source_url"))
         public["metrics"].append(row)
     forecast_fields = CONTRACT_FIELDS + ("share_basis", "forecast_id", "origin", "generated_at_utc", "normalized_value",
                                           "not_a_model_prediction", "uses_actual_for_test_setup", "use_for_decision")

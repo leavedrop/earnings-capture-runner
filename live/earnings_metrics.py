@@ -23,13 +23,16 @@ OUTPUT_FIELDS = (
     "document_hash", "received_at_utc", "document_version", "status",
 )
 SUPPORTED_SYMBOLS = frozenset({"ONON", "TDG", "MRDN", "SE", "QBTS", "NCMI", "RGTI", "GIB", "FNV", "BN",
-                               "NBIS", "CBRS", "CSCO", "XPEV", "BIDU", "BEKE", "HTHT", "ARMK", "TSN", "ACM", "INFQ", "STEM"})
+                               "NBIS", "CBRS", "CSCO", "XPEV", "BIDU", "BEKE", "HTHT", "ARMK", "TSN", "ACM", "INFQ", "STEM",
+                               "OKLO", "BRK.B", "HIMS", "RKLB", "TTWO", "OXY", "HUM", "BAM", "ENB", "MSGK", "MSGR",
+                               "SOHU", "B", "FERG", "KKR", "CECO", "TGTX", "SKYD", "TTD", "XENE", "ACHR", "LCID"})
+_PRIMARY_REVENUE_SYMBOLS = frozenset({"HUM", "BAM", "ENB", "MSGK", "MSGR", "FERG", "KKR", "CECO", "TGTX", "SKYD", "TTD", "XENE", "ACHR", "LCID"})
 _NUMBER = re.compile(r"[+-]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?|[+-]?\.\d+")
 _YEAR = re.compile(r"\b20\s?\d\s?\d\b")
-_PER_SHARE = re.compile(r"\bEPS\b|per\s+(?:(?:basic|diluted|common|ordinary|American depositary|Class\s*[AB]|and)\s+)*(?:share|ADS)", re.I)
+_PER_SHARE = re.compile(r"\bEPS\b|per\s+(?:(?:basic|diluted|common|ordinary|average equivalent|American depositary|Class\s*[AB]|and)\s+)*(?:share|ADS)", re.I)
 _DURATION = re.compile(r"three[ -]months?|thirteen[ -]weeks?|quarter|nine[ -]months?|six[ -]months?|years?\s+ended|fiscal years?|twelve[ -]months?", re.I)
 _MONTHS = "January February March April May June July August September October November December".split()
-_END_DATE = re.compile(r"\b(" + "|".join(_MONTHS) + r")\s+(\d{1,2})\b", re.I)
+_END_DATE = re.compile(r"\b(" + "|".join(_MONTHS + [month[:3] for month in _MONTHS]) + r")\.?\s+(\d{1,2})\b", re.I)
 _ANNOUNCED_PERIOD = re.compile(
     r"\b(?:announced|reported)\b[^.;]{0,120}\bresults\b[^.;]{0,140}?"
     r"\b(?:quarter|three(?:\s+and\s+(?:six|nine|twelve))?\s+months?)\s+ended\s+"
@@ -81,14 +84,21 @@ def _html_tables(body: bytes, parsed: Mapping | None) -> tuple[str, list[dict]]:
     table_nodes = list(root.iter("table"))
     enclosing_tables = {ancestor for table in table_nodes for ancestor in table.iterancestors()}
     contexts, recent = {}, deque(maxlen=4)
-    walker = etree.iterwalk(root, events=("start", "end"), tag=("table", "p", "div"))
+    walker = etree.iterwalk(root, events=("start", "end"), tag=("table", "p", "div", "h3"))
     for action, node in walker:
         if node.tag == "table" and action == "start":
             context = " | ".join(recent)[-1800:]
+            previous = node.getprevious()
+            if previous is not None and previous.tag in {"font", "span"}:
+                units = _text(previous)
+                if re.search(r"in (?:millions|thousands)", units, re.I):
+                    context += " | " + units
             for nested in node.iter("table"):
                 contexts[nested] = context
             walker.skip_subtree()  # Text inside tables never changes preceding context.
-        elif action == "end" and node.tag in {"p", "div"} and node not in enclosing_tables:
+        elif (action == "end" and node not in enclosing_tables
+              and (node.tag in {"p", "div"}
+                   or (node.tag == "h3" and node.get("class") == "pr-subsection-title"))):
             context_text = _text(node)
             if context_text:
                 recent.append(context_text)
@@ -138,7 +148,7 @@ def _grid(rows, spans):
 
 def _label(rows, index):
     value = next((_visible(str(cell)) for cell in rows[index] if _visible(str(cell))), "")
-    if re.fullmatch(r"[-\u2013\u2014]?\s*(?:basic|diluted|basic and diluted)", value, re.I):
+    if re.fullmatch(r"[-\u2013\u2014]?\s*(?:basic|diluted|basic and diluted)(?:\s*[-\u2013\u2014]\s*Class\s+[AB]\s+common stock)?", value, re.I):
         for previous in reversed(rows[:index]):
             parent = next((_visible(str(cell)) for cell in previous if _visible(str(cell))), "")
             if re.search(r"weighted.average|shares outstanding|shares used|adjustments to|EPS Impact", parent, re.I):
@@ -149,27 +159,40 @@ def _label(rows, index):
                 return value, None
         return value, None
     if (_PER_SHARE.search(value) and re.search(r"earnings|income|loss|profit|EPS|(?:basic|diluted).*operations", value, re.I)
-            and not re.search(r"weighted.average|shares outstanding|shares for|shares used|used in|EPS Impact|adjustments to|EBITDA|except|statements|amounts|par value", value, re.I)):
+            and not re.search(r"weighted.average|shares outstanding|shares for|shares(?:/ADSs)? used|used in|EPS Impact|adjustments to|equity awards|for (?:basic|diluted) net (?:income|loss)|EBITDA|except|statements|amounts|par value", value, re.I)):
         return value, "eps"
     if re.search(r"Per Brookfield share", value, re.I) and index:
         parent = next((_visible(str(cell)) for cell in rows[index-1] if _visible(str(cell))), "")
         if parent.lower().startswith("distributable earnings"):
             return parent + " / " + value, "eps"
-    if re.fullmatch(r"(?:core\s+)?(?:total\s+)?(?:net\s+)?(?:sales|revenues?)", value, re.I):
+    if re.fullmatch(r"(?:core\s+)?(?:total\s+)?(?:(?:net|operating|collaboration)\s+)?(?:sales|revenues?)(?:\s+\((?:[a-z]|note\s+\d+)\))?", value, re.I):
         return value, "revenue"
     return value, None
 
 
 def _period_groups(anchors, occupied, row, event, context=""):
     for header_index in range(row - 1, -1, -1):
-        years = [(cell, _YEAR.findall(cell["value"]) or re.findall(r"Q[1-4]-F(20\d{2})", cell["value"])) for cell in anchors[header_index]]
+        years = [(cell, _YEAR.findall(cell["value"]) or re.findall(r"Q[1-4]-F(20\d{2})", cell["value"])
+                  or ["20" + short[1] for short in re.finditer(r"^\d{1,2}/\d{1,2}/(\d{2})$", cell["value"])])
+                 for cell in anchors[header_index]]
         years = [(cell, found[0].replace(" ", "")) for cell, found in years if len(found) == 1]
         if len(years) < 2:
             continue
+        if event["symbol"] == "OXY" and any(re.fullmatch(r"Qtr [1-4]", child["value"])
+                                             for line in anchors[:3] for child in line):
+            # OXY's schedule prints current/prior years over separate Qtr1-4
+            # and cumulative columns. Only the direct quarterly subheader is
+            # eligible; a later YTD block cannot inherit this quarter header.
+            return [(child, [cell["value"], child["value"]]) for cell, year in years
+                    if year == event["period_end"][:4]
+                    for child in anchors[header_index + 1]
+                    if cell["column"] <= child["column"] < cell["end"]
+                    and child["value"] == f"Qtr {event['quarter']}"]
         result = []
         for cell, year in years:
             column = cell["column"]
-            headers, duration = [cell["value"]], None
+            headers = [cell["value"]]
+            duration = cell["value"] if _DURATION.search(cell["value"]) else None
             for below in range(header_index+1, row):
                 child = occupied.get((below, column))
                 if child and (re.fullmatch(r"Class\s+[AB]", _visible(child["value"]), re.I) or _CURRENCY_HEADER.fullmatch(_visible(child["value"]))):
@@ -199,9 +222,18 @@ def _period_groups(anchors, occupied, row, event, context=""):
                 dates = _END_DATE.findall(shared)
             named_quarter = re.search(r"\b(first|second|third|fourth) quarter\b", duration, re.I)
             quarter_matches = named_quarter and ["first", "second", "third", "fourth"].index(named_quarter[1].lower())+1 == event["quarter"]
-            if not (not dates and quarter_matches) and not any(f"{_MONTHS.index(month.capitalize())+1:02}-{int(day):02}" == event["period_end"][5:]
-                                                              for month, day in dates):
+            short_dates = [match for header in headers if (match := re.fullmatch(r"(\d{1,2})/(\d{1,2})/(\d{2})", header))]
+            calendar_matches = any(f"{next(i+1 for i, name in enumerate(_MONTHS) if name[:3].lower()==month[:3].lower()):02}-{int(day):02}" == event["period_end"][5:]
+                                   for month, day in dates)
+            calendar_matches = calendar_matches or any(f"20{match[3]}-{int(match[1]):02}-{int(match[2]):02}" == event["period_end"] for match in short_dates)
+            if not (not dates and not short_dates and quarter_matches) and not calendar_matches:
                 continue
+            if event["symbol"] == "SOHU":
+                bases = [child for below in range(header_index + 1, row) for child in anchors[below]
+                         if cell["column"] <= child["column"] < cell["end"] and child["value"] in {"GAAP", "Non-GAAP"}]
+                if bases:
+                    result.extend((child, list(reversed(headers)) + [child["value"]]) for child in bases)
+                    continue
             # A single dated header can span both original-currency and issuer
             # USD-conversion columns (HTHT). Keep those amounts independent.
             currency_columns = []
@@ -226,6 +258,9 @@ def _share_basis(label: str, table_text: str):
     low = label.lower()
     if "per brookfield share" in low:
         return "distributable_earnings:Brookfield_share"
+    equivalent = re.search(r"per average equivalent Class\s+([AB])\s+share", label, re.I)
+    if equivalent:
+        return "average_equivalent:Class " + equivalent[1].upper()
     if "basic" in low and "diluted" in low:
         dilution = "basic_and_diluted"
     elif "diluted" in low:
@@ -236,7 +271,7 @@ def _share_basis(label: str, table_text: str):
         return None
     classes = list(dict.fromkeys(re.findall(r"Class\s*([AB])\b", label, re.I)))
     instrument = "ADS" if re.search(r"\bADS\b|depositary", label, re.I) else (
-        "ordinary" if "ordinary" in low or classes else "common")
+        "common" if "common" in low else "ordinary" if "ordinary" in low or classes else "common")
     parts = [dilution, instrument]
     if classes:
         parts.append("Class " + "+".join(item.upper() for item in classes))
@@ -303,7 +338,7 @@ def _acm_summary_groups(anchors, row, event, full_text):
 def _html_fields(body, event, parsed, common, diagnostics):
     full_text, tables = _html_tables(body, parsed)
     currency_conflict = None
-    if event.get("reporting_currency_source") == "provided_company_rule":
+    if event.get("reporting_currency_source") in {"provided_company_rule", "verified_filing_unit"}:
         # Foreign-currency notes do not override an independently stated USD
         # reporting basis. The company rule only supplies a missing basis.
         if not re.search(r"\bUSD\b|US\$|U\.?S\.?\s+dollars|iso4217:USD", full_text, re.I):
@@ -319,14 +354,51 @@ def _html_fields(body, event, parsed, common, diagnostics):
                                 "requested_period_end":event["period_end"], "text":announcement[0],
                                 "text_offset":announcement.start()})
             return []
+    oxy_quarter = (re.search(r"announced results for the (first|second|third|fourth) quarter of (20\d{2})", full_text[:5000], re.I)
+                   if event["symbol"] == "OXY" else None)
+    if oxy_quarter and (["first", "second", "third", "fourth"].index(oxy_quarter[1].lower()) + 1 != event["quarter"]
+                        or oxy_quarter[2] != event["period_end"][:4]):
+        diagnostics.append({"reason": "announced_report_period_mismatch", "text": oxy_quarter[0],
+                            "text_offset": oxy_quarter.start()})
+        return []
+    oxy_adjusted_scope = (re.search(r"adjusted EPS from continuing operations", full_text[:5000], re.I)
+                          if event["symbol"] == "OXY" else None)
+    named_report = (re.search(r"(?:Barrick|Sohu\.com) Reports (First|Second|Third|Fourth) Quarter (20\d{2})", full_text[:5000], re.I)
+                    if event["symbol"] in {"B", "SOHU"} else None)
+    if named_report and (["first", "second", "third", "fourth"].index(named_report[1].lower()) + 1 != event["quarter"]
+                         or named_report[2] != event["period_end"][:4]):
+        diagnostics.append({"reason": "announced_report_period_mismatch", "text": named_report[0], "text_offset": named_report.start()})
+        return []
+    sohu_revenue_scope = (re.search(r"Unless indicated otherwise, results presented in this press release are related to continuing operations only", full_text, re.I)
+                          if event["symbol"] == "SOHU" else None)
+    barrick_basic_note = (re.search(r"f\. Calculated using weighted average number of shares outstanding under the basic method of earnings per share", full_text, re.I)
+                          if event["symbol"] == "B" else None)
     output = []
-    standard = "IFRS" if event["symbol"] in {"ONON", "GIB", "FNV", "BN"} else "US_GAAP"
+    standard = "IFRS" if event["symbol"] in {"ONON", "GIB", "FNV", "BN", "B"} else "US_GAAP"
     for ti, table in enumerate(tables):
         rows = table["rows"]
         table_text = table["context"] + " " + " ".join(" ".join(row) for row in rows)
+        heading_parts = [re.sub(r"\s+", "", part).lower() for part in
+                         table["context"].split(" | ") + [" ".join(row) for row in rows[:3]]]
+        heading = " ".join(heading_parts)
+        # A narrative referring to a statement is not the statement heading:
+        # related-party and pro-forma notes contain the same phrase.
+        primary_statement = any(re.fullmatch(
+            r"(?:kkr&co\.inc\.)?(?:condensed)?(?:consolidated|combined)statementsof(?:operations|income|earnings)"
+            r"(?:andcomprehensive(?:income|loss))?(?:\(unaudited\))?", part) for part in heading_parts)
         anchors = occupied = None
         for ri, row in enumerate(rows):
             label, metric = _label(rows, ri)
+            revenue_definition = None
+            if event["symbol"] == "LCID" and primary_statement and label.startswith("Revenue (including "):
+                metric, revenue_definition = "revenue", "revenue"
+            if (event["symbol"] == "OXY" and label == "Total"
+                    and "Consolidated Condensed Statements of Operations" in table["context"]):
+                prior_labels = [next((cell for cell in prior if cell.strip()), "") for prior in rows[:ri]]
+                if "REVENUES AND OTHER INCOME" in prior_labels and "COSTS AND OTHER DEDUCTIONS" not in prior_labels:
+                    revenue_definition = "revenues_and_other_income" if "Interest, dividends and other income" in prior_labels else "net_sales"
+                    parent_label = "REVENUES AND OTHER INCOME" if revenue_definition == "revenues_and_other_income" else "Net sales"
+                    label, metric = parent_label + " / " + label, "revenue"
             if event["symbol"] == "ACM" and re.match(r"Net Service Revenue \(NSR\)", label, re.I):
                 metric = "revenue"
             if (event["symbol"] == "ARMK" and metric is None and ri >= 3
@@ -338,12 +410,19 @@ def _html_fields(body, event, parsed, common, diagnostics):
             # Segment and reconciliation profit amounts are not consolidated revenue.
             summary = event["symbol"] == "SE" and label.lower() == "total revenue"
             summary = summary or (event["symbol"] == "GIB" and "Financial highlights" in table_text)
-            summary = summary or (event["symbol"] == "NCMI" and "Operating Data" in table_text and label.lower() == "total revenue")
+            summary = summary or (event["symbol"] == "NCMI" and "Operating Data" in table_text
+                                   and label.lower() in {"total revenue", "total net revenue"})
             summary = summary or (event["symbol"] == "CBRS" and label.lower().startswith("core ") and "RECONCILIATION OF GAAP" in table_text)
             summary = summary or (event["symbol"] == "STEM" and label.lower() == "revenue" and "Key Financial Results and Operating Metrics" in table_text)
+            summary = summary or (event["symbol"] == "B" and "Financial and Operating Highlights" in table["context"])
             acm_summary = event["symbol"] == "ACM" and (metric == "eps" or "Net Service Revenue" in label)
             summary = summary or acm_summary
-            if metric == "revenue" and event["symbol"] != "ONON" and not summary and "CONSOLIDATED" not in table_text.upper():
+            if (metric == "revenue" and event["symbol"] in _PRIMARY_REVENUE_SYMBOLS and not primary_statement):
+                continue
+            if metric == "revenue" and event["symbol"] != "ONON" and not summary and not primary_statement and "CONSOLIDATED" not in table_text.upper():
+                continue
+            if (metric == "revenue" and event["symbol"] == "BRK.B"
+                    and "consolidatedstatementsofearnings" not in re.sub(r"\s+", "", table["context"].lower())):
                 continue
             if (metric == "revenue" and event["symbol"] == "ACM" and label.lower() == "revenue"
                     and not re.search(r"Consolidated Statements? of (?:Income|Operations)", table["context"], re.I)):
@@ -370,12 +449,15 @@ def _html_fields(body, event, parsed, common, diagnostics):
                     continue
                 if value is None:
                     continue
-                currency, scale = _unit_context(event["symbol"], metric, table_text, full_text, event, headers)
-                if currency_conflict or (event.get("reporting_currency_source") == "provided_company_rule"
+                unit_text = " ".join(" ".join(row) for row in rows[:3]) if event["symbol"] == "SOHU" else table_text
+                currency, scale = _unit_context(event["symbol"], metric, unit_text, full_text, event, headers)
+                if currency_conflict or (event.get("reporting_currency_source") in {"provided_company_rule", "verified_filing_unit"}
                                          and currency != event["reporting_currency"]):
                     currency = None
                 share_label = label + " " + " ".join(header for header in headers if re.fullmatch(r"Class\s+[AB]", header, re.I))
                 if event["symbol"] == "FNV" and label.lower() == "adjusted net income per share" and ri and "Basic weighted average" in " ".join(rows[ri-1]):
+                    share_label += " basic"
+                if event["symbol"] == "B" and re.search(r"per share f$", label) and barrick_basic_note:
                     share_label += " basic"
                 share = _share_basis(share_label, table_text) if metric == "eps" else None
                 adjusted = bool(re.search(r"adjusted|non.?GAAP|non.?IFRS|excluding adjusting items", label, re.I))
@@ -384,6 +466,8 @@ def _html_fields(body, event, parsed, common, diagnostics):
                 if acm_summary and any(re.search(r"Adjusted|Metrics Excl", header, re.I) for header in headers):
                     adjusted = True
                 if event["symbol"] == "CSCO" and "Non-GAAP Results" in table["context"].split("|")[-1]:
+                    adjusted = True
+                if event["symbol"] == "SOHU" and "Non-GAAP" in headers:
                     adjusted = True
                 definition = ("non_IFRS_adjusted" if standard == "IFRS" else "non_GAAP_adjusted") if adjusted else standard
                 if label.lower().startswith("distributable earnings"):
@@ -395,13 +479,31 @@ def _html_fields(body, event, parsed, common, diagnostics):
                 if any("Metrics Excl. Const. Mgmt. Project Charge" in header for header in headers):
                     definition += ":excluding_construction_management_project_charge"
                 if metric == "revenue":
-                    definition += ":" + re.sub(r"\s+", "_", label.lower())
+                    definition += ":" + (revenue_definition or re.sub(r"\s+", "_", re.sub(r"\s+\((?:[a-z]|note\s+\d+)\)$", "", label.lower())))
                 scope = "discontinued_operations" if "discontinued operations" in label.lower() else (
                     "continuing_operations" if "continuing operations" in label.lower() or "Continuing Operations" in headers else "consolidated")
                 position = {"table_index": ti, "row_index": ri, "column_headers": headers,
                             "column_range": [year_cell["column"], max(cell["end"] for cell in parts)],
                             "cells": [{"row": cell["row"], "cell": cell["cell"], "text": cell["value"]} for cell in parts],
                             "table_title": " | ".join(" ".join(row) for row in rows[:3]), "preceding_context": table["context"]}
+                if event["symbol"] == "MSGR" and "combinedstatementsofoperations" in heading:
+                    scope = "combined"
+                    position["business_scope_evidence"] = {"text": table["context"], "table_index": ti}
+                if metric == "revenue" and sohu_revenue_scope:
+                    scope = "continuing_operations"
+                    position["business_scope_evidence"] = {"text": sohu_revenue_scope[0], "text_offset": sohu_revenue_scope.start()}
+                if event["symbol"] == "B" and re.search(r"per share f$", label) and barrick_basic_note:
+                    position["share_basis_evidence"] = {"text": barrick_basic_note[0], "text_offset": barrick_basic_note.start()}
+                if metric == "eps" and adjusted and oxy_adjusted_scope:
+                    scope = "continuing_operations"
+                    position["business_scope_evidence"] = {"text": oxy_adjusted_scope[0], "text_offset": oxy_adjusted_scope.start()}
+                if event["symbol"] == "OXY" and revenue_definition:
+                    scope_rows = [(index, values[0]) for index, values in enumerate(rows) if values and values[0] in {
+                        "INCOME FROM CONTINUING OPERATIONS", "Income (loss) from discontinued operations, net of tax"}]
+                    if len(scope_rows) == 2 and scope_rows[0][0] < scope_rows[1][0]:
+                        scope = "continuing_operations"
+                        position["business_scope_evidence"] = {"table_index": ti, "rows": [
+                            {"row_index": index, "text": text} for index, text in scope_rows]}
                 currency_pattern = {"USD":r"\bUSD\b|US\$|U\.?S\.?\s+dollars|iso4217:USD", "CAD":r"\bCAD\b|Canadian dollars",
                                     "CHF":r"\bCHF\b|Swiss Franc", "CNY":r"\bRMB\b|\bCNY\b"}.get(currency)
                 if currency_pattern:
@@ -410,6 +512,9 @@ def _html_fields(body, event, parsed, common, diagnostics):
                                                      if unit_match else {"scope":"caller_reporting_currency_contract"})
                     if unit_match is None and event.get("reporting_currency_source") == "provided_company_rule":
                         position["currency_evidence"] = {"scope": "provided_company_rule", "currency": currency}
+                    elif unit_match is None and event.get("reporting_currency_source") == "verified_filing_unit":
+                        position["currency_evidence"] = {"scope": "verified_filing_unit", "currency": currency,
+                                                         **event["reporting_currency_evidence"]}
                 matched = currency is not None and scale is not None and (metric != "eps" or share is not None)
                 output.append(_record(event, common, metric, label, metric_definition=definition,
                     share_basis=share, currency=currency, scale=scale, raw_value=raw, business_scope=scope,
@@ -607,6 +712,17 @@ def extract_metrics(body: bytes, source_url: str, event: Mapping, *, received_at
             and company_rule.get("currency") == "USD" and company_rule.get("currency_source") == "provided_company_rule"):
         event = {**event, "reporting_currency": "USD", "reporting_currency_source": "provided_company_rule"}
         diagnostics.append({"reason": "currency_from_provided_company_rule", "symbol": event["symbol"], "currency": "USD"})
+    elif (company_rule is not None and company_rule.get("currency") == "USD"
+          and company_rule.get("currency_source") == "verified_filing_unit"):
+        proof = company_rule["currency_evidence"]
+        if (str(proof["cik"]).lstrip("0") == str(event["cik"]).lstrip("0")
+                and proof["period_start"] == event["period_start"] and proof["period_end"] == event["period_end"]
+                and proof["measure"] == "iso4217:USD"):
+            event = {**event, "reporting_currency": "USD", "reporting_currency_source": "verified_filing_unit",
+                     "reporting_currency_evidence": proof}
+            diagnostics.append({"reason": "currency_from_verified_filing_unit", "symbol": event["symbol"], "currency": "USD"})
+        else:
+            diagnostics.append({"reason": "filing_currency_evidence_contract_mismatch", "symbol": event["symbol"]})
     if rules is not None and company_rule is None:
         records = [_record(event, common, metric, status="unsupported_basis") for metric in ("eps", "revenue")]
         diagnostics.append({"reason":"company_not_configured"})
@@ -653,7 +769,7 @@ def extract_metrics(body: bytes, source_url: str, event: Mapping, *, received_at
         wants_adjusted = any(re.search(r"adjusted|non.?GAAP|non.?IFRS", label, re.I)
                              for label in company_rule.get("eps_labels", []))
         if wants_adjusted and not any(row["metric"] == "eps" and str(row["metric_definition"]).startswith("non_") for row in output):
-            standard = "non_IFRS_adjusted" if event["symbol"] in {"ONON", "GIB", "FNV", "BN"} else "non_GAAP_adjusted"
+            standard = "non_IFRS_adjusted" if event["symbol"] in {"ONON", "GIB", "FNV", "BN", "B"} else "non_GAAP_adjusted"
             output.append(_record(event, common, "eps", metric_definition=standard))
             diagnostics.append({"metric":"eps", "metric_definition":standard, "reason":"requested_basis_not_explicitly_published_in_target_period"})
     for record in output:

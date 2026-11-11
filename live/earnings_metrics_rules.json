@@ -283,6 +283,272 @@
       ],
       "currency_and_unit": "美元；摘要收入为百万美元，合并财表为千美元，EPS为美元/股。",
       "rule_source": "provided_22_company_reference"
+    },
+    {
+      "symbol": "OKLO",
+      "eps_labels": [
+        "Net loss per share / Basic and diluted - Class A common stock"
+      ],
+      "revenue_labels": [
+        "Revenue"
+      ]
+    },
+    {
+      "symbol": "BRK.B",
+      "eps_labels": [
+        "Net earnings per average equivalent Class A share",
+        "Net earnings per average equivalent Class B share"
+      ],
+      "revenue_labels": [
+        "Total revenues"
+      ]
+    },
+    {
+      "symbol": "HIMS",
+      "eps_labels": [
+        "Net (loss) income per share attributable to common stockholders / Basic",
+        "Net (loss) income per share attributable to common stockholders / Diluted"
+      ],
+      "revenue_labels": [
+        "Revenue"
+      ],
+      "currency": "USD",
+      "currency_source": "verified_filing_unit",
+      "currency_evidence": {
+        "source_url": "https://www.sec.gov/Archives/edgar/data/1773751/000177375126000246/hims-20260930.htm",
+        "document_hash": "ce84518ea1592f1e70bfa73c9a223d922b3b77c8327e985cbd8febf35caa39f5",
+        "cik": "1773751",
+        "context_id": "c-10",
+        "period_start": "2026-07-01",
+        "period_end": "2026-09-30",
+        "unit_id": "usd",
+        "measure": "iso4217:USD"
+      }
+    },
+    {
+      "symbol": "RKLB",
+      "eps_labels": [
+        "Net loss per share attributable to Rocket Lab Corporation / Basic and diluted"
+      ],
+      "revenue_labels": [
+        "Total revenues"
+      ],
+      "currency": "USD",
+      "currency_source": "verified_filing_unit",
+      "currency_evidence": {
+        "source_url": "https://www.sec.gov/Archives/edgar/data/1819994/000181999426000074/rklb-20260930.htm",
+        "document_hash": "6536dc797d26c97c38fc305f89ce5f2574dc57b30588e0987111e2d09e2c3f86",
+        "cik": "1819994",
+        "context_id": "c-13",
+        "period_start": "2026-07-01",
+        "period_end": "2026-09-30",
+        "unit_id": "usd",
+        "measure": "iso4217:USD"
+      }
+    },
+    {
+      "symbol": "TTWO",
+      "eps_labels": [
+        "Basic and diluted loss per share"
+      ],
+      "revenue_labels": [
+        "Total net revenue"
+      ],
+      "currency": "USD",
+      "currency_source": "verified_filing_unit",
+      "currency_evidence": {
+        "source_url": "https://www.sec.gov/Archives/edgar/data/946581/000162828026072254/ttwo-20260930.htm",
+        "document_hash": "9a964b8dd5f0fadcbd602223b4fab96d5682cd8586a708922e804e39864d62a2",
+        "cik": "946581",
+        "context_id": "c-13",
+        "period_start": "2026-07-01",
+        "period_end": "2026-09-30",
+        "unit_id": "usd",
+        "measure": "iso4217:USD"
+      }
+    },
+    {
+      "symbol": "OXY",
+      "eps_labels": [
+        "Basic earnings per common share",
+        "Diluted earnings per common share",
+        "Adjusted diluted earnings per share (Non-GAAP)"
+      ],
+      "revenue_labels": [
+        "Net sales / Total",
+        "REVENUES AND OTHER INCOME / Total"
+      ],
+      "currency": "USD",
+      "currency_source": "verified_filing_unit",
+      "currency_evidence": {
+        "source_url": "https://www.sec.gov/Archives/edgar/data/797468/000162828026072198/oxy-20260930.htm",
+        "document_hash": "f70968dc54f34b3236912b8ac54280fb20bb2b2c87e0348929c3d5de4b8ab9c7",
+        "cik": "797468",
+        "context_id": "c-7",
+        "period_start": "2026-07-01",
+        "period_end": "2026-09-30",
+        "unit_id": "usd",
+        "measure": "iso4217:USD"
+      }
+    },
+    {
+      "symbol": "HUM",
+      "eps_labels": [
+        "Basic earnings per common share",
+        "Diluted earnings per common share"
+      ],
+      "revenue_labels": [
+        "Total revenues"
+      ]
+    },
+    {
+      "symbol": "BAM",
+      "eps_labels": [
+        "Earnings per share / Basic",
+        "Earnings per share / Diluted"
+      ],
+      "revenue_labels": [
+        "Total revenues"
+      ]
+    },
+    {
+      "symbol": "ENB",
+      "eps_labels": [
+        "Diluted earnings per common share attributable to common shareholders"
+      ],
+      "revenue_labels": [
+        "Total operating revenues"
+      ]
+    },
+    {
+      "symbol": "MSGK",
+      "eps_labels": [
+        "Basic loss per common share attributable to MSG Knickerbockers Corp. stockholders",
+        "Diluted loss per common share attributable to MSG Knickerbockers Corp. stockholders"
+      ],
+      "revenue_labels": [
+        "Revenues"
+      ]
+    },
+    {
+      "symbol": "MSGR",
+      "eps_labels": [
+        "Basic and diluted earnings (loss) per common share attributable to MSG Rangers stockholders"
+      ],
+      "revenue_labels": [
+        "Revenues"
+      ]
+    },
+    {
+      "symbol": "SOHU",
+      "eps_labels": [
+        "Basic net income/(loss) per share/ADS attributable to Sohu.com Limited",
+        "Diluted net income/(loss) per share/ADS attributable to Sohu.com Limited",
+        "Non-GAAP diluted net income/(loss) per share/ADS"
+      ],
+      "revenue_labels": [
+        "Total revenues"
+      ]
+    },
+    {
+      "symbol": "B",
+      "eps_labels": [
+        "Net earnings per share (basic and diluted)",
+        "Adjusted net earnings (basic) per share"
+      ],
+      "revenue_labels": [
+        "Revenues"
+      ]
+    },
+    {
+      "symbol": "FERG",
+      "eps_labels": [
+        "Earnings per share - Basic",
+        "Earnings per share - Diluted",
+        "Adjusted earnings per share - diluted"
+      ],
+      "revenue_labels": [
+        "Net sales"
+      ]
+    },
+    {
+      "symbol": "KKR",
+      "eps_labels": [
+        "Net Income (Loss) Attributable to KKR & Co. Inc. Per Share of Common Stock / Basic",
+        "Net Income (Loss) Attributable to KKR & Co. Inc. Per Share of Common Stock / Diluted"
+      ],
+      "revenue_labels": [
+        "Total Revenues"
+      ]
+    },
+    {
+      "symbol": "CECO",
+      "eps_labels": [
+        "(Loss) earnings per share / Basic",
+        "(Loss) earnings per share / Diluted"
+      ],
+      "revenue_labels": [
+        "Net sales"
+      ]
+    },
+    {
+      "symbol": "TGTX",
+      "eps_labels": [
+        "Net income per common share / Basic",
+        "Net income per common share / Diluted"
+      ],
+      "revenue_labels": [
+        "Total revenue"
+      ]
+    },
+    {
+      "symbol": "SKYD",
+      "eps_labels": [
+        "Basic net earnings (loss) per common share attributable to Parent",
+        "Diluted net earnings (loss) per common share attributable to Parent",
+        "Adjusted diluted EPS"
+      ],
+      "revenue_labels": [
+        "Revenues"
+      ]
+    },
+    {
+      "symbol": "TTD",
+      "eps_labels": [
+        "Earnings per share / Basic",
+        "Earnings per share / Diluted"
+      ],
+      "revenue_labels": [
+        "Revenue"
+      ]
+    },
+    {
+      "symbol": "XENE",
+      "eps_labels": [
+        "Net loss per common share / Basic and diluted"
+      ],
+      "revenue_labels": [
+        "Collaboration revenue"
+      ]
+    },
+    {
+      "symbol": "ACHR",
+      "eps_labels": [
+        "Net loss per share attributable to common stockholders, basic and diluted"
+      ],
+      "revenue_labels": [
+        "Revenue"
+      ]
+    },
+    {
+      "symbol": "LCID",
+      "eps_labels": [
+        "Net loss per share attributable to common stockholders / Basic",
+        "Net loss per share attributable to common stockholders / Diluted"
+      ],
+      "revenue_labels": [
+        "Revenue"
+      ]
     }
   ]
 }

@@ -30,7 +30,7 @@ from sources import discover, validate
 BASE = Path(__file__).resolve().parent
 HEADERS = {"User-Agent": "EarningsWatch/1.0 automated-public-filings-research",
            "Accept": "*/*", "Cache-Control": "no-cache"}
-METRICS_SCOPES = ("metrics-production", "metrics-alternate-sources", "metrics-exchange-targets", "metrics-22-coverage", "metrics-unresolved-paths", "metrics-ncmi-issuer")
+METRICS_SCOPES = ("metrics-production", "metrics-alternate-sources", "metrics-exchange-targets", "metrics-22-coverage", "metrics-unresolved-paths", "metrics-ncmi-issuer", "metrics-all-supported")
 
 
 def utc():
@@ -128,6 +128,15 @@ def select_targets(targets, scope):
                       symbol + "_REPAIRED_COVERAGE_METRICS_PRODUCTION") for symbol in ("SE", "NCMI", "RGTI", "CBRS", "BIDU")]
         if scope == "metrics-ncmi-issuer":
             cases = [("NCMI", "official", "NCMI_ISSUER_METRICS_PRODUCTION")]
+        if scope == "metrics-all-supported":
+            cases = []
+            for symbol in events:
+                key = next(key for key in (
+                    symbol + "_CURRENT_METRICS_PRODUCTION", symbol + "_ISSUER_METRICS_PRODUCTION",
+                    symbol + "_EXTENSION_METRICS_PRODUCTION",
+                    symbol + "_REPAIRED_COVERAGE_METRICS_PRODUCTION", symbol + "_COVERAGE_METRICS_PRODUCTION")
+                    if key in references)
+                cases.append((symbol, references[key]["channel"], key))
         return [{"target_id": key.replace("_METRICS_PRODUCTION", "") + "_metrics_full_chain", "channel": channel,
                  "url": references[key]["url"],
                  "reference": references[key],
