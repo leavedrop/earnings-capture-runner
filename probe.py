@@ -103,15 +103,19 @@ async def identify_node(client):
 
 
 def select_targets(targets, scope):
-    if scope == "metrics-production":
+    if scope in ("metrics-production", "metrics-alternate-sources"):
         references = json.loads((BASE / "remaining_references.json").read_text(encoding="utf-8"))
         events = {event["symbol"]: event for event in json.loads((BASE / "live/watchlist.json").read_text(encoding="utf-8"))}
-        return [{"target_id": symbol + "_metrics_full_chain", "channel": "official" if symbol == "SE" else "sec",
-                 "url": references[symbol + "_METRICS_PRODUCTION"]["url"],
-                 "reference": references[symbol + "_METRICS_PRODUCTION"],
+        cases = ([(symbol, "official" if symbol == "SE" else "sec", symbol + "_METRICS_PRODUCTION")
+                  for symbol in ("ONON", "SE", "TDG", "MRDN")] if scope == "metrics-production" else
+                 [("SE", "sec", "SE_SEC_METRICS_PRODUCTION"), ("TDG", "sec", "TDG_METRICS_PRODUCTION"),
+                  ("MRDN", "sec", "MRDN_RELEASE_METRICS_PRODUCTION")])
+        return [{"target_id": key.replace("_METRICS_PRODUCTION", "") + "_metrics_full_chain", "channel": channel,
+                 "url": references[key]["url"],
+                 "reference": references[key],
                  "event": events[symbol], "cache_profile": "ordinary", "pipeline": "production_watch_list_seed",
-                 "metrics_mode": "synthetic", "require_raw_reference_match": symbol == "SE"}
-                for symbol in ("ONON", "SE", "TDG", "MRDN")]
+                 "metrics_mode": "synthetic", "require_raw_reference_match": channel == "official"}
+                for symbol, channel, key in cases]
     if scope == "kkr-complete":
         return [target for target in select_targets(targets, "backlog-production") if target["event"]["symbol"] == "KKR"]
     if scope == "skyd-complete":
@@ -712,6 +716,9 @@ async def collect_watch_case(target, output, node):
                     row["metric_extractions"] = public_metrics
                     row["metrics_pipeline_completed"] = bool(public_metrics) and all(
                         record.get("status") == "completed" for record in public_metrics)
+                    row["decision_budget_ms"] = 500
+                    row["decision_budget_passed"] = complete and bool(public_metrics) and all(
+                        record.get("decision_budget_passed") is True for record in public_metrics)
                     if not row["metrics_pipeline_completed"]:
                         row["error_type"] = "metrics_pipeline_not_completed"
             else:
@@ -952,7 +959,7 @@ async def run(args):
                     "requests_per_second": {"parent_direct_sec": 2 if args.scope == "b-sec-transports" else 8,
                                              "production_child_sec": 2, "other_hosts_shared": 4},
                     "transport_policy": {"businesswire.com": "HTTP/1.1 persistent client after observed HTTP/2 StreamReset error_code=2", "msgk-issuer-cold": "HTTP/1.1 cold client matching the production official collector", "default": "HTTP/2 enabled"}}
-        if args.scope == "metrics-production":
+        if args.scope in ("metrics-production", "metrics-alternate-sources"):
             metadata["requests_per_second"]["parent_direct_sec"] = 0
             metadata["metrics_mode"] = "synthetic"
             metadata["decision_budget_ms"] = 500
@@ -1068,6 +1075,10 @@ async def run(args):
                     complete=sum(row["complete"] for row in results),
                     passed=sum(row["budget_passed"] for row in results),
                     failures=sum(bool(row.get("error_type")) for row in results))
+    if args.scope in ("metrics-production", "metrics-alternate-sources"):
+        metadata.update(passed_semantics="Legacy full-parse 300ms count; see passed_decision_500 for the current goal",
+                        passed_decision_500=sum(row.get("decision_budget_passed") is True for row in results),
+                        decision_endpoint="Same-process discovery through complete parse, metrics, comparison and event-loop delivery; local simulation only")
     if material_scope:
         metadata["material_downloaded"] = sum(row.get("material_download_complete") is True for row in results)
         if args.scope == "skyd-http1-material":
@@ -1075,6 +1086,9 @@ async def run(args):
     (args.output / "summary.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     if material_scope:
         return 0 if metadata["material_downloaded"] == (1 if args.scope in ("skyd-range", "skyd-http1-material") else 2) and node.get("loc") == "US" and node.get("is_us") is True and metadata.get("actual_target_protocols_match_profiles", True) else 1
+    if args.scope in ("metrics-production", "metrics-alternate-sources") and (
+            metadata["passed_decision_500"] != len(results) or node.get("is_us") is not True):
+        return 1
     return 0 if results and all(row["complete"] and row["archived"] and not row.get("error_type") for row in results) and not metadata.get("comparison_stopped") and not metadata.get("skipped_targets_after_warmup") else 1
 
 
@@ -1082,7 +1096,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "backlog-production", "kkr-complete", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports", "skyd-materials", "skyd-range", "skyd-http1-material", "skyd-complete", "bw-browser-access", "bw-browser-http1-access", "metrics-production"), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "backlog-production", "kkr-complete", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports", "skyd-materials", "skyd-range", "skyd-http1-material", "skyd-complete", "bw-browser-access", "bw-browser-http1-access", "metrics-production", "metrics-alternate-sources"), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 

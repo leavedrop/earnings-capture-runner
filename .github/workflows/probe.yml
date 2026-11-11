@@ -22,6 +22,7 @@ on:
           - backlog-production
           - kkr-complete
           - metrics-production
+          - metrics-alternate-sources
           - sec-quarterly
           - lcid-http-protocols
           - lcid-chrome-protocols

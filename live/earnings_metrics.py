@@ -599,10 +599,10 @@ def extract_metrics(body: bytes, source_url: str, event: Mapping, *, received_at
         company_rule = next((row for row in rules["companies"] if row["symbol"] == event["symbol"]), None) if "companies" in rules else rules
         if "companies" not in rules and company_rule.get("symbol") != event["symbol"]:
             raise ValueError("rules_do_not_describe_this_company")
-    if (event["symbol"] == "TDG" and company_rule is not None
+    if (event["symbol"] in {"TDG", "MRDN"} and company_rule is not None
             and company_rule.get("currency") == "USD" and company_rule.get("currency_source") == "provided_company_rule"):
         event = {**event, "reporting_currency": "USD", "reporting_currency_source": "provided_company_rule"}
-        diagnostics.append({"reason": "currency_from_provided_company_rule", "symbol": "TDG", "currency": "USD"})
+        diagnostics.append({"reason": "currency_from_provided_company_rule", "symbol": event["symbol"], "currency": "USD"})
     if rules is not None and company_rule is None:
         records = [_record(event, common, metric, status="unsupported_basis") for metric in ("eps", "revenue")]
         diagnostics.append({"reason":"company_not_configured"})

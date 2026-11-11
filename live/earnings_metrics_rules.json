@@ -44,6 +44,8 @@
     },
     {
       "symbol": "MRDN",
+      "currency": "USD",
+      "currency_source": "provided_company_rule",
       "eps_labels": [
         "Net income (loss) per ordinary share",
         "Net earnings (losses) per ordinary share",

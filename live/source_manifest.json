@@ -66,14 +66,14 @@
     "source": "metric_comparison.py"
   },
   "earnings_metrics.py": {
-    "sha256": "356c65cf51789c51179481af1c371d4c77bbd1ceb939f0e3ac9f57d5fc496b81",
-    "production_sha256": "356c65cf51789c51179481af1c371d4c77bbd1ceb939f0e3ac9f57d5fc496b81",
+    "sha256": "e97c5f7b8520a47527de2792c3db5c60649ae4ff4ada7033990df347c826d555",
+    "production_sha256": "e97c5f7b8520a47527de2792c3db5c60649ae4ff4ada7033990df347c826d555",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "earnings_metrics.py"
   },
   "earnings_metrics_rules.json": {
-    "sha256": "05461595e53e6b243584eac74556df4d3442e8adfb976a241646e5bea4b2ad7f",
-    "production_sha256": "be67553e92bfb67700475988c2dc6b230e577f3dd24cadfc5d789048917d1276",
+    "sha256": "0c213d3f4a3d8b111b6c838dd186bb25a98ce7a2e16ae837d38143a05bc13df9",
+    "production_sha256": "cd155a593f312a59c252c2c9c5dba140909be77978579d61c14480bfc1492dd6",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "earnings_metrics_rules.json"
   }
