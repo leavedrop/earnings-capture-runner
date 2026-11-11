@@ -21,6 +21,7 @@ on:
           - repaired-paths
           - backlog-production
           - kkr-complete
+          - kkr-issuer-chrome-transport
           - metrics-production
           - metrics-alternate-sources
           - metrics-exchange-targets

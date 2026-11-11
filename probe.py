@@ -104,6 +104,12 @@ async def identify_node(client):
 
 
 def select_targets(targets, scope):
+    if scope == "kkr-issuer-chrome-transport":
+        reference = json.loads((BASE / "remaining_references.json").read_text(encoding="utf-8"))["KKR_CURRENT_METRICS_PRODUCTION"]
+        event = next(event for event in json.loads((BASE / "live/watchlist.json").read_text(encoding="utf-8")) if event["symbol"] == "KKR")
+        return [{"target_id": "KKR_complete_pdf_chrome_transport", "channel": "official", "url": reference["url"],
+                 "reference": reference, "event": {**event, **reference["event_override"]},
+                 "transport": "curl_cffi_chrome", "cache_profile": "ordinary", "warmup_url": "https://ir.kkr.com/"}]
     if scope in METRICS_SCOPES:
         references = json.loads((BASE / "remaining_references.json").read_text(encoding="utf-8"))
         events = {event["symbol"]: event for event in json.loads((BASE / "live/watchlist.json").read_text(encoding="utf-8"))}
@@ -1141,7 +1147,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "backlog-production", "kkr-complete", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports", "skyd-materials", "skyd-range", "skyd-http1-material", "skyd-complete", "bw-browser-access", "bw-browser-http1-access", *METRICS_SCOPES), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "backlog-production", "kkr-complete", "kkr-issuer-chrome-transport", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports", "skyd-materials", "skyd-range", "skyd-http1-material", "skyd-complete", "bw-browser-access", "bw-browser-http1-access", *METRICS_SCOPES), default="all")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 
