@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "owner": "github_actions",
+  "checked_at_utc": "2026-11-11T07:26:35.892945+00:00",
+  "dispatch_until_utc": "2026-11-17T13:03:00+08:00",
+  "local_sec_rps_budget": 2,
+  "total_sec_rps_limit": 10,
+  "raw_report_requests": 0,
+  "active_probe_run_ids": [],
+  "inventory_state": "verified_hashes",
+  "inventory_count": 104,
+  "inventory_refresh": "retained_existing; new documents may be initially_present on the next run",
+  "evidence_observations": [
+    {
+      "run_id": "42973032065-1",
+      "commit": "dd2f66f50cdb9ba86243b2aff9a3ed6fdd998d14",
+      "node": {
+        "loc": "US",
+        "colo": "ORD"
+      },
+      "state": "running",
+      "updated_utc": "2026-11-11T07:24:49.972+00:00",
+      "collector_heartbeat_utc": "2026-11-11T07:24:44.726422+00:00",
+      "requests": 6895
+    },
+    {
+      "run_id": "42970623374-1",
+      "commit": "36695ba15f56e64947991145e438068b635b424c",
+      "node": {
+        "loc": "US",
+        "colo": "SEA"
+      },
+      "state": "finished",
+      "updated_utc": "2026-11-11T06:34:57.533+00:00",
+      "collector_heartbeat_utc": "2026-11-11T06:34:56.685044+00:00",
+      "requests": 3385
+    },
+    {
+      "run_id": "42966246697-1",
+      "commit": "592f8a502a7403f5ccb1f63080c22c2610d244d5",
+      "node": {
+        "loc": "US",
+        "colo": "IAD"
+      },
+      "state": "finished",
+      "updated_utc": "2026-11-11T06:15:02.676+00:00",
+      "collector_heartbeat_utc": "2026-11-11T06:15:01.612976+00:00",
+      "requests": 5759
+    }
+  ],
+  "snapshot_errors": [],
+  "active_run_ids": [
+    "42973032065"
+  ],
+  "selected_run_id": "42973032065-1",
+  "workflow_state": "healthy",
+  "updated_utc": "2026-11-11T07:26:38.371408+00:00"
+}
