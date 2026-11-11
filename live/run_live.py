@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import argparse
+import asyncio
 import base64
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import closing
 from datetime import datetime, timedelta, timezone
 import gzip
@@ -24,6 +26,7 @@ import httpx
 BASE = Path(__file__).resolve().parent
 HARD_DEADLINE = max(datetime.fromisoformat(row["window_end"]) for row in
                     json.loads((BASE / "watchlist.json").read_text(encoding="utf-8"))) + timedelta(minutes=4)
+sys.path.insert(0, str(BASE.parent))
 sys.path.insert(0, str(BASE))
 import progress
 
@@ -304,6 +307,23 @@ def retirement_requested(repository, token, run_id):
     return command.get("run_id") == run_id and command.get("action") == "retire_after_healthy_successor"
 
 
+def check_cloud_handoff(repository, token, run_id):
+    """Run the same bounded controller in the supervisor, never the collector."""
+    import cloud_keepalive
+
+    if repository != cloud_keepalive.bridge.REPOSITORY:
+        raise ValueError("Unexpected handoff repository")
+
+    async def check():
+        async with httpx.AsyncClient(trust_env=False, follow_redirects=False, timeout=30,
+                headers={"Authorization": "Bearer " + token, "Accept": "application/vnd.github+json",
+                         "Cache-Control": "no-cache"}) as client:
+            return await asyncio.wait_for(
+                cloud_keepalive.check_once(client, token, caller_live_run_id=run_id), timeout=90)
+
+    return asyncio.run(check())
+
+
 def inherit_completed_documents(repository, token, runtime, hashes):
     """Import the bridge's verified URL inventory; this creates no captures."""
     with httpx.Client(trust_env=False, follow_redirects=False, timeout=10) as client:
@@ -419,9 +439,22 @@ def main():
         with (runtime / "launcher.log").open("w", encoding="utf-8") as log:
             process = subprocess.Popen(command, env=child_env, cwd=BASE, stdout=log, stderr=log)
             last_publish, last_count, last_control = 0., -1, 0.
+            handoff_executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="cloud-handoff")
+            handoff_future, last_handoff, published_requests = None, 0., False
             try:
                 while process.poll() is None and not stop and datetime.now(timezone.utc) < hard_stop:
                     metadata["collector_last_alive_utc"] = utc()
+                    if handoff_future is not None and handoff_future.done():
+                        try:
+                            outcome = handoff_future.result()
+                            metadata["supervisor_handoff"] = {key: outcome.get(key) for key in (
+                                "checked_at_utc", "updated_utc", "workflow_state", "control_mode", "caller_live_run_id",
+                                "selected_run_id", "active_run_ids", "active_probe_run_ids", "projected_total_sec_rps", "error_type")}
+                        except Exception as exc:
+                            metadata["supervisor_handoff"] = {"checked_at_utc": metadata["supervisor_handoff_started_utc"],
+                                "updated_utc": utc(), "workflow_state": "check_failed", "error_type": type(exc).__name__}
+                            print("Supervisor handoff check failed: " + type(exc).__name__, flush=True)
+                        handoff_future = None
                     if time.monotonic() - last_control >= 30:
                         try:
                             if retirement_requested(repository, token, run_id):
@@ -441,11 +474,17 @@ def main():
                             data = snapshot(runtime, checkout, metadata, cached)
                             publish(checkout, env, run_id)
                             write_public(args.output / "latest.json", data)
+                            published_requests |= data.get("request_failures", {}).get("requests", 0) > 0
                         except Exception as exc:
                             print("Public evidence publication failed: " + type(exc).__name__, flush=True)
                         last_publish, last_count = time.monotonic(), count
+                    if published_requests and handoff_future is None and time.monotonic() - last_handoff >= 180:
+                        metadata["supervisor_handoff_started_utc"] = utc()
+                        handoff_future = handoff_executor.submit(check_cloud_handoff, repository, token, run_id)
+                        last_handoff = time.monotonic()
                     time.sleep(5)
             finally:
+                handoff_executor.shutdown(wait=False, cancel_futures=True)
                 (runtime / "STOP").touch()
                 try:
                     process.wait(timeout=60)

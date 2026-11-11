@@ -722,6 +722,25 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
         coverage = {row["event"]["symbol"]: row for row in selected}
         assert all(coverage[symbol]["reference"] == row["reference"] for symbol, row in repaired.items())
 
+    def test_reference_text_variants_accept_only_exact_sec_wrapper_and_body(self):
+        base = {"text": "Third quarter results Revenue 100 Net income 20",
+                "tables": [[["Revenue", "100"], ["Net income", "20"]]],
+                "table_spans": [[[[1, 1], [1, 1]], [[1, 1], [1, 1]]]]}
+        prefix = "EX-99.1 2 d141003dex991.htm EX-99.1 "
+        wrapped = {**base, "text": prefix + base["text"]}
+        reference = {"url": "https://www.sec.gov/Archives/edgar/data/756894/000119312526441663/d141003dex991.htm",
+                     "raw_sha256": "fixture", **content_hashes(base),
+                     "text_sha256_variants": [hashlib.sha256((prefix + base["text"]).encode()).hexdigest()],
+                     "table_spans_sha256": hashlib.sha256(json.dumps(base["table_spans"], separators=(",", ":")).encode()).hexdigest()}
+        for parsed in (base, wrapped):
+            matched = reference_match(parsed, reference)
+            self.assertTrue(matched["reference_text_matches"])
+            self.assertTrue(matched["reference_tables_match"] and matched["reference_spans_match"])
+        changed_body = {**wrapped, "text": wrapped["text"].replace("Revenue 100", "Revenue 101")}
+        self.assertFalse(reference_match(changed_body, reference)["reference_text_matches"])
+        self.assertFalse(reference_match({**wrapped, "tables": [[["Revenue", "101"]]]}, reference)["reference_tables_match"])
+        self.assertFalse(reference_match({**wrapped, "table_spans": [[[[1, 2]]]]}, reference)["reference_spans_match"])
+
     def test_ncmi_issuer_scope_is_single_historical_official_target_and_requires_reference(self):
         selected = select_targets([], "metrics-ncmi-issuer")
         self.assertEqual(len(selected), 1)

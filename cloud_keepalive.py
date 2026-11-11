@@ -51,7 +51,7 @@ async def save_state(client, state, previous_sha):
     response.raise_for_status()
 
 
-async def check_once(client, token, *, now=None):
+async def check_once(client, token, *, now=None, caller_live_run_id=None):
     """Reuse maintain_workflow, handoff_ready and retire_run for every decision."""
     now = now or datetime.now(timezone.utc)
     state, previous_sha = await bridge.read_keepalive_state(client)
@@ -59,7 +59,8 @@ async def check_once(client, token, *, now=None):
         state.pop(key, None)
     state.update(schema_version=1, owner="github_actions", checked_at_utc=now.isoformat(),
                  dispatch_until_utc=bridge.DISPATCH_UNTIL.isoformat(), local_sec_rps_budget=2,
-                 total_sec_rps_limit=10, raw_report_requests=0)
+                 total_sec_rps_limit=10, raw_report_requests=0,
+                 control_mode="observer", caller_live_run_id=None)
     try:
         if now >= bridge.DISPATCH_UNTIL:
             state.update(await bridge.maintain_workflow([], state, now, client, jobs=[], runtime=None))
@@ -68,6 +69,16 @@ async def check_once(client, token, *, now=None):
             state.update(self_disabled=True, disabled_at_utc=now.isoformat(), selected_run_id=None)
         else:
             jobs = await bridge.workflow_runs(client)
+            active = [row for row in jobs if row["status"] != "completed"]
+            if caller_live_run_id is not None:
+                environment_run = os.environ.get("GITHUB_RUN_ID", "") + "-" + os.environ.get("GITHUB_RUN_ATTEMPT", "1")
+                if (caller_live_run_id != environment_run or not any(
+                        row["status"] == "in_progress"
+                        and f"{row['id']}-{row.get('run_attempt', 1)}" == caller_live_run_id for row in active)):
+                    raise ValueError("caller_is_not_current_active_live_run")
+                state.update(control_mode="live_supervisor", caller_live_run_id=caller_live_run_id)
+            elif not active:
+                state["control_mode"] = "bootstrap"
             probes = []
             for workflow in ("probe.yml", "history-probe.yml"):
                 response = await client.get(API + f"/actions/workflows/{workflow}/runs", params={"per_page": 10})
@@ -79,7 +90,6 @@ async def check_once(client, token, *, now=None):
             state.update(inventory)
             blockers = (["active_probe:" + ident for ident in probes]
                         + ([] if inventory["inventory_state"] == "verified_hashes" else ["inventory_not_verified"]))
-            active = [row for row in jobs if row["status"] != "completed"]
             completed = [row for row in jobs if row["status"] == "completed"][:2]
             snapshots, observations, errors = [], [], []
             for job in active + completed:
@@ -110,6 +120,7 @@ async def check_once(client, token, *, now=None):
                     errors.append({"run_id": run_id, "error_type": type(exc).__name__})
             state.update(evidence_observations=observations, snapshot_errors=errors)
             outcome = await bridge.maintain_workflow(snapshots, state, now, client, jobs=jobs, runtime=None,
+                                                     sync_only=bool(active and caller_live_run_id is None),
                                                      dispatch_blockers=blockers, local_sec_rps=2)
             state.update(outcome)
             if blockers:

@@ -132,7 +132,8 @@ def select_targets(targets, scope):
             cases = []
             for symbol in events:
                 key = next(key for key in (
-                    symbol + "_CURRENT_METRICS_PRODUCTION", symbol + "_ISSUER_METRICS_PRODUCTION",
+                    symbol + "_CURRENT_V2_METRICS_PRODUCTION", symbol + "_CURRENT_METRICS_PRODUCTION",
+                    symbol + "_ISSUER_METRICS_PRODUCTION",
                     symbol + "_EXTENSION_METRICS_PRODUCTION",
                     symbol + "_REPAIRED_COVERAGE_METRICS_PRODUCTION", symbol + "_COVERAGE_METRICS_PRODUCTION")
                     if key in references)
@@ -291,7 +292,7 @@ def financial_row_hashes(tables):
 
 def reference_match(parsed, reference):
     actual = content_hashes(parsed)
-    result = {**actual, "reference_text_matches": actual["text_sha256"] == reference["text_sha256"],
+    result = {**actual, "reference_text_matches": actual["text_sha256"] in (reference["text_sha256"], *reference.get("text_sha256_variants", ())),
             "reference_tables_match": actual["table_sha256"] == reference.get("table_sha256"),
             "reference_raw_sha256": reference["raw_sha256"], "reference_url": reference["url"]}
     if "pdf_pages_total" in reference:

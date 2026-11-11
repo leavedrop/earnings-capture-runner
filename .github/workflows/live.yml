@@ -30,6 +30,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: earnings-live-${{ inputs.handoff_slot }}

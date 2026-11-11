@@ -479,7 +479,21 @@
       ],
       "revenue_labels": [
         "Total Revenues"
-      ]
+      ],
+      "currency": "USD",
+      "currency_source": "verified_filing_unit",
+      "currency_evidence": {
+        "source_url": "https://www.sec.gov/Archives/edgar/data/1404912/000140491226000034/kkr-20260930.htm",
+        "document_hash": "737f3330e798a311485c88b77e09bc0068fb1d454c6c496d0db1ff745d388813",
+        "cik": "1404912",
+        "context_id": "c-49",
+        "period_start": "2026-07-01",
+        "period_end": "2026-09-30",
+        "unit_id": "usd",
+        "measure": "iso4217:USD",
+        "fact_name": "us-gaap:Revenues",
+        "fact_id": "f-313"
+      }
     },
     {
       "symbol": "CECO",
@@ -572,7 +586,30 @@
       ],
       "revenue_labels": [
         "Revenue"
-      ]
+      ],
+      "currency": "USD",
+      "currency_source": "verified_filing_unit",
+      "currency_evidence": {
+        "source_url": "https://www.sec.gov/Archives/edgar/data/1811210/000162828026072216/lcid-20260930.htm",
+        "document_hash": "820de6d798d4eb20a15918d04179fdabffca05edc95fce53e9f1db0ff4414ae6",
+        "cik": "1811210",
+        "context_id": "c-17",
+        "period_start": "2026-07-01",
+        "period_end": "2026-09-30",
+        "unit_id": "usd",
+        "measure": "iso4217:USD",
+        "fact_name": "us-gaap:RevenueFromContractWithCustomerExcludingAssessedTax",
+        "fact_id": "f-156",
+        "per_share_unit": {
+          "unit_id": "usdPerShare",
+          "numerator": "iso4217:USD",
+          "denominator": "xbrli:shares",
+          "fact_ids": [
+            "f-268",
+            "f-272"
+          ]
+        }
+      }
     }
   ]
 }

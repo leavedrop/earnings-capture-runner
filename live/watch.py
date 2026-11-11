@@ -512,7 +512,10 @@ class Collector:
         queued = time.perf_counter_ns()
         def parse():
             started = time.perf_counter_ns()
-            result = validate(body, url, content_type, event, **({"prepared_tree": prepared_tree} if prepared_tree is not None else {}))
+            options = {"prepared_tree": prepared_tree} if prepared_tree is not None else {}
+            if self.metrics_pipeline is not None:
+                options["include_metric_context"] = True
+            result = validate(body, url, content_type, event, **options)
             finished = time.perf_counter_ns()
             return result, {"validation_queued_mono_ns": queued, "validation_start_mono_ns": started,
                             "validated_mono_ns": finished, "validation_queue_ms": (started-queued)/1e6,
@@ -605,7 +608,7 @@ class Collector:
                                                   "discovered_mono_ns": discovered_mono_ns,
                                                   "classification_basis": item.get("classification_basis"),
                                                   "supporting_title": item.get("supporting_title"),
-                                                  "financial_validation": {k: v for k, v in result.items() if k not in ("text", "tables")} if result else None,
+                                                  "financial_validation": {k: v for k, v in result.items() if k not in ("text", "tables", "_metric_table_contexts")} if result else None,
                                                   "completion_scope": "full_supporting_attachment_received",
                                                   "inspection_semantics": "original bytes archived; not validated as a financial report"})
                     self.inspected_documents.add(inspection_key)
@@ -617,7 +620,7 @@ class Collector:
             validated_mono = parse_timing["validated_mono_ns"]
             validated = rec["body_complete_ns"] + (validated_mono-rec["body_complete_mono_ns"])
             discovery_to_parsed = (validated_mono-discovered_mono_ns)/1e6 if discovered_mono_ns is not None else None
-            verdict = {k: v for k, v in result.items() if k not in ("text", "tables", "table_spans", "table_details", "page_diagnostics", "spreadsheet")}
+            verdict = {k: v for k, v in result.items() if k not in ("text", "tables", "table_spans", "table_details", "page_diagnostics", "spreadsheet", "_metric_table_contexts")}
             if "table_details" in result:
                 verdict["pdf_table_count"] = len(result["table_details"])
                 verdict["pdf_table_word_count"] = sum(t["source_word_count"] for t in result["table_details"])

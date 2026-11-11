@@ -3256,7 +3256,32 @@
     },
     "document_version": "unknown_historical_version",
     "reference_scope": "Current scheduled quarter original with full text, every table cell and merged spans independently retained. Reacquisition is historical replay; not first publication.",
-    "require_raw_reference_match": false
+    "require_raw_reference_match": false,
+    "text_sha256_variants": [
+      "f253be07073170efeb3a77257b7050e88eb3de56a43d308a2e331f386262d81c"
+    ],
+    "text_sha256_variants_provenance": [
+      {
+        "sha256": "f253be07073170efeb3a77257b7050e88eb3de56a43d308a2e331f386262d81c",
+        "kind": "sec_document_metadata_prefix",
+        "base_text_sha256": "19c9c7b651da58d4f65485b9716a98bd3f1cdc04551ff91c77c8228f050d8933",
+        "base_raw_sha256": "29fd34cd5426e20caff884f9ea1dc4147b5e441b9807aec9ec8476bf23caee2b",
+        "prefix": "EX-99.1 2 hims-20260930x8xkearningsr.htm EX-99.1 ",
+        "metadata_fields": {
+          "TYPE": "EX-99.1",
+          "SEQUENCE": "2",
+          "FILENAME": "hims-20260930x8xkearningsr.htm",
+          "DESCRIPTION": "EX-99.1"
+        },
+        "metadata_source_raw_sha256": "a0a636760803663c7214b6888e27b6a69d2a2dc2465a0ff46075052875c50b4b",
+        "metadata_source_run_id": "42974200493",
+        "metadata_source_artifact": "raw/HIMS_EXTENSION_metrics_full_chain.html",
+        "generation": "SHA256 of verified SGML metadata prefix followed by the entire cached original reference text",
+        "whole_base_text_exact": true,
+        "all_tables_and_spans_exact": true,
+        "established_utc": "2026-11-11T07:23:39.733850+00:00"
+      }
+    ]
   },
   "RKLB_EXTENSION_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/1819994/000181999426000073/rklb-11092026ex991.htm",
@@ -3288,7 +3313,32 @@
     },
     "document_version": "unknown_historical_version",
     "reference_scope": "Current scheduled quarter original with full text, every table cell and merged spans independently retained. Reacquisition is historical replay; not first publication.",
-    "require_raw_reference_match": false
+    "require_raw_reference_match": false,
+    "text_sha256_variants": [
+      "ea5d06b9a6482b9562a21642d47c5360141bc8f1756c80578382bf8815568f65"
+    ],
+    "text_sha256_variants_provenance": [
+      {
+        "sha256": "ea5d06b9a6482b9562a21642d47c5360141bc8f1756c80578382bf8815568f65",
+        "kind": "sec_document_metadata_prefix",
+        "base_text_sha256": "8fcca0a902c608dc513f4cf68e1a60469c06687b71f0db92bb5ac9de538e0171",
+        "base_raw_sha256": "9fd5d908df04a92c65d403979737f8afe3c30cbca3a2ad5cbfc8f4234c60212a",
+        "prefix": "EX-99.1 2 rklb-11092026ex991.htm EX-99.1 ",
+        "metadata_fields": {
+          "TYPE": "EX-99.1",
+          "SEQUENCE": "2",
+          "FILENAME": "rklb-11092026ex991.htm",
+          "DESCRIPTION": "EX-99.1"
+        },
+        "metadata_source_raw_sha256": "082997c7a2a3c3d347ab3b1913943fe340bb8e8843ff118176148cdfa9d533ab",
+        "metadata_source_run_id": "42974200493",
+        "metadata_source_artifact": "raw/RKLB_EXTENSION_metrics_full_chain.html",
+        "generation": "SHA256 of verified SGML metadata prefix followed by the entire cached original reference text",
+        "whole_base_text_exact": true,
+        "all_tables_and_spans_exact": true,
+        "established_utc": "2026-11-11T07:23:39.733850+00:00"
+      }
+    ]
   },
   "TTWO_EXTENSION_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/946581/000162828026072175/ttwo2q27earningsrelease.htm",
@@ -3323,7 +3373,32 @@
     },
     "document_version": "unknown_historical_version",
     "reference_scope": "Current scheduled quarter original with full text, every table cell and merged spans independently retained. Reacquisition is historical replay; not first publication.",
-    "require_raw_reference_match": false
+    "require_raw_reference_match": false,
+    "text_sha256_variants": [
+      "481c29377f144e9dc9619177d1f7e85437cff80a0d91db7c3931a7cd604d43c1"
+    ],
+    "text_sha256_variants_provenance": [
+      {
+        "sha256": "481c29377f144e9dc9619177d1f7e85437cff80a0d91db7c3931a7cd604d43c1",
+        "kind": "sec_document_metadata_prefix",
+        "base_text_sha256": "6c96e0c1c57488efb8c9c9eebd6648ce0df083c9de66011b38c4ba65ca1088d5",
+        "base_raw_sha256": "d01a5792b816781493e645e1e21201c6e2e640c7c08d991f95d3f8a32ba20e6f",
+        "prefix": "EX-99.1 2 ttwo2q27earningsrelease.htm EX-99.1 ",
+        "metadata_fields": {
+          "TYPE": "EX-99.1",
+          "SEQUENCE": "2",
+          "FILENAME": "ttwo2q27earningsrelease.htm",
+          "DESCRIPTION": "EX-99.1"
+        },
+        "metadata_source_raw_sha256": "b45f8d04a295313201c6efa023c4c1230927fb1653978676e835c7db5b279f47",
+        "metadata_source_run_id": "42974200493",
+        "metadata_source_artifact": "raw/TTWO_EXTENSION_metrics_full_chain.html",
+        "generation": "SHA256 of verified SGML metadata prefix followed by the entire cached original reference text",
+        "whole_base_text_exact": true,
+        "all_tables_and_spans_exact": true,
+        "established_utc": "2026-11-11T07:23:39.733850+00:00"
+      }
+    ]
   },
   "OXY_EXTENSION_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/797468/000162828026072193/oxyex9919-30x26earningsrel.htm",
@@ -3355,7 +3430,32 @@
     },
     "document_version": "unknown_historical_version",
     "reference_scope": "Current scheduled quarter original with full text, every table cell and merged spans independently retained. Reacquisition is historical replay; not first publication.",
-    "require_raw_reference_match": false
+    "require_raw_reference_match": false,
+    "text_sha256_variants": [
+      "b4f980a5df452f94e1fe01227cb0ed474bd626eee4eaaada3ba16e4674c89594"
+    ],
+    "text_sha256_variants_provenance": [
+      {
+        "sha256": "b4f980a5df452f94e1fe01227cb0ed474bd626eee4eaaada3ba16e4674c89594",
+        "kind": "sec_document_metadata_prefix",
+        "base_text_sha256": "5505c8b4434f6b1f6eef4b7ff7b1836df0c4fc861040976c482817fccbb715bc",
+        "base_raw_sha256": "b33f6880fad403ee72b31cc84723452a661bf520e2e9e9bd59f1e812e47dc9a9",
+        "prefix": "EX-99.1 2 oxyex9919-30x26earningsrel.htm EX-99.1 ",
+        "metadata_fields": {
+          "TYPE": "EX-99.1",
+          "SEQUENCE": "2",
+          "FILENAME": "oxyex9919-30x26earningsrel.htm",
+          "DESCRIPTION": "EX-99.1"
+        },
+        "metadata_source_raw_sha256": "c9ff48252bf3037aae234ccaba02eb27f1beaca274c664ca78fe99a62ea551e6",
+        "metadata_source_run_id": "42974200493",
+        "metadata_source_artifact": "raw/OXY_EXTENSION_metrics_full_chain.html",
+        "generation": "SHA256 of verified SGML metadata prefix followed by the entire cached original reference text",
+        "whole_base_text_exact": true,
+        "all_tables_and_spans_exact": true,
+        "established_utc": "2026-11-11T07:23:39.733850+00:00"
+      }
+    ]
   },
   "HUM_EXTENSION_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/hum-20260930.htm",
@@ -3926,7 +4026,32 @@
     },
     "document_version": "unknown_historical_version",
     "reference_scope": "Current scheduled quarter original with full text, every table cell and merged spans independently retained. Reacquisition is historical replay; not first publication.",
-    "require_raw_reference_match": false
+    "require_raw_reference_match": false,
+    "text_sha256_variants": [
+      "31f129f33b756bbf2992109e1e278ea6515df6c613c2cb289b8ac97badd52dbc"
+    ],
+    "text_sha256_variants_provenance": [
+      {
+        "sha256": "31f129f33b756bbf2992109e1e278ea6515df6c613c2cb289b8ac97badd52dbc",
+        "kind": "sec_document_metadata_prefix",
+        "base_text_sha256": "76ca1c1baa5e71c09b5800640ee56ffca58334f1ef50ac0c94fd3c86575bedab",
+        "base_raw_sha256": "a3f6d8a43947bc747dc15cf21f243fcbea65a341e3f4670f0b8cd8a35cb8431e",
+        "prefix": "EX-99.1 2 d141003dex991.htm EX-99.1 ",
+        "metadata_fields": {
+          "TYPE": "EX-99.1",
+          "SEQUENCE": "2",
+          "FILENAME": "d141003dex991.htm",
+          "DESCRIPTION": "EX-99.1"
+        },
+        "metadata_source_raw_sha256": "94292ccb61955cc8fe217dd8c8d1182e539014dc56c98539a26b52d032eeb37b",
+        "metadata_source_run_id": "42974200493",
+        "metadata_source_artifact": "raw/B_EXTENSION_metrics_full_chain.html",
+        "generation": "SHA256 of verified SGML metadata prefix followed by the entire cached original reference text",
+        "whole_base_text_exact": true,
+        "all_tables_and_spans_exact": true,
+        "established_utc": "2026-11-11T07:23:39.733850+00:00"
+      }
+    ]
   },
   "FERG_EXTENSION_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/2011641/000201164126000044/ferg-20260930.htm",
@@ -4814,7 +4939,32 @@
     },
     "document_version": "unknown_historical_version",
     "reference_scope": "Complete actual target-quarter earnings release; reacquisition is a labelled replay, never evidence of first publication. Independent current-quarter raw/text/tables/spans retained.",
-    "require_raw_reference_match": false
+    "require_raw_reference_match": false,
+    "text_sha256_variants": [
+      "5245dec3cf31786afebad9b73f7753381a2f5b5132feb2a965c875f950b66f3c"
+    ],
+    "text_sha256_variants_provenance": [
+      {
+        "sha256": "5245dec3cf31786afebad9b73f7753381a2f5b5132feb2a965c875f950b66f3c",
+        "kind": "sec_document_metadata_prefix",
+        "base_text_sha256": "ca939205938d4e4d9c6e3a845f74e36978070165ac3d0bc86f630e7830269c84",
+        "base_raw_sha256": "8d123bab7d0c0cda09c395a52622779bcb6f66ba401a148f3bff6046f32973cb",
+        "prefix": "EX-99.1 2 d17880dex991.htm EXHIBIT 99.1 ",
+        "metadata_fields": {
+          "TYPE": "EX-99.1",
+          "SEQUENCE": "2",
+          "FILENAME": "d17880dex991.htm",
+          "DESCRIPTION": "EXHIBIT 99.1"
+        },
+        "metadata_source_raw_sha256": "533a720da8c65ae8895cdbf375266f828f2f89211e282b207a53e01e19335ac2",
+        "metadata_source_run_id": "42974200493",
+        "metadata_source_artifact": "raw/SE_CURRENT_metrics_full_chain.html",
+        "generation": "SHA256 of verified SGML metadata prefix followed by the entire cached original reference text",
+        "whole_base_text_exact": true,
+        "all_tables_and_spans_exact": true,
+        "established_utc": "2026-11-11T07:23:39.733850+00:00"
+      }
+    ]
   },
   "QBTS_CURRENT_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/1907982/000190798226000180/qbts-20261110xexx991.htm",
@@ -4838,7 +4988,32 @@
     },
     "document_version": "unknown_historical_version",
     "reference_scope": "Complete actual target-quarter earnings release; reacquisition is a labelled replay, never evidence of first publication. Independent current-quarter raw/text/tables/spans retained.",
-    "require_raw_reference_match": false
+    "require_raw_reference_match": false,
+    "text_sha256_variants": [
+      "10050e2c5bbf1087af881181a37a3c6f1bcba8161389e27397460aff8edf5dfa"
+    ],
+    "text_sha256_variants_provenance": [
+      {
+        "sha256": "10050e2c5bbf1087af881181a37a3c6f1bcba8161389e27397460aff8edf5dfa",
+        "kind": "sec_document_metadata_prefix",
+        "base_text_sha256": "8ad7e89b27b2f5b23473563e54b2b2977054d4199a6045e1df4cd399b7cfbbf4",
+        "base_raw_sha256": "8b1ac4c7b2d820c9c6b649a57db334f1bef88ee47a22b32011d1c9d8955069cd",
+        "prefix": "EX-99.1 2 qbts-20261110xexx991.htm EX-99.1 ",
+        "metadata_fields": {
+          "TYPE": "EX-99.1",
+          "SEQUENCE": "2",
+          "FILENAME": "qbts-20261110xexx991.htm",
+          "DESCRIPTION": "EX-99.1"
+        },
+        "metadata_source_raw_sha256": "e144774e907fb64b40773c21eb3c0c1cc763e79b248dd2a1ae15602ce4f83fe1",
+        "metadata_source_run_id": "42974200493",
+        "metadata_source_artifact": "raw/QBTS_CURRENT_metrics_full_chain.html",
+        "generation": "SHA256 of verified SGML metadata prefix followed by the entire cached original reference text",
+        "whole_base_text_exact": true,
+        "all_tables_and_spans_exact": true,
+        "established_utc": "2026-11-11T07:23:39.733850+00:00"
+      }
+    ]
   },
   "TDG_CURRENT_METRICS_PRODUCTION": {
     "url": "https://transdigmgroupinc.gcs-web.com/news-releases/news-release-details/transdigm-group-reports-fiscal-2026-fourth-quarter-and-year-end",
@@ -4895,23 +5070,20 @@
     "require_raw_reference_match": false
   },
   "NCMI_CURRENT_METRICS_PRODUCTION": {
-    "url": "https://nationalcinemedia.gcs-web.com/news-releases/news-release-details/national-cinemedia-inc-reports-results-fiscal-third-quarter-2026",
-    "channel": "official",
-    "raw_sha256": "d8eb8ed4d96e80eee9da55e107a70ee361e041c938e5e02be196cd14e0a3df3c",
-    "text_sha256": "869cc20d8ca6ea21be6caf3959c7f6201c2723a45db2c11f4ff64dd7c1c81854",
+    "url": "https://www.sec.gov/Archives/edgar/data/1377630/000119312526455440/ncmi-ex99_1.htm",
+    "channel": "sec",
+    "raw_sha256": "98f135131fae74732f2ca3f82e1e0f14667bd3bc298e73209a2ccf341571324d",
+    "text_sha256": "02ec25c1cf3660fba0cb5f33f273c0e5e52c55cb877115c1a7d0cf87943b3895",
     "table_sha256": [
-      "0259d2843b7bc90e8ea1d5520b17c0de4e250535561a7a00c5befac7003cfdea",
-      "5b6f838a4ff7607b80b07ec3e3bc959055ef6d442aadc122dfd25443136b15c3",
-      "9ea4361cc11378f0732f2c09504ca499da09260fe0bb5e1443f622f098c3b3ea",
-      "d53ae49285d1ee75c5b15339a5bf9b57150e63fbc9d2b0ac9a053844e3af5d52",
-      "59fa200ff78c8cc893e69ed43121ddb2739d8824d6d1a9af5063cfdf52ec4e6c",
-      "09b0ddc0f2cb1a9c33d40c40e5f9806213a25b4bf63f5f7d7ff37baba5716ec7",
-      "3b1f629e383147d87a252295ff4bc31d06ba8bd8b432b6467ceaaf6e0aafe1a8",
-      "5d4934857d8286a03fd26eef04508be5d77a68802a9b1204829477973526edca",
-      "6c3742f54c947f36a0f92f38246a3059ce005ac6c1cc9b678a41b2926bf542c7",
-      "29d72168121dc83220cb15589cb1335bc21cd2df18d5a833ae26725d5869954a"
+      "796a7085f4c9772aade0cd0c05bd986497a43f34c8b1c54eaffc8934881650de",
+      "ce6f08cf12cdf193ef85568a3d450c2da71d9c289ccbe9c7a702793914f21124",
+      "7e22068d59a7c4a85e29b682174be581f26d409607465365d524ac81678fa99a",
+      "d84cfd4d2ac1fc1639f83ae0c6beedf6df1d91fdbfd2ffc0c978918cfba15e6a",
+      "17dc4186d23b3dee65cdc5c5913d1e10d0e5bd09e6f0ad02bcd88219b74a26ca",
+      "21b9bd202a45f96bc2382dc40ea310f32443dc829c782477fccbefd5077254c5",
+      "70d439270fdae636bffc327086ed569d80051cc430307f8251d0181c84f8358a"
     ],
-    "table_spans_sha256": "9010e943a254c6654ea221803f0697594e12cf55b7e6bc9e614a27b6b7aebe05",
+    "table_spans_sha256": "8d9d5ab3664f179976275546b49845d552873f6fe1fb4826da693f56e1092ac8",
     "event_override": {
       "fiscal_year": 2026,
       "quarter": 3,
@@ -4919,8 +5091,16 @@
       "period_end": "2026-10-01"
     },
     "document_version": "unknown_historical_version",
-    "reference_scope": "Complete actual target-quarter earnings release; reacquisition is a labelled replay, never evidence of first publication. Independent current-quarter raw/text/tables/spans retained.",
-    "require_raw_reference_match": false
+    "reference_scope": "Complete current-quarter EX-99 financial release, all text, tables and spans; SEC SGML target EOF, not container EOF. Replay is not first-publication evidence.",
+    "require_raw_reference_match": false,
+    "filing_index_url": "https://www.sec.gov/Archives/edgar/data/1377630/000119312526455440/0001193125-26-455440-index.html",
+    "filing_form": "8-K",
+    "reference_provenance": {
+      "capture_id": "36657630-e541-462e-b201-3eeccbddeaf3",
+      "body_complete_utc": "2026-11-10T21:09:36.924819+00:00",
+      "filing_index_sha256": "e988726e376c4bc799c2a202526b5be912c8a14ac0ae0537454857cd63d0898d",
+      "filing_form_verified_from_original_index": true
+    }
   },
   "RGTI_CURRENT_METRICS_PRODUCTION": {
     "url": "https://investors.rigetti.com/news-releases/news-release-details/rigetti-computing-reports-third-quarter-2026-financial-results",
@@ -5026,5 +5206,143 @@
     "document_version": "unknown_historical_version",
     "reference_scope": "Complete actual-quarter formal earnings release; full text/table/span binding and same-quarter verified filing currency evidence. Replay only.",
     "require_raw_reference_match": false
+  },
+  "MRDN_CURRENT_V2_METRICS_PRODUCTION": {
+    "url": "https://meridian-holdings.com/news/meridian-holdings-reports-third-quarter-2026-results/",
+    "channel": "official",
+    "raw_sha256": "129adbfd0e30b0404f0cdea9a65bc55f0fd170ad70d8f9bf90158c385b613f20",
+    "text_sha256": "b2eadebdcbe9113deffdf7cb2e101c0f9f6cfcc1a32035e89808c5c4d2655b90",
+    "table_sha256": [
+      "99b4c6f80984d210078247c661e16d2eb48530e9820618bdccc9407f700658de",
+      "18cac7466645d11b113fe402954a09673b83a46231cea774e7ce4e5a07e9efd3",
+      "585cbf8bfc263463f557785897fed358a4d952dd38cd63359a37c2f52ceba017",
+      "69ad7838caefb355ec3aa45dec56f1b9d88a348834f1aaece0f2edbb9aec88dc",
+      "aced82f6204bda9eaa93ca60855bad29d1eddfd018b0372c388b36e36bb43a91",
+      "7214dad4828b1aab7d1f1a19f00dbc076531387eab05f6e18b97c62adaa3f267",
+      "3d1a4bfb0e3a46a81493697a732ce521432b85bf269a897f23ea1022a1892d96"
+    ],
+    "table_spans_sha256": "7bafe29aa147868e850a538424bcebf5e77d855f3ab38e019c304a6e8bc66c9f",
+    "event_override": {
+      "fiscal_year": 2026,
+      "quarter": 3,
+      "period_start": "2026-07-01",
+      "period_end": "2026-09-30"
+    },
+    "document_version": "observed_issuer_body_revision_2026-11-10T14:26:26+01:00",
+    "reference_scope": "Complete Q3 FY2026 issuer release revision, independently audited after run42974200493. Future replay reference only; no retrospective blind-test pass or old result/time rewrite.",
+    "require_raw_reference_match": false,
+    "revision_provenance": {
+      "reference_key": "MRDN_CURRENT_V2_METRICS_PRODUCTION",
+      "prior_reference_key": "MRDN_CURRENT_METRICS_PRODUCTION",
+      "same_url_body_revision": true,
+      "reference_established_after_capture": true,
+      "retrospective_blind_test_pass": false,
+      "established_utc": "2026-11-11T07:23:39.733850+00:00",
+      "source_run_id": "42974200493",
+      "source_raw_artifact": "raw/MRDN_CURRENT_metrics_full_chain.html",
+      "source_raw_sha256": "129adbfd0e30b0404f0cdea9a65bc55f0fd170ad70d8f9bf90158c385b613f20",
+      "independent_parser": "BeautifulSoup with Python html.parser; no production parser used",
+      "full_article_selector": "article.post-modern",
+      "whole_article_text_exact": true,
+      "all_source_tables_exact": true,
+      "all_source_spans_exact": true,
+      "text_characters": 39672,
+      "table_count": 7,
+      "cell_count": 384,
+      "nonempty_cell_count": 374,
+      "omitted_source_tables": 0,
+      "omitted_nonempty_rows": 0,
+      "text_start": "Meridian Holdings Reports Third Quarter 2026 Results admin 2026-11-10T14:26:26+01:00 Third-Quarter R",
+      "text_end": "ve of actual future events. Investor & Media Contact Investors & Press: ir@meridian-holdings.com View Full Earnings Presentation & Webcast →",
+      "publisher_page_modified_text": "2026-11-10T14:26:26+01:00",
+      "revision_observation": "Same URL changes timestamp and several narrative sentences; not a transport wrapper variant."
+    }
+  },
+  "LCID_CURRENT_METRICS_PRODUCTION": {
+    "url": "https://www.sec.gov/Archives/edgar/data/1811210/000162828026072158/q3fy26ex991earnings.htm",
+    "channel": "sec",
+    "raw_sha256": "3aa8ab159ca3da692a2d398327bf235081df6a714410f332167fc04708adcb33",
+    "text_sha256": "3666cd13c2a6c34159fa8f10abf9f77cf561d8852d813eca8a9fac6a5774bc37",
+    "table_sha256": [
+      "c74b3a66fa51ebe4a87d2ff704ab7b7a48258105ca7a3e9f7af50b00dcb5a175",
+      "6b91b1f0feed853e50a9fdd09ebaa98e36c593ae9391e3f849afb6322f699f29",
+      "5d7f3d16bd266e3c52e944aeda8ed1704b601ffa4fd91f7390d4392cc7298c1d",
+      "aa3d85aa29cc7717ceca649ff79b9ae9f7da6494e6ae5f177f3f251cb051cf96",
+      "b4d1fff4e3651fbc982748f8085414fb5c47655111bf3b0ac33995992151de88",
+      "53cc21d79d87de8df637dcebe4cd27e7341be2acab2c240c762c5fcc360111f7",
+      "eb1108302dcfcc33ec711956e8ca3f4407fc370dee280ed24e3a85c9df1de491",
+      "f75bd2fa13cc7ecc1e2482ab465ee88d96d0cfe4f7f900239cbc3bfd53ee3d39",
+      "5d6adee6951a445018fe750d2a954ba51ac5ad3701728e50b5ed5f890f942c6c"
+    ],
+    "table_spans_sha256": "48853a213a17f1801a31ad3a3464e2f0e5007e0d2f38453119aaf04dc88b418e",
+    "event_override": {
+      "fiscal_year": 2026,
+      "quarter": 3,
+      "period_start": "2026-07-01",
+      "period_end": "2026-09-30"
+    },
+    "document_version": "unknown_historical_version",
+    "reference_scope": "Complete current-quarter EX-99 financial release, all text, tables and spans; SEC SGML target EOF, not container EOF. Replay is not first-publication evidence.",
+    "require_raw_reference_match": false,
+    "filing_index_url": "https://www.sec.gov/Archives/edgar/data/1811210/000162828026072158/0001628280-26-072158-index.html",
+    "filing_form": "8-K",
+    "reference_provenance": {
+      "capture_id": "cb65f0a6-d168-4885-bc1e-5c4322600c5b",
+      "body_complete_utc": "2026-11-09T21:09:45.135694+00:00",
+      "filing_index_sha256": "39f42f2680610ae577d475ab9a24dd90b4dc0d126a37b9b02fc1ff8d4d2694d2",
+      "filing_form_verified_from_original_index": true
+    }
+  },
+  "KKR_CURRENT_METRICS_PRODUCTION": {
+    "url": "https://ir.kkr.com/media/document/39297093-8255-4c8f-aae0-597950d1d2e8/assets/KKR_Q326_Earnings_Release.pdf",
+    "channel": "official",
+    "raw_sha256": "eabec44a62861ce8e4f75f3a62b7b2b0ec48cb7cf808449acbedec66a2617e52",
+    "text_sha256": "95d1ef1713b51cb798c6a874be9e0b31e46998f007dd3c6e8aecce86fa7e0afb",
+    "table_sha256": [
+      "f889c1d114ca7d81d582ce7a787bcf26569c7bd21eb8de6c664bae259539369f",
+      "371f3f8540ae5990a1520141eb694133496603cf1e40aee9e74a4e5398b215e7",
+      "8a8d48cce101d87499c6a898244ff8483a9bbaa7390dc475045dbabc101c0f33",
+      "b43002247e9c602199f1b57a73d74a3821a3a059ca3b1be504349ea43cd132d6",
+      "8e9a88310aa33cb35bb4000620c8027fe5895e6bfc1341614e5898a00a4bcf8c",
+      "a62e46cbd4a00db4af7ebc2ce2095291c67631ef8ed2109e2216fc3ecb740c40",
+      "f9c19e69290bb8d3450d61cd9f95b5fd1f460c0b498ac16e5b3584ffe8913a44",
+      "8b6ddd3a5a7799314cbbb66fd3733c896413121e1854a682d08d5660a18eb009",
+      "c60395c2a44385733b022c4a30be33dad20b72704eba672e4effb6e048c6e642",
+      "9bc4dd1ab29ddb95566b6c1589f4415e720f08d728150c94fb482a5b1ce52b2d",
+      "4f5366bf185ede9c9125b272966741ee44ebd1262af519fac8d1ceecd4759352",
+      "b376bb05f2ce88b55e5791733c824ef1d09c3c3b07d27688f3e7cb1c3bf8e62b",
+      "5b44dc396656eba98e292d4e6e178267c9a956dbffa23a5aeba7e43c0a715b80",
+      "b1a17a1f71fc838938d8e9b03722f39a610de1030e1db74d38bac34e0d0d5aeb",
+      "dbdde45ac3c3a010d8db79fe409094f0e8f269cbf53cc4a0958c62040e3e75c3",
+      "7245fa05ba2f2c2ca111e7ece76ef87f01d9161397c1c9b546cae354c54cf599",
+      "83ba6e0a23e9dbeb7e9f48c4bda5b5bef2fd919e6992e41567a29c9d6a49b5bd",
+      "9e7e9f16c372aa406034dce020f60476af8a18d8e3e8bb8baacadf49bdd66d5e",
+      "f2876840e5133365cff4b3af26fd4d7be68b75731528aa2902dab1b5000fed16",
+      "a359198e421f95fa4ca39e9546fd83bb395f038a0d4f835ba4a351c808008763",
+      "a367d74e62901ae00c0f4777225acf24ddb21da1a2a8ba776a6f9b5d24e20326",
+      "74212bb4dd195d0cbc1a6c66f4963d4850ea3469c8d2bd8ea08e575e7ed251b6",
+      "c8b0399801b0276cd2ef3c2152f5c2e89baf19370d80431f15748880a44367d0",
+      "df0b513b2bc26745347a294a2fa6c01f5b75acba44ab8229e44cf68f057c7107",
+      "c32e7bc93f570cbe818ffdb93204bb0663f36eded05fe54915d0549617f4d36b",
+      "747181521d5c9180cf6c43143933d751633f8b1d48fef701033891f6d8422376",
+      "ac8502e3a720330a65331ea353bf34328c486b2d51e3c2c33d4cc768b111fb3e",
+      "6bb7ca18e61be9e16103ce326ec9489974c9442f7599b78bbc266ae5da2af556"
+    ],
+    "structure_sha256": "2c6b150e143fac5443eaf898a3fd017c60726aa379dd967520961e0f5f41472f",
+    "pdf_pages_total": 49,
+    "event_override": {
+      "fiscal_year": 2026,
+      "quarter": 3,
+      "period_start": "2026-07-01",
+      "period_end": "2026-09-30"
+    },
+    "document_version": "current_original_issuer_pdf",
+    "require_raw_reference_match": true,
+    "reference_scope": "Complete 49-page original issuer release, all 28 tables and native cell geometry; not a shortened excerpt. Historical replay never represents first release.",
+    "reference_provenance": {
+      "capture_id": "b9194843-5750-47dd-b9f6-36e1481d4b2d",
+      "body_complete_utc": "2026-11-09T13:17:39.607941+00:00",
+      "full_49_page_image_exhibit_crosscheck": true
+    }
   }
 }

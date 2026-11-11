@@ -38,6 +38,7 @@ _ANNOUNCED_PERIOD = re.compile(
     r"\b(?:quarter|three(?:\s+and\s+(?:six|nine|twelve))?\s+months?)\s+ended\s+"
     r"(" + "|".join(_MONTHS) + r")\s+(\d{1,2})\s*,?\s*(20\d{2})", re.I)
 _CURRENCY_HEADER = re.compile(r"(RMB|CNY|USD|US\$|CHF|CAD)(?:\s*\(\d+\))?", re.I)
+_TEXT_NODES = etree.XPath(".//text()", smart_strings=False)
 
 
 def normalize_number(raw: str, *, loss_label: bool = False) -> Decimal | None:
@@ -59,7 +60,7 @@ def normalize_number(raw: str, *, loss_label: bool = False) -> Decimal | None:
 
 
 def _text(node) -> str:
-    return " ".join(" ".join(node.itertext()).split())
+    return " ".join(" ".join(_TEXT_NODES(node)).split())
 
 
 def _visible(value: str) -> str:
@@ -72,16 +73,9 @@ def _currency_header(value):
     return match[1].upper() if match else None
 
 
-def _html_tables(body: bytes, parsed: Mapping | None) -> tuple[str, list[dict]]:
-    tree = html.fromstring(body)
-    root = next(tree.iter("article"), None)
-    if root is None:
-        root = next(tree.iter("main"), tree)
-    for tag in list(root.iter("script", "style", "nav", "header", "footer")):
-        tag.drop_tree()
+def _lxml_table_contexts(root, table_nodes):
     # Read surrounding titles/units once in document order. Re-running a
     # preceding-axis XPath for every financial table rescans the whole report.
-    table_nodes = list(root.iter("table"))
     enclosing_tables = {ancestor for table in table_nodes for ancestor in table.iterancestors()}
     contexts, recent = {}, deque(maxlen=4)
     walker = etree.iterwalk(root, events=("start", "end"), tag=("table", "p", "div", "h3"))
@@ -102,6 +96,60 @@ def _html_tables(body: bytes, parsed: Mapping | None) -> tuple[str, list[dict]]:
             context_text = _text(node)
             if context_text:
                 recent.append(context_text)
+    return contexts
+
+
+def _lexbor_table_contexts(root, table_nodes):
+    # The audited native HTML routes retain their existing Lexbor tree. The
+    # same closing-node order and nested-table inheritance as lxml are used.
+    enclosing_tables = set()
+    for table in table_nodes:
+        ancestor = table.parent
+        while ancestor is not None:
+            enclosing_tables.add(ancestor)
+            ancestor = ancestor.parent
+    contexts, recent, stack = {}, deque(maxlen=4), [(root, False)]
+    while stack:
+        node, ending = stack.pop()
+        if node.tag == "table":
+            context = " | ".join(recent)[-1800:]
+            previous = node.prev
+            while previous is not None and previous.is_text_node:
+                previous = previous.prev
+            if previous is not None and previous.tag in {"font", "span"}:
+                units = " ".join(previous.text(separator=" ").split())
+                if re.search(r"in (?:millions|thousands)", units, re.I):
+                    context += " | " + units
+            contexts[node] = context
+            for nested in node.css("table"):
+                contexts[nested] = context
+            continue
+        if ending:
+            context_text = " ".join(node.text(separator=" ").split())
+            if context_text:
+                recent.append(context_text)
+            continue
+        if node not in enclosing_tables and (node.tag in {"p", "div"}
+                or node.tag == "h3" and node.attrs.sget("class") == "pr-subsection-title"):
+            stack.append((node, True))
+        stack.extend((child, False) for child in reversed(list(node.iter())))
+    return contexts
+
+
+def _html_tables(body: bytes, parsed: Mapping | None) -> tuple[str, list[dict]]:
+    if parsed is not None and "_metric_table_contexts" in parsed:
+        return " ".join(parsed["text"].split()), [
+            {"rows": rows, "spans": spans, "context": context}
+            for rows, spans, context in zip(parsed["tables"], parsed["table_spans"],
+                                            parsed["_metric_table_contexts"], strict=True)]
+    tree = html.fromstring(body)
+    root = next(tree.iter("article"), None)
+    if root is None:
+        root = next(tree.iter("main"), tree)
+    for tag in list(root.iter("script", "style", "nav", "header", "footer")):
+        tag.drop_tree()
+    table_nodes = list(root.iter("table"))
+    contexts = _lxml_table_contexts(root, table_nodes)
     if parsed is not None:
         # The owning full-document validator supplied these exact cells/spans.
         # Keep DOM only for their surrounding headings, without re-extracting
@@ -699,6 +747,81 @@ def _nbis_gib_pdf_fields(body, event, common, diagnostics):
     return output
 
 
+def _kkr_pdf_fields(event, parsed, common, diagnostics):
+    """Read KKR's verified native GAAP quarter table, retaining its source cells."""
+    required = ("all_pages_extracted", "native_layout", "numeric_tokens_preserved",
+                "table_words_preserved", "column_associations_verified", "all_table_regions_verified")
+    if (parsed is None or parsed.get("tables_extraction_scope") != "kkr_native_row_bands_with_layout_audit"
+            or not parsed.get("tables_complete")
+            or not all(parsed.get("pdf_structure_checks", {}).get(key) is True for key in required)):
+        diagnostics.append({"reason": "verified_native_pdf_required"})
+        return []
+    quarter = ("First", "Second", "Third", "Fourth")[event["quarter"] - 1]
+    year = event["fiscal_year"]
+    text = " ".join(parsed["text"].split())
+    if not re.search(rf"\bReports {quarter} Quarter {year} Financial Results\b", text[:1000], re.I):
+        diagnostics.append({"reason": "pdf_report_period_not_evidenced"})
+        return []
+    gaap_title = re.search(rf"\b{quarter} Quarter {year} GAAP Results\b", text, re.I)
+    if gaap_title is None:
+        diagnostics.append({"reason": "pdf_gaap_basis_not_evidenced"})
+        return []
+    header = f"{event['quarter']}Q'{year % 100:02}"
+    parent_label = "Net Income (Loss) Attributable to KKR & Co. Inc. Per Share of Common Stock"
+    output = []
+    for ti, table in enumerate(parsed["tables"]):
+        if (not table or table[0].count(header) != 1
+                or not any(row and row[0] == "Net Income (Loss) - KKR Common Stockholders" for row in table)):
+            continue
+        ci = table[0].index(header)
+        detail = parsed["table_details"][ti]
+        cells = {(cell["logical_row"], cell["logical_column"]): cell for cell in detail["cells"]
+                 if cell.get("text") and "logical_row" in cell and "logical_column" in cell}
+        parent = None
+        for ri, row in enumerate(table):
+            if len(row) <= ci:
+                continue
+            label = row[0]
+            if label == parent_label:
+                parent = ri
+                continue
+            if label not in {"Basic", "Diluted"}:
+                parent = None
+            metric = "revenue" if label == "Total Revenues" else ("eps" if parent is not None else None)
+            if metric is None:
+                continue
+            value_cell, label_cell, header_cell = cells.get((ri, ci)), cells.get((ri, 0)), cells.get((0, ci))
+            parent_cell = cells.get((parent, 0)) if parent is not None else None
+            if (value_cell is None or label_cell is None or header_cell is None
+                    or value_cell["text"] != row[ci] or label_cell["text"] != label
+                    or header_cell["text"] != header
+                    or (metric == "eps" and (parent_cell is None or parent_cell["text"] != parent_label))):
+                diagnostics.append({"reason": "native_metric_cell_not_evidenced", "metric": metric,
+                                    "table_index": ti, "row_index": ri})
+                continue
+            value = normalize_number(row[ci])
+            if value is None:
+                continue
+            raw_label = parent_label + " / " + label if metric == "eps" else label
+            currency, scale = _unit_context("KKR", metric, table[0][0], "", event, [header])
+            share = _share_basis(raw_label, "") if metric == "eps" else None
+            position = {"page": detail["page"], "table_index": ti, "row_index": ri, "column_index": ci,
+                        "column_headers": [header], "bbox": value_cell["bbox"], "cells": [dict(value_cell)],
+                        "label_cells": [dict(label_cell)], "header_cells": [dict(header_cell)],
+                        "parent_label_cells": [dict(parent_cell)] if parent_cell is not None else [],
+                        "unit_label": table[0][0], "gaap_title": gaap_title[0]}
+            if event.get("reporting_currency_source") == "verified_filing_unit":
+                position["currency_evidence"] = {"scope": "verified_filing_unit", "currency": currency,
+                                                **event["reporting_currency_evidence"]}
+            output.append(_record(event, common, metric, raw_label,
+                metric_definition="US_GAAP" + (":total_revenues" if metric == "revenue" else ""),
+                share_basis=share, currency=currency, scale=scale, raw_value=row[ci],
+                normalized_value=format(value * scale, "f") if scale else None,
+                source_position=position,
+                status="matched" if currency and scale and (metric != "eps" or share) else "unsupported_basis"))
+    return output
+
+
 def extract_metrics(body: bytes, source_url: str, event: Mapping, *, received_at_utc: str,
                     document_version: str, parsed: Mapping | None = None, rules: Mapping | None = None) -> dict:
     """Extract target-period fields with caller-owned receipt/version provenance.
@@ -744,6 +867,8 @@ def extract_metrics(body: bytes, source_url: str, event: Mapping, *, received_at
         records = _se_pdf_fields(body, event, common, diagnostics)
     elif body.startswith(b"%PDF") and event["symbol"] in {"NBIS", "GIB"}:
         records = _nbis_gib_pdf_fields(body, event, common, diagnostics)
+    elif body.startswith(b"%PDF") and event["symbol"] == "KKR":
+        records = _kkr_pdf_fields(event, parsed, common, diagnostics)
     elif body.startswith(b"%PDF"):
         records = []
         diagnostics.append({"reason": "pdf_format_not_yet_verified"})

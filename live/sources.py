@@ -312,7 +312,7 @@ def _lexbor_text_fragments(node):
     return " ".join(filter(None, node.text(separator="\x00", strip=True).split("\x00")))
 
 
-def _extract_barrick_native_html(body, *, document=None):
+def _extract_barrick_native_html(body, *, document=None, metric_contexts=None):
     # The audited native routes only accept ASCII bytes. Decode numeric entities
     # as HTML5 visible characters, matching the frozen complete US reference.
     if document is None:
@@ -333,7 +333,11 @@ def _extract_barrick_native_html(body, *, document=None):
         node.decompose()
     text = _lexbor_text_fragments(root)
     tables, table_spans = [], []
-    for table in root.css("table"):
+    table_nodes = root.css("table")
+    if metric_contexts is not None:
+        from earnings_metrics import _lexbor_table_contexts
+        contexts = _lexbor_table_contexts(root, table_nodes)
+    for table in table_nodes:
         rows, spans = [], []
         for row in table.css("tr"):
             cells = [cell for cell in row.iter() if cell.tag in ("td", "th")]
@@ -355,6 +359,8 @@ def _extract_barrick_native_html(body, *, document=None):
         if rows:
             tables.append(rows)
             table_spans.append(spans)
+            if metric_contexts is not None:
+                metric_contexts.append(contexts[table])
     return title, text, tables, table_spans, timestamp
 
 
@@ -1070,7 +1076,8 @@ def check_skyd_pdf_archive(body, report):
             raise ValueError("skyd_pdf_archive_mismatch:" + key)
 
 
-def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_tree=None) -> dict:
+def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_tree=None,
+             include_metric_context=False) -> dict:
     """Validate identity, current reporting period and financial content together.
 
     Rejected documents remain useful raw evidence and can be reviewed manually.
@@ -1101,6 +1108,7 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
     table_spans = []
     timestamp = _stamp(None)
     pdf = body.startswith(b"%PDF") or "pdf" in content_type
+    metric_contexts = [] if include_metric_context and not pdf else None
     cover = None
     pdf_pages_total = pdf_pages_processed = 0
     native_pdf = None
@@ -1178,10 +1186,11 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
         cover = _sec_report_facts(document, url, event) or {
             "identity": False, "reporting_period": False, "facts": {},
             "reason": "missing_or_conflicting_cover_facts"}
-        title, text, tables, table_spans, timestamp = _extract_barrick_native_html(body, document=document)
+        title, text, tables, table_spans, timestamp = _extract_barrick_native_html(
+            body, document=document, metric_contexts=metric_contexts)
     elif (prepared_tree is None and uses_native_html_parser(url, event)
           and body.isascii() and b"<ix:" not in body.lower()):
-        title, text, tables, table_spans, timestamp = _extract_barrick_native_html(body)
+        title, text, tables, table_spans, timestamp = _extract_barrick_native_html(body, metric_contexts=metric_contexts)
     else:
         tree = prepared_tree if prepared_tree is not None else _document(body)
         cover = _sec_report_facts(tree, url, event)
@@ -1203,6 +1212,9 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
                        _text(title_tag) if title_tag is not None else "")
         _drop_content(root, "nav", "header", "footer")
         text = _text(root)
+        if metric_contexts is not None:
+            from earnings_metrics import _lxml_table_contexts
+            contexts = _lxml_table_contexts(root, list(root.iter("table")))
         for table in root.iter("table"):
             rows, spans = [], []
             for row in table.iter("tr"):
@@ -1215,6 +1227,8 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
             if rows:
                 tables.append(rows)
                 table_spans.append(spans)
+                if metric_contexts is not None:
+                    metric_contexts.append(contexts[table])
     lead = _clean(text)[:2000]
     title_report = bool(_FINANCIAL.search(title))
     current_period = _target(title, event) or (
@@ -1260,6 +1274,8 @@ def validate(body: bytes, url: str, content_type: str, event: dict, *, prepared_
             "tables_extraction_scope": "full_detected", "tables_complete": True}
     if not pdf:
         result["table_spans"] = table_spans
+        if metric_contexts is not None:
+            result["_metric_table_contexts"] = metric_contexts
     if native_pdf is not None:
         result.update({key:native_pdf[key] for key in ("table_details", "page_diagnostics", "pdf_structure_checks", "tables_extraction_scope", "tables_complete", "quality_reason")})
         if "table_spans" in native_pdf:
