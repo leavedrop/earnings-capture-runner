@@ -2737,8 +2737,8 @@
   "SE_REPAIRED_COVERAGE_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/1703399/000119312526344596/d120948dex991.htm",
     "channel": "sec",
-    "raw_sha256": "89838755f674ebf967ca4e31b25998492a297704d43665fb1ef6869fbb1a54b2",
-    "text_sha256": "ad10820c303956624aa15c1b7a0dd92f753afa798e9b9bb00565491657f22918",
+    "raw_sha256": "a630fc282f7a5999a343d3fc5edc26f84e9c924b96fd0dfc78465ff3f099f88e",
+    "text_sha256": "39d752f6dea87ab76e0bb85c0a14040a319fff2e25cb7f62c6bf4d32b7b44bf0",
     "table_sha256": [
       "98ed52a02bdad8f33cc7857f46c7d0cce0af6a1bc47c9d81ba52e1a1c613693d",
       "cf5c263ea06e241c5fdcd7140c9fb71ab476bc6be1dcc5b73722e2b19492d304",
@@ -2784,16 +2784,57 @@
     },
     "original_reference_id": "SE_01_FY2026_Q2",
     "document_version": "unknown_historical_version",
-    "reference_scope": "Same complete financial exhibit through the existing production filing-index/SGML extraction route. Includes full target EOF, never claims the whole submission response was read.",
+    "reference_scope": "Closed EX-99.1 HTML independently extracted from the earlier complete direct-endpoint original via IncrementalExhibit. Only SGML transport metadata excluded; full financial text, tables and spans still exact. Original reference hashes retained.",
     "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
     "filing_index_url": "https://www.sec.gov/Archives/edgar/data/1703399/000119312526344596/0001193125-26-344596-index.html",
-    "filing_form": "6-K"
+    "filing_form": "6-K",
+    "previous_direct_endpoint_reference": {
+      "raw_sha256": "89838755f674ebf967ca4e31b25998492a297704d43665fb1ef6869fbb1a54b2",
+      "text_sha256": "ad10820c303956624aa15c1b7a0dd92f753afa798e9b9bb00565491657f22918",
+      "table_sha256": [
+        "98ed52a02bdad8f33cc7857f46c7d0cce0af6a1bc47c9d81ba52e1a1c613693d",
+        "cf5c263ea06e241c5fdcd7140c9fb71ab476bc6be1dcc5b73722e2b19492d304",
+        "7efdc097ba87e6617e131ed0fdbfb6bab05bb07400153094e62d3fa57ff4e150",
+        "926a51dc9e972304f64a3d48f569d9607ad4b10bde4f81aa39d4ff6b34befefd",
+        "f903305c9da3d049f112b263b61c357187e1f0798e59db07d6b39e1cb2d9082b",
+        "cd27746ad8e519edbe8853574280e4935c68a497b462ef77be130347cca57ad1",
+        "8fd00997cda811edb38fbdc19f34fd3557ef9aebbe982297e606d9abaa973f4e",
+        "bd4ab6de8739969e0285fbb003dafc883a5615e3f41d9737de505c7ae377675c",
+        "5892d97418d6175ab0cdf913134618702b2692706e836cbf2dc34dc1a5cdba49",
+        "4097fef22838c79e2503e7ce78c06dbdcca7a10fc7ba9f651e4322f7dd7b24fb",
+        "e1994f64a555c39c3de20e4e3027218bd73ab398c5eba8a5ceae385ef116cb6f",
+        "cf5c6c61a4584189171b0461bea3729ebdef79bfb8deaa4a9fbd27dff08e6e91",
+        "32292cc004d8588de6db0ffe05856c812c859051c318ac95953470158fe6f764",
+        "1dcebdbcacfa5028c47d5d63b5c6a9b2f546af1d8bb8c4bd309f153510c5cf97",
+        "bd88d475cbcd834721bfa3e61854fead568954ec610041fa2a93fabf4bf6b9f3",
+        "c31a418d8cfa2e72663119a9213d757115ecfcca2b22c042bbd43397bacce9b4",
+        "8cbb570ad20c5ee27b92d2253dbac812a8d937127c334b4affe846ab1837d5ca",
+        "6a96445a51df9efbf12720f3e96613f3a26d37ecb1af09abbfef0e667bfc3b1c",
+        "8fee69daf0d8fee9cf2105b58f936319797e10a3575b3ebfe5f3cdc0d283b4e9",
+        "49a16efc9aace1fe9710e19528b9739a3f6414f1da3510d661ac3b31a4980a52",
+        "5a44cbde13c62420ebcf6dd487952085438b1c499d629d11273928f213c39d95",
+        "f8fc04cb251eb4181332ea4000027a5669e836085a9121bfe74cad5ce40c41fc",
+        "2224115a98c1d09fd149efd3418a63238e63c43a97d51e05e7413afd2ee99d95",
+        "9be71c70c8e81ecab1460a8a4c1109540ebe7f4e6c62e32e78ce25ccbf70100e",
+        "70853e650b678aead7c10932d87091a22d4b9d65f796ee02e4feca42a56dc631",
+        "923e3525f82c7347c4127dea0b2dea16dd2a561a12ea786e1fb49d403bb0ae63",
+        "f7d428457e57475eeb5112f7419e3ec48c2f9936fd3a60c29eb56276956c2443",
+        "61ef1dd906569b9d5230be10c1951c1067c0de431e5db23663994c1bd756addb",
+        "9a3ec5bf20f6dec3f106b0a4d58d3cdce2d3246bb08376de00f238e712f8e93d",
+        "abcebe35683d373ac55021b1c94bc988e96699a5a089e71e3242ffef7d4261ee",
+        "2a08c4381b45b629102a299318d994c31d479a6584614667330f8756bd945c06",
+        "2cd6467b4ac04287355b2600b6fbaa5a9fe84bbc622899eefb49236697562d6d",
+        "6042d7cc1460bc3e98eef38dbc9d691e3b06561836410a158e4ab408eaa7a372",
+        "b00a40f51f670db5a226b5b32f09019de8583e95aea9be85c6759e98ff4d2b35"
+      ],
+      "table_spans_sha256": "15e79e16e03fb5c25d01ef1bd0d94f6988e7c5a46c83b90f797bb41097d7970b"
+    }
   },
   "NCMI_REPAIRED_COVERAGE_METRICS_PRODUCTION": {
     "url": "https://www.sec.gov/Archives/edgar/data/1377630/000119312526344665/ncmi-ex99_1.htm",
     "channel": "sec",
-    "raw_sha256": "fee63566ccba37640106fae395453334985d1b7ca41ebdd9ae54634a4a64e056",
-    "text_sha256": "a5b2ce4b58deedd68d824b7c1e48b4a1d746dec02eef5efdfd5286da8a9e4f53",
+    "raw_sha256": "e90cbad14ac578db212a4fd97e1e65b85846fb3252d7a554ca38f64b1884669a",
+    "text_sha256": "3f539e54bd63fac49d25cb620d60b1ff3956eee11ad4ee98d0c0e5b52e671a2a",
     "table_sha256": [
       "796a7085f4c9772aade0cd0c05bd986497a43f34c8b1c54eaffc8934881650de",
       "27a19199bf0a830340237ce2738532f0041433c0d75b08d218763128c46e30a4",
@@ -2814,10 +2855,26 @@
     },
     "original_reference_id": "NCMI_01_FY2026_Q2",
     "document_version": "unknown_historical_version",
-    "reference_scope": "Same complete financial exhibit through the existing production filing-index/SGML extraction route. Includes full target EOF, never claims the whole submission response was read.",
+    "reference_scope": "Closed EX-99.1 HTML independently extracted from the earlier complete direct-endpoint original via IncrementalExhibit. Only SGML transport metadata excluded; full financial text, tables and spans still exact. Original reference hashes retained.",
     "connection_warmup_url": "https://www.sec.gov/Archives/edgar/data/49071/000004907126000066/",
     "filing_index_url": "https://www.sec.gov/Archives/edgar/data/1377630/000119312526344665/0001193125-26-344665-index.html",
-    "filing_form": "8-K"
+    "filing_form": "8-K",
+    "previous_direct_endpoint_reference": {
+      "raw_sha256": "fee63566ccba37640106fae395453334985d1b7ca41ebdd9ae54634a4a64e056",
+      "text_sha256": "a5b2ce4b58deedd68d824b7c1e48b4a1d746dec02eef5efdfd5286da8a9e4f53",
+      "table_sha256": [
+        "796a7085f4c9772aade0cd0c05bd986497a43f34c8b1c54eaffc8934881650de",
+        "27a19199bf0a830340237ce2738532f0041433c0d75b08d218763128c46e30a4",
+        "156661d60a9c7351df30e106bdbd2c6359c6271f2d8d0f7e0c14832b3dad6af5",
+        "6d4501aa4241a53518cb13da9514437f593dea21d99cb513194d791caee99809",
+        "52c1fa012bede44eb870eb04cc179e419e2f7df47c3d8d17052b354fdd4c6986",
+        "009832c5100519cd0233e190f9761ecf7cbe752be3f790df38328570b84787cd",
+        "4b8b90a0a42e2e5f06953ad6f41a671fdccbea71349414d2f62a4baf3de1130e",
+        "5663f93a87aff4e7824cffa6b163510624f9fd1fabd35433d00778a4abc3319d",
+        "715c1ec98ed0e1cb1bd43f3e226d2d3bc00cf8303df6def4bc5b9c76162b6a04"
+      ],
+      "table_spans_sha256": "4a96174f7b3ce0d419a585456c68e35e11ba37d3b9ce49f80bdcc84b83a9d60e"
+    }
   },
   "RGTI_REPAIRED_COVERAGE_METRICS_PRODUCTION": {
     "url": "https://investors.rigetti.com/news-releases/news-release-details/rigetti-computing-reports-second-quarter-2026-financial-results",
