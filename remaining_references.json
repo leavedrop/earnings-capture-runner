@@ -5463,6 +5463,18 @@
       "sequence": 2,
       "filename": "tm2623383d1_ex99-1.htm",
       "index_verified_independently": true
+    },
+    "text_sha256_variants": [
+      "98e941c20d9a716dfb8e89fa867930ea78b4f372391ee3a91735a18fdfb797eb"
+    ],
+    "text_variant_provenance": {
+      "basis": "Exact SEC transport metadata removal from original cached complete DOCUMENT, all financial text is an exact suffix; no financial content variant accepted.",
+      "metadata_prefix": "EX-99.1 2 tm2623383d1_ex99-1.htm EXHIBIT 99.1",
+      "cached_run_id": "42988229794",
+      "source_raw_sha256": "4b4cf05d98679af311f31730f6533027dacba6364f8e3e43ad2366525b8f8724",
+      "sgml_text_body_sha256": "9ef52026505b154ee2ff2d2e9c9e0b119b73dea03b5081d02c2320170747f1f4",
+      "all_tables_and_spans_exact": true,
+      "established_before_next_measurement": true
     }
   },
   "STEM_REPAIRED_COVERAGE_METRICS_PRODUCTION": {
@@ -5502,6 +5514,18 @@
       "sequence": 2,
       "filename": "exhibit99-8xkx20260812xq22.htm",
       "index_verified_independently": true
+    },
+    "text_sha256_variants": [
+      "12f24780ff2df9e24a1c28b9123e68b3c04360f1e7d5b0f825f6fe393d0e2b57"
+    ],
+    "text_variant_provenance": {
+      "basis": "Exact SEC transport metadata removal from original cached complete DOCUMENT, all financial text is an exact suffix; no financial content variant accepted.",
+      "metadata_prefix": "EX-99 2 exhibit99-8xkx20260812xq22.htm EX-99",
+      "cached_run_id": "42988229794",
+      "source_raw_sha256": "4fa381ac536ef89b05ea96905fc6014b9bca5e740319abd222daa3da1604be4d",
+      "sgml_text_body_sha256": "2520f46bf20820a21e4752978d5b6c8860cc6cfca4ae48b1b71b79795f74e1fb",
+      "all_tables_and_spans_exact": true,
+      "established_before_next_measurement": true
     }
   }
 }
