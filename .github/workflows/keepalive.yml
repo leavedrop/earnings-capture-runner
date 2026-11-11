@@ -1,0 +1,37 @@
+name: Cloud earnings collector keepalive
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_run:
+    workflows: ['US live earnings window']
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: earnings-cloud-keepalive
+  cancel-in-progress: false
+
+jobs:
+  handoff:
+    if: github.repository == 'leavedrop/earnings-capture-runner'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install the existing handoff HTTP dependency
+        run: python -m pip install httpx==0.28.1
+      - name: Check current evidence and hand off only after verified readiness
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PYTHONUNBUFFERED: '1'
+        run: python cloud_keepalive.py
