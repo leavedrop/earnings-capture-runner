@@ -1,27 +1,39 @@
 {
   "schema_version": 1,
   "owner": "github_actions",
-  "checked_at_utc": "2026-11-11T08:52:23.211510+00:00",
+  "checked_at_utc": "2026-11-11T08:55:27.013857+00:00",
   "dispatch_until_utc": "2026-11-17T13:03:00+08:00",
   "local_sec_rps_budget": 2,
   "total_sec_rps_limit": 10,
   "raw_report_requests": 0,
   "active_probe_run_ids": [],
-  "inventory_state": "verified_hashes",
-  "inventory_count": 104,
+  "inventory_state": "manifest_mismatch",
+  "inventory_count": 0,
   "inventory_refresh": "retained_existing; new documents may be initially_present on the next run",
   "evidence_observations": [
     {
+      "run_id": "42990797977-1",
+      "commit": "ccf58403e6a4df34b4cea399674552c37b7a5d47",
+      "node": {
+        "loc": "US",
+        "colo": "IAD"
+      },
+      "state": "running",
+      "updated_utc": "2026-11-11T08:55:06.078+00:00",
+      "collector_heartbeat_utc": null,
+      "requests": 0
+    },
+    {
       "run_id": "42987705945-1",
-      "commit": "ac18ba365dc550cf9c5139f562d3b9b5afd26bef",
+      "commit": "810855857afa76d9a1bc17ecd365e4fbc6e2ad5a",
       "node": {
         "loc": "US",
         "colo": "LAX"
       },
       "state": "running",
-      "updated_utc": "2026-11-11T08:52:11.832+00:00",
-      "collector_heartbeat_utc": "2026-11-11T08:52:00.495941+00:00",
-      "requests": 3041
+      "updated_utc": "2026-11-11T08:54:14.927+00:00",
+      "collector_heartbeat_utc": "2026-11-11T08:54:00.547516+00:00",
+      "requests": 3286
     },
     {
       "run_id": "42973032065-1",
@@ -49,16 +61,17 @@
     }
   ],
   "active_run_ids": [
-    "42987705945"
+    "42987705945",
+    "42990797977"
   ],
   "selected_run_id": "42987705945-1",
-  "workflow_state": "healthy",
-  "updated_utc": "2026-11-11T08:52:26.734043+00:00",
+  "workflow_state": "waiting_for_successor_readiness",
+  "updated_utc": "2026-11-11T08:55:30.970689+00:00",
   "control_mode": "live_supervisor",
   "caller_live_run_id": "42987705945-1",
   "overlap_sec_rps_budget": 8,
   "handoff_readiness": {
-    "ready": true,
+    "ready": false,
     "active_companies": [
       "ACHR",
       "B",
@@ -91,9 +104,106 @@
       "TTWO",
       "XENE"
     ],
-    "unobserved_sources": [],
-    "companies_without_valid_discovery": [],
-    "previously_accessible_sources_not_ready": []
+    "unobserved_sources": [
+      "HUM:sec:https://data.sec.gov/submissions/CIK0000049071.json",
+      "BAM:sec:https://data.sec.gov/submissions/CIK0001937926.json",
+      "ENB:sec:https://data.sec.gov/submissions/CIK0000895728.json",
+      "OKLO:sec:https://data.sec.gov/submissions/CIK0001849056.json",
+      "MSGK:sec:https://data.sec.gov/submissions/CIK0001636519.json",
+      "MSGR:sec:https://data.sec.gov/submissions/CIK0002132873.json",
+      "BRK.B:sec:https://data.sec.gov/submissions/CIK0001067983.json",
+      "SOHU:sec:https://data.sec.gov/submissions/CIK0001734107.json",
+      "B:sec:https://data.sec.gov/submissions/CIK0000756894.json",
+      "FERG:sec:https://data.sec.gov/submissions/CIK0002011641.json",
+      "KKR:sec:https://data.sec.gov/submissions/CIK0001404912.json",
+      "CECO:sec:https://data.sec.gov/submissions/CIK0000003197.json",
+      "TGTX:sec:https://data.sec.gov/submissions/CIK0001001316.json",
+      "SKYD:sec:https://data.sec.gov/submissions/CIK0002041610.json",
+      "TTD:sec:https://data.sec.gov/submissions/CIK0001671933.json",
+      "XENE:sec:https://data.sec.gov/submissions/CIK0001582313.json",
+      "ACHR:sec:https://data.sec.gov/submissions/CIK0001824502.json",
+      "HIMS:sec:https://data.sec.gov/submissions/CIK0001773751.json",
+      "LCID:sec:https://data.sec.gov/submissions/CIK0001811210.json",
+      "RKLB:sec:https://data.sec.gov/submissions/CIK0001819994.json",
+      "TTWO:sec:https://data.sec.gov/submissions/CIK0000946581.json",
+      "OXY:sec:https://data.sec.gov/submissions/CIK0000797468.json",
+      "ONON:sec:https://data.sec.gov/submissions/CIK0001858985.json",
+      "SE:sec:https://data.sec.gov/submissions/CIK0001703399.json",
+      "QBTS:sec:https://data.sec.gov/submissions/CIK0001907982.json",
+      "TDG:sec:https://data.sec.gov/submissions/CIK0001260221.json",
+      "MRDN:sec:https://data.sec.gov/submissions/CIK0001437925.json",
+      "NCMI:sec:https://data.sec.gov/submissions/CIK0001377630.json",
+      "RGTI:sec:https://data.sec.gov/submissions/CIK0001838359.json",
+      "GIB:official:https://www.cgi.com/en/newsroom",
+      "GIB:sec:https://data.sec.gov/submissions/CIK0001061574.json",
+      "GIB:newswire:https://www.prnewswire.com/search/news/?keyword=CGI"
+    ],
+    "companies_without_valid_discovery": [
+      "ACHR",
+      "B",
+      "BAM",
+      "BRK.B",
+      "CECO",
+      "ENB",
+      "FERG",
+      "GIB",
+      "HIMS",
+      "HUM",
+      "KKR",
+      "LCID",
+      "MRDN",
+      "MSGK",
+      "MSGR",
+      "NCMI",
+      "OKLO",
+      "ONON",
+      "OXY",
+      "QBTS",
+      "RGTI",
+      "RKLB",
+      "SE",
+      "SKYD",
+      "SOHU",
+      "TDG",
+      "TGTX",
+      "TTD",
+      "TTWO",
+      "XENE"
+    ],
+    "previously_accessible_sources_not_ready": [
+      "HUM:sec:https://data.sec.gov/submissions/CIK0000049071.json",
+      "BAM:sec:https://data.sec.gov/submissions/CIK0001937926.json",
+      "ENB:sec:https://data.sec.gov/submissions/CIK0000895728.json",
+      "OKLO:sec:https://data.sec.gov/submissions/CIK0001849056.json",
+      "MSGK:sec:https://data.sec.gov/submissions/CIK0001636519.json",
+      "MSGR:sec:https://data.sec.gov/submissions/CIK0002132873.json",
+      "BRK.B:sec:https://data.sec.gov/submissions/CIK0001067983.json",
+      "SOHU:sec:https://data.sec.gov/submissions/CIK0001734107.json",
+      "B:sec:https://data.sec.gov/submissions/CIK0000756894.json",
+      "FERG:sec:https://data.sec.gov/submissions/CIK0002011641.json",
+      "KKR:sec:https://data.sec.gov/submissions/CIK0001404912.json",
+      "CECO:sec:https://data.sec.gov/submissions/CIK0000003197.json",
+      "TGTX:sec:https://data.sec.gov/submissions/CIK0001001316.json",
+      "SKYD:sec:https://data.sec.gov/submissions/CIK0002041610.json",
+      "TTD:sec:https://data.sec.gov/submissions/CIK0001671933.json",
+      "XENE:sec:https://data.sec.gov/submissions/CIK0001582313.json",
+      "ACHR:sec:https://data.sec.gov/submissions/CIK0001824502.json",
+      "HIMS:sec:https://data.sec.gov/submissions/CIK0001773751.json",
+      "LCID:sec:https://data.sec.gov/submissions/CIK0001811210.json",
+      "RKLB:sec:https://data.sec.gov/submissions/CIK0001819994.json",
+      "TTWO:sec:https://data.sec.gov/submissions/CIK0000946581.json",
+      "OXY:sec:https://data.sec.gov/submissions/CIK0000797468.json",
+      "ONON:sec:https://data.sec.gov/submissions/CIK0001858985.json",
+      "SE:sec:https://data.sec.gov/submissions/CIK0001703399.json",
+      "QBTS:sec:https://data.sec.gov/submissions/CIK0001907982.json",
+      "TDG:sec:https://data.sec.gov/submissions/CIK0001260221.json",
+      "MRDN:sec:https://data.sec.gov/submissions/CIK0001437925.json",
+      "NCMI:sec:https://data.sec.gov/submissions/CIK0001377630.json",
+      "RGTI:sec:https://data.sec.gov/submissions/CIK0001838359.json",
+      "GIB:official:https://www.cgi.com/en/newsroom",
+      "GIB:sec:https://data.sec.gov/submissions/CIK0001061574.json",
+      "GIB:newswire:https://www.prnewswire.com/search/news/?keyword=CGI"
+    ]
   },
   "retirement_requested_run_id": "42973032065",
   "retirement_requested_utc": "2026-11-11T08:34:09.817486+00:00",
@@ -109,5 +219,8 @@
     "timing_basis": "Separate run UTC observations; no cross-run monotonic timing"
   },
   "projected_total_sec_rps": 10,
-  "snapshot_errors": []
+  "snapshot_errors": [],
+  "dispatch_blockers": [
+    "inventory_not_verified"
+  ]
 }
