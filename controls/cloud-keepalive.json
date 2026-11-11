@@ -1,39 +1,39 @@
 {
   "schema_version": 1,
   "owner": "github_actions",
-  "checked_at_utc": "2026-11-11T11:34:46.022591+00:00",
+  "checked_at_utc": "2026-11-11T11:37:07.365866+00:00",
   "dispatch_until_utc": "2026-11-17T13:03:00+08:00",
   "local_sec_rps_budget": 2,
   "total_sec_rps_limit": 10,
   "raw_report_requests": 0,
   "active_probe_run_ids": [],
-  "inventory_state": "verified_hashes",
-  "inventory_count": 104,
+  "inventory_state": "manifest_mismatch",
+  "inventory_count": 0,
   "inventory_refresh": "retained_existing; new documents may be initially_present on the next run",
   "evidence_observations": [
     {
       "run_id": "43012713725-1",
-      "commit": "a48ad58d0d84c235e647227aecbef19744d21208",
+      "commit": "47737d6dde4905a9699f010ad1ad6acd28df84c5",
       "node": {
         "loc": "US",
         "colo": "LAX"
       },
       "state": "running",
-      "updated_utc": "2026-11-11T11:34:34.689+00:00",
-      "collector_heartbeat_utc": "2026-11-11T11:34:19.988541+00:00",
-      "requests": 1146
+      "updated_utc": "2026-11-11T11:36:37.773+00:00",
+      "collector_heartbeat_utc": "2026-11-11T11:36:20.071432+00:00",
+      "requests": 2173
     },
     {
       "run_id": "42990797977-1",
-      "commit": "462084c7c4cdbc0104ef76ae377bc9ccf96d4d0d",
+      "commit": "77af2c6376e7a44bc1b12df0b753edbf5b80246f",
       "node": {
         "loc": "US",
         "colo": "IAD"
       },
       "state": "running",
-      "updated_utc": "2026-11-11T11:33:21.916+00:00",
-      "collector_heartbeat_utc": "2026-11-11T11:33:17.959938+00:00",
-      "requests": 25880
+      "updated_utc": "2026-11-11T11:35:25.522+00:00",
+      "collector_heartbeat_utc": "2026-11-11T11:35:13.841837+00:00",
+      "requests": 26602
     },
     {
       "run_id": "42987705945-1",
@@ -64,14 +64,14 @@
     "42990797977",
     "43012713725"
   ],
-  "selected_run_id": "42990797977-1",
-  "workflow_state": "waiting_for_successor_readiness",
-  "updated_utc": "2026-11-11T11:34:50.036023+00:00",
+  "selected_run_id": "43012713725-1",
+  "workflow_state": "healthy_successor_retiring_previous",
+  "updated_utc": "2026-11-11T11:37:11.945233+00:00",
   "control_mode": "live_supervisor",
-  "caller_live_run_id": "43012713725-1",
+  "caller_live_run_id": "42990797977-1",
   "overlap_sec_rps_budget": 8,
   "handoff_readiness": {
-    "ready": false,
+    "ready": true,
     "active_companies": [
       "ACHR",
       "B",
@@ -106,23 +106,24 @@
     ],
     "unobserved_sources": [],
     "companies_without_valid_discovery": [],
-    "previously_accessible_sources_not_ready": [
-      "GIB:newswire:https://www.prnewswire.com/search/news/?keyword=CGI"
-    ]
+    "previously_accessible_sources_not_ready": []
   },
-  "retirement_requested_run_id": "42987705945",
-  "retirement_requested_utc": "2026-11-11T08:57:11.196873+00:00",
+  "retirement_requested_run_id": "42990797977",
+  "retirement_requested_utc": "2026-11-11T11:37:07.365866+00:00",
   "retirement_method": "cooperative_stop_and_final_snapshot",
   "handoff_observation": {
-    "previous_run_id": "42987705945-1",
-    "successor_run_id": "42990797977-1",
-    "successor_first_request_utc": "2026-11-11T08:55:07.036063+00:00",
-    "previous_last_alive_utc": "2026-11-11T08:56:17.301+00:00",
-    "previous_last_heartbeat_utc": "2026-11-11T08:56:00.598685+00:00",
-    "readiness_confirmed_utc": "2026-11-11T08:57:11.196873+00:00",
+    "previous_run_id": "42990797977-1",
+    "successor_run_id": "43012713725-1",
+    "successor_first_request_utc": "2026-11-11T11:32:19.865493+00:00",
+    "previous_last_alive_utc": "2026-11-11T11:35:23.898+00:00",
+    "previous_last_heartbeat_utc": "2026-11-11T11:35:13.841837+00:00",
+    "readiness_confirmed_utc": "2026-11-11T11:37:07.365866+00:00",
     "monitoring_gap_ms": 0,
     "timing_basis": "Separate run UTC observations; no cross-run monotonic timing"
   },
   "projected_total_sec_rps": 10,
-  "snapshot_errors": []
+  "snapshot_errors": [],
+  "dispatch_blockers": [
+    "inventory_not_verified"
+  ]
 }
