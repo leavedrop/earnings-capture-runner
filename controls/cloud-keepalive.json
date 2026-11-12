@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "owner": "github_actions",
-  "checked_at_utc": "2026-11-12T06:37:56.763715+00:00",
+  "checked_at_utc": "2026-11-12T06:38:04.212823+00:00",
   "dispatch_until_utc": "2026-11-17T13:03:00+08:00",
   "local_sec_rps_budget": 2,
   "total_sec_rps_limit": 10,
@@ -66,9 +66,9 @@
   ],
   "selected_run_id": "43169148816-1",
   "workflow_state": "healthy_successor_retiring_previous",
-  "updated_utc": "2026-11-12T06:38:01.217159+00:00",
+  "updated_utc": "2026-11-12T06:38:07.521458+00:00",
   "control_mode": "live_supervisor",
-  "caller_live_run_id": "43169148816-1",
+  "caller_live_run_id": "43138754180-1",
   "overlap_sec_rps_budget": 8,
   "handoff_readiness": {
     "ready": true,
@@ -119,7 +119,7 @@
     "successor_first_request_utc": "2026-11-12T06:35:29.954983+00:00",
     "previous_last_alive_utc": "2026-11-12T06:37:26.265+00:00",
     "previous_last_heartbeat_utc": "2026-11-12T06:37:22.484348+00:00",
-    "readiness_confirmed_utc": "2026-11-12T06:37:56.763715+00:00",
+    "readiness_confirmed_utc": "2026-11-12T06:38:04.212823+00:00",
     "monitoring_gap_ms": 0,
     "timing_basis": "Separate run UTC observations; no cross-run monotonic timing"
   },
