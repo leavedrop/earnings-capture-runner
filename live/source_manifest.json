@@ -1,7 +1,7 @@
 {
   "watch.py": {
-    "sha256": "d789cabf57a906123f68b9a4916dcd2e3e0b376411f2e605d31015b430ef2edf",
-    "production_sha256": "d789cabf57a906123f68b9a4916dcd2e3e0b376411f2e605d31015b430ef2edf",
+    "sha256": "877c4df8899d406060d2a803be1b18b4a6d840dd8b470ba9830d4d951e1e4766",
+    "production_sha256": "877c4df8899d406060d2a803be1b18b4a6d840dd8b470ba9830d4d951e1e4766",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "watch.py"
   },
@@ -66,8 +66,8 @@
     "source": "metric_comparison.py"
   },
   "earnings_metrics.py": {
-    "sha256": "ef802c8c5d060913d225813ee4779af5e8a56c12ff21aff3e9316471c18bf3e6",
-    "production_sha256": "ef802c8c5d060913d225813ee4779af5e8a56c12ff21aff3e9316471c18bf3e6",
+    "sha256": "30d89d108838ad613f4b27e80e1ce152415199626431cc87e2c9636f6d675034",
+    "production_sha256": "30d89d108838ad613f4b27e80e1ce152415199626431cc87e2c9636f6d675034",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "earnings_metrics.py"
   },

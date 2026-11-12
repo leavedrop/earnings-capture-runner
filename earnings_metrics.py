@@ -44,6 +44,8 @@ _CURRENCY_EVIDENCE = {currency: re.compile(pattern, re.I) for currency, pattern 
     "CHF": r"\bCHF\b|Swiss Franc", "CNY": r"\bRMB\b|\bCNY\b"}.items()}
 _GUIDANCE_WORD = re.compile(r"\b(?:expect(?:s)?|anticipate(?:s)?|guidance|outlook)\b", re.I)
 _GUIDANCE_END = re.compile(r"[.!?](?=\s+[A-Z\u2022\u25e6]|$)|\n\s*\n")
+_GUIDANCE_CASE = {ord(c): c.lower() for c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ"}
+_GUIDANCE_CASE.update({0x130: "i", 0x131: "i", 0x17f: "s", 0x212a: "k"})
 _TEXT_NODES = etree.XPath(".//text()", smart_strings=False)
 
 
@@ -915,6 +917,26 @@ def _native_pdf_fields(event, parsed, common, diagnostics):
     return records
 
 
+def _guidance_keyword_starts(text):
+    # str.find scans in C; preserve re.IGNORECASE's ASCII-word Unicode variants
+    # and original offsets, including capital dotted I's expanding lower().
+    folded = text.lower()
+    folded = (text.translate(_GUIDANCE_CASE) if len(folded) != len(text)
+              else folded.replace("\u0131", "i").replace("\u017f", "s"))
+    starts = []
+    for word in ("expect", "anticipate", "guidance", "outlook"):
+        at = folded.find(word)
+        while at >= 0:
+            end = at + len(word)
+            if word in {"expect", "anticipate"} and folded[end:end + 1] == "s":
+                end += 1
+            if ((not at or not (text[at - 1].isalnum() or text[at - 1] == "_"))
+                    and (end == len(text) or not (text[end].isalnum() or text[end] == "_"))):
+                starts.append(at)
+            at = folded.find(word, at + 1)
+    return iter(sorted(starts))
+
+
 def _guidance_observations(parsed, common):
     """Keep explicit forward financial prose apart from measured actuals.
 
@@ -925,7 +947,8 @@ def _guidance_observations(parsed, common):
         return []
     observations = []
     text = parsed["text"]
-    keyword = _GUIDANCE_WORD.search(text)
+    keywords = _guidance_keyword_starts(text)
+    keyword = next(keywords, None)
     start = 0
     # A top-level `|$` disables the regex engine's initial-character skip.
     # Handle EOF once, retaining the final fragment and its original offsets.
@@ -933,12 +956,14 @@ def _guidance_observations(parsed, common):
         if keyword is None:
             break
         end = boundary.end() if boundary is not None else len(text)
-        if keyword.start() >= end:
+        if keyword >= end:
             start = end
             continue
         fragment = text[start:end]
         position = start + len(fragment) - len(fragment.lstrip())
-        start, keyword = end, _GUIDANCE_WORD.search(text, end)
+        start = end
+        while keyword is not None and keyword < end:
+            keyword = next(keywords, None)
         raw = fragment.strip()
         if not (re.search(r"\b(?:revenue|earnings|EPS|margins?|cash flow|profitability)\b", raw, re.I)
                 and re.search(r"\d", raw)):

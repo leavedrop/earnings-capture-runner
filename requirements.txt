@@ -7,3 +7,4 @@ beautifulsoup4==4.12.3
 PyMuPDF==1.27.2.3
 curl_cffi==0.16.0
 websockets==16.0
+orjson==3.13.0

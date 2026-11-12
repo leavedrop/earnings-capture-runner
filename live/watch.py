@@ -27,6 +27,7 @@ from urllib.parse import urlsplit, urljoin
 import uuid
 
 import httpx
+import orjson
 from sources import is_kkr_report_asset
 from observation_store import Store
 
@@ -53,8 +54,10 @@ def epoch(value: str) -> float:
 
 def atomic_json(path: Path, value, *, indent=2):
     temp = path.with_suffix(path.suffix + ".tmp")
-    temp.write_text(json.dumps(value, ensure_ascii=False, indent=indent,
-                              separators=(",", ":") if indent is None else None), encoding="utf-8")
+    if indent is None:
+        temp.write_bytes(orjson.dumps(value))
+    else:
+        temp.write_text(json.dumps(value, ensure_ascii=False, indent=indent), encoding="utf-8")
     temp.replace(path)
 
 
