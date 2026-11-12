@@ -66,8 +66,8 @@
     "source": "metric_comparison.py"
   },
   "earnings_metrics.py": {
-    "sha256": "8e18fe13c870bc899da8bdd79607f10870d309046b149b3a8fc8562a6136ab88",
-    "production_sha256": "8e18fe13c870bc899da8bdd79607f10870d309046b149b3a8fc8562a6136ab88",
+    "sha256": "ef802c8c5d060913d225813ee4779af5e8a56c12ff21aff3e9316471c18bf3e6",
+    "production_sha256": "ef802c8c5d060913d225813ee4779af5e8a56c12ff21aff3e9316471c18bf3e6",
     "normalization": "UTF-8 LF; code unchanged",
     "source": "earnings_metrics.py"
   },

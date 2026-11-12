@@ -10,12 +10,14 @@ from email.utils import parsedate_to_datetime
 import hashlib
 import gzip
 import json
+import math
 import os
 from pathlib import Path
 import platform
 import re
 import shutil
 import sqlite3
+import statistics
 import subprocess
 import sys
 import tempfile
@@ -631,10 +633,11 @@ async def collect_material_ranges(client, target, output, node, recent, blocked,
     return row
 
 
-async def collect_watch_case(target, output, node):
+async def collect_watch_case(target, output, node, *, collector_base=None):
     """One production probe; the listing request is real, the supplied URL is a replay."""
     from live.progress import public_url, range_assembly_complete, range_projection
 
+    collector_base = BASE if collector_base is None else Path(collector_base)
     row = {"target_id": target["target_id"], "symbol": target["event"]["symbol"],
            "channel": target["channel"], "url": target["url"], "mode": "replay", "node": node,
            "started_utc": utc(), "parsed_utc": None, "status": None, "attempts": 1,
@@ -655,16 +658,16 @@ async def collect_watch_case(target, output, node):
     try:
         with tempfile.TemporaryDirectory(prefix="earnings-production-probe-") as directory:
             runtime = Path(directory)
-            command = [sys.executable, str(BASE / "live/watch.py"), "probe", "--manifest", str(BASE / "live/watchlist.json"),
+            command = [sys.executable, str(collector_base / "live/watch.py"), "probe", "--manifest", str(collector_base / "live/watchlist.json"),
                        "--output", str(runtime), "--symbols", target["event"]["symbol"], "--channel", target["channel"],
                        "--samples", "1",
                        "--node", "github-actions-" + str(node.get("loc")) + "-" + str(node.get("colo"))]
             if target.get("metrics_mode") == "synthetic":
                 command.extend(["--metrics-mode", "synthetic", "--metrics-rules",
-                                str(BASE / "live/earnings_metrics_rules.json")])
+                                str(collector_base / "live/earnings_metrics_rules.json")])
             discovery_event = target["event"]
             if actual_discovery:
-                discovery_event = next(event for event in json.loads((BASE / "live/watchlist.json").read_text(encoding="utf-8"))
+                discovery_event = next(event for event in json.loads((collector_base / "live/watchlist.json").read_text(encoding="utf-8"))
                                        if event["symbol"] == target["event"]["symbol"])
                 discovery_event = {**discovery_event, "sources": [source for source in discovery_event["sources"] if source["channel"] == target["channel"]]}
                 manifest = runtime / "public_probe_manifest.json"
@@ -675,7 +678,7 @@ async def collect_watch_case(target, output, node):
                 if target.get("filing_form"):
                     command.extend(["--candidate-filing-form", target["filing_form"]])
                 if target.get("listing_url"):
-                    live_event = next(event for event in json.loads((BASE / "live/watchlist.json").read_text(encoding="utf-8"))
+                    live_event = next(event for event in json.loads((collector_base / "live/watchlist.json").read_text(encoding="utf-8"))
                                       if event["symbol"] == target["event"]["symbol"])
                     discovery_event = {**live_event, **discovery_event, "sources": [
                         {**source, "url": target["listing_url"]} if source["channel"] == target["channel"] else dict(source)
@@ -693,7 +696,7 @@ async def collect_watch_case(target, output, node):
                     command.extend(["--sec-warmup-url", target["reference"]["connection_warmup_url"]])
             elif target["reference"].get("connection_warmup_url"):
                 command.extend(["--origin-warmup-url", target["reference"]["connection_warmup_url"]])
-            result = await asyncio.to_thread(subprocess.run, command, cwd=BASE / "live", env=child_env,
+            result = await asyncio.to_thread(subprocess.run, command, cwd=collector_base / "live", env=child_env,
                                              capture_output=True, timeout=180)
             row["collector_exit_code"] = result.returncode
             connection = sqlite3.connect((runtime / "observations.sqlite3").as_uri() + "?mode=ro", uri=True)
@@ -1026,7 +1029,110 @@ async def collect_bw_browser_access(output, *, http1=False):
     return 1 if "diagnostic_error" in summary else 0
 
 
+async def run_regression_ab(args):
+    """Fixed 24 alternating production replays, then one separate current 44-company pass."""
+    versions = {"before": args.baseline_dir.resolve(), "after": BASE}
+    manifests = {}
+    for version, directory in versions.items():
+        manifests[version] = json.loads((directory / "live/source_manifest.json").read_text(encoding="utf-8"))
+        for name, entry in manifests[version].items():
+            if digest((directory / "live" / name).read_bytes()) != entry["sha256"]:
+                raise ValueError("Collector source hash mismatch: " + version + "/" + name)
+    all_targets = select_targets(json.loads(args.targets.read_text(encoding="utf-8")), "metrics-all-supported")
+    by_symbol = {target["event"]["symbol"]: target for target in all_targets}
+    symbols = ("CSCO", "NBIS", "BRK.B", "KKR")
+    args.output.mkdir(parents=True, exist_ok=False)
+    async with httpx.AsyncClient(trust_env=False, timeout=12) as client:
+        node = await identify_node(client)
+    metadata = {"scope": "metrics-regression-ab", "mode": "old_document_replay", "metrics_mode": "synthetic",
+                "new_release_evidence": False, "exchange_orders_sent": 0, "node": node,
+                "execution_environment": execution_hardware(), "started_utc": utc(),
+                "baseline_ref": os.environ.get("BASELINE_REF") or None, "collector_sources": manifests,
+                "version_order_by_round": ["AB", "BA", "AB"], "A": "before", "B": "after", "symbols": symbols,
+                "requests_per_second": {"parent_direct_sec": 0, "production_child_sec": 2},
+                "between_child_processes_seconds": 1.1,
+                "measurement_scope": "Each version runs its own production watch and metric rules; one current public target/reference set and post-capture audit are shared. Full download/parse/archive/metrics clocks are retained; no pre-read target bodies. CDN order and network variability remain possible.",
+                "node_semantics": "Cloudflare loc/colo identify egress/edge, not the runner data-center",
+                "attempts": [], "after_all_44_summary": "after_all_44/summary.json"}
+    (args.output / "run.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+    if node.get("is_us") is not True:
+        metadata["error_type"] = "US_node_not_verified"
+        (args.output / "summary.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+        return 1
+    call_count = 0
+
+    async def capture(target, version, output, round_number=None, order=None):
+        nonlocal call_count
+        if call_count:
+            await asyncio.sleep(1.1)  # The previous child has exited; its rolling SEC window expires.
+        call_count += 1
+        output.mkdir(parents=True, exist_ok=True)
+        for folder in ("raw", "parsed"):
+            (output / folder).mkdir(exist_ok=True)
+        row = await collect_watch_case(target, output, node, collector_base=versions[version])
+        records = row.get("metric_extractions") or []
+        metric_record = records[-1] if records else {}
+        elapsed = metric_record.get("discovery_to_decision_ms")
+        completed = (row.get("complete") is True and row.get("archived") is True
+                     and row.get("metrics_pipeline_completed") is True and metric_record.get("status") == "completed"
+                     and elapsed is not None)
+        return {"version": version, "round": round_number, "pair_order": order,
+                "sequence": call_count, "artifact_root": output.relative_to(args.output).as_posix(),
+                **{key: row.get(key) for key in ("target_id", "symbol", "url", "sha256", "status", "error_type",
+                    "started_utc", "parsed_utc", "ended_utc", "complete", "archived", "decision_budget_passed",
+                    "queue_ms", "headers_ms", "request_total_ms", "parse_ms", "validation_queue_ms",
+                    "discovery_to_parsed_ms", "discovery_to_archive_ms", "archive_completed_utc",
+                    "http_version", "connection_reused", "transport", "range_assembly_verified")},
+                "node": row.get("node", node), "discovery_to_decision_ms": elapsed,
+                "metrics_timings_ms": metric_record.get("timings_ms"),
+                "decision_completed_at_utc": metric_record.get("decision_completed_at_utc"),
+                "simulation_action": (metric_record.get("simulation_decision") or {}).get("action"),
+                "processing_completed": completed, "processing_within_500ms": completed and elapsed <= 500,
+                "speed_timeout": completed and elapsed > 500}
+
+    for round_number, versions_in_order in enumerate((("before", "after"), ("after", "before"), ("before", "after")), 1):
+        order = "BA" if round_number == 2 else "AB"
+        for symbol in symbols:
+            for version in versions_in_order:
+                output = args.output / version / ("round_" + str(round_number)) / symbol
+                attempt = await capture(by_symbol[symbol], version, output, round_number, order)
+                metadata["attempts"].append(attempt)
+                with (args.output / "results.ndjson").open("a", encoding="utf-8") as stream:
+                    stream.write(json.dumps(attempt, ensure_ascii=False) + "\n")
+                (args.output / "summary.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+    full_output = args.output / "after_all_44"
+    full_output.mkdir()
+    full_summary = {"scope": "metrics-all-supported", "mode": "old_document_replay", "metrics_mode": "synthetic",
+                    "node": node, "execution_environment": metadata["execution_environment"],
+                    "collector_sources": manifests["after"], "started_utc": utc(), "attempts": [],
+                    "new_release_evidence": False, "exchange_orders_sent": 0,
+                    "requests_per_second": metadata["requests_per_second"],
+                    "percentile_method": "P50 median; P95 nearest rank; completed processing only, including no_signal; missing/failed attempts remain separately counted"}
+    (full_output / "run.json").write_text(json.dumps(full_summary, indent=2), encoding="utf-8")
+    for target in all_targets:
+        full_summary["attempts"].append(await capture(target, "after", full_output))
+        (full_output / "summary.json").write_text(json.dumps(full_summary, indent=2), encoding="utf-8")
+    values = sorted(row["discovery_to_decision_ms"] for row in full_summary["attempts"] if row["processing_completed"])
+    full_summary.update(finished_utc=utc(), attempted=len(full_summary["attempts"]), completed=len(values),
+                        processing_within_500=sum(row["processing_within_500ms"] for row in full_summary["attempts"]),
+                        passed_decision_500=sum(row["decision_budget_passed"] is True for row in full_summary["attempts"]),
+                        speed_timeouts=sum(row["speed_timeout"] for row in full_summary["attempts"]),
+                        failed_or_incomplete=len(full_summary["attempts"])-len(values),
+                        p50_ms=statistics.median(values) if values else None,
+                        p95_ms=values[math.ceil(.95*len(values))-1] if values else None)
+    (full_output / "summary.json").write_text(json.dumps(full_summary, indent=2), encoding="utf-8")
+    metadata.update(finished_utc=utc(), attempted=len(metadata["attempts"]),
+                    processing_within_500=sum(row["processing_within_500ms"] for row in metadata["attempts"]),
+                    passed_decision_500=sum(row["decision_budget_passed"] is True for row in metadata["attempts"]),
+                    after_all_44_counts={key: full_summary[key] for key in (
+                        "attempted", "completed", "processing_within_500", "passed_decision_500", "speed_timeouts", "failed_or_incomplete")})
+    (args.output / "summary.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+    return 0 if all(row["processing_within_500ms"] for row in metadata["attempts"] + full_summary["attempts"]) else 1
+
+
 async def run(args):
+    if args.scope == "metrics-regression-ab":
+        return await run_regression_ab(args)
     if args.scope in ("bw-browser-access", "bw-browser-http1-access"):
         return await collect_bw_browser_access(args.output, http1=args.scope == "bw-browser-http1-access")
     targets = select_targets(json.loads(args.targets.read_text(encoding="utf-8")), args.scope)
@@ -1234,7 +1340,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--targets", type=Path, default=BASE / "targets.json")
     parser.add_argument("--output", type=Path, default=BASE / "outputs", help="New output directory; existing evidence is never overwritten")
-    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "backlog-production", "kkr-complete", "kkr-issuer-chrome-transport", "kkr-range-transport", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports", "skyd-materials", "skyd-range", "skyd-http1-material", "skyd-complete", "bw-browser-access", "bw-browser-http1-access", *METRICS_SCOPES), default="all")
+    parser.add_argument("--scope", choices=("all", "sec", "sec-businesswire", "remaining-paths", "msgk-cache-control", "msgk-cache-control-reverse", "bam-pdf", "alternate-routes", "msgk-issuer-cold", "msgk-browser-transport", "msgk-production-issuer", "repaired-paths", "backlog-production", "kkr-complete", "kkr-issuer-chrome-transport", "kkr-range-transport", "sec-quarterly", "lcid-http-protocols", "lcid-chrome-protocols", "b-sec-transports", "skyd-materials", "skyd-range", "skyd-http1-material", "skyd-complete", "bw-browser-access", "bw-browser-http1-access", "metrics-regression-ab", *METRICS_SCOPES), default="all")
+    parser.add_argument("--baseline-dir", type=Path, default=BASE / "baseline", help="Immutable baseline checkout for metrics-regression-ab")
     args = parser.parse_args()
     raise SystemExit(asyncio.run(run(args)))
 

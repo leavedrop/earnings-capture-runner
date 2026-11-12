@@ -19,6 +19,83 @@ from probe import BASE, collect_one, collect_watch_case, content_hashes, pace, r
 
 
 class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
+    async def test_regression_ab_alternates_versions_and_keeps_full_44_separate(self):
+        selected = select_targets([], "metrics-all-supported")
+        calls = []
+        node = {"loc": "US", "colo": "TEST", "is_us": True}
+        client = MagicMock()
+        client.__aenter__ = AsyncMock(return_value=client)
+        client.__aexit__ = AsyncMock(return_value=False)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for version in ("before", "after"):
+                live = root / version / "live"
+                live.mkdir(parents=True)
+                body = version.encode()
+                (live / "watch.py").write_bytes(body)
+                (live / "source_manifest.json").write_text(json.dumps({
+                    "watch.py": {"sha256": hashlib.sha256(body).hexdigest()}}), encoding="utf-8")
+
+            async def capture(target, output, observed_node, *, collector_base=None):
+                calls.append((target["event"]["symbol"], collector_base.name, output))
+                self.assertEqual(observed_node, node)
+                self.assertEqual(target["metrics_mode"], "synthetic")
+                self.assertEqual(target["pipeline"], "production_watch_list_seed")
+                # One HTTP failure and a timely no-signal must remain different outcomes.
+                failed = len(calls) == 2
+                no_signal = len(calls) == 3
+                elapsed = 100 if no_signal else 600 if len(calls) == 4 else 200
+                row = {"target_id": target["target_id"], "symbol": target["event"]["symbol"],
+                       "url": target["url"], "sha256": None if failed else "a" * 64,
+                       "mode": "replay", "node": node, "status": 403 if failed else 200,
+                       "complete": not failed, "archived": not failed,
+                       "metrics_pipeline_completed": not failed,
+                       "decision_budget_passed": not failed and not no_signal and elapsed <= 500,
+                       "queue_ms": 5, "headers_ms": 20, "request_total_ms": 30,
+                       "parse_ms": 40, "metric_extractions": [] if failed else [{
+                           "status": "completed", "discovery_to_decision_ms": elapsed,
+                           "timings_ms": {"metrics_extraction_ms": 50},
+                           "simulation_decision": {"action": "no_signal" if no_signal else "long"}}]}
+                if failed:
+                    row["error_type"] = "HTTP_403"
+                with (output / "results.ndjson").open("a", encoding="utf-8") as stream:
+                    stream.write(json.dumps(row) + "\n")
+                return row
+
+            args = argparse.Namespace(scope="metrics-regression-ab", output=root / "outputs",
+                                      targets=BASE / "targets.json", baseline_dir=root / "before")
+            with patch("probe.BASE", root / "after"), \
+                    patch("probe.select_targets", return_value=selected), \
+                    patch("probe.httpx.AsyncClient", return_value=client), \
+                    patch("probe.identify_node", new_callable=AsyncMock, return_value=node), \
+                    patch("probe.execution_hardware", return_value={"cpu_model": "mock CPU"}), \
+                    patch("probe.collect_watch_case", side_effect=capture), \
+                    patch("probe.asyncio.sleep", new_callable=AsyncMock) as sleep:
+                self.assertEqual(await run(args), 1)
+            expected = [(symbol, version) for versions in (("before", "after"), ("after", "before"), ("before", "after"))
+                        for symbol in ("CSCO", "NBIS", "BRK.B", "KKR") for version in versions]
+            self.assertEqual([(symbol, version) for symbol, version, _ in calls[:24]], expected)
+            self.assertEqual([symbol for symbol, _, _ in calls[24:]], [row["event"]["symbol"] for row in selected])
+            self.assertTrue(all(version == "after" for _, version, _ in calls[24:]))
+            self.assertEqual(sleep.await_count, 67)
+            self.assertTrue(all(call.args[0] >= 1 for call in sleep.await_args_list))
+            summary = json.loads((args.output / "summary.json").read_text(encoding="utf-8"))
+            self.assertEqual(len(summary["attempts"]), 24)
+            self.assertEqual(summary["attempts"][1]["error_type"], "HTTP_403")
+            self.assertIsNone(summary["attempts"][1]["discovery_to_decision_ms"])
+            self.assertTrue(summary["attempts"][2]["processing_within_500ms"])
+            self.assertFalse(summary["attempts"][2]["speed_timeout"])
+            self.assertFalse(summary["attempts"][2]["decision_budget_passed"])
+            self.assertTrue(summary["attempts"][3]["speed_timeout"])
+            self.assertEqual(summary["attempts"][3]["metrics_timings_ms"], {"metrics_extraction_ms": 50})
+            self.assertEqual(summary["requests_per_second"]["production_child_sec"], 2)
+            self.assertNotIn("p95_ms", summary)
+            all_rows = [json.loads(line) for line in (args.output / "after_all_44/results.ndjson").read_text().splitlines()]
+            self.assertEqual(len(all_rows), 44)
+            full_summary = json.loads((args.output / "after_all_44/summary.json").read_text())
+            self.assertEqual(full_summary["attempted"], 44)
+            self.assertEqual(full_summary["p95_ms"], 200)
+
     async def test_bw_browser_diagnostic_keeps_denial_events_when_dom_evidence_fails(self):
         from types import ModuleType, SimpleNamespace
 
@@ -526,8 +603,12 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
         target = {**targets[1], "reference": {"url": targets[1]["url"], "raw_sha256": sha, **content_hashes(parsed)}}
         self.assertFalse(reference_match({**parsed, "tables": []}, target["reference"])["reference_tables_match"])
         eof_proven = [True]
+        range_mode = [None]
+        expected_base = [BASE]
 
         def collector(command, **kwargs):
+            self.assertEqual(Path(command[1]), expected_base[0] / "live/watch.py")
+            self.assertEqual(kwargs["cwd"], expected_base[0] / "live")
             self.assertEqual(command[command.index("--samples") + 1], "1")
             actual = target.get("discovery_route") == "actual_issuer_rss"
             if actual:
@@ -538,6 +619,12 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(manifest[0]["sources"][0]["url"], "https://investor.msgknicks.com/rss/pressrelease.aspx")
             else:
                 self.assertEqual(command[command.index("--candidate-url") + 1], target.get("filing_index_url", target["url"]))
+                if target.get("listing_url"):
+                    manifest = json.loads(Path(command[command.index("--manifest") + 1]).read_text(encoding="utf-8"))
+                    sources = [source for source in manifest[0]["sources"] if source["channel"] == target["channel"]]
+                    self.assertTrue(sources)
+                    self.assertEqual({source["url"] for source in sources}, {target["listing_url"]})
+                    self.assertTrue(all("expected_bytes" not in source and "metadata" not in source for source in sources))
                 if target.get("filing_form"):
                     self.assertEqual(command[command.index("--candidate-filing-form") + 1], target["filing_form"])
             if target["channel"] != "sec":
@@ -550,7 +637,7 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
             (runtime / (stem + ".json")).write_text(json.dumps({"tables": parsed["tables"], "metadata": {"private": "SECRET_TEST_TOKEN"}}), encoding="utf-8")
             requests = []
             listing = ("<rss><channel><item><title>MSG Knickerbockers Corp. Reports Fiscal 2027 First Quarter Results</title><link>" + target["url"] + "</link></item></channel></rss>").encode() if actual else b"<html>News listing</html>"
-            listing_url = "https://investor.msgknicks.com/rss/pressrelease.aspx" if actual else "https://www.businesswire.com/newsroom"
+            listing_url = "https://investor.msgknicks.com/rss/pressrelease.aspx" if actual else target.get("listing_url", "https://www.businesswire.com/newsroom")
             for purpose, body, url in [("discovery", listing, listing_url), ("candidate", raw, target["url"])]:
                 path = "raw/" + purpose + ".gz"
                 with gzip.open(runtime / path, "wb") as stream: stream.write(body)
@@ -562,6 +649,29 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
                                  "request_end_mono_ns": completed,
                                  "response_headers_received_ms": 40, "connection_reused": purpose == "candidate",
                                  "response_headers": {"set-cookie": "SECRET_TEST_TOKEN"}})
+            if range_mode[0]:
+                parts = []
+                for index in range(4):
+                    start, stop = len(raw)*index//4, len(raw)*(index+1)//4
+                    parts.append({"part": index, "requested_range": f"bytes={start}-{stop-1}",
+                        "content_range": f"bytes {start}-{stop-1}/{len(raw)}", "content_length": str(stop-start),
+                        "expected_bytes": stop-start, "expected_total_bytes": len(raw), "bytes": stop-start,
+                        "sha256": hashlib.sha256(raw[start:stop]).hexdigest(), "status": 206, "etag": '"same-document"',
+                        "content_encoding": "identity", "http_response_complete": True, "verified": True,
+                        "queued_mono_ns": 140000000, "request_start_mono_ns": 150000000,
+                        "eof_mono_ns": 190000000, "request_end_mono_ns": 190000000,
+                        "headers": {"set-cookie": "SECRET_TEST_TOKEN"}})
+                requests[-1].update(status=206, http_response_complete=False, whole_http_response_complete=False)
+                if range_mode[0] == "assembled":
+                    requests[-1].update(range_assembly_verified=True, range_expected_bytes=len(raw), range_parts=parts,
+                                        http_request_count=4, http_failed_request_count=0)
+                else:
+                    failed_parts = json.loads(json.dumps(parts))
+                    failed_parts[0].update(status=403, verified=False, eof_mono_ns=None, error_type="HTTP_403")
+                    requests.insert(1, {"id": "failed-range", "purpose": "candidate", "url": target["url"],
+                        "status": None, "error": "RangeAssemblyVerificationError", "range_assembly_verified": False,
+                        "range_expected_bytes": len(raw), "range_parts": failed_parts,
+                        "http_request_count": 4, "http_failed_request_count": 1})
             capture = {"original_document_path": stem + ".html", "validation": {"accepted": True, "tables_complete": True},
                        "discovery_to_parsed_ms": 100 if actual else 60, "discovered_utc": "2026-11-09T00:00:00.100Z" if actual else "2026-11-09T00:00:00.140Z",
                        "discovered_mono_ns": 100000000 if actual else 140000000, "listing_request_id": "discovery" if actual else None,
@@ -597,6 +707,11 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
             self.assertTrue(row["http_response_complete"])
             self.assertEqual((output / row["raw_document_artifact"]).read_bytes(), raw)
             self.assertNotIn("SECRET_TEST_TOKEN", (output / ("requests_" + target["target_id"] + ".ndjson")).read_text())
+            expected_base[0] = output / "baseline"
+            with patch("probe.subprocess.run", side_effect=collector):
+                baseline_row = await collect_watch_case(target, output, {"loc": "US", "colo": "TEST"}, collector_base=expected_base[0])
+            self.assertTrue(baseline_row["complete"])
+            expected_base[0] = BASE
             eof_proven[0] = False
             with patch("probe.subprocess.run", side_effect=collector):
                 missing_eof = await collect_watch_case(target, output, {"loc": "US", "colo": "TEST"})
@@ -624,6 +739,40 @@ class ProbeTimingTest(unittest.IsolatedAsyncioTestCase):
             self.assertTrue(streamed["target_document_complete"])
             self.assertEqual(streamed["body_completion_scope"], "complete_exhibit_at_sgml_closing_markers")
             self.assertEqual((output / streamed["raw_document_artifact"]).read_bytes(), raw)
+            target = {**targets[1], "listing_url": "https://www.businesswire.com/newsroom?timeline=past",
+                      "reference": {**target["reference"], "expected_bytes": 999999, "metadata": {"injected": True}}}
+            original_read = Path.read_text
+            references = json.loads((BASE / "remaining_references.json").read_text(encoding="utf-8"))
+            references["KKR_CURRENT_METRICS_PRODUCTION"]["listing_url"] = target["listing_url"]
+            def configured_reference(path, *args, **kwargs):
+                return json.dumps(references) if path == BASE / "remaining_references.json" else original_read(path, *args, **kwargs)
+            with patch.object(Path, "read_text", configured_reference):
+                configured = select_targets(json.loads((BASE / "targets.json").read_text(encoding="utf-8")), "metrics-kkr-complete-sources")
+            self.assertEqual(configured[0]["listing_url"], target["listing_url"])
+            range_mode[0] = "assembled"
+            with patch("probe.subprocess.run", side_effect=collector):
+                assembled = await collect_watch_case(target, output, {"loc": "US", "colo": "TEST"})
+            self.assertTrue(assembled["complete"] and assembled["range_assembly_verified"])
+            self.assertEqual(assembled["status"], 206)
+            self.assertFalse(assembled["http_response_complete"] or assembled["whole_http_response_complete"])
+            self.assertEqual(assembled["body_completion_scope"], "verified_four_part_range_assembly")
+            self.assertEqual((output / assembled["raw_document_artifact"]).read_bytes(), raw)
+            self.assertEqual(assembled["http_request_count"], 4)
+            self.assertTrue(assembled["seed_listing_url_matches"])
+            self.assertEqual(assembled["seed"]["url"], "https://www.businesswire.com/newsroom")
+            safe_requests = (output / ("requests_" + target["target_id"] + ".ndjson")).read_text()
+            self.assertNotIn("SECRET_TEST_TOKEN", safe_requests)
+            self.assertEqual(json.loads(safe_requests.splitlines()[-1])["range_parts"][3]["eof_mono_ns"], 190000000)
+            range_mode[0] = "standalone"
+            with patch("probe.subprocess.run", side_effect=collector):
+                standalone = await collect_watch_case(target, output, {"loc": "US", "colo": "TEST"})
+            self.assertFalse(standalone["complete"] or standalone["http_response_complete"]
+                             or standalone["whole_http_response_complete"] or standalone["range_assembly_verified"])
+            safe_requests = [json.loads(line) for line in (output / ("requests_" + target["target_id"] + ".ndjson")).read_text().splitlines()]
+            failed_range = next(request for request in safe_requests if request["id"] == "failed-range")
+            self.assertEqual(failed_range["http_request_count"], 4)
+            self.assertEqual(failed_range["http_failed_request_count"], 1)
+            self.assertEqual(failed_range["range_parts"][0]["status"], 403)
 
     async def test_cache_profiles_keep_download_trace_and_stop_after_rejection(self):
         targets = select_targets(json.loads((BASE / "targets.json").read_text(encoding="utf-8")), "msgk-cache-control")

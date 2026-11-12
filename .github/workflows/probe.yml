@@ -31,6 +31,7 @@ on:
           - metrics-ncmi-issuer
           - metrics-all-supported
           - metrics-kkr-complete-sources
+          - metrics-regression-ab
           - sec-quarterly
           - lcid-http-protocols
           - lcid-chrome-protocols
@@ -82,7 +83,7 @@ jobs:
       - name: Check continuous timing and failure evidence offline
         run: python -m unittest -q test_probe.py
       - name: Replay immutable baseline on the same runner
-        if: ${{ inputs.baseline_ref != '' }}
+        if: ${{ inputs.baseline_ref != '' && inputs.scope != 'metrics-regression-ab' }}
         continue-on-error: true
         env:
           SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
@@ -94,7 +95,10 @@ jobs:
           PROBE_SCOPE: ${{ inputs.scope }}
           BASELINE_REF: ${{ inputs.baseline_ref }}
         run: |
-          if [ -n "$BASELINE_REF" ]; then
+          if [ "$PROBE_SCOPE" = 'metrics-regression-ab' ]; then
+            test -n "$BASELINE_REF" || { echo 'metrics-regression-ab requires baseline_ref'; exit 2; }
+            python probe.py --output outputs --scope "$PROBE_SCOPE" --baseline-dir baseline
+          elif [ -n "$BASELINE_REF" ]; then
             python probe.py --output outputs/after --scope "$PROBE_SCOPE"
           else
             python probe.py --output outputs --scope "$PROBE_SCOPE"

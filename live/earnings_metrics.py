@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from decimal import Decimal, InvalidOperation
 from collections import deque
+from itertools import chain
 import hashlib
 import re
 import time
@@ -42,7 +43,7 @@ _CURRENCY_EVIDENCE = {currency: re.compile(pattern, re.I) for currency, pattern 
     "USD": r"\bUSD\b|US\$|U\.?S\.?\s+dollars|iso4217:USD", "CAD": r"\bCAD\b|Canadian dollars",
     "CHF": r"\bCHF\b|Swiss Franc", "CNY": r"\bRMB\b|\bCNY\b"}.items()}
 _GUIDANCE_WORD = re.compile(r"\b(?:expect(?:s)?|anticipate(?:s)?|guidance|outlook)\b", re.I)
-_GUIDANCE_END = re.compile(r"[.!?](?=\s+[A-Z\u2022\u25e6]|$)|\n\s*\n|$")
+_GUIDANCE_END = re.compile(r"[.!?](?=\s+[A-Z\u2022\u25e6]|$)|\n\s*\n")
 _TEXT_NODES = etree.XPath(".//text()", smart_strings=False)
 
 
@@ -926,10 +927,12 @@ def _guidance_observations(parsed, common):
     text = parsed["text"]
     keyword = _GUIDANCE_WORD.search(text)
     start = 0
-    for boundary in _GUIDANCE_END.finditer(text):
+    # A top-level `|$` disables the regex engine's initial-character skip.
+    # Handle EOF once, retaining the final fragment and its original offsets.
+    for boundary in chain(_GUIDANCE_END.finditer(text), (None,)):
         if keyword is None:
             break
-        end = boundary.end()
+        end = boundary.end() if boundary is not None else len(text)
         if keyword.start() >= end:
             start = end
             continue
