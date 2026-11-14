@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "owner": "github_actions",
-  "checked_at_utc": "2026-11-14T08:23:19.145116+00:00",
+  "checked_at_utc": "2026-11-14T08:25:55.344019+00:00",
   "dispatch_until_utc": "2026-11-17T13:03:00+08:00",
   "local_sec_rps_budget": 2,
   "total_sec_rps_limit": 10,
@@ -12,16 +12,28 @@
   "inventory_refresh": "retained_existing; new documents may be initially_present on the next run",
   "evidence_observations": [
     {
+      "run_id": "43575595147-1",
+      "commit": "a64b56652349e0cb1d18dd8dafc9dc53f7c8265e",
+      "node": {
+        "loc": "US",
+        "colo": "MSP"
+      },
+      "state": "running",
+      "updated_utc": "2026-11-14T08:25:18.385+00:00",
+      "collector_heartbeat_utc": "2026-11-14T08:25:06.078242+00:00",
+      "requests": 412
+    },
+    {
       "run_id": "43553660023-1",
-      "commit": "b6d5b1c45ade978027c83fb2be1ec6078cd08976",
+      "commit": "288dab474086d869dd8412212b20f12e13c6d98c",
       "node": {
         "loc": "US",
         "colo": "IAD"
       },
       "state": "running",
-      "updated_utc": "2026-11-14T08:22:17.654+00:00",
-      "collector_heartbeat_utc": "2026-11-14T08:22:03.157019+00:00",
-      "requests": 48942
+      "updated_utc": "2026-11-14T08:24:20.448+00:00",
+      "collector_heartbeat_utc": "2026-11-14T08:24:03.217054+00:00",
+      "requests": 49351
     },
     {
       "run_id": "43526118525-1",
@@ -49,13 +61,14 @@
     }
   ],
   "active_run_ids": [
-    "43553660023"
+    "43553660023",
+    "43575595147"
   ],
-  "selected_run_id": "43553660023-1",
-  "workflow_state": "successor_dispatched",
-  "updated_utc": "2026-11-14T08:23:22.554068+00:00",
+  "selected_run_id": "43575595147-1",
+  "workflow_state": "healthy_successor_retiring_previous",
+  "updated_utc": "2026-11-14T08:26:00.150938+00:00",
   "control_mode": "live_supervisor",
-  "caller_live_run_id": "43553660023-1",
+  "caller_live_run_id": "43575595147-1",
   "overlap_sec_rps_budget": 8,
   "handoff_readiness": {
     "ready": true,
@@ -100,16 +113,16 @@
     "companies_without_valid_discovery": [],
     "previously_accessible_sources_not_ready": []
   },
-  "retirement_requested_run_id": "43526118525",
-  "retirement_requested_utc": "2026-11-14T03:53:24.429368+00:00",
+  "retirement_requested_run_id": "43553660023",
+  "retirement_requested_utc": "2026-11-14T08:25:55.344019+00:00",
   "retirement_method": "cooperative_stop_and_final_snapshot",
   "handoff_observation": {
-    "previous_run_id": "43526118525-1",
-    "successor_run_id": "43553660023-1",
-    "successor_first_request_utc": "2026-11-14T03:50:50.482033+00:00",
-    "previous_last_alive_utc": "2026-11-14T03:51:56.224+00:00",
-    "previous_last_heartbeat_utc": "2026-11-14T03:51:53.375789+00:00",
-    "readiness_confirmed_utc": "2026-11-14T03:53:24.429368+00:00",
+    "previous_run_id": "43553660023-1",
+    "successor_run_id": "43575595147-1",
+    "successor_first_request_utc": "2026-11-14T08:23:41.895723+00:00",
+    "previous_last_alive_utc": "2026-11-14T08:24:19.287+00:00",
+    "previous_last_heartbeat_utc": "2026-11-14T08:24:03.217054+00:00",
+    "readiness_confirmed_utc": "2026-11-14T08:25:55.344019+00:00",
     "monitoring_gap_ms": 0,
     "timing_basis": "Separate run UTC observations; no cross-run monotonic timing"
   },
