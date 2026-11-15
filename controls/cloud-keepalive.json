@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "owner": "github_actions",
-  "checked_at_utc": "2026-11-15T16:06:18.203845+00:00",
+  "checked_at_utc": "2026-11-15T16:06:33.047268+00:00",
   "dispatch_until_utc": "2026-11-17T13:03:00+08:00",
   "local_sec_rps_budget": 2,
   "total_sec_rps_limit": 10,
@@ -25,15 +25,15 @@
     },
     {
       "run_id": "43709361362-1",
-      "commit": "dc028dc5c9c87b2d09586ea7791a78ffd696dc49",
+      "commit": "9d1e451b820eec04a29fd9bb6f2c8b3ce9604616",
       "node": {
         "loc": "US",
         "colo": "DFW"
       },
       "state": "running",
-      "updated_utc": "2026-11-15T16:04:28.843+00:00",
-      "collector_heartbeat_utc": "2026-11-15T16:04:24.512532+00:00",
-      "requests": 22402
+      "updated_utc": "2026-11-15T16:06:31.762+00:00",
+      "collector_heartbeat_utc": "2026-11-15T16:06:24.583655+00:00",
+      "requests": 22559
     },
     {
       "run_id": "43687990089-1",
@@ -66,9 +66,9 @@
   ],
   "selected_run_id": "43733303472-1",
   "workflow_state": "healthy_successor_retiring_previous",
-  "updated_utc": "2026-11-15T16:06:23.130724+00:00",
+  "updated_utc": "2026-11-15T16:06:36.520030+00:00",
   "control_mode": "live_supervisor",
-  "caller_live_run_id": "43733303472-1",
+  "caller_live_run_id": "43709361362-1",
   "overlap_sec_rps_budget": 8,
   "handoff_readiness": {
     "ready": true,
@@ -120,9 +120,9 @@
     "previous_run_id": "43709361362-1",
     "successor_run_id": "43733303472-1",
     "successor_first_request_utc": "2026-11-15T16:03:54.232291+00:00",
-    "previous_last_alive_utc": "2026-11-15T16:04:28.344+00:00",
-    "previous_last_heartbeat_utc": "2026-11-15T16:04:24.512532+00:00",
-    "readiness_confirmed_utc": "2026-11-15T16:06:18.203845+00:00",
+    "previous_last_alive_utc": "2026-11-15T16:06:31.263+00:00",
+    "previous_last_heartbeat_utc": "2026-11-15T16:06:24.583655+00:00",
+    "readiness_confirmed_utc": "2026-11-15T16:06:33.047268+00:00",
     "monitoring_gap_ms": 0,
     "timing_basis": "Separate run UTC observations; no cross-run monotonic timing"
   },
