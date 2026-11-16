@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "owner": "github_actions",
-  "checked_at_utc": "2026-11-16T12:58:46.341425+00:00",
+  "checked_at_utc": "2026-11-16T13:01:55.389353+00:00",
   "dispatch_until_utc": "2026-11-17T13:03:00+08:00",
   "local_sec_rps_budget": 2,
   "total_sec_rps_limit": 10,
@@ -13,15 +13,15 @@
   "evidence_observations": [
     {
       "run_id": "43846034294-1",
-      "commit": "e07dbc92b0970f27142bc28972888a34b7b36e56",
+      "commit": "98d0d68e40774a456d2c55aecc58b0ffebc24a53",
       "node": {
         "loc": "US",
         "colo": "IAD"
       },
       "state": "running",
-      "updated_utc": "2026-11-16T12:57:44.500+00:00",
-      "collector_heartbeat_utc": "2026-11-16T12:57:24.170097+00:00",
-      "requests": 43665
+      "updated_utc": "2026-11-16T13:01:51.021+00:00",
+      "collector_heartbeat_utc": "2026-11-16T13:01:44.388594+00:00",
+      "requests": 44425
     },
     {
       "run_id": "43811437703-1",
@@ -53,7 +53,7 @@
   ],
   "selected_run_id": "43846034294-1",
   "workflow_state": "healthy",
-  "updated_utc": "2026-11-16T12:58:49.319946+00:00",
+  "updated_utc": "2026-11-16T13:01:59.652266+00:00",
   "control_mode": "live_supervisor",
   "caller_live_run_id": "43846034294-1",
   "overlap_sec_rps_budget": 8,
