@@ -109,12 +109,12 @@
   },
   "startup_gap_semantics": "Monitoring starts only after the collector's first actual source request",
   "inherited_document_count": 110,
-  "collector_last_alive_utc": "2026-11-16T23:45:42.773+00:00",
+  "collector_last_alive_utc": "2026-11-16T23:45:55.852+00:00",
   "metrics_pipeline_mode": "synthetic",
   "metrics_rules_sha256": "2ba424098529a3f93e690650a27648c438ecd87daede90c007ffd51fa6472dce",
   "schema_version": 1,
-  "updated_utc": "2026-11-16T23:45:43.549+00:00",
-  "collector_heartbeat_utc": "2026-11-16T23:45:40.139129+00:00",
+  "updated_utc": "2026-11-16T23:45:56.721+00:00",
+  "collector_heartbeat_utc": "2026-11-16T23:45:53.115794+00:00",
   "captures": [
     {
       "symbol": "INFQ",
@@ -1715,9 +1715,393 @@
       "sha256": "b6accc060f236a6ad58cda8963f10c703a151680ea7db75ad64938fc196abb03",
       "started_utc": "2026-11-16T23:45:03.701752+00:00",
       "parsed_utc": "2026-11-16T23:45:40.106247+00:00"
+    },
+    {
+      "symbol": "QBTS",
+      "channel": "sec",
+      "channel_label": "SEC",
+      "site": "www.sec.gov",
+      "title": "qbts-20260930",
+      "document_kind": null,
+      "url": "https://www.sec.gov/Archives/edgar/data/1907982/000190798226000186/qbts-20260930.htm",
+      "url_parameters_removed": false,
+      "context": "backfill",
+      "context_label": "事后补采",
+      "context_explanation": "首次轮询已存在，且来源发布标时早于本次运行启动；据此归为补采。",
+      "already_present_on_first_poll": true,
+      "last_negative_listing_ns": null,
+      "last_negative_listing_mono_ns": null,
+      "last_negative_listing_utc": null,
+      "last_negative_listing_at_beijing": null,
+      "listing_observation_gap_ms": null,
+      "last_negative_to_parsed_ms": null,
+      "observation_gap_semantics": "listing visibility at this node; NOT origin publication or network-only latency",
+      "discovered_at_beijing": "2026-11-17T07:44:57.664+08:00",
+      "parsed_at_beijing": "2026-11-17T07:45:48.739+08:00",
+      "discovery_to_parsed_ms": 51074.314756,
+      "timing_basis": "recorded",
+      "timing_note": "原始日志记录的发现至全文解析耗时。",
+      "request_total_ms": 930.967322,
+      "queue_ms": 12182.597821,
+      "parse_ms": 32.966468,
+      "validation_queue_ms": 0.084768,
+      "body_to_validation_ms": 33.98104,
+      "timing_start": "列表响应完整后识别",
+      "latency_budget_passed": false,
+      "accepted": true,
+      "tables_complete": true,
+      "quality_note": "",
+      "table_count": 47,
+      "pdf_pages_processed": null,
+      "artifacts": [
+        {
+          "path": "reports/QBTS_sec_5da305b28052.html",
+          "sha256": "5da305b28052789f175d71bca6c71e15f694429da136f6f2a2474e17992e4a8b",
+          "bytes": 1276854,
+          "kind": "html"
+        },
+        {
+          "path": "reports/QBTS_sec_5da305b28052.txt",
+          "sha256": "ba7cc26fe4f1fbc6738cd329953e3dbb335a7029acc819d1ba2b98e2cdd7426e",
+          "bytes": 171822,
+          "kind": "txt"
+        },
+        {
+          "path": "reports/QBTS_sec_5da305b28052.json",
+          "sha256": "7525e0f6d57dcaf80cf804056ced22999154d00dcb8d3548f08a3a76f53b690b",
+          "bytes": 453930,
+          "kind": "json"
+        }
+      ],
+      "evidence_id": "43981794444-1:864",
+      "mode": "live",
+      "retry": true,
+      "sha256": "5da305b28052789f175d71bca6c71e15f694429da136f6f2a2474e17992e4a8b",
+      "started_utc": "2026-11-16T23:44:57.664891+00:00",
+      "parsed_utc": "2026-11-16T23:45:48.739207+00:00"
+    },
+    {
+      "symbol": "STEM",
+      "channel": "sec",
+      "channel_label": "SEC",
+      "site": "www.sec.gov",
+      "title": "stem-20260930",
+      "document_kind": null,
+      "url": "https://www.sec.gov/Archives/edgar/data/1758766/000175876626000095/stem-20260930.htm",
+      "url_parameters_removed": false,
+      "context": "backfill",
+      "context_label": "事后补采",
+      "context_explanation": "首次轮询已存在，且来源发布标时早于本次运行启动；据此归为补采。",
+      "already_present_on_first_poll": true,
+      "last_negative_listing_ns": null,
+      "last_negative_listing_mono_ns": null,
+      "last_negative_listing_utc": null,
+      "last_negative_listing_at_beijing": null,
+      "listing_observation_gap_ms": null,
+      "last_negative_to_parsed_ms": null,
+      "observation_gap_semantics": "listing visibility at this node; NOT origin publication or network-only latency",
+      "discovered_at_beijing": "2026-11-17T07:45:14.709+08:00",
+      "parsed_at_beijing": "2026-11-17T07:45:48.813+08:00",
+      "discovery_to_parsed_ms": 34103.985694,
+      "timing_basis": "recorded",
+      "timing_note": "原始日志记录的发现至全文解析耗时。",
+      "request_total_ms": 140.704393,
+      "queue_ms": 13032.331597,
+      "parse_ms": 47.346306,
+      "validation_queue_ms": 0.076195,
+      "body_to_validation_ms": 48.525767,
+      "timing_start": "列表响应完整后识别",
+      "latency_budget_passed": false,
+      "accepted": true,
+      "tables_complete": true,
+      "quality_note": "",
+      "table_count": 51,
+      "pdf_pages_processed": null,
+      "artifacts": [
+        {
+          "path": "reports/STEM_sec_daedbea89a2f.html",
+          "sha256": "daedbea89a2f0f10101acd3a1b0da4c9937878148cd501b19bc0877cac0e94a6",
+          "bytes": 1636563,
+          "kind": "html"
+        },
+        {
+          "path": "reports/STEM_sec_daedbea89a2f.txt",
+          "sha256": "51bb24d8930eabe1655cb66be1833481a50dfe070005f02e9fcef3936640b795",
+          "bytes": 223449,
+          "kind": "txt"
+        },
+        {
+          "path": "reports/STEM_sec_daedbea89a2f.json",
+          "sha256": "00c3da748b9d159267a6de12feb2f60ac964952d79d84e868f83ca32b699b655",
+          "bytes": 551910,
+          "kind": "json"
+        }
+      ],
+      "evidence_id": "43981794444-1:868",
+      "mode": "live",
+      "retry": true,
+      "sha256": "daedbea89a2f0f10101acd3a1b0da4c9937878148cd501b19bc0877cac0e94a6",
+      "started_utc": "2026-11-16T23:45:14.709309+00:00",
+      "parsed_utc": "2026-11-16T23:45:48.813295+00:00"
+    },
+    {
+      "symbol": "TSN",
+      "channel": "sec",
+      "channel_label": "SEC",
+      "site": "www.sec.gov",
+      "title": "tsn-20261003",
+      "document_kind": null,
+      "url": "https://www.sec.gov/Archives/edgar/data/100493/000010049326000079/tsn-20261003.htm",
+      "url_parameters_removed": false,
+      "context": "backfill",
+      "context_label": "事后补采",
+      "context_explanation": "首次轮询已存在，且来源发布标时早于本次运行启动；据此归为补采。",
+      "already_present_on_first_poll": true,
+      "last_negative_listing_ns": null,
+      "last_negative_listing_mono_ns": null,
+      "last_negative_listing_utc": null,
+      "last_negative_listing_at_beijing": null,
+      "listing_observation_gap_ms": null,
+      "last_negative_to_parsed_ms": null,
+      "observation_gap_semantics": "listing visibility at this node; NOT origin publication or network-only latency",
+      "discovered_at_beijing": "2026-11-17T07:45:13.725+08:00",
+      "parsed_at_beijing": "2026-11-17T07:45:49.013+08:00",
+      "discovery_to_parsed_ms": 35288.111487,
+      "timing_basis": "recorded",
+      "timing_note": "原始日志记录的发现至全文解析耗时。",
+      "request_total_ms": 320.637463,
+      "queue_ms": 13010.229256,
+      "parse_ms": 88.499528,
+      "validation_queue_ms": 0.07921,
+      "body_to_validation_ms": 90.85801,
+      "timing_start": "列表响应完整后识别",
+      "latency_budget_passed": false,
+      "accepted": true,
+      "tables_complete": true,
+      "quality_note": "",
+      "table_count": 112,
+      "pdf_pages_processed": null,
+      "artifacts": [
+        {
+          "path": "reports/TSN_sec_576ff81bcccc.html",
+          "sha256": "576ff81bcccc946d2161ce58f8f1c390faf928c22675accb364621b49284c502",
+          "bytes": 3566021,
+          "kind": "html"
+        },
+        {
+          "path": "reports/TSN_sec_576ff81bcccc.txt",
+          "sha256": "d9634722d8ea8ebed1275c9adfac93d8032089b5857a3eb7e0a36767162efea1",
+          "bytes": 523308,
+          "kind": "txt"
+        },
+        {
+          "path": "reports/TSN_sec_576ff81bcccc.json",
+          "sha256": "5ddc721e82e48b092a1fac3e20c3f872c4dfa29debb8694c346afc623d4f6121",
+          "bytes": 1295847,
+          "kind": "json"
+        }
+      ],
+      "evidence_id": "43981794444-1:872",
+      "mode": "live",
+      "retry": true,
+      "sha256": "576ff81bcccc946d2161ce58f8f1c390faf928c22675accb364621b49284c502",
+      "started_utc": "2026-11-16T23:45:13.725311+00:00",
+      "parsed_utc": "2026-11-16T23:45:49.013423+00:00"
+    },
+    {
+      "symbol": "CBRS",
+      "channel": "sec",
+      "channel_label": "SEC",
+      "site": "www.sec.gov",
+      "title": "cbrs-20260930",
+      "document_kind": null,
+      "url": "https://www.sec.gov/Archives/edgar/data/2021728/000162828026073494/cbrs-20260930.htm",
+      "url_parameters_removed": false,
+      "context": "backfill",
+      "context_label": "事后补采",
+      "context_explanation": "首次轮询已存在，且来源发布标时早于本次运行启动；据此归为补采。",
+      "already_present_on_first_poll": true,
+      "last_negative_listing_ns": null,
+      "last_negative_listing_mono_ns": null,
+      "last_negative_listing_utc": null,
+      "last_negative_listing_at_beijing": null,
+      "listing_observation_gap_ms": null,
+      "last_negative_to_parsed_ms": null,
+      "observation_gap_semantics": "listing visibility at this node; NOT origin publication or network-only latency",
+      "discovered_at_beijing": "2026-11-17T07:45:07.737+08:00",
+      "parsed_at_beijing": "2026-11-17T07:45:49.154+08:00",
+      "discovery_to_parsed_ms": 41417.273747,
+      "timing_basis": "recorded",
+      "timing_note": "原始日志记录的发现至全文解析耗时。",
+      "request_total_ms": 479.715504,
+      "queue_ms": 13032.648806,
+      "parse_ms": 48.033404,
+      "validation_queue_ms": 0.066821,
+      "body_to_validation_ms": 49.565398,
+      "timing_start": "列表响应完整后识别",
+      "latency_budget_passed": false,
+      "accepted": true,
+      "tables_complete": true,
+      "quality_note": "",
+      "table_count": 56,
+      "pdf_pages_processed": null,
+      "artifacts": [
+        {
+          "path": "reports/CBRS_sec_1b27c5c7a203.html",
+          "sha256": "1b27c5c7a20362dd778203e497658b08bdcdfcbf88a555bc5650907e6c825478",
+          "bytes": 2155327,
+          "kind": "html"
+        },
+        {
+          "path": "reports/CBRS_sec_1b27c5c7a203.txt",
+          "sha256": "2b5858ea112863758548272867aa9174f4480423f5f181fbc3d71ebefaad45b3",
+          "bytes": 472081,
+          "kind": "txt"
+        },
+        {
+          "path": "reports/CBRS_sec_1b27c5c7a203.json",
+          "sha256": "050877cf8e8d1ad7f9e9b896d3e1231cbb832677d37507a33feaaeabf5d0596f",
+          "bytes": 903001,
+          "kind": "json"
+        }
+      ],
+      "evidence_id": "43981794444-1:878",
+      "mode": "live",
+      "retry": true,
+      "sha256": "1b27c5c7a20362dd778203e497658b08bdcdfcbf88a555bc5650907e6c825478",
+      "started_utc": "2026-11-16T23:45:07.737488+00:00",
+      "parsed_utc": "2026-11-16T23:45:49.154762+00:00"
+    },
+    {
+      "symbol": "BN",
+      "channel": "sec",
+      "channel_label": "SEC",
+      "site": "www.sec.gov",
+      "title": "Document",
+      "document_kind": null,
+      "url": "https://www.sec.gov/Archives/edgar/data/1001085/000100108526000030/a2026-q3bninterimreport.htm",
+      "url_parameters_removed": false,
+      "context": "backfill",
+      "context_label": "事后补采",
+      "context_explanation": "首次轮询已存在，且来源发布标时早于本次运行启动；据此归为补采。",
+      "already_present_on_first_poll": true,
+      "last_negative_listing_ns": null,
+      "last_negative_listing_mono_ns": null,
+      "last_negative_listing_utc": null,
+      "last_negative_listing_at_beijing": null,
+      "listing_observation_gap_ms": null,
+      "last_negative_to_parsed_ms": null,
+      "observation_gap_semantics": "listing visibility at this node; NOT origin publication or network-only latency",
+      "discovered_at_beijing": "2026-11-17T07:45:04.709+08:00",
+      "parsed_at_beijing": "2026-11-17T07:45:50.201+08:00",
+      "discovery_to_parsed_ms": 45491.359638,
+      "timing_basis": "recorded",
+      "timing_note": "原始日志记录的发现至全文解析耗时。",
+      "request_total_ms": 453.424106,
+      "queue_ms": 12795.147413,
+      "parse_ms": 141.66326,
+      "validation_queue_ms": 0.102771,
+      "body_to_validation_ms": 144.298786,
+      "timing_start": "列表响应完整后识别",
+      "latency_budget_passed": false,
+      "accepted": true,
+      "tables_complete": true,
+      "quality_note": "",
+      "table_count": 98,
+      "pdf_pages_processed": null,
+      "artifacts": [
+        {
+          "path": "reports/BN_sec_a633780f55bf.html",
+          "sha256": "a633780f55bf859f7e36beeb77f82868cd03e5a129a7706ff75a43efe4a1698d",
+          "bytes": 3375003,
+          "kind": "html"
+        },
+        {
+          "path": "reports/BN_sec_a633780f55bf.txt",
+          "sha256": "e988f89fc059abb464a0ce056a227be2aee06542dfe8332a264fbc74ce706667",
+          "bytes": 311592,
+          "kind": "txt"
+        },
+        {
+          "path": "reports/BN_sec_a633780f55bf.json",
+          "sha256": "b703423c0647f2732cfd766501480abbce6cba9204899f1e2862f007719e1045",
+          "bytes": 1384457,
+          "kind": "json"
+        }
+      ],
+      "evidence_id": "43981794444-1:889",
+      "mode": "live",
+      "retry": false,
+      "sha256": "a633780f55bf859f7e36beeb77f82868cd03e5a129a7706ff75a43efe4a1698d",
+      "started_utc": "2026-11-16T23:45:04.709979+00:00",
+      "parsed_utc": "2026-11-16T23:45:50.201339+00:00"
+    },
+    {
+      "symbol": "GIB",
+      "channel": "sec",
+      "channel_label": "SEC",
+      "site": "www.sec.gov",
+      "title": "Document",
+      "document_kind": null,
+      "url": "https://www.sec.gov/Archives/edgar/data/1061574/000106157426000020/cgi-fy26_q4xpressrelease.htm",
+      "url_parameters_removed": false,
+      "context": "backfill",
+      "context_label": "事后补采",
+      "context_explanation": "首次轮询已存在，且来源发布标时早于本次运行启动；据此归为补采。",
+      "already_present_on_first_poll": true,
+      "last_negative_listing_ns": null,
+      "last_negative_listing_mono_ns": null,
+      "last_negative_listing_utc": null,
+      "last_negative_listing_at_beijing": null,
+      "listing_observation_gap_ms": null,
+      "last_negative_to_parsed_ms": null,
+      "observation_gap_semantics": "listing visibility at this node; NOT origin publication or network-only latency",
+      "discovered_at_beijing": "2026-11-17T07:45:02.706+08:00",
+      "parsed_at_beijing": "2026-11-17T07:45:50.827+08:00",
+      "discovery_to_parsed_ms": 48121.556368,
+      "timing_basis": "recorded",
+      "timing_note": "原始日志记录的发现至全文解析耗时。",
+      "request_total_ms": 193.243811,
+      "queue_ms": 13326.129644,
+      "parse_ms": 6.441088,
+      "validation_queue_ms": 0.069576,
+      "body_to_validation_ms": 6.772009,
+      "timing_start": "列表响应完整后识别",
+      "latency_budget_passed": false,
+      "accepted": true,
+      "tables_complete": true,
+      "quality_note": "",
+      "table_count": 8,
+      "pdf_pages_processed": null,
+      "artifacts": [
+        {
+          "path": "reports/GIB_sec_70a21b1a782c.html",
+          "sha256": "70a21b1a782c2094d0ee486297ae25e24d451ae3f632cb7f69021933e55e9c3b",
+          "bytes": 227642,
+          "kind": "html"
+        },
+        {
+          "path": "reports/GIB_sec_70a21b1a782c.txt",
+          "sha256": "2116932e8f9f0b89261b781b30f1713c266dc64c659226bf434fbac8826e6de8",
+          "bytes": 28220,
+          "kind": "txt"
+        },
+        {
+          "path": "reports/GIB_sec_70a21b1a782c.json",
+          "sha256": "d17af246849c0bcd4160750efd2fffa2ddf74a7a2cf63867a25094eb883b139d",
+          "bytes": 71732,
+          "kind": "json"
+        }
+      ],
+      "evidence_id": "43981794444-1:895",
+      "mode": "live",
+      "retry": false,
+      "sha256": "70a21b1a782c2094d0ee486297ae25e24d451ae3f632cb7f69021933e55e9c3b",
+      "started_utc": "2026-11-16T23:45:02.706079+00:00",
+      "parsed_utc": "2026-11-16T23:45:50.827635+00:00"
     }
   ],
-  "capture_count": 25,
+  "capture_count": 31,
   "attachments": [],
   "metric_extractions": [
     {
@@ -13806,6 +14190,2092 @@
         }
       },
       "evidence_id": "43981794444-1:772"
+    },
+    {
+      "schema_version": 1,
+      "symbol": "QBTS",
+      "channel": "sec",
+      "run_id": "80b3177d-64ca-4f04-8efe-ffb314b689cf",
+      "mode": "run",
+      "context": "initially_present",
+      "forecast_mode": "synthetic",
+      "report_period": "FY2026 Q3",
+      "period_start": "2026-07-01",
+      "period_end": "2026-09-30",
+      "status": "completed",
+      "document_hash": "5da305b28052789f175d71bca6c71e15f694429da136f6f2a2474e17992e4a8b",
+      "document_version": "unknown_version",
+      "already_present_on_first_poll": true,
+      "last_negative_listing_ns": null,
+      "discovered_mono_ns": 88301242891,
+      "validated_mono_ns": 139375557647,
+      "discovery_to_parsed_ms": 51074.314756,
+      "discovery_to_comparison_ms": 51094.638561,
+      "discovery_to_decision_ms": 51096.773435,
+      "timing_basis": "same_process_perf_counter",
+      "queued_mono_ns": 139381855519,
+      "extraction_started_mono_ns": 139381889590,
+      "started_at_utc": "2026-11-16T23:45:48.739396+00:00",
+      "extraction_completed_mono_ns": 139395772247,
+      "extraction_completed_at_utc": "2026-11-16T23:45:48.753267+00:00",
+      "comparison_completed_mono_ns": 139395881452,
+      "comparison_completed_at_utc": "2026-11-16T23:45:48.753374+00:00",
+      "decision_computed_mono_ns": 139395904968,
+      "decision_computed_at_utc": "2026-11-16T23:45:48.753398+00:00",
+      "decision_completed_mono_ns": 139398016326,
+      "decision_completed_at_utc": "2026-11-16T23:45:48.755510+00:00",
+      "ended_mono_ns": 139398016326,
+      "ended_at_utc": "2026-11-16T23:45:48.755510+00:00",
+      "archive_completed_mono_ns": 139383502776,
+      "archive_completed_utc": "2026-11-16T23:45:48.747152+00:00",
+      "decision_budget_ms": 500,
+      "decision_budget_passed": false,
+      "signal_status": "joint_threshold_rule",
+      "exchange_submitted": false,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1907982/000190798226000186/qbts-20260930.htm",
+      "timings_ms": {
+        "queue": 0.034071,
+        "extraction": 13.882657,
+        "comparison": 0.109205,
+        "decision": 0.023516,
+        "pipeline": 16.160807,
+        "delivery_queue": 2.108504
+      },
+      "extractor_timings_ms": {
+        "location": 9.825529,
+        "basis_validation": 2.830095,
+        "total": 12.655624
+      },
+      "metrics": [
+        {
+          "company_id": "cik:1907982",
+          "symbol": "QBTS",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "revenue",
+          "metric_definition": "US_GAAP:revenue",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": null,
+          "scale": 1000,
+          "raw_label": "Revenue",
+          "raw_value": "$ 4,513",
+          "normalized_value": "4513000",
+          "document_hash": "5da305b28052789f175d71bca6c71e15f694429da136f6f2a2474e17992e4a8b",
+          "received_at_utc": "2026-11-16T23:45:48.705226+00:00",
+          "document_version": "unknown_version",
+          "status": "matched",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1907982/000190798226000186/qbts-20260930.htm",
+          "source_position": {
+            "table_index": 7,
+            "row_index": 2,
+            "column_range": [
+              3,
+              6
+            ],
+            "currency_evidence": {
+              "scope": "document"
+            }
+          }
+        },
+        {
+          "company_id": "cik:1907982",
+          "symbol": "QBTS",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "eps",
+          "metric_definition": "US_GAAP",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": "basic_and_diluted:common",
+          "scale": 1,
+          "raw_label": "Net loss per share, basic and diluted",
+          "raw_value": "$ ( 0.13 )",
+          "normalized_value": "-0.13",
+          "document_hash": "5da305b28052789f175d71bca6c71e15f694429da136f6f2a2474e17992e4a8b",
+          "received_at_utc": "2026-11-16T23:45:48.705226+00:00",
+          "document_version": "unknown_version",
+          "status": "matched",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1907982/000190798226000186/qbts-20260930.htm",
+          "source_position": {
+            "table_index": 7,
+            "row_index": 21,
+            "column_range": [
+              3,
+              6
+            ],
+            "currency_evidence": {
+              "scope": "document"
+            }
+          }
+        },
+        {
+          "company_id": "cik:1907982",
+          "symbol": "QBTS",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "eps",
+          "metric_definition": "non_GAAP_adjusted",
+          "business_scope": "consolidated",
+          "currency": null,
+          "share_basis": null,
+          "scale": null,
+          "raw_label": "",
+          "raw_value": null,
+          "normalized_value": null,
+          "document_hash": "5da305b28052789f175d71bca6c71e15f694429da136f6f2a2474e17992e4a8b",
+          "received_at_utc": "2026-11-16T23:45:48.705226+00:00",
+          "document_version": "unknown_version",
+          "status": "missing",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1907982/000190798226000186/qbts-20260930.htm",
+          "source_position": {}
+        }
+      ],
+      "forecasts": [
+        {
+          "company_id": "cik:1907982",
+          "symbol": "QBTS",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "revenue",
+          "metric_definition": "US_GAAP:revenue",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "forecast_id": "synthetic-88eeb730a1b53961",
+          "origin": "synthetic_test",
+          "generated_at_utc": "2026-11-16T23:45:48.753277+00:00",
+          "normalized_value": "4061700.00",
+          "not_a_model_prediction": true,
+          "uses_actual_for_test_setup": true,
+          "use_for_decision": true
+        },
+        {
+          "company_id": "cik:1907982",
+          "symbol": "QBTS",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "eps",
+          "metric_definition": "US_GAAP",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": "basic_and_diluted:common",
+          "forecast_id": "synthetic-050987d6b0e0018e",
+          "origin": "synthetic_test",
+          "generated_at_utc": "2026-11-16T23:45:48.753277+00:00",
+          "normalized_value": "-0.1430",
+          "not_a_model_prediction": true,
+          "uses_actual_for_test_setup": true,
+          "use_for_decision": true
+        }
+      ],
+      "comparison": {
+        "comparisons": [
+          {
+            "forecast_id": "synthetic-88eeb730a1b53961",
+            "forecast_origin": "synthetic_test",
+            "forecast_generated_at_utc": "2026-11-16T23:45:48.753277+00:00",
+            "forecast_value": "4061700.00",
+            "actual_value": "4513000",
+            "difference": "451300.00",
+            "surprise_pct": "11.11111111111111111111111111",
+            "formula": "100 * (actual - forecast) / abs(forecast)",
+            "status": "compared",
+            "use_for_decision": true,
+            "contract": {
+              "company_id": "cik:1907982",
+              "symbol": "QBTS",
+              "report_period": "FY2026 Q3",
+              "period_start": "2026-07-01",
+              "period_end": "2026-09-30",
+              "metric": "revenue",
+              "metric_definition": "US_GAAP:revenue",
+              "business_scope": "consolidated",
+              "currency": "USD",
+              "share_basis": null
+            }
+          },
+          {
+            "forecast_id": "synthetic-050987d6b0e0018e",
+            "forecast_origin": "synthetic_test",
+            "forecast_generated_at_utc": "2026-11-16T23:45:48.753277+00:00",
+            "forecast_value": "-0.1430",
+            "actual_value": "-0.13",
+            "difference": "0.0130",
+            "surprise_pct": "9.090909090909090909090909091",
+            "formula": "100 * (actual - forecast) / abs(forecast)",
+            "status": "compared",
+            "use_for_decision": true,
+            "contract": {
+              "company_id": "cik:1907982",
+              "symbol": "QBTS",
+              "report_period": "FY2026 Q3",
+              "period_start": "2026-07-01",
+              "period_end": "2026-09-30",
+              "metric": "eps",
+              "metric_definition": "US_GAAP",
+              "business_scope": "consolidated",
+              "currency": "USD",
+              "share_basis": "basic_and_diluted:common"
+            }
+          }
+        ]
+      },
+      "diagnostics": [
+        {
+          "metric": "eps",
+          "reason": "requested_basis_not_explicitly_published_in_target_period"
+        }
+      ],
+      "simulation_decision": {
+        "mode": "local_simulation",
+        "action": "long",
+        "reason": "both_above_positive_thresholds",
+        "eligible": true,
+        "strict_thresholds": true,
+        "contract_selection": "synthetic_fixture",
+        "exchange_submitted": false,
+        "exchange_acknowledged": false,
+        "created_at_utc": "2026-11-16T23:45:48.753385+00:00",
+        "simulation_ms": 0.016675,
+        "forecast_ids": {
+          "eps": "synthetic-050987d6b0e0018e",
+          "revenue": "synthetic-88eeb730a1b53961"
+        },
+        "surprise_pct": {
+          "eps": "9.090909090909090909090909091",
+          "revenue": "11.11111111111111111111111111"
+        },
+        "thresholds_pct": {
+          "eps": "5",
+          "revenue": "3"
+        }
+      },
+      "evidence_id": "43981794444-1:865"
+    },
+    {
+      "schema_version": 1,
+      "symbol": "STEM",
+      "channel": "sec",
+      "run_id": "80b3177d-64ca-4f04-8efe-ffb314b689cf",
+      "mode": "run",
+      "context": "initially_present",
+      "forecast_mode": "synthetic",
+      "report_period": "FY2026 Q3",
+      "period_start": "2026-07-01",
+      "period_end": "2026-09-30",
+      "status": "completed",
+      "document_hash": "daedbea89a2f0f10101acd3a1b0da4c9937878148cd501b19bc0877cac0e94a6",
+      "document_version": "unknown_version",
+      "already_present_on_first_poll": true,
+      "last_negative_listing_ns": null,
+      "discovered_mono_ns": 105345660227,
+      "validated_mono_ns": 139449645921,
+      "discovery_to_parsed_ms": 34103.985694,
+      "discovery_to_comparison_ms": 34132.119524,
+      "discovery_to_decision_ms": 34133.709315,
+      "timing_basis": "same_process_perf_counter",
+      "queued_mono_ns": 139456572031,
+      "extraction_started_mono_ns": 139456604401,
+      "started_at_utc": "2026-11-16T23:45:48.814109+00:00",
+      "extraction_completed_mono_ns": 139477628002,
+      "extraction_completed_at_utc": "2026-11-16T23:45:48.835124+00:00",
+      "comparison_completed_mono_ns": 139477779751,
+      "comparison_completed_at_utc": "2026-11-16T23:45:48.835273+00:00",
+      "decision_computed_mono_ns": 139477802736,
+      "decision_computed_at_utc": "2026-11-16T23:45:48.835295+00:00",
+      "decision_completed_mono_ns": 139479369542,
+      "decision_completed_at_utc": "2026-11-16T23:45:48.836863+00:00",
+      "ended_mono_ns": 139479369542,
+      "ended_at_utc": "2026-11-16T23:45:48.836863+00:00",
+      "archive_completed_mono_ns": 139457832715,
+      "archive_completed_utc": "2026-11-16T23:45:48.821481+00:00",
+      "decision_budget_ms": 500,
+      "decision_budget_passed": false,
+      "signal_status": "joint_threshold_rule",
+      "exchange_submitted": false,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1758766/000175876626000095/stem-20260930.htm",
+      "timings_ms": {
+        "queue": 0.03237,
+        "extraction": 21.023601,
+        "comparison": 0.151749,
+        "decision": 0.022985,
+        "pipeline": 22.797511,
+        "delivery_queue": 1.564172
+      },
+      "extractor_timings_ms": {
+        "location": 15.980054,
+        "basis_validation": 3.960883,
+        "total": 19.940937
+      },
+      "metrics": [
+        {
+          "company_id": "cik:1758766",
+          "symbol": "STEM",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "revenue",
+          "metric_definition": "US_GAAP:total_revenue",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": null,
+          "scale": 1000,
+          "raw_label": "Total revenue",
+          "raw_value": "36,656",
+          "normalized_value": "36656000",
+          "document_hash": "daedbea89a2f0f10101acd3a1b0da4c9937878148cd501b19bc0877cac0e94a6",
+          "received_at_utc": "2026-11-16T23:45:48.764769+00:00",
+          "document_version": "unknown_version",
+          "status": "matched",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1758766/000175876626000095/stem-20260930.htm",
+          "source_position": {
+            "table_index": 8,
+            "row_index": 5,
+            "column_range": [
+              3,
+              6
+            ],
+            "currency_evidence": {
+              "scope": "document"
+            }
+          }
+        },
+        {
+          "company_id": "cik:1758766",
+          "symbol": "STEM",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "eps",
+          "metric_definition": "US_GAAP",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": "basic:common",
+          "scale": 1,
+          "raw_label": "Net (loss) income per share attributable to common stockholders, basic",
+          "raw_value": "$ ( 1.51 )",
+          "normalized_value": "-1.51",
+          "document_hash": "daedbea89a2f0f10101acd3a1b0da4c9937878148cd501b19bc0877cac0e94a6",
+          "received_at_utc": "2026-11-16T23:45:48.764769+00:00",
+          "document_version": "unknown_version",
+          "status": "matched",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1758766/000175876626000095/stem-20260930.htm",
+          "source_position": {
+            "table_index": 8,
+            "row_index": 29,
+            "column_range": [
+              3,
+              6
+            ],
+            "currency_evidence": {
+              "scope": "document"
+            }
+          }
+        },
+        {
+          "company_id": "cik:1758766",
+          "symbol": "STEM",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "eps",
+          "metric_definition": "US_GAAP",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": "diluted:common",
+          "scale": 1,
+          "raw_label": "Net loss per share attributable to common stockholders, diluted",
+          "raw_value": "$ ( 1.51 )",
+          "normalized_value": "-1.51",
+          "document_hash": "daedbea89a2f0f10101acd3a1b0da4c9937878148cd501b19bc0877cac0e94a6",
+          "received_at_utc": "2026-11-16T23:45:48.764769+00:00",
+          "document_version": "unknown_version",
+          "status": "matched",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1758766/000175876626000095/stem-20260930.htm",
+          "source_position": {
+            "table_index": 8,
+            "row_index": 30,
+            "column_range": [
+              3,
+              6
+            ],
+            "currency_evidence": {
+              "scope": "document"
+            }
+          }
+        },
+        {
+          "company_id": "cik:1758766",
+          "symbol": "STEM",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "revenue",
+          "metric_definition": "US_GAAP:revenue",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": null,
+          "scale": 1000,
+          "raw_label": "Revenue",
+          "raw_value": "$ 36,656",
+          "normalized_value": "36656000",
+          "document_hash": "daedbea89a2f0f10101acd3a1b0da4c9937878148cd501b19bc0877cac0e94a6",
+          "received_at_utc": "2026-11-16T23:45:48.764769+00:00",
+          "document_version": "unknown_version",
+          "status": "matched",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1758766/000175876626000095/stem-20260930.htm",
+          "source_position": {
+            "table_index": 42,
+            "row_index": 2,
+            "column_range": [
+              3,
+              6
+            ],
+            "currency_evidence": {
+              "scope": "document"
+            }
+          }
+        }
+      ],
+      "forecasts": [
+        {
+          "company_id": "cik:1758766",
+          "symbol": "STEM",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "revenue",
+          "metric_definition": "US_GAAP:total_revenue",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "forecast_id": "synthetic-1685626e9a7b6697",
+          "origin": "synthetic_test",
+          "generated_at_utc": "2026-11-16T23:45:48.835135+00:00",
+          "normalized_value": "32990400.00",
+          "not_a_model_prediction": true,
+          "uses_actual_for_test_setup": true,
+          "use_for_decision": true
+        },
+        {
+          "company_id": "cik:1758766",
+          "symbol": "STEM",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "eps",
+          "metric_definition": "US_GAAP",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": "basic:common",
+          "forecast_id": "synthetic-2333df8dd67c5fff",
+          "origin": "synthetic_test",
+          "generated_at_utc": "2026-11-16T23:45:48.835135+00:00",
+          "normalized_value": "-1.6610",
+          "not_a_model_prediction": true,
+          "uses_actual_for_test_setup": true,
+          "use_for_decision": false
+        },
+        {
+          "company_id": "cik:1758766",
+          "symbol": "STEM",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "eps",
+          "metric_definition": "US_GAAP",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": "diluted:common",
+          "forecast_id": "synthetic-4bff6354c7ab413c",
+          "origin": "synthetic_test",
+          "generated_at_utc": "2026-11-16T23:45:48.835135+00:00",
+          "normalized_value": "-1.6610",
+          "not_a_model_prediction": true,
+          "uses_actual_for_test_setup": true,
+          "use_for_decision": true
+        },
+        {
+          "company_id": "cik:1758766",
+          "symbol": "STEM",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "revenue",
+          "metric_definition": "US_GAAP:revenue",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "forecast_id": "synthetic-539e0ee869b12926",
+          "origin": "synthetic_test",
+          "generated_at_utc": "2026-11-16T23:45:48.835135+00:00",
+          "normalized_value": "32990400.00",
+          "not_a_model_prediction": true,
+          "uses_actual_for_test_setup": true,
+          "use_for_decision": false
+        }
+      ],
+      "comparison": {
+        "comparisons": [
+          {
+            "forecast_id": "synthetic-1685626e9a7b6697",
+            "forecast_origin": "synthetic_test",
+            "forecast_generated_at_utc": "2026-11-16T23:45:48.835135+00:00",
+            "forecast_value": "32990400.00",
+            "actual_value": "36656000",
+            "difference": "3665600.00",
+            "surprise_pct": "11.11111111111111111111111111",
+            "formula": "100 * (actual - forecast) / abs(forecast)",
+            "status": "compared",
+            "use_for_decision": true,
+            "contract": {
+              "company_id": "cik:1758766",
+              "symbol": "STEM",
+              "report_period": "FY2026 Q3",
+              "period_start": "2026-07-01",
+              "period_end": "2026-09-30",
+              "metric": "revenue",
+              "metric_definition": "US_GAAP:total_revenue",
+              "business_scope": "consolidated",
+              "currency": "USD",
+              "share_basis": null
+            }
+          },
+          {
+            "forecast_id": "synthetic-2333df8dd67c5fff",
+            "forecast_origin": "synthetic_test",
+            "forecast_generated_at_utc": "2026-11-16T23:45:48.835135+00:00",
+            "forecast_value": "-1.6610",
+            "actual_value": "-1.51",
+            "difference": "0.1510",
+            "surprise_pct": "9.090909090909090909090909091",
+            "formula": "100 * (actual - forecast) / abs(forecast)",
+            "status": "compared",
+            "use_for_decision": false,
+            "contract": {
+              "company_id": "cik:1758766",
+              "symbol": "STEM",
+              "report_period": "FY2026 Q3",
+              "period_start": "2026-07-01",
+              "period_end": "2026-09-30",
+              "metric": "eps",
+              "metric_definition": "US_GAAP",
+              "business_scope": "consolidated",
+              "currency": "USD",
+              "share_basis": "basic:common"
+            }
+          },
+          {
+            "forecast_id": "synthetic-4bff6354c7ab413c",
+            "forecast_origin": "synthetic_test",
+            "forecast_generated_at_utc": "2026-11-16T23:45:48.835135+00:00",
+            "forecast_value": "-1.6610",
+            "actual_value": "-1.51",
+            "difference": "0.1510",
+            "surprise_pct": "9.090909090909090909090909091",
+            "formula": "100 * (actual - forecast) / abs(forecast)",
+            "status": "compared",
+            "use_for_decision": true,
+            "contract": {
+              "company_id": "cik:1758766",
+              "symbol": "STEM",
+              "report_period": "FY2026 Q3",
+              "period_start": "2026-07-01",
+              "period_end": "2026-09-30",
+              "metric": "eps",
+              "metric_definition": "US_GAAP",
+              "business_scope": "consolidated",
+              "currency": "USD",
+              "share_basis": "diluted:common"
+            }
+          },
+          {
+            "forecast_id": "synthetic-539e0ee869b12926",
+            "forecast_origin": "synthetic_test",
+            "forecast_generated_at_utc": "2026-11-16T23:45:48.835135+00:00",
+            "forecast_value": "32990400.00",
+            "actual_value": "36656000",
+            "difference": "3665600.00",
+            "surprise_pct": "11.11111111111111111111111111",
+            "formula": "100 * (actual - forecast) / abs(forecast)",
+            "status": "compared",
+            "use_for_decision": false,
+            "contract": {
+              "company_id": "cik:1758766",
+              "symbol": "STEM",
+              "report_period": "FY2026 Q3",
+              "period_start": "2026-07-01",
+              "period_end": "2026-09-30",
+              "metric": "revenue",
+              "metric_definition": "US_GAAP:revenue",
+              "business_scope": "consolidated",
+              "currency": "USD",
+              "share_basis": null
+            }
+          }
+        ]
+      },
+      "diagnostics": [
+        {
+          "reason": "currency_from_provided_company_rule"
+        }
+      ],
+      "simulation_decision": {
+        "mode": "local_simulation",
+        "action": "long",
+        "reason": "both_above_positive_thresholds",
+        "eligible": true,
+        "strict_thresholds": true,
+        "contract_selection": "synthetic_fixture",
+        "exchange_submitted": false,
+        "exchange_acknowledged": false,
+        "created_at_utc": "2026-11-16T23:45:48.835283+00:00",
+        "simulation_ms": 0.016465,
+        "forecast_ids": {
+          "eps": "synthetic-4bff6354c7ab413c",
+          "revenue": "synthetic-1685626e9a7b6697"
+        },
+        "surprise_pct": {
+          "eps": "9.090909090909090909090909091",
+          "revenue": "11.11111111111111111111111111"
+        },
+        "thresholds_pct": {
+          "eps": "5",
+          "revenue": "3"
+        }
+      },
+      "evidence_id": "43981794444-1:869"
+    },
+    {
+      "schema_version": 1,
+      "symbol": "TSN",
+      "channel": "sec",
+      "run_id": "80b3177d-64ca-4f04-8efe-ffb314b689cf",
+      "mode": "run",
+      "context": "initially_present",
+      "forecast_mode": "synthetic",
+      "report_period": "FY2026 Q4",
+      "period_start": "2026-06-28",
+      "period_end": "2026-10-03",
+      "status": "completed",
+      "document_hash": "576ff81bcccc946d2161ce58f8f1c390faf928c22675accb364621b49284c502",
+      "document_version": "unknown_version",
+      "already_present_on_first_poll": true,
+      "last_negative_listing_ns": null,
+      "discovered_mono_ns": 104361662623,
+      "validated_mono_ns": 139649774110,
+      "discovery_to_parsed_ms": 35288.111487,
+      "discovery_to_comparison_ms": 35334.088286,
+      "discovery_to_decision_ms": 35335.97843,
+      "timing_basis": "same_process_perf_counter",
+      "queued_mono_ns": 139665107027,
+      "extraction_started_mono_ns": 139665142642,
+      "started_at_utc": "2026-11-16T23:45:49.022649+00:00",
+      "extraction_completed_mono_ns": 139695717979,
+      "extraction_completed_at_utc": "2026-11-16T23:45:49.053213+00:00",
+      "comparison_completed_mono_ns": 139695750909,
+      "comparison_completed_at_utc": "2026-11-16T23:45:49.053244+00:00",
+      "decision_computed_mono_ns": 139695766122,
+      "decision_computed_at_utc": "2026-11-16T23:45:49.053259+00:00",
+      "decision_completed_mono_ns": 139697641053,
+      "decision_completed_at_utc": "2026-11-16T23:45:49.055134+00:00",
+      "ended_mono_ns": 139697641053,
+      "ended_at_utc": "2026-11-16T23:45:49.055134+00:00",
+      "archive_completed_mono_ns": 139675138147,
+      "archive_completed_utc": "2026-11-16T23:45:49.038787+00:00",
+      "decision_budget_ms": 500,
+      "decision_budget_passed": null,
+      "signal_status": "joint_threshold_rule",
+      "exchange_submitted": false,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/100493/000010049326000079/tsn-20261003.htm",
+      "timings_ms": {
+        "queue": 0.035615,
+        "extraction": 30.575337,
+        "comparison": 0.03293,
+        "decision": 0.015213,
+        "pipeline": 32.534026,
+        "delivery_queue": 1.872037
+      },
+      "extractor_timings_ms": {
+        "location": 19.868366,
+        "basis_validation": 8.62725,
+        "total": 28.495616
+      },
+      "metrics": [
+        {
+          "company_id": "cik:100493",
+          "symbol": "TSN",
+          "report_period": "FY2026 Q4",
+          "period_start": "2026-06-28",
+          "period_end": "2026-10-03",
+          "metric": "eps",
+          "metric_definition": null,
+          "business_scope": "consolidated",
+          "currency": null,
+          "share_basis": null,
+          "scale": null,
+          "raw_label": "",
+          "raw_value": null,
+          "normalized_value": null,
+          "document_hash": "576ff81bcccc946d2161ce58f8f1c390faf928c22675accb364621b49284c502",
+          "received_at_utc": "2026-11-16T23:45:48.922565+00:00",
+          "document_version": "unknown_version",
+          "status": "missing",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/100493/000010049326000079/tsn-20261003.htm",
+          "source_position": {}
+        },
+        {
+          "company_id": "cik:100493",
+          "symbol": "TSN",
+          "report_period": "FY2026 Q4",
+          "period_start": "2026-06-28",
+          "period_end": "2026-10-03",
+          "metric": "revenue",
+          "metric_definition": null,
+          "business_scope": "consolidated",
+          "currency": null,
+          "share_basis": null,
+          "scale": null,
+          "raw_label": "",
+          "raw_value": null,
+          "normalized_value": null,
+          "document_hash": "576ff81bcccc946d2161ce58f8f1c390faf928c22675accb364621b49284c502",
+          "received_at_utc": "2026-11-16T23:45:48.922565+00:00",
+          "document_version": "unknown_version",
+          "status": "missing",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/100493/000010049326000079/tsn-20261003.htm",
+          "source_position": {}
+        },
+        {
+          "company_id": "cik:100493",
+          "symbol": "TSN",
+          "report_period": "FY2026 Q4",
+          "period_start": "2026-06-28",
+          "period_end": "2026-10-03",
+          "metric": "eps",
+          "metric_definition": "non_GAAP_adjusted",
+          "business_scope": "consolidated",
+          "currency": null,
+          "share_basis": null,
+          "scale": null,
+          "raw_label": "",
+          "raw_value": null,
+          "normalized_value": null,
+          "document_hash": "576ff81bcccc946d2161ce58f8f1c390faf928c22675accb364621b49284c502",
+          "received_at_utc": "2026-11-16T23:45:48.922565+00:00",
+          "document_version": "unknown_version",
+          "status": "missing",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/100493/000010049326000079/tsn-20261003.htm",
+          "source_position": {}
+        }
+      ],
+      "forecasts": [],
+      "comparison": {
+        "comparisons": []
+      },
+      "diagnostics": [
+        {
+          "reason": "currency_from_provided_company_rule"
+        },
+        {
+          "metric": "eps",
+          "reason": "no_verified_target_period_field"
+        },
+        {
+          "metric": "revenue",
+          "reason": "no_verified_target_period_field"
+        },
+        {
+          "metric": "eps",
+          "reason": "requested_basis_not_explicitly_published_in_target_period"
+        }
+      ],
+      "simulation_decision": {
+        "mode": "local_simulation",
+        "action": "no_signal",
+        "reason": "missing_metric_contract",
+        "eligible": false,
+        "strict_thresholds": true,
+        "contract_selection": "forecast_input",
+        "exchange_submitted": false,
+        "exchange_acknowledged": false,
+        "created_at_utc": "2026-11-16T23:45:49.053252+00:00",
+        "simulation_ms": 0.009003,
+        "forecast_ids": {
+          "eps": null,
+          "revenue": null
+        },
+        "surprise_pct": {
+          "eps": null,
+          "revenue": null
+        },
+        "thresholds_pct": {
+          "eps": "5",
+          "revenue": "3"
+        }
+      },
+      "evidence_id": "43981794444-1:873"
+    },
+    {
+      "schema_version": 1,
+      "symbol": "CBRS",
+      "channel": "sec",
+      "run_id": "80b3177d-64ca-4f04-8efe-ffb314b689cf",
+      "mode": "run",
+      "context": "initially_present",
+      "forecast_mode": "synthetic",
+      "report_period": "FY2026 Q3",
+      "period_start": "2026-07-01",
+      "period_end": "2026-09-30",
+      "status": "completed",
+      "document_hash": "1b27c5c7a20362dd778203e497658b08bdcdfcbf88a555bc5650907e6c825478",
+      "document_version": "unknown_version",
+      "already_present_on_first_poll": true,
+      "last_negative_listing_ns": null,
+      "discovered_mono_ns": 98373839375,
+      "validated_mono_ns": 139791113122,
+      "discovery_to_parsed_ms": 41417.273747,
+      "discovery_to_comparison_ms": 41459.286628,
+      "discovery_to_decision_ms": 41459.929449,
+      "timing_basis": "same_process_perf_counter",
+      "queued_mono_ns": 139801128498,
+      "extraction_started_mono_ns": 139801163271,
+      "started_at_utc": "2026-11-16T23:45:49.158669+00:00",
+      "extraction_completed_mono_ns": 139832981585,
+      "extraction_completed_at_utc": "2026-11-16T23:45:49.190478+00:00",
+      "comparison_completed_mono_ns": 139833126003,
+      "comparison_completed_at_utc": "2026-11-16T23:45:49.190619+00:00",
+      "decision_computed_mono_ns": 139833142458,
+      "decision_computed_at_utc": "2026-11-16T23:45:49.190635+00:00",
+      "decision_completed_mono_ns": 139833768824,
+      "decision_completed_at_utc": "2026-11-16T23:45:49.191262+00:00",
+      "ended_mono_ns": 139833768824,
+      "ended_at_utc": "2026-11-16T23:45:49.191262+00:00",
+      "archive_completed_mono_ns": 139804190072,
+      "archive_completed_utc": "2026-11-16T23:45:49.167839+00:00",
+      "decision_budget_ms": 500,
+      "decision_budget_passed": null,
+      "signal_status": "joint_threshold_rule",
+      "exchange_submitted": false,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/2021728/000162828026073494/cbrs-20260930.htm",
+      "timings_ms": {
+        "queue": 0.034773,
+        "extraction": 31.818314,
+        "comparison": 0.144418,
+        "decision": 0.016455,
+        "pipeline": 32.640326,
+        "delivery_queue": 0.623792
+      },
+      "extractor_timings_ms": {
+        "location": 20.333699,
+        "basis_validation": 8.8061,
+        "total": 29.139799
+      },
+      "metrics": [
+        {
+          "company_id": "cik:2021728",
+          "symbol": "CBRS",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "revenue",
+          "metric_definition": "US_GAAP:total_revenue",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": null,
+          "scale": 1000,
+          "raw_label": "Total revenue",
+          "raw_value": "210,809",
+          "normalized_value": "210809000",
+          "document_hash": "1b27c5c7a20362dd778203e497658b08bdcdfcbf88a555bc5650907e6c825478",
+          "received_at_utc": "2026-11-16T23:45:49.105196+00:00",
+          "document_version": "unknown_version",
+          "status": "ambiguous",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/2021728/000162828026073494/cbrs-20260930.htm",
+          "source_position": {
+            "table_index": 6,
+            "row_index": 5,
+            "column_range": [
+              3,
+              6
+            ],
+            "currency_evidence": {
+              "scope": "document"
+            }
+          }
+        },
+        {
+          "company_id": "cik:2021728",
+          "symbol": "CBRS",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "revenue",
+          "metric_definition": "US_GAAP:total_revenue",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": null,
+          "scale": 1000,
+          "raw_label": "Total revenue",
+          "raw_value": "$ 210,809",
+          "normalized_value": "210809000",
+          "document_hash": "1b27c5c7a20362dd778203e497658b08bdcdfcbf88a555bc5650907e6c825478",
+          "received_at_utc": "2026-11-16T23:45:49.105196+00:00",
+          "document_version": "unknown_version",
+          "status": "ambiguous",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/2021728/000162828026073494/cbrs-20260930.htm",
+          "source_position": {
+            "table_index": 15,
+            "row_index": 5,
+            "column_range": [
+              3,
+              6
+            ],
+            "currency_evidence": {
+              "scope": "document"
+            }
+          }
+        },
+        {
+          "company_id": "cik:2021728",
+          "symbol": "CBRS",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "revenue",
+          "metric_definition": "US_GAAP:total_revenue",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": null,
+          "scale": 1000,
+          "raw_label": "Total revenue",
+          "raw_value": "210,809",
+          "normalized_value": "210809000",
+          "document_hash": "1b27c5c7a20362dd778203e497658b08bdcdfcbf88a555bc5650907e6c825478",
+          "received_at_utc": "2026-11-16T23:45:49.105196+00:00",
+          "document_version": "unknown_version",
+          "status": "ambiguous",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/2021728/000162828026073494/cbrs-20260930.htm",
+          "source_position": {
+            "table_index": 37,
+            "row_index": 6,
+            "column_range": [
+              3,
+              6
+            ],
+            "currency_evidence": {
+              "scope": "document"
+            }
+          }
+        },
+        {
+          "company_id": "cik:2021728",
+          "symbol": "CBRS",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "revenue",
+          "metric_definition": "US_GAAP:total_revenue",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": null,
+          "scale": null,
+          "raw_label": "Total revenue",
+          "raw_value": "100.0",
+          "normalized_value": null,
+          "document_hash": "1b27c5c7a20362dd778203e497658b08bdcdfcbf88a555bc5650907e6c825478",
+          "received_at_utc": "2026-11-16T23:45:49.105196+00:00",
+          "document_version": "unknown_version",
+          "status": "ambiguous",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/2021728/000162828026073494/cbrs-20260930.htm",
+          "source_position": {
+            "table_index": 39,
+            "row_index": 6,
+            "column_range": [
+              3,
+              6
+            ],
+            "currency_evidence": {
+              "scope": "document"
+            }
+          }
+        },
+        {
+          "company_id": "cik:2021728",
+          "symbol": "CBRS",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "revenue",
+          "metric_definition": "US_GAAP:total_revenue",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": null,
+          "scale": 1000,
+          "raw_label": "Total revenue",
+          "raw_value": "$ 210,809",
+          "normalized_value": "210809000",
+          "document_hash": "1b27c5c7a20362dd778203e497658b08bdcdfcbf88a555bc5650907e6c825478",
+          "received_at_utc": "2026-11-16T23:45:49.105196+00:00",
+          "document_version": "unknown_version",
+          "status": "ambiguous",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/2021728/000162828026073494/cbrs-20260930.htm",
+          "source_position": {
+            "table_index": 40,
+            "row_index": 5,
+            "column_range": [
+              3,
+              6
+            ],
+            "currency_evidence": {
+              "scope": "document"
+            }
+          }
+        },
+        {
+          "company_id": "cik:2021728",
+          "symbol": "CBRS",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "eps",
+          "metric_definition": "US_GAAP",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": "basic:common",
+          "scale": 1,
+          "raw_label": "Net income (loss) per share attributable to common stockholders / Basic",
+          "raw_value": "$ ( 0.67 )",
+          "normalized_value": "-0.67",
+          "document_hash": "1b27c5c7a20362dd778203e497658b08bdcdfcbf88a555bc5650907e6c825478",
+          "received_at_utc": "2026-11-16T23:45:49.105196+00:00",
+          "document_version": "unknown_version",
+          "status": "matched",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/2021728/000162828026073494/cbrs-20260930.htm",
+          "source_position": {
+            "table_index": 6,
+            "row_index": 25,
+            "column_range": [
+              3,
+              6
+            ],
+            "currency_evidence": {
+              "scope": "document"
+            }
+          }
+        },
+        {
+          "company_id": "cik:2021728",
+          "symbol": "CBRS",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "eps",
+          "metric_definition": "US_GAAP",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": "diluted:common",
+          "scale": 1,
+          "raw_label": "Net income (loss) per share attributable to common stockholders / Diluted",
+          "raw_value": "$ ( 0.67 )",
+          "normalized_value": "-0.67",
+          "document_hash": "1b27c5c7a20362dd778203e497658b08bdcdfcbf88a555bc5650907e6c825478",
+          "received_at_utc": "2026-11-16T23:45:49.105196+00:00",
+          "document_version": "unknown_version",
+          "status": "matched",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/2021728/000162828026073494/cbrs-20260930.htm",
+          "source_position": {
+            "table_index": 6,
+            "row_index": 26,
+            "column_range": [
+              3,
+              6
+            ],
+            "currency_evidence": {
+              "scope": "document"
+            }
+          }
+        },
+        {
+          "company_id": "cik:2021728",
+          "symbol": "CBRS",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "eps",
+          "metric_definition": "US_GAAP",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": null,
+          "scale": 1,
+          "raw_label": "Total potential common stock excluded from net loss per share",
+          "raw_value": "72,326",
+          "normalized_value": "-72326",
+          "document_hash": "1b27c5c7a20362dd778203e497658b08bdcdfcbf88a555bc5650907e6c825478",
+          "received_at_utc": "2026-11-16T23:45:49.105196+00:00",
+          "document_version": "unknown_version",
+          "status": "unsupported_basis",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/2021728/000162828026073494/cbrs-20260930.htm",
+          "source_position": {
+            "table_index": 17,
+            "row_index": 9,
+            "column_range": [
+              3,
+              6
+            ],
+            "currency_evidence": {
+              "scope": "document"
+            }
+          }
+        }
+      ],
+      "forecasts": [
+        {
+          "company_id": "cik:2021728",
+          "symbol": "CBRS",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "eps",
+          "metric_definition": "US_GAAP",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": "basic:common",
+          "forecast_id": "synthetic-e8bbe2137c6e35bf",
+          "origin": "synthetic_test",
+          "generated_at_utc": "2026-11-16T23:45:49.190491+00:00",
+          "normalized_value": "-0.7370",
+          "not_a_model_prediction": true,
+          "uses_actual_for_test_setup": true,
+          "use_for_decision": false
+        },
+        {
+          "company_id": "cik:2021728",
+          "symbol": "CBRS",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "eps",
+          "metric_definition": "US_GAAP",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": "diluted:common",
+          "forecast_id": "synthetic-405dfc66837b532e",
+          "origin": "synthetic_test",
+          "generated_at_utc": "2026-11-16T23:45:49.190491+00:00",
+          "normalized_value": "-0.7370",
+          "not_a_model_prediction": true,
+          "uses_actual_for_test_setup": true,
+          "use_for_decision": true
+        }
+      ],
+      "comparison": {
+        "comparisons": [
+          {
+            "forecast_id": "synthetic-e8bbe2137c6e35bf",
+            "forecast_origin": "synthetic_test",
+            "forecast_generated_at_utc": "2026-11-16T23:45:49.190491+00:00",
+            "forecast_value": "-0.7370",
+            "actual_value": "-0.67",
+            "difference": "0.0670",
+            "surprise_pct": "9.090909090909090909090909091",
+            "formula": "100 * (actual - forecast) / abs(forecast)",
+            "status": "compared",
+            "use_for_decision": false,
+            "contract": {
+              "company_id": "cik:2021728",
+              "symbol": "CBRS",
+              "report_period": "FY2026 Q3",
+              "period_start": "2026-07-01",
+              "period_end": "2026-09-30",
+              "metric": "eps",
+              "metric_definition": "US_GAAP",
+              "business_scope": "consolidated",
+              "currency": "USD",
+              "share_basis": "basic:common"
+            }
+          },
+          {
+            "forecast_id": "synthetic-405dfc66837b532e",
+            "forecast_origin": "synthetic_test",
+            "forecast_generated_at_utc": "2026-11-16T23:45:49.190491+00:00",
+            "forecast_value": "-0.7370",
+            "actual_value": "-0.67",
+            "difference": "0.0670",
+            "surprise_pct": "9.090909090909090909090909091",
+            "formula": "100 * (actual - forecast) / abs(forecast)",
+            "status": "compared",
+            "use_for_decision": true,
+            "contract": {
+              "company_id": "cik:2021728",
+              "symbol": "CBRS",
+              "report_period": "FY2026 Q3",
+              "period_start": "2026-07-01",
+              "period_end": "2026-09-30",
+              "metric": "eps",
+              "metric_definition": "US_GAAP",
+              "business_scope": "consolidated",
+              "currency": "USD",
+              "share_basis": "diluted:common"
+            }
+          }
+        ]
+      },
+      "diagnostics": [
+        {
+          "reason": "currency_from_provided_company_rule"
+        },
+        {
+          "metric": "revenue",
+          "reason": "conflicting_values_for_same_contract"
+        },
+        {
+          "metric": "eps",
+          "reason": "basis_not_verified"
+        }
+      ],
+      "simulation_decision": {
+        "mode": "local_simulation",
+        "action": "no_signal",
+        "reason": "missing_metric_contract",
+        "eligible": false,
+        "strict_thresholds": true,
+        "contract_selection": "synthetic_fixture",
+        "exchange_submitted": false,
+        "exchange_acknowledged": false,
+        "created_at_utc": "2026-11-16T23:45:49.190629+00:00",
+        "simulation_ms": 0.009394,
+        "forecast_ids": {
+          "eps": null,
+          "revenue": null
+        },
+        "surprise_pct": {
+          "eps": null,
+          "revenue": null
+        },
+        "thresholds_pct": {
+          "eps": "5",
+          "revenue": "3"
+        }
+      },
+      "evidence_id": "43981794444-1:879"
+    },
+    {
+      "schema_version": 1,
+      "symbol": "BN",
+      "channel": "sec",
+      "run_id": "80b3177d-64ca-4f04-8efe-ffb314b689cf",
+      "mode": "run",
+      "context": "initially_present",
+      "forecast_mode": "synthetic",
+      "report_period": "FY2026 Q3",
+      "period_start": "2026-07-01",
+      "period_end": "2026-09-30",
+      "status": "completed",
+      "document_hash": "a633780f55bf859f7e36beeb77f82868cd03e5a129a7706ff75a43efe4a1698d",
+      "document_version": "unknown_version",
+      "already_present_on_first_poll": true,
+      "last_negative_listing_ns": null,
+      "discovered_mono_ns": 95346330647,
+      "validated_mono_ns": 140837690285,
+      "discovery_to_parsed_ms": 45491.359638,
+      "discovery_to_comparison_ms": 45549.121846,
+      "discovery_to_decision_ms": 45549.326394,
+      "timing_basis": "same_process_perf_counter",
+      "queued_mono_ns": 140850268988,
+      "extraction_started_mono_ns": 140850305187,
+      "started_at_utc": "2026-11-16T23:45:50.207810+00:00",
+      "extraction_completed_mono_ns": 140895282596,
+      "extraction_completed_at_utc": "2026-11-16T23:45:50.252780+00:00",
+      "comparison_completed_mono_ns": 140895452493,
+      "comparison_completed_at_utc": "2026-11-16T23:45:50.252945+00:00",
+      "decision_computed_mono_ns": 140895474826,
+      "decision_computed_at_utc": "2026-11-16T23:45:50.252968+00:00",
+      "decision_completed_mono_ns": 140895657041,
+      "decision_completed_at_utc": "2026-11-16T23:45:50.253151+00:00",
+      "ended_mono_ns": 140895657041,
+      "ended_at_utc": "2026-11-16T23:45:50.253151+00:00",
+      "archive_completed_mono_ns": 140854809235,
+      "archive_completed_utc": "2026-11-16T23:45:50.218458+00:00",
+      "decision_budget_ms": 500,
+      "decision_budget_passed": false,
+      "signal_status": "joint_threshold_rule",
+      "exchange_submitted": false,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1001085/000100108526000030/a2026-q3bninterimreport.htm",
+      "timings_ms": {
+        "queue": 0.036199,
+        "extraction": 44.977409,
+        "comparison": 0.169897,
+        "decision": 0.022333,
+        "pipeline": 45.388053,
+        "delivery_queue": 0.179591
+      },
+      "extractor_timings_ms": {
+        "location": 35.43059,
+        "basis_validation": 5.256849,
+        "total": 40.687439
+      },
+      "metrics": [
+        {
+          "company_id": "cik:1001085",
+          "symbol": "BN",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "eps",
+          "metric_definition": "IFRS",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": null,
+          "scale": 1,
+          "raw_label": "Net income per share 2",
+          "raw_value": "$ 0.54",
+          "normalized_value": "0.54",
+          "document_hash": "a633780f55bf859f7e36beeb77f82868cd03e5a129a7706ff75a43efe4a1698d",
+          "received_at_utc": "2026-11-16T23:45:50.057040+00:00",
+          "document_version": "unknown_version",
+          "status": "unsupported_basis",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1001085/000100108526000030/a2026-q3bninterimreport.htm",
+          "source_position": {
+            "table_index": 4,
+            "row_index": 16,
+            "column_range": [
+              21,
+              24
+            ],
+            "currency_evidence": {
+              "scope": "document"
+            }
+          }
+        },
+        {
+          "company_id": "cik:1001085",
+          "symbol": "BN",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "revenue",
+          "metric_definition": "IFRS:revenue",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": null,
+          "scale": 1000000,
+          "raw_label": "Revenue",
+          "raw_value": "$ 20,691",
+          "normalized_value": "20691000000",
+          "document_hash": "a633780f55bf859f7e36beeb77f82868cd03e5a129a7706ff75a43efe4a1698d",
+          "received_at_utc": "2026-11-16T23:45:50.057040+00:00",
+          "document_version": "unknown_version",
+          "status": "matched",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1001085/000100108526000030/a2026-q3bninterimreport.htm",
+          "source_position": {
+            "table_index": 48,
+            "row_index": 2,
+            "column_range": [
+              15,
+              18
+            ],
+            "currency_evidence": {
+              "scope": "document"
+            }
+          }
+        },
+        {
+          "company_id": "cik:1001085",
+          "symbol": "BN",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "revenue",
+          "metric_definition": "IFRS:revenues",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": null,
+          "scale": 1000000,
+          "raw_label": "Revenues",
+          "raw_value": "$ 20,691",
+          "normalized_value": "20691000000",
+          "document_hash": "a633780f55bf859f7e36beeb77f82868cd03e5a129a7706ff75a43efe4a1698d",
+          "received_at_utc": "2026-11-16T23:45:50.057040+00:00",
+          "document_version": "unknown_version",
+          "status": "matched",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1001085/000100108526000030/a2026-q3bninterimreport.htm",
+          "source_position": {
+            "table_index": 51,
+            "row_index": 2,
+            "column_range": [
+              21,
+              24
+            ],
+            "currency_evidence": {
+              "scope": "document"
+            }
+          }
+        },
+        {
+          "company_id": "cik:1001085",
+          "symbol": "BN",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "eps",
+          "metric_definition": "IFRS",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": "diluted:common",
+          "scale": 1,
+          "raw_label": "Net income per share: / Diluted",
+          "raw_value": "$ 0.54",
+          "normalized_value": "0.54",
+          "document_hash": "a633780f55bf859f7e36beeb77f82868cd03e5a129a7706ff75a43efe4a1698d",
+          "received_at_utc": "2026-11-16T23:45:50.057040+00:00",
+          "document_version": "unknown_version",
+          "status": "matched",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1001085/000100108526000030/a2026-q3bninterimreport.htm",
+          "source_position": {
+            "table_index": 51,
+            "row_index": 19,
+            "column_range": [
+              21,
+              24
+            ],
+            "currency_evidence": {
+              "scope": "document"
+            }
+          }
+        },
+        {
+          "company_id": "cik:1001085",
+          "symbol": "BN",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "eps",
+          "metric_definition": "IFRS",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": "basic:common",
+          "scale": 1,
+          "raw_label": "Net income per share: / Basic",
+          "raw_value": "0.57",
+          "normalized_value": "0.57",
+          "document_hash": "a633780f55bf859f7e36beeb77f82868cd03e5a129a7706ff75a43efe4a1698d",
+          "received_at_utc": "2026-11-16T23:45:50.057040+00:00",
+          "document_version": "unknown_version",
+          "status": "matched",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1001085/000100108526000030/a2026-q3bninterimreport.htm",
+          "source_position": {
+            "table_index": 51,
+            "row_index": 20,
+            "column_range": [
+              21,
+              24
+            ],
+            "currency_evidence": {
+              "scope": "document"
+            }
+          }
+        }
+      ],
+      "forecasts": [
+        {
+          "company_id": "cik:1001085",
+          "symbol": "BN",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "revenue",
+          "metric_definition": "IFRS:revenue",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "forecast_id": "synthetic-72db6c97ca691745",
+          "origin": "synthetic_test",
+          "generated_at_utc": "2026-11-16T23:45:50.252796+00:00",
+          "normalized_value": "18621900000.00",
+          "not_a_model_prediction": true,
+          "uses_actual_for_test_setup": true,
+          "use_for_decision": true
+        },
+        {
+          "company_id": "cik:1001085",
+          "symbol": "BN",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "revenue",
+          "metric_definition": "IFRS:revenues",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "forecast_id": "synthetic-11da3793df866578",
+          "origin": "synthetic_test",
+          "generated_at_utc": "2026-11-16T23:45:50.252796+00:00",
+          "normalized_value": "18621900000.00",
+          "not_a_model_prediction": true,
+          "uses_actual_for_test_setup": true,
+          "use_for_decision": false
+        },
+        {
+          "company_id": "cik:1001085",
+          "symbol": "BN",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "eps",
+          "metric_definition": "IFRS",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": "diluted:common",
+          "forecast_id": "synthetic-cd16eb2e434170a6",
+          "origin": "synthetic_test",
+          "generated_at_utc": "2026-11-16T23:45:50.252796+00:00",
+          "normalized_value": "0.4860",
+          "not_a_model_prediction": true,
+          "uses_actual_for_test_setup": true,
+          "use_for_decision": true
+        },
+        {
+          "company_id": "cik:1001085",
+          "symbol": "BN",
+          "report_period": "FY2026 Q3",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "eps",
+          "metric_definition": "IFRS",
+          "business_scope": "consolidated",
+          "currency": "USD",
+          "share_basis": "basic:common",
+          "forecast_id": "synthetic-56e40b6a922bf47c",
+          "origin": "synthetic_test",
+          "generated_at_utc": "2026-11-16T23:45:50.252796+00:00",
+          "normalized_value": "0.5130",
+          "not_a_model_prediction": true,
+          "uses_actual_for_test_setup": true,
+          "use_for_decision": false
+        }
+      ],
+      "comparison": {
+        "comparisons": [
+          {
+            "forecast_id": "synthetic-72db6c97ca691745",
+            "forecast_origin": "synthetic_test",
+            "forecast_generated_at_utc": "2026-11-16T23:45:50.252796+00:00",
+            "forecast_value": "18621900000.00",
+            "actual_value": "20691000000",
+            "difference": "2069100000.00",
+            "surprise_pct": "11.11111111111111111111111111",
+            "formula": "100 * (actual - forecast) / abs(forecast)",
+            "status": "compared",
+            "use_for_decision": true,
+            "contract": {
+              "company_id": "cik:1001085",
+              "symbol": "BN",
+              "report_period": "FY2026 Q3",
+              "period_start": "2026-07-01",
+              "period_end": "2026-09-30",
+              "metric": "revenue",
+              "metric_definition": "IFRS:revenue",
+              "business_scope": "consolidated",
+              "currency": "USD",
+              "share_basis": null
+            }
+          },
+          {
+            "forecast_id": "synthetic-11da3793df866578",
+            "forecast_origin": "synthetic_test",
+            "forecast_generated_at_utc": "2026-11-16T23:45:50.252796+00:00",
+            "forecast_value": "18621900000.00",
+            "actual_value": "20691000000",
+            "difference": "2069100000.00",
+            "surprise_pct": "11.11111111111111111111111111",
+            "formula": "100 * (actual - forecast) / abs(forecast)",
+            "status": "compared",
+            "use_for_decision": false,
+            "contract": {
+              "company_id": "cik:1001085",
+              "symbol": "BN",
+              "report_period": "FY2026 Q3",
+              "period_start": "2026-07-01",
+              "period_end": "2026-09-30",
+              "metric": "revenue",
+              "metric_definition": "IFRS:revenues",
+              "business_scope": "consolidated",
+              "currency": "USD",
+              "share_basis": null
+            }
+          },
+          {
+            "forecast_id": "synthetic-cd16eb2e434170a6",
+            "forecast_origin": "synthetic_test",
+            "forecast_generated_at_utc": "2026-11-16T23:45:50.252796+00:00",
+            "forecast_value": "0.4860",
+            "actual_value": "0.54",
+            "difference": "0.0540",
+            "surprise_pct": "11.11111111111111111111111111",
+            "formula": "100 * (actual - forecast) / abs(forecast)",
+            "status": "compared",
+            "use_for_decision": true,
+            "contract": {
+              "company_id": "cik:1001085",
+              "symbol": "BN",
+              "report_period": "FY2026 Q3",
+              "period_start": "2026-07-01",
+              "period_end": "2026-09-30",
+              "metric": "eps",
+              "metric_definition": "IFRS",
+              "business_scope": "consolidated",
+              "currency": "USD",
+              "share_basis": "diluted:common"
+            }
+          },
+          {
+            "forecast_id": "synthetic-56e40b6a922bf47c",
+            "forecast_origin": "synthetic_test",
+            "forecast_generated_at_utc": "2026-11-16T23:45:50.252796+00:00",
+            "forecast_value": "0.5130",
+            "actual_value": "0.57",
+            "difference": "0.0570",
+            "surprise_pct": "11.11111111111111111111111111",
+            "formula": "100 * (actual - forecast) / abs(forecast)",
+            "status": "compared",
+            "use_for_decision": false,
+            "contract": {
+              "company_id": "cik:1001085",
+              "symbol": "BN",
+              "report_period": "FY2026 Q3",
+              "period_start": "2026-07-01",
+              "period_end": "2026-09-30",
+              "metric": "eps",
+              "metric_definition": "IFRS",
+              "business_scope": "consolidated",
+              "currency": "USD",
+              "share_basis": "basic:common"
+            }
+          }
+        ]
+      },
+      "diagnostics": [
+        {
+          "metric": "eps",
+          "reason": "basis_not_verified"
+        }
+      ],
+      "simulation_decision": {
+        "mode": "local_simulation",
+        "action": "long",
+        "reason": "both_above_positive_thresholds",
+        "eligible": true,
+        "strict_thresholds": true,
+        "contract_selection": "synthetic_fixture",
+        "exchange_submitted": false,
+        "exchange_acknowledged": false,
+        "created_at_utc": "2026-11-16T23:45:50.252957+00:00",
+        "simulation_ms": 0.015023,
+        "forecast_ids": {
+          "eps": "synthetic-cd16eb2e434170a6",
+          "revenue": "synthetic-72db6c97ca691745"
+        },
+        "surprise_pct": {
+          "eps": "11.11111111111111111111111111",
+          "revenue": "11.11111111111111111111111111"
+        },
+        "thresholds_pct": {
+          "eps": "5",
+          "revenue": "3"
+        }
+      },
+      "evidence_id": "43981794444-1:890"
+    },
+    {
+      "schema_version": 1,
+      "symbol": "GIB",
+      "channel": "sec",
+      "run_id": "80b3177d-64ca-4f04-8efe-ffb314b689cf",
+      "mode": "run",
+      "context": "initially_present",
+      "forecast_mode": "synthetic",
+      "report_period": "FY2026 Q4",
+      "period_start": "2026-07-01",
+      "period_end": "2026-09-30",
+      "status": "completed",
+      "document_hash": "70a21b1a782c2094d0ee486297ae25e24d451ae3f632cb7f69021933e55e9c3b",
+      "document_version": "unknown_version",
+      "already_present_on_first_poll": true,
+      "last_negative_listing_ns": null,
+      "discovered_mono_ns": 93342430461,
+      "validated_mono_ns": 141463986829,
+      "discovery_to_parsed_ms": 48121.556368,
+      "discovery_to_comparison_ms": 48127.287823,
+      "discovery_to_decision_ms": 48129.063585,
+      "timing_basis": "same_process_perf_counter",
+      "queued_mono_ns": 141465569859,
+      "extraction_started_mono_ns": 141465595337,
+      "started_at_utc": "2026-11-16T23:45:50.823102+00:00",
+      "extraction_completed_mono_ns": 141469579995,
+      "extraction_completed_at_utc": "2026-11-16T23:45:50.827074+00:00",
+      "comparison_completed_mono_ns": 141469718284,
+      "comparison_completed_at_utc": "2026-11-16T23:45:50.827211+00:00",
+      "decision_computed_mono_ns": 141469738885,
+      "decision_computed_at_utc": "2026-11-16T23:45:50.827232+00:00",
+      "decision_completed_mono_ns": 141471494046,
+      "decision_completed_at_utc": "2026-11-16T23:45:50.828987+00:00",
+      "ended_mono_ns": 141471494046,
+      "ended_at_utc": "2026-11-16T23:45:50.828987+00:00",
+      "archive_completed_mono_ns": 141470085319,
+      "archive_completed_utc": "2026-11-16T23:45:50.833734+00:00",
+      "decision_budget_ms": 500,
+      "decision_budget_passed": false,
+      "signal_status": "joint_threshold_rule",
+      "exchange_submitted": false,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1061574/000106157426000020/cgi-fy26_q4xpressrelease.htm",
+      "timings_ms": {
+        "queue": 0.025478,
+        "extraction": 3.984658,
+        "comparison": 0.138289,
+        "decision": 0.020601,
+        "pipeline": 5.924187,
+        "delivery_queue": 1.752477
+      },
+      "extractor_timings_ms": {
+        "location": 3.390951,
+        "basis_validation": 0.428457,
+        "total": 3.819408
+      },
+      "metrics": [
+        {
+          "company_id": "cik:1061574",
+          "symbol": "GIB",
+          "report_period": "FY2026 Q4",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "revenue",
+          "metric_definition": "IFRS:revenue",
+          "business_scope": "consolidated",
+          "currency": "CAD",
+          "share_basis": null,
+          "scale": 1000000,
+          "raw_label": "Revenue",
+          "raw_value": "4,146.1",
+          "normalized_value": "4146100000.0",
+          "document_hash": "70a21b1a782c2094d0ee486297ae25e24d451ae3f632cb7f69021933e55e9c3b",
+          "received_at_utc": "2026-11-16T23:45:50.820863+00:00",
+          "document_version": "unknown_version",
+          "status": "matched",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1061574/000106157426000020/cgi-fy26_q4xpressrelease.htm",
+          "source_position": {
+            "table_index": 0,
+            "row_index": 2,
+            "column_range": [
+              3,
+              6
+            ],
+            "currency_evidence": {
+              "scope": "document"
+            }
+          }
+        },
+        {
+          "company_id": "cik:1061574",
+          "symbol": "GIB",
+          "report_period": "FY2026 Q4",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "eps",
+          "metric_definition": "IFRS",
+          "business_scope": "consolidated",
+          "currency": "CAD",
+          "share_basis": "diluted:common",
+          "scale": 1,
+          "raw_label": "Diluted EPS",
+          "raw_value": "2.24",
+          "normalized_value": "2.24",
+          "document_hash": "70a21b1a782c2094d0ee486297ae25e24d451ae3f632cb7f69021933e55e9c3b",
+          "received_at_utc": "2026-11-16T23:45:50.820863+00:00",
+          "document_version": "unknown_version",
+          "status": "matched",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1061574/000106157426000020/cgi-fy26_q4xpressrelease.htm",
+          "source_position": {
+            "table_index": 0,
+            "row_index": 13,
+            "column_range": [
+              3,
+              6
+            ],
+            "currency_evidence": {
+              "scope": "document"
+            }
+          }
+        },
+        {
+          "company_id": "cik:1061574",
+          "symbol": "GIB",
+          "report_period": "FY2026 Q4",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "eps",
+          "metric_definition": "non_IFRS_adjusted",
+          "business_scope": "consolidated",
+          "currency": "CAD",
+          "share_basis": "diluted:common",
+          "scale": 1,
+          "raw_label": "Adjusted diluted EPS 1",
+          "raw_value": "2.31",
+          "normalized_value": "2.31",
+          "document_hash": "70a21b1a782c2094d0ee486297ae25e24d451ae3f632cb7f69021933e55e9c3b",
+          "received_at_utc": "2026-11-16T23:45:50.820863+00:00",
+          "document_version": "unknown_version",
+          "status": "matched",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1061574/000106157426000020/cgi-fy26_q4xpressrelease.htm",
+          "source_position": {
+            "table_index": 0,
+            "row_index": 14,
+            "column_range": [
+              3,
+              6
+            ],
+            "currency_evidence": {
+              "scope": "document"
+            }
+          }
+        },
+        {
+          "company_id": "cik:1061574",
+          "symbol": "GIB",
+          "report_period": "FY2026 Q4",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "eps",
+          "metric_definition": "non_IFRS_adjusted",
+          "business_scope": "consolidated",
+          "currency": "CAD",
+          "share_basis": "basic:common",
+          "scale": 1,
+          "raw_label": "Adjusted earnings per share (in dollars) / Basic",
+          "raw_value": "2.33",
+          "normalized_value": "2.33",
+          "document_hash": "70a21b1a782c2094d0ee486297ae25e24d451ae3f632cb7f69021933e55e9c3b",
+          "received_at_utc": "2026-11-16T23:45:50.820863+00:00",
+          "document_version": "unknown_version",
+          "status": "matched",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/1061574/000106157426000020/cgi-fy26_q4xpressrelease.htm",
+          "source_position": {
+            "table_index": 3,
+            "row_index": 23,
+            "column_range": [
+              3,
+              6
+            ],
+            "currency_evidence": {
+              "scope": "document"
+            }
+          }
+        }
+      ],
+      "forecasts": [
+        {
+          "company_id": "cik:1061574",
+          "symbol": "GIB",
+          "report_period": "FY2026 Q4",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "revenue",
+          "metric_definition": "IFRS:revenue",
+          "business_scope": "consolidated",
+          "currency": "CAD",
+          "forecast_id": "synthetic-eb793e5399436aef",
+          "origin": "synthetic_test",
+          "generated_at_utc": "2026-11-16T23:45:50.827083+00:00",
+          "normalized_value": "3731490000.000",
+          "not_a_model_prediction": true,
+          "uses_actual_for_test_setup": true,
+          "use_for_decision": true
+        },
+        {
+          "company_id": "cik:1061574",
+          "symbol": "GIB",
+          "report_period": "FY2026 Q4",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "eps",
+          "metric_definition": "IFRS",
+          "business_scope": "consolidated",
+          "currency": "CAD",
+          "share_basis": "diluted:common",
+          "forecast_id": "synthetic-a904a229d2f81834",
+          "origin": "synthetic_test",
+          "generated_at_utc": "2026-11-16T23:45:50.827083+00:00",
+          "normalized_value": "2.0160",
+          "not_a_model_prediction": true,
+          "uses_actual_for_test_setup": true,
+          "use_for_decision": true
+        },
+        {
+          "company_id": "cik:1061574",
+          "symbol": "GIB",
+          "report_period": "FY2026 Q4",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "eps",
+          "metric_definition": "non_IFRS_adjusted",
+          "business_scope": "consolidated",
+          "currency": "CAD",
+          "share_basis": "diluted:common",
+          "forecast_id": "synthetic-dfa6eb6480786e7d",
+          "origin": "synthetic_test",
+          "generated_at_utc": "2026-11-16T23:45:50.827083+00:00",
+          "normalized_value": "2.0790",
+          "not_a_model_prediction": true,
+          "uses_actual_for_test_setup": true,
+          "use_for_decision": false
+        },
+        {
+          "company_id": "cik:1061574",
+          "symbol": "GIB",
+          "report_period": "FY2026 Q4",
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "metric": "eps",
+          "metric_definition": "non_IFRS_adjusted",
+          "business_scope": "consolidated",
+          "currency": "CAD",
+          "share_basis": "basic:common",
+          "forecast_id": "synthetic-8b95e855bfe7b86d",
+          "origin": "synthetic_test",
+          "generated_at_utc": "2026-11-16T23:45:50.827083+00:00",
+          "normalized_value": "2.0970",
+          "not_a_model_prediction": true,
+          "uses_actual_for_test_setup": true,
+          "use_for_decision": false
+        }
+      ],
+      "comparison": {
+        "comparisons": [
+          {
+            "forecast_id": "synthetic-eb793e5399436aef",
+            "forecast_origin": "synthetic_test",
+            "forecast_generated_at_utc": "2026-11-16T23:45:50.827083+00:00",
+            "forecast_value": "3731490000.000",
+            "actual_value": "4146100000.0",
+            "difference": "414610000.000",
+            "surprise_pct": "11.11111111111111111111111111",
+            "formula": "100 * (actual - forecast) / abs(forecast)",
+            "status": "compared",
+            "use_for_decision": true,
+            "contract": {
+              "company_id": "cik:1061574",
+              "symbol": "GIB",
+              "report_period": "FY2026 Q4",
+              "period_start": "2026-07-01",
+              "period_end": "2026-09-30",
+              "metric": "revenue",
+              "metric_definition": "IFRS:revenue",
+              "business_scope": "consolidated",
+              "currency": "CAD",
+              "share_basis": null
+            }
+          },
+          {
+            "forecast_id": "synthetic-a904a229d2f81834",
+            "forecast_origin": "synthetic_test",
+            "forecast_generated_at_utc": "2026-11-16T23:45:50.827083+00:00",
+            "forecast_value": "2.0160",
+            "actual_value": "2.24",
+            "difference": "0.2240",
+            "surprise_pct": "11.11111111111111111111111111",
+            "formula": "100 * (actual - forecast) / abs(forecast)",
+            "status": "compared",
+            "use_for_decision": true,
+            "contract": {
+              "company_id": "cik:1061574",
+              "symbol": "GIB",
+              "report_period": "FY2026 Q4",
+              "period_start": "2026-07-01",
+              "period_end": "2026-09-30",
+              "metric": "eps",
+              "metric_definition": "IFRS",
+              "business_scope": "consolidated",
+              "currency": "CAD",
+              "share_basis": "diluted:common"
+            }
+          },
+          {
+            "forecast_id": "synthetic-dfa6eb6480786e7d",
+            "forecast_origin": "synthetic_test",
+            "forecast_generated_at_utc": "2026-11-16T23:45:50.827083+00:00",
+            "forecast_value": "2.0790",
+            "actual_value": "2.31",
+            "difference": "0.2310",
+            "surprise_pct": "11.11111111111111111111111111",
+            "formula": "100 * (actual - forecast) / abs(forecast)",
+            "status": "compared",
+            "use_for_decision": false,
+            "contract": {
+              "company_id": "cik:1061574",
+              "symbol": "GIB",
+              "report_period": "FY2026 Q4",
+              "period_start": "2026-07-01",
+              "period_end": "2026-09-30",
+              "metric": "eps",
+              "metric_definition": "non_IFRS_adjusted",
+              "business_scope": "consolidated",
+              "currency": "CAD",
+              "share_basis": "diluted:common"
+            }
+          },
+          {
+            "forecast_id": "synthetic-8b95e855bfe7b86d",
+            "forecast_origin": "synthetic_test",
+            "forecast_generated_at_utc": "2026-11-16T23:45:50.827083+00:00",
+            "forecast_value": "2.0970",
+            "actual_value": "2.33",
+            "difference": "0.2330",
+            "surprise_pct": "11.11111111111111111111111111",
+            "formula": "100 * (actual - forecast) / abs(forecast)",
+            "status": "compared",
+            "use_for_decision": false,
+            "contract": {
+              "company_id": "cik:1061574",
+              "symbol": "GIB",
+              "report_period": "FY2026 Q4",
+              "period_start": "2026-07-01",
+              "period_end": "2026-09-30",
+              "metric": "eps",
+              "metric_definition": "non_IFRS_adjusted",
+              "business_scope": "consolidated",
+              "currency": "CAD",
+              "share_basis": "basic:common"
+            }
+          }
+        ]
+      },
+      "diagnostics": [],
+      "simulation_decision": {
+        "mode": "local_simulation",
+        "action": "long",
+        "reason": "both_above_positive_thresholds",
+        "eligible": true,
+        "strict_thresholds": true,
+        "contract_selection": "synthetic_fixture",
+        "exchange_submitted": false,
+        "exchange_acknowledged": false,
+        "created_at_utc": "2026-11-16T23:45:50.827221+00:00",
+        "simulation_ms": 0.014812,
+        "forecast_ids": {
+          "eps": "synthetic-a904a229d2f81834",
+          "revenue": "synthetic-eb793e5399436aef"
+        },
+        "surprise_pct": {
+          "eps": "11.11111111111111111111111111",
+          "revenue": "11.11111111111111111111111111"
+        },
+        "thresholds_pct": {
+          "eps": "5",
+          "revenue": "3"
+        }
+      },
+      "evidence_id": "43981794444-1:896"
     }
   ],
   "source_patrols": [
@@ -13890,13 +16360,13 @@
       "site": "ir.infleqtion.com",
       "state": "巡视中",
       "status": 200,
-      "last_patrol_at_beijing": "2026-11-17T07:45:39.188+08:00",
-      "request_start_utc": "2026-11-16T23:45:39.162640+00:00",
-      "request_end_utc": "2026-11-16T23:45:39.188892+00:00",
-      "request_start_mono_ns": 129798992317,
-      "request_end_mono_ns": 129825243935,
-      "request_start_at_beijing": "2026-11-17T07:45:39.162+08:00",
-      "request_end_at_beijing": "2026-11-17T07:45:39.188+08:00",
+      "last_patrol_at_beijing": "2026-11-17T07:45:51.191+08:00",
+      "request_start_utc": "2026-11-16T23:45:51.166946+00:00",
+      "request_end_utc": "2026-11-16T23:45:51.191238+00:00",
+      "request_start_mono_ns": 141803298018,
+      "request_end_mono_ns": 141827589395,
+      "request_start_at_beijing": "2026-11-17T07:45:51.166+08:00",
+      "request_end_at_beijing": "2026-11-17T07:45:51.191+08:00",
       "last_negative_listing_ns": null,
       "last_negative_listing_mono_ns": null,
       "last_negative_listing_utc": null,
@@ -19172,8 +21642,8 @@
       "required": true,
       "state": "polling",
       "status": 200,
-      "request_start_utc": "2026-11-16T23:45:43.164396+00:00",
-      "request_end_utc": "2026-11-16T23:45:43.194874+00:00",
+      "request_start_utc": "2026-11-16T23:45:55.169803+00:00",
+      "request_end_utc": "2026-11-16T23:45:55.198033+00:00",
       "first_request_start_utc": "2026-11-16T23:44:18.886906+00:00",
       "first_request_end_utc": "2026-11-16T23:44:19.043813+00:00",
       "valid_discovery": true,
@@ -19317,8 +21787,8 @@
   },
   "background_errors": [],
   "request_failures": {
-    "requests": 419,
-    "failed_requests": 83,
+    "requests": 478,
+    "failed_requests": 85,
     "assembly_failures": 0
   },
   "failure_groups": [
@@ -19599,8 +22069,8 @@
       "symbol": "NCMI",
       "channel": "sec",
       "failure_type": "HTTP 503",
-      "count": 1,
-      "lastseen": "2026-11-16T23:45:15.127341+00:00"
+      "count": 2,
+      "lastseen": "2026-11-16T23:45:53.925581+00:00"
     },
     {
       "symbol": "ONON",
@@ -19713,6 +22183,13 @@
       "failure_type": "RemoteProtocolError",
       "count": 3,
       "lastseen": "2026-11-16T23:45:33.571262+00:00"
+    },
+    {
+      "symbol": "TSN",
+      "channel": "sec",
+      "failure_type": "HTTP 503",
+      "count": 1,
+      "lastseen": "2026-11-16T23:45:53.862674+00:00"
     },
     {
       "symbol": "TTD",
