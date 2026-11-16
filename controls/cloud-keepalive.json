@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "owner": "github_actions",
-  "checked_at_utc": "2026-11-16T23:50:02.525008+00:00",
+  "checked_at_utc": "2026-11-16T23:52:36.994707+00:00",
   "dispatch_until_utc": "2026-11-17T13:03:00+08:00",
   "local_sec_rps_budget": 2,
   "total_sec_rps_limit": 10,
@@ -13,27 +13,27 @@
   "evidence_observations": [
     {
       "run_id": "43981794444-1",
-      "commit": "6693d87e8c2a709675d5c4cd8938bc51e29d8b36",
+      "commit": "44002bd5923552852bf2c2b79f38fbfadf293687",
       "node": {
         "loc": "US",
         "colo": "IAD"
       },
       "state": "running",
-      "updated_utc": "2026-11-16T23:48:00.438+00:00",
-      "collector_heartbeat_utc": "2026-11-16T23:47:59.356023+00:00",
-      "requests": 1054
+      "updated_utc": "2026-11-16T23:52:05.487+00:00",
+      "collector_heartbeat_utc": "2026-11-16T23:51:59.515215+00:00",
+      "requests": 1906
     },
     {
       "run_id": "43936870583-1",
-      "commit": "7b23d7f9740cea22c34d4b5450d683a50b601b58",
+      "commit": "c3b4a75edf96ce7f88e3540d936d833dc2be9db6",
       "node": {
         "loc": "US",
         "colo": "IAD"
       },
       "state": "running",
-      "updated_utc": "2026-11-16T23:50:01.036+00:00",
-      "collector_heartbeat_utc": "2026-11-16T23:49:46.381635+00:00",
-      "requests": 32518
+      "updated_utc": "2026-11-16T23:52:03.774+00:00",
+      "collector_heartbeat_utc": "2026-11-16T23:51:46.455925+00:00",
+      "requests": 32905
     },
     {
       "run_id": "43888059866-1",
@@ -64,14 +64,14 @@
     "43936870583",
     "43981794444"
   ],
-  "selected_run_id": "43936870583-1",
-  "workflow_state": "waiting_for_successor_readiness",
-  "updated_utc": "2026-11-16T23:50:05.860463+00:00",
+  "selected_run_id": "43981794444-1",
+  "workflow_state": "healthy_successor_retiring_previous",
+  "updated_utc": "2026-11-16T23:52:41.381071+00:00",
   "control_mode": "live_supervisor",
-  "caller_live_run_id": "43936870583-1",
+  "caller_live_run_id": "43981794444-1",
   "overlap_sec_rps_budget": 8,
   "handoff_readiness": {
-    "ready": false,
+    "ready": true,
     "active_companies": [
       "ACHR",
       "ACM",
@@ -118,22 +118,20 @@
       "XENE",
       "XPEV"
     ],
-    "unobserved_sources": [
-      "INFQ:newswire:https://www.businesswire.com/newsroom?keywords=INFQ"
-    ],
+    "unobserved_sources": [],
     "companies_without_valid_discovery": [],
     "previously_accessible_sources_not_ready": []
   },
-  "retirement_requested_run_id": "43888059866",
-  "retirement_requested_utc": "2026-11-16T19:14:41.338204+00:00",
+  "retirement_requested_run_id": "43936870583",
+  "retirement_requested_utc": "2026-11-16T23:52:36.994707+00:00",
   "retirement_method": "cooperative_stop_and_final_snapshot",
   "handoff_observation": {
-    "previous_run_id": "43888059866-1",
-    "successor_run_id": "43936870583-1",
-    "successor_first_request_utc": "2026-11-16T19:12:52.354384+00:00",
-    "previous_last_alive_utc": "2026-11-16T19:13:16.199+00:00",
-    "previous_last_heartbeat_utc": "2026-11-16T19:12:57.610600+00:00",
-    "readiness_confirmed_utc": "2026-11-16T19:14:41.338204+00:00",
+    "previous_run_id": "43936870583-1",
+    "successor_run_id": "43981794444-1",
+    "successor_first_request_utc": "2026-11-16T23:44:18.867826+00:00",
+    "previous_last_alive_utc": "2026-11-16T23:52:03.185+00:00",
+    "previous_last_heartbeat_utc": "2026-11-16T23:51:46.455925+00:00",
+    "readiness_confirmed_utc": "2026-11-16T23:52:36.994707+00:00",
     "monitoring_gap_ms": 0,
     "timing_basis": "Separate run UTC observations; no cross-run monotonic timing"
   },
