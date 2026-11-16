@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "owner": "github_actions",
-  "checked_at_utc": "2026-11-16T01:06:44.369510+00:00",
+  "checked_at_utc": "2026-11-16T01:07:41.233169+00:00",
   "dispatch_until_utc": "2026-11-17T13:03:00+08:00",
   "local_sec_rps_budget": 2,
   "total_sec_rps_limit": 10,
@@ -11,6 +11,18 @@
   "inventory_count": 110,
   "inventory_refresh": "retained_existing; new documents may be initially_present on the next run",
   "evidence_observations": [
+    {
+      "run_id": "43784305658-1",
+      "commit": "709c82541e356fdb36b3cfffe727bc086c4e5c85",
+      "node": {
+        "loc": "US",
+        "colo": "IAD"
+      },
+      "state": "running",
+      "updated_utc": "2026-11-16T01:07:34.698+00:00",
+      "collector_heartbeat_utc": "2026-11-16T01:07:33.409146+00:00",
+      "requests": 171
+    },
     {
       "run_id": "43758985811-1",
       "commit": "78bc389084501342fda3ff77c9ec6daba04c4cd5",
@@ -49,16 +61,17 @@
     }
   ],
   "active_run_ids": [
-    "43758985811"
+    "43758985811",
+    "43784305658"
   ],
   "selected_run_id": "43758985811-1",
-  "workflow_state": "successor_dispatched",
-  "updated_utc": "2026-11-16T01:06:48.453613+00:00",
+  "workflow_state": "waiting_for_successor_readiness",
+  "updated_utc": "2026-11-16T01:07:44.226689+00:00",
   "control_mode": "live_supervisor",
-  "caller_live_run_id": "43758985811-1",
+  "caller_live_run_id": "43784305658-1",
   "overlap_sec_rps_budget": 8,
   "handoff_readiness": {
-    "ready": true,
+    "ready": false,
     "active_companies": [
       "ACHR",
       "B",
@@ -96,9 +109,74 @@
       "TTWO",
       "XENE"
     ],
-    "unobserved_sources": [],
-    "companies_without_valid_discovery": [],
-    "previously_accessible_sources_not_ready": []
+    "unobserved_sources": [
+      "BRK.B:sec:https://data.sec.gov/submissions/CIK0001067983.json",
+      "SOHU:sec:https://data.sec.gov/submissions/CIK0001734107.json",
+      "B:sec:https://data.sec.gov/submissions/CIK0000756894.json",
+      "FERG:sec:https://data.sec.gov/submissions/CIK0002011641.json",
+      "KKR:sec:https://data.sec.gov/submissions/CIK0001404912.json",
+      "CECO:sec:https://data.sec.gov/submissions/CIK0000003197.json",
+      "TGTX:sec:https://data.sec.gov/submissions/CIK0001001316.json",
+      "SKYD:sec:https://data.sec.gov/submissions/CIK0002041610.json",
+      "TTD:sec:https://data.sec.gov/submissions/CIK0001671933.json",
+      "XENE:sec:https://data.sec.gov/submissions/CIK0001582313.json",
+      "ACHR:sec:https://data.sec.gov/submissions/CIK0001824502.json",
+      "HIMS:sec:https://data.sec.gov/submissions/CIK0001773751.json",
+      "LCID:sec:https://data.sec.gov/submissions/CIK0001811210.json",
+      "RKLB:sec:https://data.sec.gov/submissions/CIK0001819994.json",
+      "TTWO:sec:https://data.sec.gov/submissions/CIK0000946581.json",
+      "OXY:sec:https://data.sec.gov/submissions/CIK0000797468.json",
+      "ONON:sec:https://data.sec.gov/submissions/CIK0001858985.json",
+      "SE:sec:https://data.sec.gov/submissions/CIK0001703399.json",
+      "QBTS:sec:https://data.sec.gov/submissions/CIK0001907982.json",
+      "TDG:sec:https://data.sec.gov/submissions/CIK0001260221.json",
+      "MRDN:sec:https://data.sec.gov/submissions/CIK0001437925.json",
+      "NCMI:sec:https://data.sec.gov/submissions/CIK0001377630.json",
+      "RGTI:sec:https://data.sec.gov/submissions/CIK0001838359.json",
+      "GIB:sec:https://data.sec.gov/submissions/CIK0001061574.json",
+      "FNV:sec:https://data.sec.gov/submissions/CIK0001456346.json",
+      "BN:sec:https://data.sec.gov/submissions/CIK0001001085.json",
+      "NBIS:sec:https://data.sec.gov/submissions/CIK0001513845.json",
+      "CSCO:sec:https://data.sec.gov/submissions/CIK0000858877.json",
+      "CBRS:sec:https://data.sec.gov/submissions/CIK0002021728.json"
+    ],
+    "companies_without_valid_discovery": [
+      "CECO",
+      "NCMI",
+      "RKLB",
+      "TGTX"
+    ],
+    "previously_accessible_sources_not_ready": [
+      "BRK.B:sec:https://data.sec.gov/submissions/CIK0001067983.json",
+      "SOHU:sec:https://data.sec.gov/submissions/CIK0001734107.json",
+      "B:sec:https://data.sec.gov/submissions/CIK0000756894.json",
+      "FERG:sec:https://data.sec.gov/submissions/CIK0002011641.json",
+      "KKR:sec:https://data.sec.gov/submissions/CIK0001404912.json",
+      "CECO:sec:https://data.sec.gov/submissions/CIK0000003197.json",
+      "TGTX:sec:https://data.sec.gov/submissions/CIK0001001316.json",
+      "SKYD:sec:https://data.sec.gov/submissions/CIK0002041610.json",
+      "TTD:sec:https://data.sec.gov/submissions/CIK0001671933.json",
+      "XENE:sec:https://data.sec.gov/submissions/CIK0001582313.json",
+      "ACHR:sec:https://data.sec.gov/submissions/CIK0001824502.json",
+      "HIMS:sec:https://data.sec.gov/submissions/CIK0001773751.json",
+      "LCID:sec:https://data.sec.gov/submissions/CIK0001811210.json",
+      "RKLB:sec:https://data.sec.gov/submissions/CIK0001819994.json",
+      "TTWO:sec:https://data.sec.gov/submissions/CIK0000946581.json",
+      "OXY:sec:https://data.sec.gov/submissions/CIK0000797468.json",
+      "ONON:sec:https://data.sec.gov/submissions/CIK0001858985.json",
+      "SE:sec:https://data.sec.gov/submissions/CIK0001703399.json",
+      "QBTS:sec:https://data.sec.gov/submissions/CIK0001907982.json",
+      "TDG:sec:https://data.sec.gov/submissions/CIK0001260221.json",
+      "MRDN:sec:https://data.sec.gov/submissions/CIK0001437925.json",
+      "NCMI:sec:https://data.sec.gov/submissions/CIK0001377630.json",
+      "RGTI:sec:https://data.sec.gov/submissions/CIK0001838359.json",
+      "GIB:sec:https://data.sec.gov/submissions/CIK0001061574.json",
+      "FNV:sec:https://data.sec.gov/submissions/CIK0001456346.json",
+      "BN:sec:https://data.sec.gov/submissions/CIK0001001085.json",
+      "NBIS:sec:https://data.sec.gov/submissions/CIK0001513845.json",
+      "CSCO:sec:https://data.sec.gov/submissions/CIK0000858877.json",
+      "CBRS:sec:https://data.sec.gov/submissions/CIK0002021728.json"
+    ]
   },
   "retirement_requested_run_id": "43733303472",
   "retirement_requested_utc": "2026-11-15T20:37:52.876749+00:00",
