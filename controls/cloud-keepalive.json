@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "owner": "github_actions",
-  "checked_at_utc": "2026-11-16T19:14:41.338204+00:00",
+  "checked_at_utc": "2026-11-16T19:17:44.067619+00:00",
   "dispatch_until_utc": "2026-11-17T13:03:00+08:00",
   "local_sec_rps_budget": 2,
   "total_sec_rps_limit": 10,
@@ -13,27 +13,27 @@
   "evidence_observations": [
     {
       "run_id": "43936870583-1",
-      "commit": "7f74916f5f4dbb74ed7278cb2d249dbf1dbdf20e",
+      "commit": "56783e88343f37c389b713bf78a62d1f31393dd8",
       "node": {
         "loc": "US",
         "colo": "IAD"
       },
       "state": "running",
-      "updated_utc": "2026-11-16T19:14:23.484+00:00",
-      "collector_heartbeat_utc": "2026-11-16T19:14:19.896347+00:00",
-      "requests": 379
+      "updated_utc": "2026-11-16T19:16:27.198+00:00",
+      "collector_heartbeat_utc": "2026-11-16T19:16:12.488904+00:00",
+      "requests": 793
     },
     {
       "run_id": "43888059866-1",
-      "commit": "8752f2d4f83e99a27cceccefca2c1da6cb765d94",
+      "commit": "098ede322d791d412b6ab23e5ada6ed5a69abe4b",
       "node": {
         "loc": "US",
         "colo": "ORD"
       },
-      "state": "running",
-      "updated_utc": "2026-11-16T19:13:16.863+00:00",
-      "collector_heartbeat_utc": "2026-11-16T19:12:57.610600+00:00",
-      "requests": 28359
+      "state": "finished",
+      "updated_utc": "2026-11-16T19:14:58.698+00:00",
+      "collector_heartbeat_utc": "2026-11-16T19:14:57.726511+00:00",
+      "requests": 28497
     },
     {
       "run_id": "43846034294-1",
@@ -46,27 +46,14 @@
       "updated_utc": "2026-11-16T14:43:31.614+00:00",
       "collector_heartbeat_utc": "2026-11-16T14:43:30.528346+00:00",
       "requests": 62532
-    },
-    {
-      "run_id": "43811437703-1",
-      "commit": "e149dcaf1b20399184559da1c3e4228134e08c7e",
-      "node": {
-        "loc": "US",
-        "colo": "SEA"
-      },
-      "state": "finished",
-      "updated_utc": "2026-11-16T10:11:23.427+00:00",
-      "collector_heartbeat_utc": "2026-11-16T10:11:22.170155+00:00",
-      "requests": 67412
     }
   ],
   "active_run_ids": [
-    "43888059866",
     "43936870583"
   ],
   "selected_run_id": "43936870583-1",
-  "workflow_state": "healthy_successor_retiring_previous",
-  "updated_utc": "2026-11-16T19:14:46.349177+00:00",
+  "workflow_state": "healthy",
+  "updated_utc": "2026-11-16T19:17:47.253979+00:00",
   "control_mode": "live_supervisor",
   "caller_live_run_id": "43936870583-1",
   "overlap_sec_rps_budget": 8,
