@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "owner": "github_actions",
-  "checked_at_utc": "2026-11-17T04:38:58.973687+00:00",
+  "checked_at_utc": "2026-11-17T04:41:24.607467+00:00",
   "dispatch_until_utc": "2026-11-17T13:03:00+08:00",
   "local_sec_rps_budget": 2,
   "total_sec_rps_limit": 10,
@@ -13,27 +13,27 @@
   "evidence_observations": [
     {
       "run_id": "44018222361-1",
-      "commit": "60cf52bc8d23c02c653339fd9d4405d6e22771ec",
+      "commit": "c3161ec0386031418c3979a19a96a27436562595",
       "node": {
         "loc": "US",
         "colo": "DFW"
       },
       "state": "running",
-      "updated_utc": "2026-11-17T04:37:29.840+00:00",
-      "collector_heartbeat_utc": "2026-11-17T04:37:23.109349+00:00",
-      "requests": 506
+      "updated_utc": "2026-11-17T04:39:34.727+00:00",
+      "collector_heartbeat_utc": "2026-11-17T04:39:21.651741+00:00",
+      "requests": 1087
     },
     {
       "run_id": "44016009163-1",
-      "commit": "71acd1c6b8dda867d87144846bcc14cd43a1974d",
+      "commit": "2a0116f4ffb775ab1286f9edad52c36c95ad4866",
       "node": {
         "loc": "US",
         "colo": "PDX"
       },
       "state": "running",
-      "updated_utc": "2026-11-17T04:37:07.665+00:00",
-      "collector_heartbeat_utc": "2026-11-17T04:36:48.251107+00:00",
-      "requests": 6010
+      "updated_utc": "2026-11-17T04:41:12.937+00:00",
+      "collector_heartbeat_utc": "2026-11-17T04:41:08.413581+00:00",
+      "requests": 7231
     },
     {
       "run_id": "43981794444-1",
@@ -66,9 +66,9 @@
   ],
   "selected_run_id": "44016009163-1",
   "workflow_state": "waiting_for_successor_readiness",
-  "updated_utc": "2026-11-17T04:39:02.615876+00:00",
+  "updated_utc": "2026-11-17T04:41:27.862436+00:00",
   "control_mode": "live_supervisor",
-  "caller_live_run_id": "44018222361-1",
+  "caller_live_run_id": "44016009163-1",
   "overlap_sec_rps_budget": 8,
   "handoff_readiness": {
     "ready": false,
@@ -118,9 +118,7 @@
       "XENE",
       "XPEV"
     ],
-    "unobserved_sources": [
-      "INFQ:newswire:https://www.businesswire.com/newsroom?keywords=INFQ"
-    ],
+    "unobserved_sources": [],
     "companies_without_valid_discovery": [],
     "previously_accessible_sources_not_ready": [
       "ACM:official:https://aecom.gcs-web.com/rss/news-releases.xml?items=15"
