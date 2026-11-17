@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "owner": "github_actions",
-  "checked_at_utc": "2026-11-17T04:19:17.037758+00:00",
+  "checked_at_utc": "2026-11-17T04:20:05.389590+00:00",
   "dispatch_until_utc": "2026-11-17T13:03:00+08:00",
   "local_sec_rps_budget": 2,
   "total_sec_rps_limit": 10,
@@ -66,9 +66,9 @@
   ],
   "selected_run_id": "43981794444-1",
   "workflow_state": "waiting_for_successor_readiness",
-  "updated_utc": "2026-11-17T04:19:20.152337+00:00",
+  "updated_utc": "2026-11-17T04:20:08.757894+00:00",
   "control_mode": "live_supervisor",
-  "caller_live_run_id": "43981794444-1",
+  "caller_live_run_id": "44016009163-1",
   "overlap_sec_rps_budget": 8,
   "handoff_readiness": {
     "ready": false,
